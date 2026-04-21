@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grail</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=UnifrakturMaguntia&family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -35,90 +35,99 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
   font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
   color: rgba(201,169,110,0.2); z-index: 10; pointer-events: none;
 }
+#credit {
+  position: fixed; bottom: 28px; left: 36px;
+  font-family: 'Cormorant Garamond', serif; font-size: 10px;
+  letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(201,169,110,0.52); z-index: 10; pointer-events: none;
+}
 
 /* Vitality */
 #grail-word {
-  position: fixed; left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: 22px; top: auto; left: 50%; transform: translateX(-50%);
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(70px, 11vw, 172px); font-weight: 300;
-  letter-spacing: 0.3em; color: rgba(201,169,110,0.45);
+  font-size: clamp(72px, 11vw, 172px); font-weight: 300;
+  letter-spacing: 0.3em; color: rgba(201,169,110,0.92);
+  text-shadow: 0 0 28px rgba(201,169,110,0.55), 0 0 60px rgba(201,169,110,0.28);
   line-height: 1; white-space: nowrap;
   z-index: 10; pointer-events: none; text-align: center;
 }
-#vitality {
-  position: fixed; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center; z-index: 11; pointer-events: none;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-}
-#vitality .score-rule { width: 28px; height: 1px; background: rgba(255,238,190,0.25); }
-#vitality .score {
-  font-size: 48px; font-weight: 300;
-  color: rgba(255,245,215,0.88);
-  line-height: 1; letter-spacing: 3px;
-  text-shadow: 0 0 24px rgba(220,165,60,0.5), 0 0 60px rgba(200,140,40,0.2);
-}
-#vitality .score-label {
-  font-size: 7px; letter-spacing: 5px; text-transform: uppercase;
-  color: rgba(255,230,160,0.28); font-family: 'Cormorant Garamond', serif;
-}
+#vitality { display: none; }
 
-/* Top invisible bar */
-#topbar {
-  position: fixed; top: 0; left: 0; right: 0;
-  height: 52px; z-index: 50;
-  display: flex; align-items: center; justify-content: center; gap: 52px;
+/* Right sidebar */
+#sidebar {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 200px; z-index: 50;
+  display: flex; flex-direction: column;
+  align-items: flex-end; justify-content: center;
+  pointer-events: none;
 }
-#topbar::after {
-  content: ''; position: absolute; bottom: 0; left: 10%; right: 10%;
-  height: 1px; background: rgba(201,169,110,0);
-  transition: background 0.5s;
+#sidebar::before {
+  content: ''; position: absolute;
+  top: 22%; bottom: 22%; right: 20px;
+  width: 1px; background: rgba(201,169,110,0.05);
+  transition: background 0.6s; pointer-events: none;
 }
-#topbar:hover::after { background: rgba(201,169,110,0.08); }
+#sidebar:hover::before { background: rgba(201,169,110,0.18); }
+.sb-items {
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 22px; padding-right: 32px;
+  opacity: 0; transform: translateX(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+#sidebar:hover .sb-items {
+  opacity: 1; transform: translateX(0); pointer-events: all;
+}
+.sb-divider {
+  width: 18px; height: 1px;
+  background: rgba(201,169,110,0.1);
+}
 .tb-item {
-  font-family: 'Cormorant Garamond', serif; font-size: 9px;
-  letter-spacing: 6px; text-transform: uppercase;
-  color: rgba(201,169,110,0); cursor: pointer;
-  transition: color 0.5s; user-select: none;
+  font-family: 'Cormorant Garamond', serif; font-size: 17px;
+  letter-spacing: 5px; text-transform: uppercase;
+  color: rgba(201,169,110,0.88); cursor: pointer;
+  transition: color 0.3s; user-select: none; white-space: nowrap;
+  pointer-events: auto;
+  text-shadow: 0 0 18px rgba(201,169,110,0.4);
 }
-#topbar:hover .tb-item { color: rgba(201,169,110,0.38); }
-.tb-item:hover { color: rgba(201,169,110,0.85) !important; }
+.tb-item:hover { color: rgba(201,169,110,1); text-shadow: 0 0 22px rgba(201,169,110,0.7); }
 
 /* Guide panel */
 #guide-panel { padding: 56px 52px; width: min(600px, 90vw); max-height: 82vh; overflow-y: auto; }
 #guide-panel::-webkit-scrollbar { width: 2px; }
 #guide-panel::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.15); }
-.gd-title { font-size: 10px; letter-spacing: 8px; text-transform: uppercase; color: rgba(201,169,110,0.3); text-align: center; margin-bottom: 40px; }
-.gd-eyebrow { font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.35); margin-bottom: 8px; margin-top: 32px; display: block; }
-.gd-heading { font-size: 22px; font-weight: 300; color: rgba(201,169,110,0.85); margin-bottom: 10px; line-height: 1.2; }
-.gd-body { font-size: 14px; font-style: italic; color: rgba(201,169,110,0.5); line-height: 1.8; }
+.gd-title { font-size: 11px; letter-spacing: 8px; text-transform: uppercase; color: rgba(201,169,110,0.62); text-align: center; margin-bottom: 40px; }
+.gd-eyebrow { font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.68); margin-bottom: 8px; margin-top: 32px; display: block; }
+.gd-heading { font-size: 22px; font-weight: 300; color: rgba(201,169,110,0.92); margin-bottom: 10px; line-height: 1.2; }
+.gd-body { font-size: 14px; font-style: italic; color: rgba(201,169,110,0.78); line-height: 1.8; }
 .gd-rule { width: 100%; height: 1px; background: rgba(201,169,110,0.07); margin: 28px 0; border: none; }
-.gd-close { margin-top: 40px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.2); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
-.gd-close:hover { color: rgba(201,169,110,0.6); }
+.gd-close { margin-top: 40px; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.45); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+.gd-close:hover { color: rgba(201,169,110,0.8); }
 
 /* Settings panel */
 #settings-panel { padding: 52px 48px; width: 400px; }
-.st-title { font-size: 10px; letter-spacing: 8px; text-transform: uppercase; color: rgba(201,169,110,0.3); text-align: center; margin-bottom: 36px; }
+.st-title { font-size: 11px; letter-spacing: 8px; text-transform: uppercase; color: rgba(201,169,110,0.62); text-align: center; margin-bottom: 36px; }
 .st-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(201,169,110,0.06); }
 .st-row:last-of-type { border-bottom: none; }
-.st-label { font-size: 12px; color: rgba(201,169,110,0.65); letter-spacing: 1px; }
-.st-val { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,169,110,0.3); cursor: pointer; transition: color 0.3s; }
-.st-val:hover { color: rgba(201,169,110,0.7); }
-.st-input { background: none; border: none; border-bottom: 1px solid rgba(201,169,110,0.15); color: rgba(201,169,110,0.75); font-family: 'Cormorant Garamond', serif; font-size: 13px; width: 140px; text-align: right; outline: none; padding: 2px 0; }
-.st-close { margin-top: 32px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.2); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
-.st-close:hover { color: rgba(201,169,110,0.6); }
+.st-label { font-size: 13px; color: rgba(201,169,110,0.85); letter-spacing: 1px; }
+.st-val { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,169,110,0.62); cursor: pointer; transition: color 0.3s; }
+.st-val:hover { color: rgba(201,169,110,0.9); }
+.st-input { background: none; border: none; border-bottom: 1px solid rgba(201,169,110,0.15); color: rgba(201,169,110,0.88); font-family: 'Cormorant Garamond', serif; font-size: 13px; width: 140px; text-align: right; outline: none; padding: 2px 0; }
+.st-close { margin-top: 32px; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.45); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+.st-close:hover { color: rgba(201,169,110,0.8); }
 
 /* API Keys panel */
 #apikeys-panel { padding: 52px 48px; width: 420px; }
 .ak-title { font-size: 10px; letter-spacing: 8px; text-transform: uppercase; color: rgba(201,169,110,0.3); text-align: center; margin-bottom: 36px; }
 .ak-row { margin-bottom: 24px; }
-.ak-label { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.28); margin-bottom: 8px; display: block; }
-.ak-field { width: 100%; background: none; border: none; border-bottom: 1px solid rgba(201,169,110,0.1); color: rgba(201,169,110,0.6); font-family: 'Cormorant Garamond', serif; font-size: 13px; padding: 6px 0; outline: none; transition: border-color 0.3s; letter-spacing: 1px; }
+.ak-label { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.65); margin-bottom: 8px; display: block; }
+.ak-field { width: 100%; background: none; border: none; border-bottom: 1px solid rgba(201,169,110,0.1); color: rgba(201,169,110,0.88); font-family: 'Cormorant Garamond', serif; font-size: 13px; padding: 6px 0; outline: none; transition: border-color 0.3s; letter-spacing: 1px; }
 .ak-field:focus { border-color: rgba(201,169,110,0.3); }
-.ak-field::placeholder { color: rgba(201,169,110,0.15); font-style: italic; }
-.ak-note { font-size: 10px; font-style: italic; color: rgba(201,169,110,0.2); text-align: center; margin-top: 24px; line-height: 1.6; }
-.ak-close { margin-top: 28px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.2); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
-.ak-close:hover { color: rgba(201,169,110,0.6); }
+.ak-field::placeholder { color: rgba(201,169,110,0.35); font-style: italic; }
+.ak-note { font-size: 11px; font-style: italic; color: rgba(201,169,110,0.58); text-align: center; margin-top: 24px; line-height: 1.6; }
+.ak-close { margin-top: 28px; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.45); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+.ak-close:hover { color: rgba(201,169,110,0.8); }
 
 /* Bottom actions */
 #actions {
@@ -126,18 +135,18 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
   display: flex; gap: 32px; z-index: 10; align-items: center;
 }
 .action-btn {
-  font-size: 8px; letter-spacing: 5px; text-transform: uppercase;
-  color: rgba(201,169,110,0.25); cursor: pointer;
+  font-size: 11px; letter-spacing: 5px; text-transform: uppercase;
+  color: rgba(201,169,110,0.62); cursor: pointer;
   transition: color 0.3s; font-family: 'Cormorant Garamond', serif;
   background: none; border: none; padding: 4px 0;
 }
-.action-btn:hover { color: rgba(201,169,110,0.7); }
+.action-btn:hover { color: rgba(201,169,110,0.92); }
 .action-btn.primary {
-  color: rgba(201,169,110,0.55);
-  border-bottom: 1px solid rgba(201,169,110,0.2);
+  color: rgba(201,169,110,0.88);
+  border-bottom: 1px solid rgba(201,169,110,0.4);
   padding-bottom: 5px;
 }
-.action-btn.primary:hover { color: rgba(201,169,110,0.9); border-color: rgba(201,169,110,0.5); }
+.action-btn.primary:hover { color: rgba(201,169,110,1); border-color: rgba(201,169,110,0.7); }
 
 /* Overlay */
 #overlay { position: fixed; inset: 0; z-index: 25; display: none; background: rgba(4,4,10,0.6); }
@@ -156,42 +165,162 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 .panel.open { transform: translate(-50%,-50%) scale(1); opacity: 1; pointer-events: all; }
 
 /* Node detail panel */
-#node-panel { padding: 48px 44px; width: 320px; text-align: center; }
-#node-panel .p-tag { font-size: 9px; letter-spacing: 7px; text-transform: uppercase; color: rgba(201,169,110,0.35); margin-bottom: 24px; }
+#node-panel { padding: 40px 44px 36px; width: 340px; text-align: center; max-height: 82vh; overflow-y: auto; }
+#node-panel::-webkit-scrollbar { width: 2px; }
+#node-panel::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.15); }
+#node-panel .p-tag { font-size: 10px; letter-spacing: 7px; text-transform: uppercase; color: rgba(201,169,110,0.68); margin-bottom: 24px; }
 #node-panel .p-value { font-size: 60px; font-weight: 300; line-height: 1; margin-bottom: 6px; }
-#node-panel .p-unit { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.3); margin-bottom: 32px; }
+#node-panel .p-unit { font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.65); margin-bottom: 32px; }
 #node-panel .p-bar-track { width: 100%; height: 1px; background: rgba(201,169,110,0.08); margin-bottom: 32px; position: relative; }
 #node-panel .p-bar-fill { position: absolute; top: 0; left: 0; height: 1px; transition: width 0.9s cubic-bezier(0.22,1,0.36,1); }
 #node-panel .p-bar-dot { position: absolute; top: -3px; width: 7px; height: 7px; border-radius: 50%; transition: left 0.9s cubic-bezier(0.22,1,0.36,1); }
-#node-panel .p-insight { font-size: 13px; font-style: italic; color: rgba(201,169,110,0.5); line-height: 1.7; }
-#node-panel .p-source { margin-top: 20px; font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,169,110,0.18); }
-#node-panel .p-close { margin-top: 32px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.2); cursor: pointer; transition: color 0.3s; display: inline-block; }
-#node-panel .p-close:hover { color: rgba(201,169,110,0.6); }
+#node-panel .p-insight { font-size: 14px; font-style: italic; color: rgba(201,169,110,0.82); line-height: 1.7; }
+#node-panel .p-source { margin-top: 20px; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,169,110,0.52); }
+#node-panel .p-close { margin-top: 32px; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.45); cursor: pointer; transition: color 0.3s; display: inline-block; }
+#node-panel .p-close:hover { color: rgba(201,169,110,0.8); }
+
+/* Scoring panel */
+#scoring-panel { padding: 56px 52px 48px; width: min(620px, 90vw); max-height: 84vh; overflow-y: auto; }
+#scoring-panel::-webkit-scrollbar { width: 2px; }
+#scoring-panel::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.15); }
+.sc-eyebrow { font-size: 10px; letter-spacing: 8px; text-transform: uppercase; color: rgba(201,169,110,0.65); text-align: center; margin-bottom: 20px; }
+.sc-score-num { font-size: 88px; font-weight: 300; color: rgba(255,245,215,0.92); text-align: center; line-height: 1; letter-spacing: 4px; text-shadow: 0 0 40px rgba(220,165,60,0.4); }
+.sc-verdict { font-size: 11px; letter-spacing: 6px; text-transform: uppercase; text-align: center; margin: 10px 0 28px; }
+.sc-narrative { font-size: 15px; font-style: italic; color: rgba(201,169,110,0.80); line-height: 1.9; text-align: center; margin-bottom: 36px; }
+.sc-rule { width: 100%; height: 1px; background: rgba(201,169,110,0.07); border: none; margin: 0 0 28px; }
+.sc-section { margin-bottom: 32px; }
+.sc-section-head { font-size: 10px; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.sc-section-head::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.12; }
+.sc-section.red .sc-section-head  { color: rgba(232,100,100,0.7); }
+.sc-section.orange .sc-section-head { color: rgba(232,200,100,0.7); }
+.sc-section.green .sc-section-head  { color: rgba(126,232,160,0.7); }
+.sc-row { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(201,169,110,0.05); }
+.sc-row:last-child { border-bottom: none; }
+.sc-row-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.sc-section.red  .sc-row-dot { background: rgb(232,100,100); box-shadow: 0 0 8px rgba(232,100,100,0.6); }
+.sc-section.orange .sc-row-dot { background: rgb(232,200,100); box-shadow: 0 0 8px rgba(232,200,100,0.6); }
+.sc-section.green  .sc-row-dot { background: rgb(126,232,160); box-shadow: 0 0 8px rgba(126,232,160,0.6); }
+.sc-row-body { flex: 1; }
+.sc-row-label { font-size: 13px; color: rgba(201,169,110,0.8); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
+.sc-row-pct { font-size: 11px; letter-spacing: 2px; }
+.sc-section.red  .sc-row-pct { color: rgba(232,100,100,0.7); }
+.sc-section.orange .sc-row-pct { color: rgba(232,200,100,0.6); }
+.sc-section.green  .sc-row-pct { color: rgba(126,232,160,0.6); }
+.sc-row-text { font-size: 13px; font-style: italic; color: rgba(201,169,110,0.72); line-height: 1.65; }
+.sc-section.green .sc-row-text { color: rgba(126,232,160,0.72); }
+.sc-close { margin-top: 36px; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.45); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+.sc-close:hover { color: rgba(201,169,110,0.8); }
+
+/* Reports panel */
+#reports-panel {
+  width: min(920px, 92vw); height: min(86vh, 820px);
+  padding: 0; display: flex; flex-direction: column;
+}
+.rp-header {
+  font-size: 11px; letter-spacing: 8px; text-transform: uppercase;
+  color: rgba(201,169,110,0.70); text-align: center;
+  padding: 36px 0 0; flex-shrink: 0;
+}
+.rp-tabs {
+  display: flex; gap: 0; padding: 24px 40px 0; flex-shrink: 0;
+  border-bottom: 1px solid rgba(201,169,110,0.08);
+}
+.rp-tab {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(201,169,110,0.55); background: none; border: none;
+  border-bottom: 1px solid transparent; margin-bottom: -1px;
+  padding: 0 20px 14px; cursor: pointer; transition: color 0.25s, border-color 0.25s;
+}
+.rp-tab:hover { color: rgba(201,169,110,0.8); }
+.rp-tab.active { color: rgba(201,169,110,0.95); border-bottom-color: rgba(201,169,110,0.55); }
+.rp-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.rp-section { display: none; flex: 1; overflow-y: auto; padding: 28px 40px 36px; }
+.rp-section.active { display: flex; flex-direction: column; }
+.rp-section::-webkit-scrollbar { width: 2px; }
+.rp-section::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.15); }
+
+/* Live data table */
+.rp-table { width: 100%; border-collapse: collapse; }
+.rp-table th {
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(201,169,110,0.58); text-align: left; padding: 0 0 12px;
+  border-bottom: 1px solid rgba(201,169,110,0.08); font-weight: 400;
+}
+.rp-table th:last-child, .rp-table td:last-child { text-align: right; }
+.rp-table td {
+  padding: 10px 0; border-bottom: 1px solid rgba(201,169,110,0.05);
+  font-family: 'Cormorant Garamond', serif; vertical-align: middle;
+}
+.rp-table tr:last-child td { border-bottom: none; }
+.rp-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.rp-dot.green { background: rgb(126,232,160); box-shadow: 0 0 6px rgba(126,232,160,0.7); }
+.rp-dot.orange { background: rgb(232,200,100); box-shadow: 0 0 6px rgba(232,200,100,0.7); }
+.rp-dot.red { background: rgb(232,100,100); box-shadow: 0 0 6px rgba(232,100,100,0.7); }
+.rp-marker { font-size: 13px; color: rgba(201,169,110,0.75); padding-left: 12px; }
+.rp-system { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(201,169,110,0.55); padding-left: 12px; }
+.rp-val { font-size: 15px; font-weight: 300; color: rgba(201,169,110,0.9); padding-right: 4px; }
+.rp-unit { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(201,169,110,0.62); }
+.rp-pct-track { width: 72px; height: 1px; background: rgba(201,169,110,0.1); position: relative; display: inline-block; vertical-align: middle; }
+.rp-pct-fill { position: absolute; top: 0; left: 0; height: 1px; }
+.rp-source-badge { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 2px 7px; border: 1px solid rgba(201,169,110,0.1); color: rgba(201,169,110,0.58); }
+.rp-source-badge.live { border-color: rgba(126,232,160,0.3); color: rgba(126,232,160,0.8); }
+
+/* Log sections within Reports */
+.rp-log-form { flex-shrink: 0; padding-bottom: 24px; border-bottom: 1px solid rgba(201,169,110,0.07); margin-bottom: 24px; }
+.rp-log-label { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.65); margin-bottom: 8px; margin-top: 16px; display: block; }
+.rp-log-label:first-child { margin-top: 0; }
+.rp-log-row { display: flex; gap: 16px; align-items: flex-start; margin-top: 16px; }
+.rp-log-field { flex: 1; background: rgba(201,169,110,0.03); border: 1px solid rgba(201,169,110,0.1); color: rgba(201,169,110,0.8); font-family: 'Cormorant Garamond', serif; font-size: 14px; padding: 10px 12px; outline: none; resize: none; transition: border-color 0.3s; }
+.rp-log-field:focus { border-color: rgba(201,169,110,0.3); }
+.rp-log-field::placeholder { color: rgba(201,169,110,0.2); font-style: italic; }
+.rp-log-submit { flex-shrink: 0; align-self: flex-end; padding: 10px 20px; background: none; border: 1px solid rgba(201,169,110,0.2); color: rgba(201,169,110,0.55); font-family: 'Cormorant Garamond', serif; font-size: 8px; letter-spacing: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.25s; white-space: nowrap; }
+.rp-log-submit:hover { border-color: rgba(201,169,110,0.5); color: rgba(201,169,110,0.9); }
+.rp-sev-row { display: flex; gap: 6px; margin-top: 12px; }
+.rp-sev-btn { width: 30px; height: 30px; border: 1px solid rgba(201,169,110,0.1); color: rgba(201,169,110,0.65); cursor: pointer; background: none; font-family: 'Cormorant Garamond', serif; font-size: 13px; transition: all 0.2s; }
+.rp-sev-btn.sel { border-color: rgba(201,169,110,0.45); color: rgba(201,169,110,0.85); background: rgba(201,169,110,0.05); }
+.rp-meal-types { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.rp-type-btn { font-size: 7px; letter-spacing: 3px; text-transform: uppercase; padding: 5px 10px; border: 1px solid rgba(201,169,110,0.1); color: rgba(201,169,110,0.28); cursor: pointer; background: none; font-family: 'Cormorant Garamond', serif; transition: all 0.2s; }
+.rp-type-btn.sel { border-color: rgba(201,169,110,0.45); color: rgba(201,169,110,0.8); background: rgba(201,169,110,0.05); }
+.rp-confirm { font-size: 11px; letter-spacing: 2px; color: rgba(126,200,160,0.7); margin-top: 10px; height: 16px; font-style: italic; }
+
+/* Entry history */
+.rp-entries-head { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.55); margin-bottom: 14px; }
+.rp-entry { padding: 14px 0; border-bottom: 1px solid rgba(201,169,110,0.05); }
+.rp-entry:last-child { border-bottom: none; }
+.rp-entry-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.rp-entry-time { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(201,169,110,0.55); }
+.rp-entry-sev { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(201,169,110,0.58); }
+.rp-entry-text { font-size: 14px; font-style: italic; color: rgba(201,169,110,0.85); line-height: 1.6; }
+.rp-entry-type { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; padding: 2px 7px; border: 1px solid rgba(201,169,110,0.12); color: rgba(201,169,110,0.62); }
+.rp-empty { font-size: 13px; font-style: italic; color: rgba(201,169,110,0.48); text-align: center; padding: 32px 0; }
+.rp-close { display: block; text-align: center; margin-top: 4px; padding: 20px 0; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.45); cursor: pointer; transition: color 0.3s; flex-shrink: 0; }
+.rp-close:hover { color: rgba(201,169,110,0.8); }
 
 /* Log panels */
 #meal-panel, #symptom-panel { padding: 48px 44px; width: 360px; }
-.log-panel-title { font-size: 9px; letter-spacing: 7px; text-transform: uppercase; color: rgba(201,169,110,0.35); margin-bottom: 32px; text-align: center; }
+.log-panel-title { font-size: 11px; letter-spacing: 7px; text-transform: uppercase; color: rgba(201,169,110,0.88); margin-bottom: 32px; text-align: center; }
 .log-field { width: 100%; background: rgba(201,169,110,0.04); border: 1px solid rgba(201,169,110,0.12); color: rgba(201,169,110,0.85); font-family: 'Cormorant Garamond', serif; font-size: 15px; padding: 12px 14px; outline: none; transition: border-color 0.3s; resize: none; }
 .log-field:focus { border-color: rgba(201,169,110,0.35); }
 .log-field::placeholder { color: rgba(201,169,110,0.22); font-style: italic; }
-.log-label { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.28); margin-bottom: 8px; margin-top: 20px; display: block; }
+.log-label { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.72); margin-bottom: 8px; margin-top: 20px; display: block; }
 .log-types { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
-.log-type-btn { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; padding: 6px 12px; border: 1px solid rgba(201,169,110,0.12); color: rgba(201,169,110,0.3); cursor: pointer; background: none; font-family: 'Cormorant Garamond', serif; transition: all 0.2s; }
-.log-type-btn.sel { border-color: rgba(201,169,110,0.5); color: rgba(201,169,110,0.85); background: rgba(201,169,110,0.06); }
+.log-type-btn { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; padding: 6px 12px; border: 1px solid rgba(201,169,110,0.18); color: rgba(201,169,110,0.68); cursor: pointer; background: none; font-family: 'Cormorant Garamond', serif; transition: all 0.2s; }
+.log-type-btn.sel { border-color: rgba(201,169,110,0.6); color: rgba(201,169,110,0.95); background: rgba(201,169,110,0.06); }
 .severity-row { display: flex; gap: 8px; align-items: center; }
-.sev-btn { width: 32px; height: 32px; border: 1px solid rgba(201,169,110,0.12); color: rgba(201,169,110,0.3); cursor: pointer; background: none; font-family: 'Cormorant Garamond', serif; font-size: 14px; transition: all 0.2s; }
-.sev-btn.sel { border-color: rgba(201,169,110,0.5); color: rgba(201,169,110,0.85); background: rgba(201,169,110,0.06); }
-.log-submit { margin-top: 28px; width: 100%; padding: 12px; background: none; border: 1px solid rgba(201,169,110,0.2); color: rgba(201,169,110,0.6); font-family: 'Cormorant Garamond', serif; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
-.log-submit:hover { border-color: rgba(201,169,110,0.5); color: rgba(201,169,110,0.9); background: rgba(201,169,110,0.04); }
-.log-close { margin-top: 20px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.18); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
-.log-close:hover { color: rgba(201,169,110,0.5); }
+.sev-btn { width: 32px; height: 32px; border: 1px solid rgba(201,169,110,0.18); color: rgba(201,169,110,0.68); cursor: pointer; background: none; font-family: 'Cormorant Garamond', serif; font-size: 14px; transition: all 0.2s; }
+.sev-btn.sel { border-color: rgba(201,169,110,0.6); color: rgba(201,169,110,0.95); background: rgba(201,169,110,0.06); }
+.log-submit { margin-top: 28px; width: 100%; padding: 12px; background: none; border: 1px solid rgba(201,169,110,0.35); color: rgba(201,169,110,0.88); font-family: 'Cormorant Garamond', serif; font-size: 11px; letter-spacing: 5px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+.log-submit:hover { border-color: rgba(201,169,110,0.7); color: rgba(201,169,110,1); background: rgba(201,169,110,0.04); }
+.log-close { margin-top: 20px; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.48); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+.log-close:hover { color: rgba(201,169,110,0.85); }
 .log-confirm { font-size: 11px; letter-spacing: 2px; color: rgba(126,200,160,0.7); text-align: center; margin-top: 12px; height: 16px; font-style: italic; }
 
 /* Ask Grail response panel */
 #grail-panel { padding: 52px 48px; width: min(640px, 90vw); max-height: 80vh; overflow-y: auto; }
 #grail-panel::-webkit-scrollbar { width: 2px; }
 #grail-panel::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.2); }
-#grail-panel .g-tag { font-size: 9px; letter-spacing: 7px; text-transform: uppercase; color: rgba(201,169,110,0.3); margin-bottom: 32px; text-align: center; }
+#grail-panel .g-tag { font-size: 10px; letter-spacing: 7px; text-transform: uppercase; color: rgba(201,169,110,0.65); margin-bottom: 32px; text-align: center; }
 #grail-panel .g-loading { text-align: center; }
 #grail-panel .g-spinner { width: 32px; height: 32px; border: 1px solid rgba(201,169,110,0.1); border-top-color: rgba(201,169,110,0.5); border-radius: 50%; animation: spin 1.4s linear infinite; margin: 0 auto 20px; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -199,41 +328,58 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 #grail-panel .g-verdict { font-size: 15px; line-height: 1.8; color: rgba(201,169,110,0.75); font-style: italic; }
 #grail-panel .g-verdict strong { font-style: normal; color: rgba(201,169,110,0.95); font-weight: 400; }
 #grail-panel .g-models { margin-top: 32px; border-top: 1px solid rgba(201,169,110,0.08); padding-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-#grail-panel .g-model-block .g-model-name { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.25); margin-bottom: 8px; }
-#grail-panel .g-model-block .g-model-text { font-size: 12px; line-height: 1.7; color: rgba(201,169,110,0.45); }
-#grail-panel .g-elapsed { margin-top: 24px; font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,169,110,0.15); text-align: right; }
-#grail-panel .g-close { margin-top: 28px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.2); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
-#grail-panel .g-close:hover { color: rgba(201,169,110,0.6); }
+#grail-panel .g-model-block .g-model-name { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.72); margin-bottom: 8px; }
+#grail-panel .g-model-block .g-model-text { font-size: 13px; line-height: 1.7; color: rgba(201,169,110,0.82); }
+#grail-panel .g-elapsed { margin-top: 24px; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,169,110,0.52); text-align: right; }
+#grail-panel .g-close { margin-top: 28px; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.48); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+#grail-panel .g-close:hover { color: rgba(201,169,110,0.9); }
+
+
+/* Node panel — status & recs */
+.p-status-row { display: flex; align-items: center; justify-content: center; gap: 9px; margin-bottom: 22px; }
+.p-status-dot  { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.p-status-lbl  { font-size: 8px; letter-spacing: 5px; text-transform: uppercase; }
+.p-divider     { width: 100%; height: 1px; background: rgba(201,169,110,0.07); border: none; margin: 18px 0; }
+.p-green-msg   { font-size: 13px; font-style: italic; color: rgba(126,232,168,0.72); line-height: 1.65;
+                  text-align: center; margin-bottom: 14px; padding: 0 4px; }
+.p-rec-row     { margin-bottom: 13px; }
+.p-rec-cat     { font-size: 9px; letter-spacing: 5px; text-transform: uppercase;
+                  color: rgba(201,169,110,0.68); display: block; margin-bottom: 4px; }
+.p-rec-text    { font-size: 13px; font-style: italic; color: rgba(201,169,110,0.85); line-height: 1.65; display: block; }
 </style>
 </head>
 <body>
 
-<div id="topbar">
-  <span class="tb-item" id="tb-guide">The Guide</span>
-  <span class="tb-item" id="tb-settings">Settings</span>
-  <span class="tb-item" id="tb-connect">Connect</span>
-  <span class="tb-item" id="tb-apikeys">API Keys</span>
-  <span class="tb-item" id="tb-export">Export</span>
+<div id="sidebar">
+  <div class="sb-items">
+    <span class="tb-item" id="tb-grail-guidance">Grail Guidance</span>
+    <div class="sb-divider"></div>
+    <span class="tb-item" id="tb-scoring">Scoring</span>
+    <div class="sb-divider"></div>
+    <span class="tb-item" id="tb-reports">Reports</span>
+    <div class="sb-divider"></div>
+    <span class="tb-item" id="tb-guide">The Guide</span>
+    <div class="sb-divider"></div>
+    <span class="tb-item" id="tb-settings">Settings</span>
+    <div class="sb-divider"></div>
+    <span class="tb-item" id="tb-apikeys">API Keys</span>
+    <div class="sb-divider"></div>
+    <span class="tb-item" id="tb-export">Export</span>
+  </div>
 </div>
 
-<div id="userline">J. Smith</div>
-<div id="dateline">Apr 2026</div>
+
 
 <canvas id="canvas"></canvas>
 
 <div id="grail-word">grail</div>
+<div id="credit">© Christian Seeber</div>
 <div id="vitality">
   <div class="score-rule"></div>
   <div class="score" id="vitality-score">—</div>
   <div class="score-rule"></div>
-  <div class="score-label">vitality</div>
 </div>
 
-<div id="actions">
-  <button class="action-btn" id="btn-symptom">Log Symptom</button>
-  <button class="action-btn primary" id="btn-grail">Ask Grail</button>
-  <button class="action-btn" id="btn-meal">Log Meal</button>
-</div>
 
 <div id="overlay"></div>
 
@@ -280,7 +426,6 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
   <div class="st-row"><span class="st-label">Units</span><span class="st-val" id="st-units">Imperial</span></div>
   <div class="st-row"><span class="st-label">Score Update Speed</span><span class="st-val" id="st-speed">Slow</span></div>
   <div class="st-row"><span class="st-label">Organism Motion</span><span class="st-val" id="st-motion">On</span></div>
-  <div class="st-row"><span class="st-label">Intro Sequence</span><span class="st-val" id="st-intro">On</span></div>
   <div class="st-row"><span class="st-label">Simulation Mode</span><span class="st-val" id="st-sim">Active</span></div>
   <span class="st-close" id="settings-close">Close</span>
 </div>
@@ -299,6 +444,10 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 
 <!-- Node detail -->
 <div class="panel" id="node-panel">
+  <div class="p-status-row">
+    <span class="p-status-dot" id="p-status-dot"></span>
+    <span class="p-status-lbl" id="p-status-lbl"></span>
+  </div>
   <div class="p-tag" id="p-system"></div>
   <div class="p-value" id="p-value"></div>
   <div class="p-unit" id="p-unit"></div>
@@ -308,43 +457,146 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
   </div>
   <div class="p-insight" id="p-insight"></div>
   <div class="p-source" id="p-source"></div>
+  <hr class="p-divider">
+  <div id="p-green-msg" class="p-green-msg" style="display:none"></div>
+  <div id="p-rec-grid">
+    <div class="p-rec-row"><span class="p-rec-cat">Diet</span><span class="p-rec-text" id="p-rec-diet"></span></div>
+    <div class="p-rec-row"><span class="p-rec-cat">Sleep</span><span class="p-rec-text" id="p-rec-sleep"></span></div>
+    <div class="p-rec-row"><span class="p-rec-cat">Move</span><span class="p-rec-text" id="p-rec-exercise"></span></div>
+  </div>
   <div class="p-close" id="p-close">Release</div>
 </div>
 
-<!-- Meal log -->
-<div class="panel" id="meal-panel">
-  <div class="log-panel-title">Meal Entry</div>
-  <span class="log-label">What did you eat?</span>
-  <textarea class="log-field" id="meal-text" rows="4" placeholder="Describe your meal..."></textarea>
-  <span class="log-label">Type</span>
-  <div class="log-types" id="meal-types">
-    <button class="log-type-btn sel" data-val="breakfast">Breakfast</button>
-    <button class="log-type-btn" data-val="lunch">Lunch</button>
-    <button class="log-type-btn" data-val="dinner">Dinner</button>
-    <button class="log-type-btn" data-val="snack">Snack</button>
-    <button class="log-type-btn" data-val="supplement">Supplement</button>
-  </div>
-  <button class="log-submit" id="meal-submit">Record</button>
-  <div class="log-confirm" id="meal-confirm"></div>
-  <span class="log-close" id="meal-close">Dismiss</span>
+<!-- Scoring panel -->
+<div class="panel" id="scoring-panel">
+  <div class="sc-eyebrow">Grail Score</div>
+  <div class="sc-score-num" id="sc-score-num">—</div>
+  <div class="sc-verdict" id="sc-verdict"></div>
+  <div class="sc-narrative" id="sc-narrative"></div>
+  <hr class="sc-rule">
+  <div id="sc-red-section" class="sc-section red"></div>
+  <div id="sc-orange-section" class="sc-section orange"></div>
+  <div id="sc-green-section" class="sc-section green"></div>
+  <span class="sc-close" id="scoring-close">Close</span>
 </div>
 
-<!-- Symptom log -->
-<div class="panel" id="symptom-panel">
-  <div class="log-panel-title">Symptom Entry</div>
-  <span class="log-label">Describe what you're feeling</span>
-  <textarea class="log-field" id="symptom-text" rows="3" placeholder="e.g. brain fog, joint stiffness, low energy..."></textarea>
-  <span class="log-label">Severity</span>
-  <div class="severity-row" id="severity-row">
-    <button class="sev-btn sel" data-val="1">1</button>
-    <button class="sev-btn" data-val="2">2</button>
-    <button class="sev-btn" data-val="3">3</button>
-    <button class="sev-btn" data-val="4">4</button>
-    <button class="sev-btn" data-val="5">5</button>
+<!-- Reports panel -->
+<div class="panel" id="reports-panel">
+  <div class="rp-header">Reports</div>
+  <div class="rp-tabs">
+    <button class="rp-tab active" data-tab="live">Live Data</button>
+    <button class="rp-tab" data-tab="body">Body</button>
+    <button class="rp-tab" data-tab="mind">Mind</button>
+    <button class="rp-tab" data-tab="spirit">Spirit</button>
+    <button class="rp-tab" data-tab="meals">Meals</button>
   </div>
-  <button class="log-submit" id="symptom-submit">Record</button>
-  <div class="log-confirm" id="symptom-confirm"></div>
-  <span class="log-close" id="symptom-close">Dismiss</span>
+  <div class="rp-body">
+
+    <!-- Live Data -->
+    <div class="rp-section active" id="rp-live">
+      <table class="rp-table" id="rp-live-table">
+        <thead><tr>
+          <th style="width:18px"></th>
+          <th>Marker</th>
+          <th>System</th>
+          <th>Value</th>
+          <th style="width:80px">Range</th>
+          <th>Source</th>
+        </tr></thead>
+        <tbody id="rp-live-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Body -->
+    <div class="rp-section" id="rp-body">
+      <div class="rp-log-form">
+        <span class="rp-log-label">Describe what you're feeling</span>
+        <div class="rp-log-row">
+          <textarea class="rp-log-field" id="rp-body-text" rows="2" placeholder="e.g. brain fog, joint stiffness, low energy..."></textarea>
+          <button class="rp-log-submit" id="rp-body-submit">Record</button>
+        </div>
+        <span class="rp-log-label" style="margin-top:14px">Severity</span>
+        <div class="rp-sev-row" id="rp-body-sev-row">
+          <button class="rp-sev-btn sel" data-val="1">1</button>
+          <button class="rp-sev-btn" data-val="2">2</button>
+          <button class="rp-sev-btn" data-val="3">3</button>
+          <button class="rp-sev-btn" data-val="4">4</button>
+          <button class="rp-sev-btn" data-val="5">5</button>
+        </div>
+        <div class="rp-confirm" id="rp-body-confirm"></div>
+      </div>
+      <div class="rp-entries-head">Body Log</div>
+      <div id="rp-body-entries"></div>
+    </div>
+
+    <!-- Mind -->
+    <div class="rp-section" id="rp-mind">
+      <div class="rp-log-form">
+        <span class="rp-log-label">What is your mental state?</span>
+        <div class="rp-log-row">
+          <textarea class="rp-log-field" id="rp-mind-text" rows="2" placeholder="e.g. scattered focus, mental clarity, racing thoughts..."></textarea>
+          <button class="rp-log-submit" id="rp-mind-submit">Record</button>
+        </div>
+        <span class="rp-log-label" style="margin-top:14px">Severity</span>
+        <div class="rp-sev-row" id="rp-mind-sev-row">
+          <button class="rp-sev-btn sel" data-val="1">1</button>
+          <button class="rp-sev-btn" data-val="2">2</button>
+          <button class="rp-sev-btn" data-val="3">3</button>
+          <button class="rp-sev-btn" data-val="4">4</button>
+          <button class="rp-sev-btn" data-val="5">5</button>
+        </div>
+        <div class="rp-confirm" id="rp-mind-confirm"></div>
+      </div>
+      <div class="rp-entries-head">Mind Log</div>
+      <div id="rp-mind-entries"></div>
+    </div>
+
+    <!-- Spirit -->
+    <div class="rp-section" id="rp-spirit">
+      <div class="rp-log-form">
+        <span class="rp-log-label">How is your inner state?</span>
+        <div class="rp-log-row">
+          <textarea class="rp-log-field" id="rp-spirit-text" rows="2" placeholder="e.g. grounded, disconnected, purposeful, depleted..."></textarea>
+          <button class="rp-log-submit" id="rp-spirit-submit">Record</button>
+        </div>
+        <span class="rp-log-label" style="margin-top:14px">Depth</span>
+        <div class="rp-sev-row" id="rp-spirit-sev-row">
+          <button class="rp-sev-btn sel" data-val="1">1</button>
+          <button class="rp-sev-btn" data-val="2">2</button>
+          <button class="rp-sev-btn" data-val="3">3</button>
+          <button class="rp-sev-btn" data-val="4">4</button>
+          <button class="rp-sev-btn" data-val="5">5</button>
+        </div>
+        <div class="rp-confirm" id="rp-spirit-confirm"></div>
+      </div>
+      <div class="rp-entries-head">Spirit Log</div>
+      <div id="rp-spirit-entries"></div>
+    </div>
+
+    <!-- Meals -->
+    <div class="rp-section" id="rp-meals">
+      <div class="rp-log-form">
+        <span class="rp-log-label">What did you eat?</span>
+        <div class="rp-log-row">
+          <textarea class="rp-log-field" id="rp-meal-text" rows="2" placeholder="Describe your meal..."></textarea>
+          <button class="rp-log-submit" id="rp-meal-submit">Record</button>
+        </div>
+        <span class="rp-log-label" style="margin-top:14px">Type</span>
+        <div class="rp-meal-types" id="rp-meal-types">
+          <button class="rp-type-btn sel" data-val="breakfast">Breakfast</button>
+          <button class="rp-type-btn" data-val="lunch">Lunch</button>
+          <button class="rp-type-btn" data-val="dinner">Dinner</button>
+          <button class="rp-type-btn" data-val="snack">Snack</button>
+          <button class="rp-type-btn" data-val="supplement">Supplement</button>
+        </div>
+        <div class="rp-confirm" id="rp-meal-confirm"></div>
+      </div>
+      <div class="rp-entries-head">Meal Log</div>
+      <div id="rp-meal-entries"></div>
+    </div>
+
+  </div>
+  <span class="rp-close" id="reports-close">Close</span>
 </div>
 
 <!-- Ask Grail response -->
@@ -367,128 +619,415 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-let W, H, cx, cy;
+let W, H, cx, cy, oy;
 
 const NODES = [
+  // ── Ring 1 – inner (8 nodes) ──────────────────────────────────────────
   {
-    id: 'rhr', label: 'Rest HR', angle: 0,
-    color: '#D4766A', glow: [212,118,106],
-    system: 'Resting Heart Rate', unit: 'BPM',
-    pct: 72, currentPct: 72, targetPct: 72,
-    minPct: 45, maxPct: 94,
-    calcValue: p => Math.round(95 - p * 0.43),
-    insight: 'Resting HR reflects baseline cardiovascular efficiency and autonomic recovery.',
-    source: 'Apple Watch Ultra 2', phase: 0, nextChange: 0
+    id:'rhr', label:'Rest HR', angle:0, ringLevel:1,
+    color:'#D4766A', glow:[212,118,106],
+    system:'Resting Heart Rate', unit:'BPM',
+    pct:72, currentPct:72, targetPct:72, minPct:45, maxPct:94,
+    calcValue: p => Math.round(95 - p*0.43),
+    insight:'Resting HR reflects baseline cardiovascular efficiency and autonomic recovery.',
+    source:'Apple Watch Ultra 2', phase:0, nextChange:0,
+    rec:{ diet:'Potassium (avocado, banana) and magnesium glycinate at night relax arterial walls. Cut sodium.', sleep:'Consistent sleep schedule lowers resting HR by 4–8 BPM over weeks. 7+ hours is the floor.', exercise:'Zone 2 cardio 3–4×/week at conversational pace. The single most direct lever for a lower resting HR.', green:'Your heart is basically doing yoga at rest. Whatever you\'re doing — it\'s working beautifully.' }
   },
   {
-    id: 'hrv', label: 'HRV', angle: Math.PI / 6,
-    color: '#D4AF6E', glow: [212,175,110],
-    system: 'Autonomic Balance', unit: 'ms · RMSSD',
-    pct: 78, currentPct: 78, targetPct: 78,
-    minPct: 35, maxPct: 96,
-    calcValue: p => Math.round(20 + p * 0.8),
-    insight: 'HRV is your highest-signal recovery metric. Trending upward indicates nervous system readiness.',
-    source: 'Apple Watch Ultra 2', phase: 0.25, nextChange: 0
+    id:'hrv', label:'HRV', angle:Math.PI/4, ringLevel:1,
+    color:'#D4AF6E', glow:[212,175,110],
+    system:'Autonomic Balance', unit:'ms RMSSD',
+    pct:78, currentPct:78, targetPct:78, minPct:35, maxPct:96,
+    calcValue: p => Math.round(20 + p*0.8),
+    insight:'HRV is your highest-signal recovery metric. Trending upward indicates nervous system readiness.',
+    source:'Apple Watch Ultra 2', phase:0.25, nextChange:0,
+    rec:{ diet:'Polyphenols — berries, dark chocolate, olive oil — measurably improve HRV within days.', sleep:'HRV rebuilds during sleep. One night under 6 hrs drops HRV 15–20%. Guard sleep fiercely.', exercise:'Low HRV means recovery debt. Walk today, don\'t grind. Train to your readiness, not the calendar.', green:'Your nervous system is so balanced it\'s basically a Zen master living inside your chest. Respect.' }
   },
   {
-    id: 'spo2', label: 'SpO₂', angle: Math.PI / 3,
-    color: '#4ABDB5', glow: [74,189,181],
-    system: 'Blood Oxygen', unit: '% Saturation',
-    pct: 88, currentPct: 88, targetPct: 88,
-    minPct: 55, maxPct: 99,
-    calcValue: p => (94 + p * 0.06).toFixed(1),
-    insight: 'Blood oxygen saturation. Optimal range is 97–100%. Dips during sleep indicate respiratory load.',
-    source: 'Apple Watch Ultra 2', phase: 0.5, nextChange: 0
+    id:'spo2', label:'SpO₂', angle:Math.PI/2, ringLevel:1,
+    color:'#4ABDB5', glow:[74,189,181],
+    system:'Blood Oxygen', unit:'% Saturation',
+    pct:88, currentPct:88, targetPct:88, minPct:55, maxPct:99,
+    calcValue: p => (94 + p*0.06).toFixed(1),
+    insight:'Blood oxygen saturation. Optimal range is 97–100%. Dips during sleep indicate respiratory load.',
+    source:'Apple Watch Ultra 2', phase:0.5, nextChange:0,
+    rec:{ diet:'Iron-rich foods (red meat, spinach, lentils) with Vitamin C to absorb it. Avoid alcohol before bed.', sleep:'Elevate head of bed slightly. Consistent dips during sleep warrant a sleep apnea screening.', exercise:'Nasal breathing during cardio trains oxygen efficiency. Breath-hold intervals build CO₂ tolerance.', green:'Blood oxygen is pristine. You\'re basically a fish at altitude — every cell is well-fed. Keep breathing.' }
   },
   {
-    id: 'sleep', label: 'Sleep', angle: Math.PI / 2,
-    color: '#9B8EC4', glow: [155,142,196],
-    system: 'Sleep Architecture', unit: 'Hours',
-    pct: 68, currentPct: 68, targetPct: 68,
-    minPct: 30, maxPct: 96,
-    calcValue: p => (4.5 + p * 0.045).toFixed(1),
-    insight: 'Total sleep duration and architecture. Deep sleep drives physical repair; REM drives cognition.',
-    source: 'Apple Watch Ultra 2', phase: 0.75, nextChange: 0
+    id:'sleep', label:'Sleep', angle:3*Math.PI/4, ringLevel:1,
+    color:'#9B8EC4', glow:[155,142,196],
+    system:'Sleep Duration', unit:'Hours',
+    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
+    calcValue: p => (4.5 + p*0.045).toFixed(1),
+    insight:'Total sleep duration. Deep sleep drives physical repair; REM drives cognition.',
+    source:'Apple Watch Ultra 2', phase:0.75, nextChange:0,
+    rec:{ diet:'Tart cherry juice (melatonin precursor), glycine 3g before bed, and cut alcohol — it destroys REM.', sleep:'Blackout curtains, 67°F room, no screens 1 hr before. These three stack better than any supplement.', exercise:'Morning sunlight + movement syncs your circadian rhythm. Afternoon exercise extends deep sleep stages.', green:'You\'re getting a full system restore every night. Your cellular repair crew is working overtime in the best way.' }
   },
   {
-    id: 'resp', label: 'Breath', angle: 2 * Math.PI / 3,
-    color: '#7EC8E3', glow: [126,200,227],
-    system: 'Respiratory Rate', unit: 'Breaths/min',
-    pct: 74, currentPct: 74, targetPct: 74,
-    minPct: 40, maxPct: 92,
-    calcValue: p => (22 - p * 0.08).toFixed(1),
-    insight: 'Resting respiratory rate. Lower is generally better — elite athletes often breathe 8–12/min at rest.',
-    source: 'Apple Watch Ultra 2', phase: 1.0, nextChange: 0
+    id:'resp', label:'Breath', angle:Math.PI, ringLevel:1,
+    color:'#7EC8E3', glow:[126,200,227],
+    system:'Respiratory Rate', unit:'Breaths/min',
+    pct:74, currentPct:74, targetPct:74, minPct:40, maxPct:92,
+    calcValue: p => (22 - p*0.08).toFixed(1),
+    insight:'Resting respiratory rate. Lower is generally better — elite athletes breathe 8–12/min at rest.',
+    source:'Apple Watch Ultra 2', phase:1.0, nextChange:0,
+    rec:{ diet:'Anti-inflammatory diet reduces airway reactivity. Omega-3s, turmeric, and magnesium help most.', sleep:'Mouth tape at night trains nasal breathing during sleep — reduces respiratory rate by ~20%.', exercise:'Daily breathwork (box breathing, Buteyko). Nasal breathe all cardio below lactate threshold.', green:'You\'re breathing like a monk. Slow, efficient, calm — inhaling like a philosopher, exhaling like one too.' }
   },
   {
-    id: 'vo2', label: 'VO₂ Max', angle: 5 * Math.PI / 6,
-    color: '#E8C87A', glow: [232,200,122],
-    system: 'Cardio Fitness', unit: 'ml/kg/min',
-    pct: 80, currentPct: 80, targetPct: 80,
-    minPct: 35, maxPct: 97,
-    calcValue: p => Math.round(25 + p * 0.55),
-    insight: 'VO₂ Max is the single strongest predictor of longevity. Each unit increase adds measurable lifespan.',
-    source: 'Apple Watch Ultra 2', phase: 1.25, nextChange: 0
+    id:'vo2', label:'VO₂ Max', angle:5*Math.PI/4, ringLevel:1,
+    color:'#E8C87A', glow:[232,200,122],
+    system:'Cardio Fitness', unit:'ml/kg/min',
+    pct:80, currentPct:80, targetPct:80, minPct:35, maxPct:97,
+    calcValue: p => Math.round(25 + p*0.55),
+    insight:'VO₂ Max is the single strongest predictor of longevity. Each unit increase adds measurable lifespan.',
+    source:'Apple Watch Ultra 2', phase:1.25, nextChange:0,
+    rec:{ diet:'Beets (nitrates), quercetin, and iron support aerobic capacity. Carbs 2hrs before hard sessions.', sleep:'VO2 Max adaptations consolidate during sleep. Skimping on sleep literally deletes your training gains.', exercise:'One weekly VO2 Max interval session: 4×4 min at 95% max HR. This is the sharpest lever you have.', green:'Your cardio engine would make a cardiologist smile. You\'re statistically adding years to your life right now.' }
   },
   {
-    id: 'temp', label: 'Temp', angle: Math.PI,
-    color: '#D4906A', glow: [212,144,106],
-    system: 'Wrist Temperature', unit: '°F Deviation',
-    pct: 75, currentPct: 75, targetPct: 75,
-    minPct: 40, maxPct: 95,
-    calcValue: p => ((p - 50) * 0.04).toFixed(2),
-    insight: 'Deviation from baseline wrist temperature. Elevated readings can signal inflammation or illness onset.',
-    source: 'Apple Watch Ultra 2', phase: 1.5, nextChange: 0
+    id:'temp', label:'Temp', angle:3*Math.PI/2, ringLevel:1,
+    color:'#D4906A', glow:[212,144,106],
+    system:'Wrist Temperature', unit:'°F Deviation',
+    pct:75, currentPct:75, targetPct:75, minPct:40, maxPct:95,
+    calcValue: p => ((p-50)*0.04).toFixed(2),
+    insight:'Deviation from baseline wrist temperature. Elevated readings signal inflammation or illness onset.',
+    source:'Apple Watch Ultra 2', phase:1.5, nextChange:0,
+    rec:{ diet:'Turmeric, ginger, and omega-3s blunt inflammatory response quickly if temp is trending up.', sleep:'Wrist temp rises with illness or overtraining before symptoms appear. Trending up? Rest first.', exercise:'Sauna 3×/week followed by cold exposure builds thermal resilience and lowers baseline wrist temp.', green:'Body temperature deviation is textbook. You\'re thermoregulating like a finely calibrated machine.' }
   },
   {
-    id: 'cardio', label: 'Heart Rate', angle: 7 * Math.PI / 6,
-    color: '#C4706A', glow: [196,112,106],
-    system: 'Active Heart Rate', unit: 'BPM Current',
-    pct: 70, currentPct: 70, targetPct: 70,
-    minPct: 40, maxPct: 90,
-    calcValue: p => Math.round(100 - p * 0.5),
-    insight: 'Current heart rate. In a resting state this should converge toward your resting HR baseline.',
-    source: 'Apple Watch Ultra 2', phase: 1.75, nextChange: 0
+    id:'glucose', label:'Glucose', angle:7*Math.PI/4, ringLevel:1,
+    color:'#A8D4A0', glow:[168,212,160],
+    system:'Fasting Glucose', unit:'mg/dL',
+    pct:82, currentPct:82, targetPct:82, minPct:40, maxPct:97,
+    calcValue: p => Math.round(140 - p*0.85),
+    insight:'Fasting glucose reflects metabolic flexibility. Optimal range for biohackers is 70–90 mg/dL.',
+    source:'Manual / CGM', phase:2.0, nextChange:0,
+    rec:{ diet:'Berberine, apple cider vinegar with meals, cut ultra-processed carbs. Time-restrict eating to 8hrs.', sleep:'One night of poor sleep spikes next-morning glucose by 20–30%. Sleep is metabolic medicine.', exercise:'A 10-minute walk after meals drops glucose response by ~30%. Simple, powerful, underused.', green:'Fasting glucose is chef\'s kiss. Your pancreas is barely breaking a sweat — exactly as designed. Beautiful.' }
+  },
+
+  // ── Ring 2 – middle (12 nodes) ────────────────────────────────────────
+  {
+    id:'cardio', label:'Heart Rate', angle:Math.PI/8, ringLevel:2,
+    color:'#C4706A', glow:[196,112,106],
+    system:'Active Heart Rate', unit:'BPM Current',
+    pct:70, currentPct:70, targetPct:70, minPct:40, maxPct:90,
+    calcValue: p => Math.round(100 - p*0.5),
+    insight:'Current heart rate. In a resting state this should converge toward your resting HR baseline.',
+    source:'Apple Watch Ultra 2', phase:1.75, nextChange:0,
+    rec:{ diet:'Electrolytes (sodium, potassium, magnesium) support cardiac output during activity.', sleep:'Resting HR and active HR both improve with quality sleep. They move together.', exercise:'Monitor training zones. Too much time at high HR without recovery drives overtraining syndrome.', green:'Heart rate response is right where it should be. You\'re working smart, not just hard.' }
   },
   {
-    id: 'glucose', label: 'Glucose', angle: 4 * Math.PI / 3,
-    color: '#A8D4A0', glow: [168,212,160],
-    system: 'Fasting Glucose', unit: 'mg/dL',
-    pct: 82, currentPct: 82, targetPct: 82,
-    minPct: 40, maxPct: 97,
-    calcValue: p => Math.round(140 - p * 0.85),
-    insight: 'Fasting glucose reflects metabolic flexibility. Optimal range for biohackers is 70–90 mg/dL.',
-    source: 'Manual / CGM', phase: 2.0, nextChange: 0
+    id:'testosterone', label:'Testosterone', angle:Math.PI/8+Math.PI/6, ringLevel:2,
+    color:'#C8845A', glow:[200,132,90],
+    system:'Testosterone', unit:'ng/dL',
+    pct:80, currentPct:80, targetPct:80, minPct:35, maxPct:96,
+    calcValue: p => Math.round(300 + p*7),
+    insight:'Testosterone underpins energy, muscle, cognition, and drive. Free T matters as much as total.',
+    source:'Blood Lab', phase:2.25, nextChange:0,
+    rec:{ diet:'Whole eggs, red meat, brazil nuts (selenium), pomegranate juice. Cut seed oils aggressively.', sleep:'70–80% of testosterone is produced during sleep. Under 6 hrs drops T by up to 15% in one week.', exercise:'Heavy compound lifts (squat, deadlift) 2×/week spike testosterone acutely and chronically.', green:'Testosterone is strong. You could probably lift a car. Please don\'t test that last part.' }
   },
   {
-    id: 'testosterone', label: 'Hormones', angle: 3 * Math.PI / 2,
-    color: '#D4906A', glow: [212,144,106],
-    system: 'Testosterone', unit: 'ng/dL',
-    pct: 80, currentPct: 80, targetPct: 80,
-    minPct: 35, maxPct: 96,
-    calcValue: p => Math.round(300 + p * 7),
-    insight: 'Testosterone underpins energy, muscle, cognition, and drive. Free T matters as much as total.',
-    source: 'Blood Lab', phase: 2.25, nextChange: 0
+    id:'crp', label:'Inflammation', angle:Math.PI/8+2*Math.PI/6, ringLevel:2,
+    color:'#B87860', glow:[184,120,96],
+    system:'Inflammation (CRP)', unit:'mg/L',
+    pct:85, currentPct:85, targetPct:85, minPct:30, maxPct:99,
+    calcValue: p => ((1-p/100)*8).toFixed(1),
+    insight:'C-reactive protein measures systemic inflammation. Below 0.5 mg/L is elite. Above 3 is concerning.',
+    source:'Blood Lab', phase:2.5, nextChange:0,
+    rec:{ diet:'Eliminate processed food and sugar. Omega-3s, turmeric with black pepper, and tart cherries daily.', sleep:'CRP rises with sleep deprivation. One bad week can double your baseline inflammation markers.', exercise:'Moderate aerobic exercise reduces CRP. Overtraining spikes it — periodize recovery weeks seriously.', green:'Inflammation markers are clean. Your body isn\'t at war with itself — it\'s at peace. That\'s rare and good.' }
   },
   {
-    id: 'crp', label: 'Inflam.', angle: 5 * Math.PI / 3,
-    color: '#C4906A', glow: [196,144,106],
-    system: 'Inflammation (CRP)', unit: 'mg/L',
-    pct: 85, currentPct: 85, targetPct: 85,
-    minPct: 30, maxPct: 99,
-    calcValue: p => ((1 - p / 100) * 8).toFixed(1),
-    insight: 'C-reactive protein measures systemic inflammation. Below 0.5 mg/L is elite. Above 3 is concerning.',
-    source: 'Blood Lab', phase: 2.5, nextChange: 0
-  },
-  {
-    id: 'recovery', label: 'Recovery', angle: 11 * Math.PI / 6,
-    color: '#7EC8A0', glow: [126,200,160],
-    system: 'Recovery Index', unit: 'Composite',
-    pct: 81, currentPct: 81, targetPct: 81,
-    minPct: 30, maxPct: 97,
+    id:'recovery', label:'Recovery Index', angle:Math.PI/8+3*Math.PI/6, ringLevel:2,
+    color:'#7EC8A0', glow:[126,200,160],
+    system:'Recovery Index', unit:'Composite',
+    pct:81, currentPct:81, targetPct:81, minPct:30, maxPct:97,
     calcValue: p => Math.round(p),
-    insight: 'Composite recovery score derived from HRV, resting HR, sleep, and respiratory rate trends.',
-    source: 'Computed', phase: 2.75, nextChange: 0
+    insight:'Composite recovery score derived from HRV, resting HR, sleep, and respiratory rate trends.',
+    source:'Computed', phase:2.75, nextChange:0,
+    rec:{ diet:'Casein protein before bed, tart cherry, and collagen support overnight tissue repair.', sleep:'Recovery IS sleep. Ice baths, massage — all just multipliers on the base of quality sleep.', exercise:'If recovery score drops 3 consecutive days, you need a deload. This number doesn\'t lie.', green:'Recovery score is excellent. Your body is handling the load and bouncing back like it actually loves you.' }
+  },
+  {
+    id:'cortisol', label:'Cortisol', angle:Math.PI/8+4*Math.PI/6, ringLevel:2,
+    color:'#D4785A', glow:[212,120,90],
+    system:'Cortisol Level', unit:'μg/dL',
+    pct:65, currentPct:65, targetPct:65, minPct:35, maxPct:90,
+    calcValue: p => (20 - p*0.14).toFixed(1),
+    insight:'Cortisol is your primary stress hormone. Chronically elevated levels accelerate biological aging.',
+    source:'Blood Lab / Saliva', phase:3.0, nextChange:0,
+    rec:{ diet:'Ashwagandha (600mg), phosphatidylserine, and rhodiola blunt cortisol response measurably.', sleep:'Cortisol peaks at 8am naturally. Morning light in eyes first thing aligns the circadian cortisol curve.', exercise:'Long cardio sessions spike cortisol. Keep sessions under 60 min or add rhodiola pre-workout.', green:'Cortisol is perfectly calibrated. Stressed enough to get things done, not enough to age fast. Perfect.' }
+  },
+  {
+    id:'vitaminD', label:'Vitamin D', angle:Math.PI/8+5*Math.PI/6, ringLevel:2,
+    color:'#E8D478', glow:[232,212,120],
+    system:'Vitamin D (25-OH)', unit:'ng/mL',
+    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
+    calcValue: p => Math.round(20 + p*0.8),
+    insight:'Vitamin D regulates 200+ genes. Optimal range is 60–80 ng/mL for peak performance and immunity.',
+    source:'Blood Lab', phase:3.25, nextChange:0,
+    rec:{ diet:'Fatty fish, egg yolks, fortified foods. Supplement D3+K2 for best absorption and synergy.', sleep:'Vitamin D deficiency directly impairs sleep quality. Supplementing improves sleep scores measurably.', exercise:'Outdoor exercise doubles the benefit — movement plus UV synthesis. 20 min direct sun matters.', green:'Vitamin D is optimal. Your immune system, bones, and mood are all silently thanking you right now.' }
+  },
+  {
+    id:'deepSleep', label:'Deep Sleep', angle:Math.PI/8+6*Math.PI/6, ringLevel:2,
+    color:'#7888C4', glow:[120,136,196],
+    system:'Deep Sleep %', unit:'% of total',
+    pct:70, currentPct:70, targetPct:70, minPct:30, maxPct:95,
+    calcValue: p => Math.round(p*0.25),
+    insight:'Slow-wave sleep is essential for cellular repair, immune function, and growth hormone release.',
+    source:'Apple Watch Ultra 2', phase:3.5, nextChange:0,
+    rec:{ diet:'Glycine 3g before bed, magnesium threonate, and avoid eating 2–3hrs before sleep for deeper stages.', sleep:'Cool room (65–68°F), no alcohol, consistent sleep time. Deep sleep is the most sensitive to all three.', exercise:'Resistance training significantly increases slow-wave sleep. Lift weights and sleep like the dead.', green:'Slow-wave sleep is exceptional. Cellular repair is running at full capacity every single night. Impressive.' }
+  },
+  {
+    id:'rem', label:'REM Sleep', angle:Math.PI/8+7*Math.PI/6, ringLevel:2,
+    color:'#A07EC8', glow:[160,126,200],
+    system:'REM Sleep %', unit:'% of total',
+    pct:75, currentPct:75, targetPct:75, minPct:30, maxPct:95,
+    calcValue: p => Math.round(p*0.22),
+    insight:'REM sleep drives memory consolidation, emotional regulation, and cognitive performance.',
+    source:'Apple Watch Ultra 2', phase:3.75, nextChange:0,
+    rec:{ diet:'Tart cherry (natural melatonin), B6, and magnesium. Even one drink of alcohol crushes REM.', sleep:'REM is heaviest in the last 2 hours of sleep. Shortening sleep cuts REM disproportionately — guard those last hours.', exercise:'Exercise improves REM architecture, but high-intensity too close to bed suppresses it. Time it right.', green:'REM is plentiful. Your brain is consolidating memories, clearing junk, and running creative loops. Beautiful.' }
+  },
+  {
+    id:'steps', label:'Daily Steps', angle:Math.PI/8+8*Math.PI/6, ringLevel:2,
+    color:'#78C890', glow:[120,200,144],
+    system:'Daily Steps', unit:'k steps',
+    pct:68, currentPct:68, targetPct:68, minPct:20, maxPct:95,
+    calcValue: p => (p*0.15).toFixed(1),
+    insight:'Daily movement volume. 8,000–10,000 steps is strongly associated with reduced all-cause mortality.',
+    source:'Apple Watch Ultra 2', phase:4.0, nextChange:0,
+    rec:{ diet:'More steps = more metabolic flexibility = better glucose tolerance. Fuel movement with real food.', sleep:'Daily movement improves sleep onset by 15–20 min. Steps and sleep have a powerful bidirectional loop.', exercise:'Break up sitting with 2-minute walks every 30–45 min. The NEAT spike is enormous over a full day.', green:'Step count is on point. You\'re walking your way to a statistically longer life. One step at a time, literally.' }
+  },
+  {
+    id:'bp', label:'Blood Pressure', angle:Math.PI/8+9*Math.PI/6, ringLevel:2,
+    color:'#C46870', glow:[196,104,112],
+    system:'Systolic Blood Pressure', unit:'mmHg',
+    pct:76, currentPct:76, targetPct:76, minPct:40, maxPct:95,
+    calcValue: p => Math.round(140 - p*0.6),
+    insight:'Systolic blood pressure. Optimal is below 120 mmHg. Elevated levels drive cardiovascular risk.',
+    source:'Manual / Cuff', phase:4.25, nextChange:0,
+    rec:{ diet:'DASH diet: leafy greens, beets, berries. Reduce sodium below 2g/day. Potassium is the secret lever.', sleep:'Sleep apnea is the #1 overlooked cause of resistant hypertension. Worth ruling out completely.', exercise:'Zone 2 cardio and isometric exercises (wall sit, planks) are clinically proven to lower BP.', green:'Blood pressure is clean. Your cardiovascular system is doing exactly what it was designed to do.' }
+  },
+  {
+    id:'bodyFat', label:'Body Composition', angle:Math.PI/8+10*Math.PI/6, ringLevel:2,
+    color:'#C8A47A', glow:[200,164,122],
+    system:'Body Fat %', unit:'% body weight',
+    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
+    calcValue: p => (30 - p*0.18).toFixed(1),
+    insight:'Body fat percentage. Visceral fat specifically drives inflammation and metabolic disease.',
+    source:'DEXA / Scale', phase:4.5, nextChange:0,
+    rec:{ diet:'Time-restricted eating (16:8), high protein (1g/lb lean mass), and eliminate liquid calories.', sleep:'Sleep deprivation increases ghrelin (hunger) and reduces leptin (satiety). Fat loss requires sleep.', exercise:'Resistance training + LISS cardio is the most evidence-backed combination for fat loss without muscle loss.', green:'Body composition is looking good. Lean without being extreme — that\'s the zone that actually lasts.' }
+  },
+  {
+    id:'ferritin', label:'Iron Stores', angle:Math.PI/8+11*Math.PI/6, ringLevel:2,
+    color:'#D4905A', glow:[212,144,90],
+    system:'Ferritin (Iron)', unit:'ng/mL',
+    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:95,
+    calcValue: p => Math.round(15 + p*1.5),
+    insight:'Ferritin stores iron. Too low causes fatigue and brain fog. Too high drives oxidative stress.',
+    source:'Blood Lab', phase:4.75, nextChange:0,
+    rec:{ diet:'Heme iron (red meat, liver) with Vitamin C to absorb. Avoid calcium and tannins within 2hrs.', sleep:'Iron deficiency causes restless legs and poor sleep. Check for sleep disruption if trending low.', exercise:'Endurance athletes deplete ferritin through hemolysis. Higher training loads need higher iron intake.', green:'Iron stores are solid. Your red blood cells are fully fueled and ready to carry oxygen everywhere.' }
+  },
+
+  // ── Ring 3 – outer (10 nodes) ─────────────────────────────────────────
+  {
+    id:'magnesium', label:'Magnesium', angle:Math.PI/5, ringLevel:3,
+    color:'#78C8B8', glow:[120,200,184],
+    system:'Serum Magnesium', unit:'mg/dL',
+    pct:73, currentPct:73, targetPct:73, minPct:35, maxPct:95,
+    calcValue: p => (1.5 + p*0.025).toFixed(2),
+    insight:'Magnesium participates in 300+ enzymatic reactions. Critical for sleep, ATP, and muscle recovery.',
+    source:'Blood Lab', phase:5.0, nextChange:0,
+    rec:{ diet:'Pumpkin seeds, dark chocolate, leafy greens. Supplement magnesium glycinate 400mg nightly.', sleep:'Magnesium is a natural NMDA antagonist — it literally calms the brain. Low Mg = fragmented sleep.', exercise:'Magnesium losses increase with sweating. Athletes need 20–40% more than sedentary people.', green:'Magnesium is optimal. 300+ enzymes are running at full efficiency. Your cells are genuinely happy about this.' }
+  },
+  {
+    id:'omega3', label:'Omega-3 Index', angle:Math.PI/5+2*Math.PI/10, ringLevel:3,
+    color:'#6AB8D4', glow:[106,184,212],
+    system:'Omega-3 Index', unit:'% of RBCs',
+    pct:65, currentPct:65, targetPct:65, minPct:25, maxPct:95,
+    calcValue: p => (4 + p*0.08).toFixed(1),
+    insight:'Omega-3 index measures EPA+DHA in red blood cells. Above 8% is associated with longevity.',
+    source:'Blood Lab / OmegaQuant', phase:5.25, nextChange:0,
+    rec:{ diet:'2g EPA+DHA daily from fatty fish or triglyceride-form fish oil. This is non-negotiable for longevity.', sleep:'Omega-3s reduce inflammation that disrupts sleep. Higher index correlates with better sleep quality.', exercise:'Omega-3s measurably reduce DOMS and improve recovery time between sessions.', green:'Omega-3 index is strong. Your cell membranes are flexible, inflammation is low. A clean, well-oiled system.' }
+  },
+  {
+    id:'insulin', label:'Insulin Sensitivity', angle:Math.PI/5+4*Math.PI/10, ringLevel:3,
+    color:'#A8D478', glow:[168,212,120],
+    system:'Insulin Resistance', unit:'HOMA-IR',
+    pct:77, currentPct:77, targetPct:77, minPct:30, maxPct:96,
+    calcValue: p => (4 - p*0.03).toFixed(2),
+    insight:'HOMA-IR estimates insulin resistance. Below 1.0 is excellent. Above 2.5 is metabolic dysfunction.',
+    source:'Blood Lab', phase:5.5, nextChange:0,
+    rec:{ diet:'Cut ultra-processed carbs, eat protein first at each meal, try berberine 500mg with meals.', sleep:'Insulin sensitivity drops 30% after one week of poor sleep. Sleep is metabolic regulation.', exercise:'Walk after meals. HIIT 2×/week. Muscle is a glucose sink — building it is the long game.', green:'Insulin sensitivity is excellent. Your cells are responding to insulin like a well-trained, disciplined team.' }
+  },
+  {
+    id:'uricAcid', label:'Uric Acid', angle:Math.PI/5+6*Math.PI/10, ringLevel:3,
+    color:'#C8D490', glow:[200,212,144],
+    system:'Uric Acid', unit:'mg/dL',
+    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:94,
+    calcValue: p => (9 - p*0.06).toFixed(1),
+    insight:'Elevated uric acid drives gout, kidney disease, and cardiovascular risk. Below 5.5 mg/dL is optimal.',
+    source:'Blood Lab', phase:5.75, nextChange:0,
+    rec:{ diet:'Reduce fructose (the #1 driver), purine-heavy foods (organ meats, shellfish), and alcohol.', sleep:'Uric acid rises with dehydration. Drink 2–3L water daily and maintain through the night.', exercise:'Moderate aerobic exercise lowers uric acid. Avoid dehydration during intense sessions.', green:'Uric acid is low. No gout, no kidney risk, no silent endothelial damage happening in the background. Clean.' }
+  },
+  {
+    id:'b12', label:'Vitamin B12', angle:Math.PI/5+8*Math.PI/10, ringLevel:3,
+    color:'#E8D090', glow:[232,208,144],
+    system:'Vitamin B12', unit:'pg/mL',
+    pct:74, currentPct:74, targetPct:74, minPct:30, maxPct:96,
+    calcValue: p => Math.round(200 + p*8),
+    insight:'B12 drives myelin sheath integrity, red blood cell formation, and neurological function.',
+    source:'Blood Lab', phase:6.0, nextChange:0,
+    rec:{ diet:'Animal products — red meat, eggs, sardines. If plant-based, supplement methylcobalamin 1000mcg daily.', sleep:'B12 deficiency disrupts sleep-wake cycles. Optimal levels support melatonin synthesis directly.', exercise:'B12 is critical for oxygen-carrying capacity. Low levels cap your aerobic performance ceiling hard.', green:'B12 is optimal. Neurons are well-insulated, red cells are healthy, and energy metabolism is humming along.' }
+  },
+  {
+    id:'zinc', label:'Zinc', angle:Math.PI/5+10*Math.PI/10, ringLevel:3,
+    color:'#88B4C4', glow:[136,180,196],
+    system:'Serum Zinc', unit:'μg/dL',
+    pct:70, currentPct:70, targetPct:70, minPct:30, maxPct:94,
+    calcValue: p => Math.round(60 + p*0.8),
+    insight:'Zinc is foundational for testosterone synthesis, immune function, and wound healing.',
+    source:'Blood Lab', phase:6.25, nextChange:0,
+    rec:{ diet:'Oysters (highest source), red meat, pumpkin seeds. Take zinc glycinate — highest absorption form.', sleep:'Zinc supports melatonin synthesis and testosterone production during sleep. Both need zinc at night.', exercise:'Zinc losses through sweat are significant. Athletes often run borderline deficient without knowing it.', green:'Zinc is dialed in. Your immune system and testosterone synthesis are both silently grateful.' }
+  },
+  {
+    id:'hydration', label:'Hydration', angle:Math.PI/5+12*Math.PI/10, ringLevel:3,
+    color:'#60C8E0', glow:[96,200,224],
+    system:'Hydration Status', unit:'% optimal',
+    pct:78, currentPct:78, targetPct:78, minPct:30, maxPct:98,
+    calcValue: p => Math.round(p),
+    insight:'Cellular hydration affects cognitive performance, cardiovascular output, and joint health.',
+    source:'Bioimpedance / Manual', phase:6.5, nextChange:0,
+    rec:{ diet:'Water with electrolytes — not just plain water. 500ml first thing in the morning. Aim 3L/day.', sleep:'Mild dehydration causes shallow sleep and morning fatigue. Hydrate aggressively until 2hrs before bed.', exercise:'Losing 2%+ body weight in sweat drops performance 20%. Pre-hydrate 30 min before training.', green:'Hydration is on point. Cells are full, joints are lubricated, brain is clear. You\'re doing the basics right.' }
+  },
+  {
+    id:'grip', label:'Grip Strength', angle:Math.PI/5+14*Math.PI/10, ringLevel:3,
+    color:'#D4A080', glow:[212,160,128],
+    system:'Grip Strength', unit:'kg',
+    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
+    calcValue: p => Math.round(20 + p*0.6),
+    insight:'Grip strength is one of the strongest predictors of all-cause mortality across all age groups.',
+    source:'Dynamometer / Manual', phase:6.75, nextChange:0,
+    rec:{ diet:'Creatine monohydrate 5g/day is the most evidence-backed strength supplement. Period. Full stop.', sleep:'Muscle strength and repair peak during deep sleep. Poor sleep = slower strength gains every time.', exercise:'Farmer\'s carries, dead hangs, and deadlifts. Train your extensors too — most people neglect them.', green:'Grip strength is strong. Statistically, you\'re in the longevity bracket. Keep lifting things.' }
+  },
+  {
+    id:'lactate', label:'Lactate Threshold', angle:Math.PI/5+16*Math.PI/10, ringLevel:3,
+    color:'#E8907A', glow:[232,144,122],
+    system:'Lactate Threshold', unit:'% VO2Max',
+    pct:76, currentPct:76, targetPct:76, minPct:30, maxPct:96,
+    calcValue: p => Math.round(60 + p*0.3),
+    insight:'Lactate threshold determines your sustainable high-intensity output. Higher = greater aerobic capacity.',
+    source:'Lab Test / Garmin', phase:7.0, nextChange:0,
+    rec:{ diet:'Beet juice (nitrates), beta-alanine, and sodium bicarbonate are evidence-backed threshold boosters.', sleep:'Threshold adaptations consolidate during sleep. Training without adequate sleep loses the adaptation.', exercise:'Tempo runs at 85–90% max HR 2×/week. Most direct way to push your threshold higher.', green:'Lactate threshold is high. You can sustain serious work longer than most. That\'s a real physiological advantage.' }
+  },
+  {
+    id:'muscleMass', label:'Muscle Mass', angle:Math.PI/5+18*Math.PI/10, ringLevel:3,
+    color:'#90D4A8', glow:[144,212,168],
+    system:'Lean Muscle Mass', unit:'kg lean',
+    pct:74, currentPct:74, targetPct:74, minPct:30, maxPct:96,
+    calcValue: p => Math.round(40 + p*0.4),
+    insight:'Lean muscle mass is metabolically active — it burns fat, regulates glucose, and protects longevity.',
+    source:'DEXA / InBody', phase:7.25, nextChange:0,
+    rec:{ diet:'Protein 1g/lb lean body mass. Leucine-rich foods (chicken, eggs, whey) trigger muscle protein synthesis.', sleep:'Growth hormone peaks during deep sleep — this is when muscle is literally built. Sleep IS the gym.', exercise:'Progressive overload: add reps or weight every session. Muscle is use-it-or-lose-it at every single age.', green:'Muscle mass is solid. You\'re metabolically active, glucose-tolerant, and carrying your own armor. Respect.' }
+  },
+
+  // ── Ring 4 – outermost (10 nodes) ────────────────────────────────────
+  {
+    id:'albumin', label:'Serum Albumin', angle:3*Math.PI/20, ringLevel:4,
+    color:'#B4D4E8', glow:[180,212,232],
+    system:'Serum Albumin', unit:'g/dL',
+    pct:76, currentPct:76, targetPct:76, minPct:35, maxPct:96,
+    calcValue: p => (3.2 + p*0.022).toFixed(2),
+    insight:'Albumin reflects protein status and liver health. Low levels signal chronic stress or malnutrition.',
+    source:'Blood Lab', phase:7.5, nextChange:0,
+    rec:{ diet:'High protein intake supports albumin. Reduce alcohol and fructose — the real liver stressors.', sleep:'Low albumin indicates chronic stress. Optimize protein intake and protect sleep simultaneously.', exercise:'Resistance training improves albumin by supporting liver function and protein synthesis rates.', green:'Albumin is optimal. Your liver is handling protein synthesis like the quiet workhorse it is. Unsung hero.' }
+  },
+  {
+    id:'alt', label:'Liver Enzyme (ALT)', angle:3*Math.PI/20+2*Math.PI/10, ringLevel:4,
+    color:'#D4B4E8', glow:[212,180,232],
+    system:'ALT Liver Enzyme', unit:'U/L',
+    pct:78, currentPct:78, targetPct:78, minPct:30, maxPct:97,
+    calcValue: p => Math.round(60 - p*0.4),
+    insight:'ALT is the primary marker of liver cell stress. Elevated ALT signals cellular damage in progress.',
+    source:'Blood Lab', phase:7.75, nextChange:0,
+    rec:{ diet:'Reduce alcohol, fructose, and ultra-processed fat. NAC 600mg, milk thistle, and coffee are hepatoprotective.', sleep:'The liver regenerates primarily between 1–3am during sleep. Consistent early sleep timing supports it.', exercise:'Moderate aerobic exercise reduces liver fat and ALT within weeks. Start with 30 min daily walking.', green:'ALT is clean. Your liver is processing toxins, making hormones, and doing 500+ jobs without complaint.' }
+  },
+  {
+    id:'dhea', label:'DHEA-S', angle:3*Math.PI/20+4*Math.PI/10, ringLevel:4,
+    color:'#E8B4C8', glow:[232,180,200],
+    system:'DHEA-S (Adrenal)', unit:'μg/dL',
+    pct:70, currentPct:70, targetPct:70, minPct:30, maxPct:95,
+    calcValue: p => Math.round(80 + p*2.5),
+    insight:'DHEA-S is your adrenal vitality marker. It declines with age and chronic stress.',
+    source:'Blood Lab', phase:8.0, nextChange:0,
+    rec:{ diet:'Wild-caught fish, whole eggs, and zinc foods support adrenal production. Ashwagandha helps.', sleep:'DHEA is produced by adrenal glands sensitive to sleep deprivation. Rest restores adrenal reserve.', exercise:'HIIT stimulates DHEA acutely. Chronic overtraining depletes adrenal reserve and crashes DHEA.', green:'DHEA is strong. Your adrenal vitality is intact — you have reserve for stress without burning out. Rare.' }
+  },
+  {
+    id:'freeTesto', label:'Free Testosterone', angle:3*Math.PI/20+6*Math.PI/10, ringLevel:4,
+    color:'#B4E8CC', glow:[180,232,204],
+    system:'Free Testosterone', unit:'pg/mL',
+    pct:73, currentPct:73, targetPct:73, minPct:30, maxPct:96,
+    calcValue: p => (5 + p*0.25).toFixed(1),
+    insight:'Free testosterone is the bioavailable fraction that actually drives performance and vitality.',
+    source:'Blood Lab', phase:8.25, nextChange:0,
+    rec:{ diet:'Boron 10mg and nettle root reduce SHBG (which binds testosterone), raising free fraction.', sleep:'Free T peaks during REM. Protecting sleep quality is protecting your bioavailable hormone directly.', exercise:'Heavy compound lifting raises free T more than total T. Squats, deadlifts, presses are the protocol.', green:'Free testosterone is excellent. Bioavailable hormone is what actually drives things. You\'ve got it dialed.' }
+  },
+  {
+    id:'igf1', label:'IGF-1', angle:3*Math.PI/20+8*Math.PI/10, ringLevel:4,
+    color:'#E8D4A0', glow:[232,212,160],
+    system:'IGF-1 (Growth Factor)', unit:'ng/mL',
+    pct:74, currentPct:74, targetPct:74, minPct:30, maxPct:96,
+    calcValue: p => Math.round(80 + p*2),
+    insight:'IGF-1 is a longevity signal — high enough for tissue repair, low enough to avoid accelerated aging.',
+    source:'Blood Lab', phase:8.5, nextChange:0,
+    rec:{ diet:'Adequate protein drives IGF-1 production. Below 0.8g/kg body weight and growth factor plummets.', sleep:'Growth hormone → IGF-1 conversion happens during deep sleep. Deep sleep is the bottleneck.', exercise:'High-volume resistance training (10–20 sets/muscle/week) maximizes IGF-1 signaling measurably.', green:'IGF-1 is in a great range. Your cells are receiving growth signals and using them wisely. Strong signal.' }
+  },
+  {
+    id:'homocysteine', label:'Homocysteine', angle:3*Math.PI/20+10*Math.PI/10, ringLevel:4,
+    color:'#C8B0E8', glow:[200,176,232],
+    system:'Homocysteine', unit:'μmol/L',
+    pct:75, currentPct:75, targetPct:75, minPct:30, maxPct:97,
+    calcValue: p => (15 - p*0.1).toFixed(1),
+    insight:'Elevated homocysteine is a cardiovascular and neurological risk marker tied to methylation capacity.',
+    source:'Blood Lab', phase:8.75, nextChange:0,
+    rec:{ diet:'B6, B12, and folate are the three methylation cofactors. Take methylated forms for best effect.', sleep:'Homocysteine rises with chronic sleep deprivation — it\'s a quiet cardiovascular and neurological risk.', exercise:'Aerobic exercise reduces homocysteine independently. Even 30 min/day walking helps significantly.', green:'Homocysteine is low. Your methylation cycle is running clean — that\'s cardiovascular and brain protection.' }
+  },
+  {
+    id:'apoB', label:'Apolipoprotein B', angle:3*Math.PI/20+12*Math.PI/10, ringLevel:4,
+    color:'#B0C8E8', glow:[176,200,232],
+    system:'Apolipoprotein B', unit:'mg/dL',
+    pct:78, currentPct:78, targetPct:78, minPct:30, maxPct:97,
+    calcValue: p => Math.round(120 - p*0.7),
+    insight:'ApoB counts every atherogenic particle in your blood — the most predictive cardiovascular marker.',
+    source:'Blood Lab', phase:9.0, nextChange:0,
+    rec:{ diet:'ApoB is the cardiovascular marker that matters most. Reduce saturated fat, increase fiber, consider statins if high.', sleep:'Sleep deprivation worsens lipid profiles across the board. ApoB responds to sleep quality over weeks.', exercise:'Aerobic exercise lowers ApoB more than any other lifestyle intervention. Zone 2 is the prescription.', green:'ApoB is low. This is the cardiovascular marker that matters most — yours looks excellent. Keep it there.' }
+  },
+  {
+    id:'fibrinogen', label:'Fibrinogen', angle:3*Math.PI/20+14*Math.PI/10, ringLevel:4,
+    color:'#E8C8A0', glow:[232,200,160],
+    system:'Fibrinogen', unit:'mg/dL',
+    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:95,
+    calcValue: p => Math.round(450 - p*2.5),
+    insight:'Fibrinogen is a clotting protein and inflammation marker. Chronically elevated = cardiovascular risk.',
+    source:'Blood Lab', phase:9.25, nextChange:0,
+    rec:{ diet:'Omega-3s, garlic, and nattokinase reduce fibrinogen. Anti-inflammatory diet is the baseline move.', sleep:'Sleep deprivation increases fibrinogen — elevated clotting risk that builds silently over time.', exercise:'Regular aerobic exercise reduces fibrinogen by improving blood viscosity and flow. Consistent beats intense.', green:'Fibrinogen is in range. Blood viscosity is normal — clotting factors are calibrated, not overactive.' }
+  },
+  {
+    id:'nad', label:'NAD+ Vitality', angle:3*Math.PI/20+16*Math.PI/10, ringLevel:4,
+    color:'#B4E8E0', glow:[180,232,224],
+    system:'NAD+ (Cellular Energy)', unit:'Proxy Score',
+    pct:71, currentPct:71, targetPct:71, minPct:25, maxPct:96,
+    calcValue: p => Math.round(p),
+    insight:'NAD+ fuels DNA repair, sirtuin activation, and mitochondrial function. Declines with age.',
+    source:'Estimated / NMN Protocol', phase:9.5, nextChange:0,
+    rec:{ diet:'Niacin (B3), NMN or NR supplements, and fasting all boost NAD+. Alcohol depletes it — reduce it.', sleep:'NAD+ drives circadian clock proteins. Low NAD+ → disrupted sleep-wake cycle. They reinforce each other.', exercise:'Zone 2 cardio 4×/week is the most powerful endogenous NAD+ booster. Better than any supplement.', green:'NAD+ is robust. Your sirtuins are fueled, DNA repair is running, and cellular aging is behind schedule.' }
+  },
+  {
+    id:'thyroid', label:'Thyroid Function', angle:3*Math.PI/20+18*Math.PI/10, ringLevel:4,
+    color:'#E8E0A0', glow:[232,224,160],
+    system:'TSH / Thyroid', unit:'mIU/L',
+    pct:76, currentPct:76, targetPct:76, minPct:30, maxPct:96,
+    calcValue: p => (5 - p*0.04).toFixed(2),
+    insight:'TSH regulates metabolism, body temperature, energy, and hormonal cascades across every system.',
+    source:'Blood Lab', phase:9.75, nextChange:0,
+    rec:{ diet:'Selenium (brazil nuts), iodine (seaweed, fish), and zinc support thyroid synthesis. Avoid raw goitrogens.', sleep:'TSH follows circadian rhythm — poor sleep disrupts thyroid hormone production cycles significantly.', exercise:'Both hypo and hyperthyroid affect exercise tolerance. Get levels right before optimizing intensity.', green:'Thyroid function is optimal. Your metabolism, temperature, and energy production are all well-governed.' }
   },
 ];
 
@@ -496,12 +1035,28 @@ function resize() {
   W = canvas.width = window.innerWidth;
   H = canvas.height = window.innerHeight;
   cx = W / 2; cy = H / 2;
-  const r = Math.min(W, H) * 0.41;
-  NODES.forEach(n => { n.r = r; });
-  // Pin "grail" just below the center core circle
-  const coreBottom = cy + Math.min(W, H) * 0.15 + 10;
+
+  // Measure where grail sits (CSS bottom: 22px)
   const gw = document.getElementById('grail-word');
-  if (gw) gw.style.top = Math.round(coreBottom) + 'px';
+  const grailTop = gw ? gw.getBoundingClientRect().top : H - 140;
+
+  // Center orbit between top edge and grail word
+  const topBound  = 28;
+  const midY      = topBound + (grailTop - topBound) / 2;
+  const maxR      = Math.min((grailTop - topBound) / 2 - 16, Math.min(W, H) * 0.28);
+  const r         = Math.max(80, maxR);
+  oy = midY;
+
+  NODES.forEach(n => { n.r = r; });
+
+  // Score centered on orbit center
+  const vit = document.getElementById('vitality');
+  if (vit) {
+    vit.style.top       = Math.round(oy) + 'px';
+    vit.style.left      = Math.round(cx) + 'px';
+    vit.style.bottom    = 'auto';
+    vit.style.transform = 'translate(-50%, -50%)';
+  }
 }
 resize();
 
@@ -583,88 +1138,15 @@ function liveUpdatePanel(n) {
   document.getElementById('p-bar-dot').style.left = `calc(${p}% - 3.5px)`;
 }
 
-// --- Intro sequence ---
-let introPhase = 'text-in'; // text-in → text-hold → text-out → burst → alive
-let introTimer = null;
-let textAlpha   = 0;
-let burstMult   = 0.0; // circles start dark, burst on cue
-
-function runIntro(now) {
-  if (introTimer === null) introTimer = now;
-  const e = now - introTimer;
-
-  if (introPhase === 'text-in') {
-    textAlpha = Math.min(1, e / 500);
-    burstMult = 0.0;
-    if (e > 500) { introPhase = 'text-hold'; introTimer = now; }
-
-  } else if (introPhase === 'text-hold') {
-    textAlpha = 1;
-    burstMult = 0.0;
-    if (e > 4000) { introPhase = 'text-out'; introTimer = now; }
-
-  } else if (introPhase === 'text-out') {
-    textAlpha = Math.max(0, 1 - e / 380);
-    burstMult = 0.0;
-    if (e > 380) {
-      introPhase = 'burst';
-      introTimer = now;
-      textAlpha = 0;
-    }
-
-  } else if (introPhase === 'burst') {
-    textAlpha = 0;
-    // instant spike to 5, decay to 1.3 over 1800ms
-    const t = Math.min(1, e / 1800);
-    burstMult = 5.0 - (5.0 - 1.3) * t;
-    if (e > 1800) { introPhase = 'alive'; burstMult = 1.3; }
-
-  } else {
-    textAlpha = 0;
-    burstMult = 1.3;
-  }
+// --- Status system ---
+function getStatus(n) {
+  const p = n.currentPct;
+  if (p >= 68) return 'green';
+  if (p >= 38) return 'orange';
+  return 'red';
 }
 
-function drawIntroText(alpha) {
-  if (alpha <= 0.005) return;
-  const coreBase = Math.min(W,H) * 0.15;
-  const sz       = Math.max(14, Math.min(W, H) * 0.024);
-  const grailSz  = Math.max(28, Math.min(W, H) * 0.055);
-  const sayingY  = cy - coreBase * 2.1;
-  const grailY   = cy - coreBase * 1.35;
-  const text     = 'Fix the inputs & the system regulates itself.';
-
-  ctx.save();
-  ctx.textAlign = 'center';
-
-  // gothic saying — outer bloom
-  ctx.globalAlpha = alpha * 0.55;
-  ctx.shadowColor = '#FFAA00';
-  ctx.shadowBlur  = 70;
-  ctx.fillStyle   = '#FFD060';
-  ctx.font = `${sz}px 'UnifrakturMaguntia', serif`;
-  ctx.fillText(text, cx, sayingY);
-  // bright core pass
-  ctx.globalAlpha = alpha;
-  ctx.shadowColor = '#FFE080';
-  ctx.shadowBlur  = 28;
-  ctx.fillStyle   = '#FFF4C0';
-  ctx.fillText(text, cx, sayingY);
-
-  // GRAIL — Cormorant Garamond, letter-spaced via spacing trick
-  ctx.globalAlpha = alpha * 0.7;
-  ctx.shadowColor = '#C9A96E';
-  ctx.shadowBlur  = 40;
-  ctx.fillStyle   = '#D4AF6E';
-  ctx.font = `300 ${grailSz}px 'Cormorant Garamond', Georgia, serif`;
-  ctx.fillText('G R A I L', cx, grailY);
-  ctx.globalAlpha = alpha;
-  ctx.shadowBlur  = 16;
-  ctx.fillStyle   = '#E8C880';
-  ctx.fillText('G R A I L', cx, grailY);
-
-  ctx.restore();
-}
+const burstMult = 1.3;
 
 // --- Heartbeat system (per node) ---
 NODES.forEach(n => { n.hbFlash = 0; n.hbNext = 3000 + Math.random() * 18000; });
@@ -712,17 +1194,71 @@ function drawBlob(bx, by, base, t, glow, alpha, inner) {
   ctx.fillStyle = gr; ctx.globalAlpha = alpha; ctx.fill(); ctx.globalAlpha = 1;
 }
 
+function drawNodeSphere(nx, ny, r, glow, brightness, isHov) {
+  const [cr, cg, cb] = glow;
+
+  // outer soft glow
+  const glowR = r * (isHov ? 5.0 : 4.0);
+  const gGrad = ctx.createRadialGradient(nx, ny, r*0.2, nx, ny, glowR);
+  gGrad.addColorStop(0,   `rgba(${cr},${cg},${cb},${Math.min(brightness*0.45,0.55)})`);
+  gGrad.addColorStop(0.45,`rgba(${cr},${cg},${cb},${Math.min(brightness*0.16,0.22)})`);
+  gGrad.addColorStop(1,   `rgba(${cr},${cg},${cb},0)`);
+  ctx.beginPath(); ctx.arc(nx, ny, glowR, 0, Math.PI*2);
+  ctx.fillStyle = gGrad; ctx.fill();
+
+  // dark base
+  ctx.beginPath(); ctx.arc(nx, ny, r, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(3,2,10,0.94)'; ctx.fill();
+
+  ctx.save();
+  ctx.beginPath(); ctx.arc(nx, ny, r, 0, Math.PI*2); ctx.clip();
+
+  // 3D body — offset radial gradient
+  const bx = nx - r*0.26, by = ny - r*0.28;
+  const bGrad = ctx.createRadialGradient(bx, by, 0, nx, ny, r*1.05);
+  bGrad.addColorStop(0,    `rgba(${Math.min(cr+55,255)},${Math.min(cg+45,255)},${Math.min(cb+35,255)},${brightness*0.92})`);
+  bGrad.addColorStop(0.42, `rgba(${cr},${cg},${cb},${brightness*0.75})`);
+  bGrad.addColorStop(0.78, `rgba(${Math.round(cr*0.45)},${Math.round(cg*0.45)},${Math.round(cb*0.45)},${brightness*0.42})`);
+  bGrad.addColorStop(1,    `rgba(${Math.round(cr*0.1)},${Math.round(cg*0.1)},${Math.round(cb*0.1)},0.08)`);
+  ctx.fillStyle = bGrad;
+  ctx.beginPath(); ctx.arc(nx, ny, r, 0, Math.PI*2); ctx.fill();
+
+  // specular — top-left gloss
+  const sx = nx - r*0.32, sy = ny - r*0.34;
+  const sGrad = ctx.createRadialGradient(sx, sy, 0, sx, sy, r*0.42);
+  sGrad.addColorStop(0,   `rgba(255,255,255,${isHov?0.72:0.50})`);
+  sGrad.addColorStop(0.38,`rgba(255,255,255,${isHov?0.20:0.13})`);
+  sGrad.addColorStop(1,   'rgba(255,255,255,0)');
+  ctx.fillStyle = sGrad;
+  ctx.beginPath(); ctx.arc(sx, sy, r*0.42, 0, Math.PI*2); ctx.fill();
+
+  // tiny secondary hotspot
+  const sx2 = nx - r*0.48, sy2 = ny - r*0.50;
+  const sGrad2 = ctx.createRadialGradient(sx2, sy2, 0, sx2, sy2, r*0.14);
+  sGrad2.addColorStop(0,  `rgba(255,255,255,${isHov?0.55:0.38})`);
+  sGrad2.addColorStop(1,  'rgba(255,255,255,0)');
+  ctx.fillStyle = sGrad2;
+  ctx.beginPath(); ctx.arc(sx2, sy2, r*0.14, 0, Math.PI*2); ctx.fill();
+
+  ctx.restore();
+
+  // bright edge ring
+  ctx.beginPath(); ctx.arc(nx, ny, r, 0, Math.PI*2);
+  ctx.strokeStyle = `rgba(${cr},${cg},${cb},${isHov?0.95:0.72})`;
+  ctx.lineWidth = isHov ? 2.0 : 1.4; ctx.stroke();
+}
+
 let time    = 0;
 let hovered = null;
 
 function loop(now) {
-  runIntro(now);
+
   tickHeartbeats(now);
   simulate(now);
 
   ctx.clearRect(0,0,W,H);
 
-  const bg = ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(W,H)*0.85);
+  const bg = ctx.createRadialGradient(cx,oy,0,cx,oy,Math.max(W,H)*0.85);
   bg.addColorStop(0,'rgba(10,8,22,1)'); bg.addColorStop(1,'rgba(2,2,6,1)');
   ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
 
@@ -738,126 +1274,191 @@ function loop(now) {
   const breathe = 1 + Math.sin(time * 0.38) * 0.10;
   const alive   = burstMult * breathe;
 
-  const coreBase = Math.min(W,H) * 0.15;
+  const coreBase = Math.min(W,H) * 0.092;
 
-  // lighthouse pulse — slow, long rest, quiet peak
-  const rawPulse = Math.sin(time * 0.9) * 0.5 + 0.5;
-  const lp       = Math.pow(rawPulse, 3);
-  const burstLp  = Math.min(lp + (burstMult - 1) * 0.15, 1);
+  // human breathing pulse — smooth sine ~12 breaths/min
+  const breathPhase = Math.sin(time * 1.28) * 0.5 + 0.5;
+  const breath      = 0.52 + breathPhase * 0.48; // 0.52 → 1.0
 
-  const aR = Math.round(200 + burstLp * 25);
-  const aG = Math.round(135 + burstLp * 30);
-  const aB = Math.round(45  + burstLp * 10);
+  // amber color breathes from warm-dim to bright gold
+  const aR = Math.round(185 + breath * 42);
+  const aG = Math.round(118 + breath * 38);
+  const aB = Math.round(28  + breath * 22);
 
-  const coreR = coreBase * (1 + burstLp * 0.04);
+  // core radius subtly expands/contracts with breath
+  const coreR = coreBase * (0.96 + breath * 0.08);
 
-  // very soft outer bloom — dimmed way down
-  for (let i = 5; i >= 0; i--) {
-    const glowR = coreR * (2.0 + i * 0.6);
-    const str   = Math.max(0, (0.018 + burstLp * 0.028) * (1 - i * 0.16) * Math.min(alive, 1.5));
-    const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
-    gr.addColorStop(0, `rgba(${aR},${aG},${aB},${str})`);
-    gr.addColorStop(1, 'rgba(180,100,30,0)');
-    ctx.beginPath(); ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+  // === DEEP OUTER BLOOM — 9 layers ===
+  for (let i = 8; i >= 0; i--) {
+    const glowR = coreR * (2.2 + i * 0.55);
+    const str   = (0.025 + breath * 0.038) * (1 - i * 0.105) * Math.min(alive, 1.6);
+    if (str <= 0) continue;
+    const gr = ctx.createRadialGradient(cx, oy, 0, cx, oy, glowR);
+    gr.addColorStop(0,   `rgba(${aR},${aG},${aB},${Math.min(str*2.2, 0.55)})`);
+    gr.addColorStop(0.4, `rgba(${aR},${aG},${aB},${Math.min(str*1.1, 0.28)})`);
+    gr.addColorStop(1,   'rgba(160,85,20,0)');
+    ctx.beginPath(); ctx.arc(cx, oy, glowR, 0, Math.PI*2);
     ctx.fillStyle = gr; ctx.fill();
   }
 
-  // dark base fill — gives the sphere depth
-  ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(6,4,2,0.88)';
-  ctx.fill();
+  // === SPHERE BASE — deep dark fill ===
+  ctx.beginPath(); ctx.arc(cx, oy, coreR, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(4,2,1,0.95)'; ctx.fill();
 
-  // shiny material — offset radial gradient (the liquid sphere look)
-  const shineX = cx - coreR * 0.25;
-  const shineY = cy - coreR * 0.22;
-  const shineGrad = ctx.createRadialGradient(shineX, shineY, 0, cx, cy, coreR);
-  shineGrad.addColorStop(0,    `rgba(255,225,140,${0.22 + burstLp * 0.14})`);
-  shineGrad.addColorStop(0.35, `rgba(${aR},${aG},${aB},${0.14 + burstLp * 0.10})`);
-  shineGrad.addColorStop(0.75, `rgba(${aR},${aG},${aB},${0.05 + burstLp * 0.04})`);
-  shineGrad.addColorStop(1,    `rgba(${aR},${aG},${aB},0)`);
   ctx.save();
-  ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2); ctx.clip();
-  ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
-  ctx.fillStyle = shineGrad; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, oy, coreR, 0, Math.PI*2); ctx.clip();
 
-  // specular highlight — top-left bright spot, the "gloss"
-  const specX = cx - coreR * 0.3;
-  const specY = cy - coreR * 0.3;
-  const specGrad = ctx.createRadialGradient(specX, specY, 0, specX, specY, coreR * 0.52);
-  specGrad.addColorStop(0, `rgba(255,248,215,${0.28 + burstLp * 0.16})`);
-  specGrad.addColorStop(0.5,`rgba(255,220,140,${0.06 + burstLp * 0.05})`);
-  specGrad.addColorStop(1,  'rgba(255,200,100,0)');
-  ctx.beginPath(); ctx.arc(specX, specY, coreR * 0.52, 0, Math.PI * 2);
-  ctx.fillStyle = specGrad; ctx.fill();
+  // === SPHERE BODY — offset radial for 3D depth ===
+  const bodyX = cx - coreR * 0.18, bodyY = oy - coreR * 0.20;
+  const bodyGrad = ctx.createRadialGradient(bodyX, bodyY, 0, cx, oy, coreR * 1.05);
+  bodyGrad.addColorStop(0,    `rgba(${aR+30},${aG+22},${aB+8},${0.72 + breath*0.20})`);
+  bodyGrad.addColorStop(0.38, `rgba(${aR},${aG},${aB},${0.50 + breath*0.15})`);
+  bodyGrad.addColorStop(0.72, `rgba(${Math.round(aR*0.55)},${Math.round(aG*0.45)},${Math.round(aB*0.3)},${0.28 + breath*0.10})`);
+  bodyGrad.addColorStop(1,    `rgba(${Math.round(aR*0.15)},${Math.round(aG*0.12)},5,0.12)`);
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath(); ctx.arc(cx, oy, coreR, 0, Math.PI*2); ctx.fill();
+
+  // === INNER WARM CORE — the nucleus ===
+  const nucGrad = ctx.createRadialGradient(cx, oy, 0, cx, oy, coreR * 0.45);
+  nucGrad.addColorStop(0,   `rgba(255,235,160,${0.18 + breath*0.22})`);
+  nucGrad.addColorStop(0.5, `rgba(240,180,60,${0.08 + breath*0.10})`);
+  nucGrad.addColorStop(1,   'rgba(220,140,40,0)');
+  ctx.fillStyle = nucGrad;
+  ctx.beginPath(); ctx.arc(cx, oy, coreR*0.45, 0, Math.PI*2); ctx.fill();
+
+  // === MAIN SPECULAR — large top-left gloss ===
+  const spec1X = cx - coreR * 0.28, spec1Y = oy - coreR * 0.30;
+  const spec1R = coreR * 0.56;
+  const spec1  = ctx.createRadialGradient(spec1X, spec1Y, 0, spec1X, spec1Y, spec1R);
+  spec1.addColorStop(0,    `rgba(255,252,225,${0.30 + breath*0.18})`);
+  spec1.addColorStop(0.28, `rgba(255,240,180,${0.10 + breath*0.08})`);
+  spec1.addColorStop(0.65, `rgba(255,220,130,${0.03 + breath*0.03})`);
+  spec1.addColorStop(1,    'rgba(255,210,100,0)');
+  ctx.fillStyle = spec1;
+  ctx.beginPath(); ctx.arc(spec1X, spec1Y, spec1R, 0, Math.PI*2); ctx.fill();
+
+  // === SECONDARY SPECULAR — tiny bright hotspot ===
+  const spec2X = cx - coreR * 0.38, spec2Y = oy - coreR * 0.42;
+  const spec2R = coreR * 0.18;
+  const spec2  = ctx.createRadialGradient(spec2X, spec2Y, 0, spec2X, spec2Y, spec2R);
+  spec2.addColorStop(0,   `rgba(255,255,245,${0.55 + breath*0.25})`);
+  spec2.addColorStop(0.5, `rgba(255,248,210,${0.12 + breath*0.08})`);
+  spec2.addColorStop(1,   'rgba(255,240,180,0)');
+  ctx.fillStyle = spec2;
+  ctx.beginPath(); ctx.arc(spec2X, spec2Y, spec2R, 0, Math.PI*2); ctx.fill();
+
+  // === RIM LIGHT — subtle bottom-right reflection ===
+  const rimX = cx + coreR * 0.30, rimY = oy + coreR * 0.32;
+  const rimGrad = ctx.createRadialGradient(rimX, rimY, 0, rimX, rimY, coreR * 0.38);
+  rimGrad.addColorStop(0,   `rgba(${aR+20},${aG+10},${aB},${0.08 + breath*0.06})`);
+  rimGrad.addColorStop(1,   'rgba(180,100,20,0)');
+  ctx.fillStyle = rimGrad;
+  ctx.beginPath(); ctx.arc(rimX, rimY, coreR*0.38, 0, Math.PI*2); ctx.fill();
+
   ctx.restore();
 
-  // thin edge ring
-  ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
-  ctx.strokeStyle = `rgba(${aR},${aG},${aB},${0.12 + burstLp * 0.28})`;
-  ctx.lineWidth = 0.8; ctx.stroke();
+  // === EDGE RING — bright amber rim ===
+  ctx.beginPath(); ctx.arc(cx, oy, coreR, 0, Math.PI*2);
+  ctx.strokeStyle = `rgba(${aR},${aG},${aB},${0.22 + breath*0.42})`;
+  ctx.lineWidth = 1.4; ctx.stroke();
+
+  // === OUTER PULSE RING — breathes in and out ===
+  ctx.beginPath(); ctx.arc(cx, oy, coreR * (1.18 + breath * 0.08), 0, Math.PI*2);
+  ctx.strokeStyle = `rgba(${aR},${aG},${aB},${breath * 0.18 * Math.min(alive,1.4)})`;
+  ctx.lineWidth = 0.6; ctx.stroke();
 
   // nodes
   NODES.forEach(n => {
-    const oa = n.angle + time * 0.035;
-    const nx = cx + Math.cos(oa)*n.r;
-    const ny = cy + Math.sin(oa)*n.r;
+    const ringMult = n.ringLevel===1 ? 0.50 : n.ringLevel===2 ? 0.76 : n.ringLevel===3 ? 1.04 : 1.34;
+    const orbitSpd = n.ringLevel===1 ? 0.042 : n.ringLevel===2 ? 0.030 : n.ringLevel===3 ? 0.021 : 0.014;
+    const oa = n.angle + time * orbitSpd;
+    const nx = cx + Math.cos(oa)*n.r*ringMult;
+    const ny = oy + Math.sin(oa)*n.r*ringMult;
     n._x=nx; n._y=ny;
 
     const pulse    = Math.sin(time*1.9 + n.phase*8)*0.5 + 0.5;
-    const hbBoost  = n.hbFlash * 1.4;
+    const hbBoost  = n.hbFlash * 2.4;
     const nodeAlive= alive + hbBoost;
     const isHov    = hovered===n;
-    const nb       = ((isHov?26:21) + pulse*4) * Math.min(1 + burstMult*0.08, 1.5);
+    const nb       = ((isHov?24:17) + pulse*7) * Math.min(1 + burstMult*0.08, 1.5);
 
-    const connA = Math.atan2(ny-cy,nx-cx);
+    const connA = Math.atan2(ny-oy,nx-cx);
     const ex = cx + Math.cos(connA)*blobR(connA,time,coreBase);
-    const ey = cy + Math.sin(connA)*blobR(connA,time,coreBase);
+    const ey = oy + Math.sin(connA)*blobR(connA,time,coreBase);
     const [r,g,b] = n.glow;
 
-    // connector
+    // connector line from core edge to node
     ctx.beginPath(); ctx.moveTo(ex,ey);
-    ctx.lineTo(nx-Math.cos(connA)*nb*0.88, ny-Math.sin(connA)*nb*0.88);
-    ctx.strokeStyle = `rgba(${r},${g},${b},${Math.min(0.55,(0.1+pulse*0.08)*nodeAlive*0.5)})`;
+    ctx.lineTo(nx-Math.cos(connA)*nb*0.92, ny-Math.sin(connA)*nb*0.92);
+    const connAlpha = Math.min(0.45, (0.08 + pulse*0.10) * Math.min(nodeAlive, 1.4));
+    ctx.strokeStyle = `rgba(${r},${g},${b},${connAlpha})`;
+    ctx.lineWidth = isHov ? 0.8 : 0.5; ctx.stroke();
+
+    // 3D sphere node
+    const brightness = Math.min(1.0, (0.62 + pulse*0.38) * Math.min(nodeAlive, 1.5));
+    drawNodeSphere(nx, ny, nb, n.glow, brightness, isHov);
+
+    // outer pulse ring — breathes softly
+    ctx.beginPath(); ctx.arc(nx, ny, nb * (1.35 + pulse*0.12), 0, Math.PI*2);
+    ctx.strokeStyle = `rgba(${r},${g},${b},${Math.min(0.30, (0.04+pulse*0.14)*Math.min(nodeAlive,1.6))})`;
     ctx.lineWidth = 0.5; ctx.stroke();
 
-    // outer halo glow
-    const haloR  = nb * (isHov ? 4 : 3.2);
-    const haloStr= Math.min(0.55, (isHov ? 0.22 : 0.11) * nodeAlive);
-    const halo   = ctx.createRadialGradient(nx,ny,0,nx,ny,haloR);
-    halo.addColorStop(0, `rgba(${r},${g},${b},${haloStr})`);
-    halo.addColorStop(1, `rgba(${r},${g},${b},0)`);
-    ctx.beginPath(); ctx.arc(nx,ny,haloR,0,Math.PI*2); ctx.fillStyle=halo; ctx.fill();
+    // status dot — top-right of sphere
+    const st = getStatus(n);
+    const sc = st==='green' ? [126,232,160] : st==='orange' ? [232,200,100] : [232,100,100];
+    const dotR = Math.max(2.4, nb * 0.20);
+    const dotX = nx + nb * 0.70;
+    const dotY = ny - nb * 0.70;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(dotX, dotY, dotR, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(${sc[0]},${sc[1]},${sc[2]},0.94)`;
+    ctx.shadowColor = `rgba(${sc[0]},${sc[1]},${sc[2]},0.9)`;
+    ctx.shadowBlur = dotR * 3;
+    ctx.fill();
+    ctx.restore();
 
-    // node blob
-    const innerStr = Math.min(0.95, (isHov ? 0.6 : 0.35) * nodeAlive);
-    drawBlob(nx,ny,nb*0.74,time*2.4+n.phase*14,n.glow,1,innerStr);
-
-    // outer ring
-    ctx.beginPath(); ctx.arc(nx,ny,nb,0,Math.PI*2);
-    ctx.strokeStyle = `rgba(${r},${g},${b},${Math.min(0.8,(0.18+pulse*0.25)*Math.min(nodeAlive,2))})`;
-    ctx.lineWidth = isHov ? 1 : 0.6; ctx.stroke();
-
-    // second faint ring (living effect)
-    ctx.beginPath(); ctx.arc(nx,ny,nb*1.35,0,Math.PI*2);
-    ctx.strokeStyle = `rgba(${r},${g},${b},${Math.min(0.2,(0.04+pulse*0.06)*Math.min(nodeAlive,1.5))})`;
-    ctx.lineWidth = 0.4; ctx.stroke();
-
-    // label
-    ctx.font = '7px "Cormorant Garamond",Georgia,serif';
-    const labelAngle = Math.atan2(ny - cy, nx - cx);
-    const labelDist  = nb + 22;
-    const lx = nx + Math.cos(labelAngle) * labelDist;
-    const ly = ny + Math.sin(labelAngle) * labelDist;
-    ctx.font = '8.5px "Cormorant Garamond",Georgia,serif';
-    ctx.fillStyle    = isHov ? 'rgba(255,245,220,0.98)' : 'rgba(218,198,162,0.88)';
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(n.label.toUpperCase(), lx, ly);
-    ctx.textBaseline = 'alphabetic';
   });
 
-  // intro text drawn last so it's on top
-  drawIntroText(textAlpha);
+  // Hover tooltip — drawn last so it's always on top
+  if (hovered) {
+    const n = hovered;
+    const st = getStatus(n);
+    const sc = st==='green' ? [126,232,160] : st==='orange' ? [232,200,100] : [232,100,100];
+    const lbl = n.label;
+    ctx.save();
+    ctx.font = '11px "Cormorant Garamond",Georgia,serif';
+    const tw = ctx.measureText(lbl).width;
+    const pad = 11, dotR = 4, gap = 7;
+    const boxW = dotR*2 + gap + tw + pad*2;
+    const boxH = 22;
+    const bx = n._x - boxW/2;
+    const by = n._y - 34 - boxH;
+    // background
+    ctx.fillStyle = 'rgba(4,3,12,0.90)';
+    ctx.strokeStyle = 'rgba(201,169,110,0.14)';
+    ctx.lineWidth = 0.5;
+    if (ctx.roundRect) {
+      ctx.beginPath(); ctx.roundRect(bx, by, boxW, boxH, 4);
+      ctx.fill(); ctx.stroke();
+    } else {
+      ctx.fillRect(bx, by, boxW, boxH);
+      ctx.strokeRect(bx, by, boxW, boxH);
+    }
+    // status dot
+    const dotX = bx + pad + dotR;
+    const dotY = by + boxH/2;
+    ctx.beginPath(); ctx.arc(dotX, dotY, dotR, 0, Math.PI*2);
+    ctx.fillStyle = `rgb(${sc[0]},${sc[1]},${sc[2]})`;
+    ctx.shadowColor = `rgba(${sc[0]},${sc[1]},${sc[2]},0.9)`;
+    ctx.shadowBlur = 7;
+    ctx.fill(); ctx.shadowBlur = 0;
+    // label
+    ctx.fillStyle = 'rgba(220,195,140,0.92)';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(lbl, dotX + dotR + gap, dotY);
+    ctx.restore();
+  }
 
   time += 0.007;
   requestAnimationFrame(loop);
@@ -871,7 +1472,7 @@ canvas.addEventListener('mousemove', e => {
   hovered=null;
   for (const n of NODES) {
     if (!n._x) continue;
-    if (Math.hypot(mx-n._x,my-n._y)<44) { hovered=n; break; }
+    if (Math.hypot(mx-n._x,my-n._y)<32) { hovered=n; break; }
   }
   canvas.style.cursor = hovered ? 'pointer' : 'default';
 });
@@ -881,7 +1482,7 @@ canvas.addEventListener('click', e => {
   const mx=e.clientX-left, my=e.clientY-top;
   for (const n of NODES) {
     if (!n._x) continue;
-    if (Math.hypot(mx-n._x,my-n._y)<44) { openNodePanel(n); return; }
+    if (Math.hypot(mx-n._x,my-n._y)<32) { openNodePanel(n); return; }
   }
   closeAll();
 });
@@ -890,7 +1491,20 @@ canvas.addEventListener('click', e => {
 function openNodePanel(n) {
   activeNode = n;
   const p = n.currentPct;
-  const [r,g,b]=n.glow;
+  const [r,g,b] = n.glow;
+  const status   = getStatus(n);
+  const scMap    = { green:'#7EE8A0', orange:'#E8C87A', red:'#E87A7A' };
+  const lblMap   = { green:'Optimal', orange:'Monitor', red:'Attention Required' };
+  const sc = scMap[status];
+
+  // Status indicator
+  const dot = document.getElementById('p-status-dot');
+  dot.style.background = sc;
+  dot.style.boxShadow  = `0 0 8px ${sc}, 0 0 16px ${sc}55`;
+  document.getElementById('p-status-lbl').textContent  = lblMap[status];
+  document.getElementById('p-status-lbl').style.color  = sc;
+
+  // Core data
   document.getElementById('p-system').textContent  = n.system;
   document.getElementById('p-value').textContent   = n.calcValue(p);
   document.getElementById('p-value').style.color   = n.color;
@@ -902,15 +1516,37 @@ function openNodePanel(n) {
   document.getElementById('p-bar-dot').style.left        = `calc(${p}% - 3.5px)`;
   document.getElementById('p-bar-dot').style.background  = n.color;
   document.getElementById('p-bar-dot').style.boxShadow   = `0 0 6px ${n.color}`;
+
+  // Recommendations
+  const rec = n.rec || {};
+  const greenEl = document.getElementById('p-green-msg');
+  if (status === 'green' && rec.green) {
+    greenEl.textContent  = rec.green;
+    greenEl.style.display = 'block';
+  } else {
+    greenEl.style.display = 'none';
+  }
+  document.getElementById('p-rec-diet').textContent     = rec.diet     || '';
+  document.getElementById('p-rec-sleep').textContent    = rec.sleep    || '';
+  document.getElementById('p-rec-exercise').textContent = rec.exercise || '';
+
   open('node-panel');
 }
 document.getElementById('p-close').addEventListener('click', closeAll);
 
 // --- Top bar ---
-document.getElementById('tb-guide').addEventListener('click',   () => open('guide-panel'));
-document.getElementById('tb-settings').addEventListener('click', () => open('settings-panel'));
-document.getElementById('tb-apikeys').addEventListener('click',  () => open('apikeys-panel'));
-document.getElementById('tb-connect').addEventListener('click',  () => open('guide-panel')); // placeholder
+document.getElementById('tb-grail-guidance').addEventListener('click', () => {
+  open('grail-panel');
+  document.getElementById('grail-loading').style.display = 'block';
+  document.getElementById('grail-result').style.display  = 'none';
+  askGrail();
+});
+document.getElementById('tb-scoring').addEventListener('click', () => { open('scoring-panel'); renderScoring(); });
+document.getElementById('scoring-close').addEventListener('click', closeAll);
+document.getElementById('tb-reports').addEventListener('click', () => { open('reports-panel'); openReports('live'); });
+document.getElementById('tb-guide').addEventListener('click',         () => open('guide-panel'));
+document.getElementById('tb-settings').addEventListener('click',      () => open('settings-panel'));
+document.getElementById('tb-apikeys').addEventListener('click',       () => open('apikeys-panel'));
 document.getElementById('tb-export').addEventListener('click', () => {
   fetch('/api/data').then(r=>r.json()).then(d => {
     const blob = new Blob([JSON.stringify(d,null,2)], {type:'application/json'});
@@ -923,14 +1559,14 @@ document.getElementById('tb-export').addEventListener('click', () => {
 document.getElementById('guide-close').addEventListener('click',   closeAll);
 document.getElementById('settings-close').addEventListener('click', closeAll);
 document.getElementById('apikeys-close').addEventListener('click',  closeAll);
+document.getElementById('reports-close').addEventListener('click',  closeAll);
 
 // settings toggles
-['st-units','st-speed','st-motion','st-intro','st-sim'].forEach(id => {
+['st-units','st-speed','st-motion','st-sim'].forEach(id => {
   const maps = {
     'st-units':  ['Imperial','Metric'],
     'st-speed':  ['Slow','Medium','Fast'],
     'st-motion': ['On','Off'],
-    'st-intro':  ['On','Off'],
     'st-sim':    ['Active','Paused'],
   };
   const el = document.getElementById(id);
@@ -941,53 +1577,196 @@ document.getElementById('apikeys-close').addEventListener('click',  closeAll);
   });
 });
 
-// --- Meal log ---
-let mealType = 'breakfast';
-document.querySelectorAll('#meal-types .log-type-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#meal-types .log-type-btn').forEach(b=>b.classList.remove('sel'));
-    btn.classList.add('sel');
-    mealType = btn.dataset.val;
+// --- Scoring panel ---
+function renderScoring() {
+  const score = lastDisplayScore || Math.round(NODES.reduce((s,n)=>s+n.currentPct,0)/NODES.length);
+  document.getElementById('sc-score-num').textContent = score;
+
+  const label = score>=85?'Elite':score>=70?'Strong':score>=55?'Balanced':score>=40?'Recovering':'At Risk';
+  const labelColor = score>=70?'rgba(126,232,160,0.7)':score>=40?'rgba(232,200,100,0.7)':'rgba(232,100,100,0.7)';
+  const verd = document.getElementById('sc-verdict');
+  verd.textContent = label; verd.style.color = labelColor;
+
+  const red    = NODES.filter(n=>getStatus(n)==='red').sort((a,b)=>a.currentPct-b.currentPct);
+  const orange = NODES.filter(n=>getStatus(n)==='orange').sort((a,b)=>a.currentPct-b.currentPct);
+  const green  = NODES.filter(n=>getStatus(n)==='green').sort((a,b)=>b.currentPct-a.currentPct);
+
+  const narrative = `Your score of ${score} is built from ${NODES.length} biomarkers — `
+    + `${green.length} performing well, ${orange.length} in the middle range, `
+    + `and ${red.length} pulling the average down. `
+    + (red.length===0 ? 'Nothing is in the red. That\'s rare.'
+      : red.length<=2 ? 'A small number of markers are holding you back.'
+      : 'Several systems need attention before the score climbs.');
+  document.getElementById('sc-narrative').textContent = narrative;
+
+  function buildSection(el, nodes, getNote) {
+    el.innerHTML = '';
+    if (!nodes.length) { el.style.display='none'; return; }
+    el.style.display = '';
+    const head = document.createElement('div');
+    head.className = 'sc-section-head';
+    head.textContent = el.id==='sc-red-section'?`Needs Attention — ${nodes.length} marker${nodes.length>1?'s':''}`
+      : el.id==='sc-orange-section'?`Watch Zone — ${nodes.length} marker${nodes.length>1?'s':''}`
+      : `Performing — ${nodes.length} marker${nodes.length>1?'s':''}`;
+    el.appendChild(head);
+    nodes.forEach(n => {
+      const pct = Math.round(n.currentPct);
+      const row = document.createElement('div'); row.className = 'sc-row';
+      const note = getNote(n);
+      row.innerHTML = `<div class="sc-row-dot"></div>
+        <div class="sc-row-body">
+          <div class="sc-row-label"><span>${n.label}</span><span class="sc-row-pct">${pct}%</span></div>
+          <div class="sc-row-text">${note}</div>
+        </div>`;
+      el.appendChild(row);
+    });
+  }
+
+  buildSection(
+    document.getElementById('sc-red-section'), red,
+    n => n.rec?.diet ? `${n.insight} — ${n.rec.diet.split('.')[0]}.` : n.insight
+  );
+  buildSection(
+    document.getElementById('sc-orange-section'), orange,
+    n => n.insight
+  );
+  buildSection(
+    document.getElementById('sc-green-section'), green,
+    n => n.rec?.green || n.insight
+  );
+}
+
+// --- Reports panel ---
+function openReports(tab) {
+  switchRpTab(tab);
+  if (tab === 'live') renderLiveData();
+  if (tab === 'body')   loadEntries('body');
+  if (tab === 'mind')   loadEntries('mind');
+  if (tab === 'spirit') loadEntries('spirit');
+  if (tab === 'meals')  loadMeals();
+}
+
+function switchRpTab(tab) {
+  document.querySelectorAll('.rp-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.rp-section').forEach(s => s.classList.toggle('active', s.id === 'rp-' + tab));
+}
+
+document.querySelectorAll('.rp-tab').forEach(t => {
+  t.addEventListener('click', () => openReports(t.dataset.tab));
+});
+
+function renderLiveData() {
+  const tbody = document.getElementById('rp-live-tbody');
+  tbody.innerHTML = '';
+  NODES.forEach(n => {
+    const st = getStatus(n);
+    const sc = st==='green' ? [126,232,160] : st==='orange' ? [232,200,100] : [232,100,100];
+    const fill = st==='green' ? 'rgba(126,232,160,0.55)' : st==='orange' ? 'rgba(232,200,100,0.55)' : 'rgba(232,100,100,0.55)';
+    const pct = Math.round(n.currentPct);
+    const isLive = n.source && !n.source.toLowerCase().includes('sim');
+    const val = n.calcValue !== undefined ? n.calcValue : '—';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="rp-dot ${st}" style="display:inline-block"></span></td>
+      <td><span class="rp-marker">${n.label}</span></td>
+      <td><span class="rp-system">${n.system||''}</span></td>
+      <td><span class="rp-val">${val}</span> <span class="rp-unit">${n.unit||''}</span></td>
+      <td>
+        <div class="rp-pct-track">
+          <div class="rp-pct-fill" style="width:${pct}%;background:${fill}"></div>
+        </div>
+        <span style="font-size:9px;color:rgba(201,169,110,0.3);margin-left:8px;font-family:'Cormorant Garamond',serif">${pct}%</span>
+      </td>
+      <td><span class="rp-source-badge${isLive?' live':''}">${isLive?'Live':'Simulated'}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function loadEntries(type) {
+  const el = document.getElementById(`rp-${type}-entries`);
+  el.innerHTML = '';
+  try {
+    const data = await fetch('/api/symptoms').then(r=>r.json());
+    const entries = (data.symptoms||data||[]).filter(e=>e.type===type).reverse();
+    if (!entries.length) { el.innerHTML = '<div class="rp-empty">No entries yet.</div>'; return; }
+    entries.forEach(e => {
+      const d = new Date(e.timestamp||e.time||Date.now());
+      const ts = isNaN(d) ? '' : d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+      const div = document.createElement('div'); div.className = 'rp-entry';
+      div.innerHTML = `<div class="rp-entry-meta"><span class="rp-entry-time">${ts}</span><span class="rp-entry-sev">Severity ${e.severity||'—'}</span></div><div class="rp-entry-text">${e.text||''}</div>`;
+      el.appendChild(div);
+    });
+  } catch { el.innerHTML = '<div class="rp-empty">No entries yet.</div>'; }
+}
+
+async function loadMeals() {
+  const el = document.getElementById('rp-meal-entries');
+  el.innerHTML = '';
+  try {
+    const data = await fetch('/api/meals').then(r=>r.json());
+    const entries = (data.meals||data||[]).reverse();
+    if (!entries.length) { el.innerHTML = '<div class="rp-empty">No meals logged yet.</div>'; return; }
+    entries.forEach(e => {
+      const d = new Date(e.timestamp||e.time||Date.now());
+      const ts = isNaN(d) ? '' : d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+      const div = document.createElement('div'); div.className = 'rp-entry';
+      div.innerHTML = `<div class="rp-entry-meta"><span class="rp-entry-time">${ts}</span><span class="rp-entry-type">${e.meal_type||''}</span></div><div class="rp-entry-text">${e.description||''}</div>`;
+      el.appendChild(div);
+    });
+  } catch { el.innerHTML = '<div class="rp-empty">No meals logged yet.</div>'; }
+}
+
+// Severity selectors
+['body','mind','spirit'].forEach(type => {
+  document.querySelectorAll(`#rp-${type}-sev-row .rp-sev-btn`).forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll(`#rp-${type}-sev-row .rp-sev-btn`).forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+    });
   });
 });
-document.getElementById('btn-meal').addEventListener('click', () => open('meal-panel'));
-document.getElementById('meal-close').addEventListener('click', closeAll);
-document.getElementById('meal-submit').addEventListener('click', async () => {
-  const text = document.getElementById('meal-text').value.trim();
+
+// Meal type selector
+let rpMealType = 'breakfast';
+document.querySelectorAll('#rp-meal-types .rp-type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#rp-meal-types .rp-type-btn').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel'); rpMealType = btn.dataset.val;
+  });
+});
+
+// Submit handlers
+async function rpLogSymptom(type) {
+  const text = document.getElementById(`rp-${type}-text`).value.trim();
+  if (!text) return;
+  const sev = parseInt(document.querySelector(`#rp-${type}-sev-row .rp-sev-btn.sel`)?.dataset.val||1);
+  await fetch('/log/symptom', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({text, severity:sev, type}) });
+  const conf = document.getElementById(`rp-${type}-confirm`);
+  conf.textContent = 'Recorded.';
+  document.getElementById(`rp-${type}-text`).value = '';
+  loadEntries(type);
+  setTimeout(()=>{ conf.textContent=''; }, 2000);
+}
+
+document.getElementById('rp-body-submit').addEventListener('click',   () => rpLogSymptom('body'));
+document.getElementById('rp-mind-submit').addEventListener('click',   () => rpLogSymptom('mind'));
+document.getElementById('rp-spirit-submit').addEventListener('click', () => rpLogSymptom('spirit'));
+
+document.getElementById('rp-meal-submit').addEventListener('click', async () => {
+  const text = document.getElementById('rp-meal-text').value.trim();
   if (!text) return;
   await fetch('/log/meal', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({description:text, meal_type:mealType}) });
-  document.getElementById('meal-confirm').textContent = 'Recorded.';
-  document.getElementById('meal-text').value = '';
-  setTimeout(()=>{ document.getElementById('meal-confirm').textContent=''; }, 2000);
+    body: JSON.stringify({description:text, meal_type:rpMealType}) });
+  const conf = document.getElementById('rp-meal-confirm');
+  conf.textContent = 'Recorded.';
+  document.getElementById('rp-meal-text').value = '';
+  loadMeals();
+  setTimeout(()=>{ conf.textContent=''; }, 2000);
 });
 
-// --- Symptom log ---
-let severity = 1;
-document.querySelectorAll('#severity-row .sev-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#severity-row .sev-btn').forEach(b=>b.classList.remove('sel'));
-    btn.classList.add('sel');
-    severity = parseInt(btn.dataset.val);
-  });
-});
-document.getElementById('btn-symptom').addEventListener('click', () => open('symptom-panel'));
-document.getElementById('symptom-close').addEventListener('click', closeAll);
-document.getElementById('symptom-submit').addEventListener('click', async () => {
-  const text = document.getElementById('symptom-text').value.trim();
-  if (!text) return;
-  await fetch('/log/symptom', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({text, severity}) });
-  document.getElementById('symptom-confirm').textContent = 'Recorded.';
-  document.getElementById('symptom-text').value = '';
-  setTimeout(()=>{ document.getElementById('symptom-confirm').textContent=''; }, 2000);
-});
-
-// --- Ask Grail ---
-document.getElementById('btn-grail').addEventListener('click', async () => {
-  open('grail-panel');
-  document.getElementById('grail-loading').style.display = 'block';
-  document.getElementById('grail-result').style.display  = 'none';
+// --- Grail Guidance ---
+async function askGrail() {
   try {
     const score = lastDisplayScore || '—';
     const res = await fetch('/api/grail-guide', {
@@ -998,25 +1777,41 @@ document.getElementById('btn-grail').addEventListener('click', async () => {
     document.getElementById('grail-loading').style.display = 'none';
     document.getElementById('grail-result').style.display  = 'block';
 
-    if (res.verdict) {
-      document.getElementById('grail-verdict').innerHTML =
-        res.verdict.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    // verdict may be a string or an object depending on 5i synthesis result
+    const verdictRaw = res.verdict;
+    const verdictText = typeof verdictRaw === 'string'
+      ? verdictRaw
+      : (verdictRaw?.signal && verdictRaw.signal !== 'Synthesis failed.'
+          ? verdictRaw.signal
+          : null);
+
+    const verdictEl = document.getElementById('grail-verdict');
+    if (verdictText) {
+      verdictEl.innerHTML = verdictText
+        .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+        .replace(/\n/g,'<br>');
+    } else {
+      verdictEl.style.display = 'none';
     }
+
     const modelsEl = document.getElementById('grail-models');
     modelsEl.innerHTML = '';
     for (const [key, val] of Object.entries(res.results || {})) {
+      const text = typeof val === 'string' ? val : (val?.response || val?.text || JSON.stringify(val));
       const div = document.createElement('div');
       div.className = 'g-model-block';
-      div.innerHTML = `<div class="g-model-name">${key}</div><div class="g-model-text">${(val.response||'').substring(0,300)}…</div>`;
+      div.innerHTML = `<div class="g-model-name">${key}</div><div class="g-model-text">${text.substring(0,400).replace(/\n/g,'<br>')}…</div>`;
       modelsEl.appendChild(div);
     }
     document.getElementById('grail-elapsed').textContent = res.elapsed ? `${res.elapsed}s synthesis` : '';
   } catch(e) {
+    console.error('Ask Grail error:', e);
     document.getElementById('grail-loading').style.display = 'none';
     document.getElementById('grail-result').style.display  = 'block';
-    document.getElementById('grail-verdict').textContent   = '5i unavailable — start it at port 5562.';
+    document.getElementById('grail-verdict').textContent   = 'Error: ' + e.message;
+    document.getElementById('grail-verdict').style.display = 'block';
   }
-});
+}
 document.getElementById('grail-close').addEventListener('click', closeAll);
 
 // --- Panel helpers ---

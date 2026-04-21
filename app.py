@@ -36,6 +36,10 @@ def wjson(path, data):
 def index():
     return send_from_directory('.', 'index.html')
 
+@app.route('/cells')
+def cells():
+    return send_from_directory('.', 'cells.html')
+
 # Health ingest from Shortcuts / Health export parser
 @app.route('/ingest', methods=['POST'])
 def ingest():

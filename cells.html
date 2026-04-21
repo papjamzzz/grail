@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grail — Cell View</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:#01010A; }
+canvas { display:block; }
+#grail-word {
+  position:fixed; top:8px; left:50%; transform:translateX(-50%);
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:clamp(72px,11vw,172px); font-weight:300;
+  letter-spacing:0.3em; color:rgba(201,169,110,0.92);
+  text-shadow:0 0 28px rgba(201,169,110,0.55), 0 0 60px rgba(201,169,110,0.28);
+  line-height:1; white-space:nowrap;
+  z-index:10; pointer-events:none; text-align:center;
+}
+#credit {
+  position:fixed; bottom:28px; left:36px;
+  font-family:'Cormorant Garamond',serif; font-size:10px;
+  letter-spacing:4px; text-transform:uppercase;
+  color:rgba(201,169,110,0.52); z-index:10; pointer-events:none;
+}
+#tagline {
+  position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:clamp(22px,2.2vw,34px); font-weight:300; font-style:italic;
+  letter-spacing:0.18em; color:rgba(201,169,110,0.92);
+  text-shadow:0 0 28px rgba(201,169,110,0.55), 0 0 60px rgba(201,169,110,0.28);
+  white-space:nowrap; z-index:10; pointer-events:none; text-align:center;
+}
+#sidebar {
+  position:fixed; top:0; right:0; bottom:0; width:200px; z-index:50;
+  display:flex; flex-direction:column; align-items:flex-end; justify-content:center;
+  pointer-events:none;
+}
+#sidebar::before {
+  content:''; position:absolute; top:22%; bottom:22%; right:20px;
+  width:1px; background:rgba(201,169,110,0.05);
+  transition:background 0.6s; pointer-events:none;
+}
+.sb-items {
+  display:flex; flex-direction:column; align-items:flex-end;
+  gap:22px; padding-right:32px;
+  opacity:0; transform:translateX(14px);
+  transition:opacity 0.5s ease, transform 0.5s ease;
+  pointer-events:none;
+}
+.sb-items.visible { opacity:1; transform:translateX(0); pointer-events:all; }
+.sb-divider { width:18px; height:1px; background:rgba(201,169,110,0.1); }
+.tb-item {
+  font-family:'Cormorant Garamond',serif; font-size:17px;
+  letter-spacing:5px; text-transform:uppercase;
+  color:rgba(201,169,110,0.88); cursor:pointer;
+  transition:color 0.3s; user-select:none; white-space:nowrap;
+  pointer-events:auto;
+  text-shadow:0 0 18px rgba(201,169,110,0.4);
+}
+.tb-item:hover { color:rgba(201,169,110,1); text-shadow:0 0 22px rgba(201,169,110,0.7); }
+#tooltip {
+  position:fixed; z-index:80; pointer-events:none;
+  background:rgba(3,2,12,0.94); border:1px solid rgba(201,169,110,0.10);
+  padding:7px 14px 7px 10px; display:none; align-items:center; gap:8px;
+  font-family:'Cormorant Garamond',serif; border-radius:2px;
+}
+.tt-dot  { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.tt-name { font-size:12px; color:rgba(220,195,140,0.9); white-space:nowrap; }
+.tt-pct  { font-size:9px; letter-spacing:2px; color:rgba(201,169,110,0.3); margin-left:2px; }
+.panel {
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(0.92);
+  opacity:0; pointer-events:none;
+  background:rgba(5,4,14,0.97); border:1px solid rgba(201,169,110,0.12);
+  z-index:30; transition:transform 0.4s cubic-bezier(0.34,1.4,0.64,1), opacity 0.28s ease;
+  padding:44px 48px; width:320px; text-align:center;
+  font-family:'Cormorant Garamond',serif;
+}
+.panel.open { transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:all; }
+#overlay { position:fixed; inset:0; z-index:25; display:none; background:rgba(2,2,10,0.55); }
+#overlay.on { display:block; }
+.p-sys  { font-size:8px; letter-spacing:5px; text-transform:uppercase; color:rgba(201,169,110,0.28); margin-bottom:6px; }
+.p-name { font-size:11px; letter-spacing:5px; text-transform:uppercase; color:rgba(201,169,110,0.5); margin-bottom:22px; }
+.p-val  { font-size:62px; font-weight:300; line-height:1; margin-bottom:5px; }
+.p-unit { font-size:9px; letter-spacing:4px; text-transform:uppercase; color:rgba(201,169,110,0.25); margin-bottom:26px; }
+.p-bar-track { width:100%; height:1px; background:rgba(201,169,110,0.07); position:relative; margin-bottom:24px; }
+.p-bar-fill  { position:absolute; top:0; left:0; height:1px; }
+.p-bar-dot   { position:absolute; top:-3px; width:7px; height:7px; border-radius:50%; }
+.p-close { margin-top:28px; font-size:8px; letter-spacing:5px; text-transform:uppercase; color:rgba(201,169,110,0.18); cursor:pointer; transition:color 0.3s; display:inline-block; }
+.p-close:hover { color:rgba(201,169,110,0.55); }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div id="grail-word">grail</div>
+<div id="credit">© Christian Seeber</div>
+<div id="tagline">Add Life to Your Days</div>
+<div id="sidebar">
+  <div class="sb-items" id="sb-items">
+    <span class="tb-item" id="tb-back">← Grail</span>
+    <div class="sb-divider"></div>
+    <span class="tb-item">Cell View</span>
+  </div>
+</div>
+<div id="tooltip"><span class="tt-dot" id="tt-dot"></span><span class="tt-name" id="tt-name"></span><span class="tt-pct" id="tt-pct"></span></div>
+<div id="overlay"></div>
+<div class="panel" id="cell-panel">
+  <div class="p-sys" id="p-sys"></div>
+  <div class="p-name" id="p-name"></div>
+  <div class="p-val" id="p-val"></div>
+  <div class="p-unit" id="p-unit-el"></div>
+  <div class="p-bar-track"><div class="p-bar-fill" id="p-bar-fill"></div><div class="p-bar-dot" id="p-bar-dot"></div></div>
+  <span class="p-close" id="p-close">Release</span>
+</div>
+
+<script>
+// ─── BIOMARKER DATA ───────────────────────────────────────────────────────────
+const DATA = [
+  { id:'hrv',         label:'HRV',               pct:72, system:'Cardiovascular',   unit:'ms',       val:p=>Math.round(20+p*0.9) },
+  { id:'sleep',       label:'Sleep Duration',     pct:65, system:'Sleep',            unit:'hrs',      val:p=>(4+p*0.05).toFixed(1) },
+  { id:'recovery',    label:'Recovery Index',     pct:68, system:'Recovery',         unit:'/100',     val:p=>Math.round(p) },
+  { id:'rhr',         label:'Resting HR',         pct:68, system:'Cardiovascular',   unit:'bpm',      val:p=>Math.round(80-p*0.38) },
+  { id:'cortisol',    label:'Cortisol',           pct:34, system:'Hormonal',         unit:'μg/dL',    val:p=>(22-p*0.14).toFixed(1) },
+  { id:'vo2',         label:'VO₂ Max',            pct:70, system:'Fitness',          unit:'mL/kg/min',val:p=>Math.round(25+p*0.55) },
+  { id:'spo2',        label:'SpO₂',              pct:88, system:'Respiratory',      unit:'%',        val:p=>Math.round(94+p*0.06) },
+  { id:'glucose',     label:'Fasting Glucose',    pct:78, system:'Metabolic',        unit:'mg/dL',    val:p=>Math.round(140-p*0.7) },
+  { id:'testosterone',label:'Testosterone',       pct:73, system:'Hormonal',         unit:'ng/dL',    val:p=>Math.round(300+p*7) },
+  { id:'vitaminD',    label:'Vitamin D',          pct:42, system:'Micronutrient',    unit:'ng/mL',    val:p=>Math.round(10+p*0.5) },
+  { id:'deepSleep',   label:'Deep Sleep %',       pct:60, system:'Sleep',            unit:'%',        val:p=>Math.round(8+p*0.14) },
+  { id:'crp',         label:'CRP',               pct:80, system:'Inflammation',     unit:'mg/L',     val:p=>(8-p*0.075).toFixed(2) },
+  { id:'bodyFat',     label:'Body Fat %',         pct:68, system:'Composition',      unit:'%',        val:p=>Math.round(35-p*0.2) },
+  { id:'sbp',         label:'Systolic BP',        pct:74, system:'Cardiovascular',   unit:'mmHg',     val:p=>Math.round(160-p*0.6) },
+  { id:'magnesium',   label:'Magnesium',          pct:44, system:'Micronutrient',    unit:'mg/dL',    val:p=>(1.4+p*0.014).toFixed(2) },
+  { id:'omega3',      label:'Omega-3 Index',      pct:55, system:'Lipid',            unit:'%',        val:p=>(2+p*0.08).toFixed(1) },
+  { id:'insulin',     label:'Insulin Sensitivity',pct:72, system:'Metabolic',        unit:'proxy',    val:p=>Math.round(p) },
+  { id:'remSleep',    label:'REM Sleep %',        pct:66, system:'Sleep',            unit:'%',        val:p=>Math.round(14+p*0.06) },
+  { id:'steps',       label:'Daily Steps',        pct:70, system:'Activity',         unit:'steps',    val:p=>Math.round(p*150) },
+  { id:'cardio',      label:'Active HR',          pct:74, system:'Cardiovascular',   unit:'bpm',      val:p=>Math.round(180-p*0.8) },
+  { id:'resp',        label:'Respiratory Rate',   pct:75, system:'Respiratory',      unit:'brpm',     val:p=>Math.round(22-p*0.08) },
+  { id:'temp',        label:'Wrist Temp',         pct:72, system:'Thermoregulation', unit:'°F',       val:p=>(97+p*0.015).toFixed(1) },
+  { id:'ferritin',    label:'Ferritin',           pct:72, system:'Hematologic',      unit:'ng/mL',    val:p=>Math.round(10+p*1.3) },
+  { id:'b12',         label:'B12',               pct:75, system:'Micronutrient',    unit:'pg/mL',    val:p=>Math.round(100+p*8) },
+  { id:'zinc',        label:'Zinc',              pct:68, system:'Micronutrient',    unit:'μg/dL',    val:p=>Math.round(55+p*0.65) },
+  { id:'uricAcid',    label:'Uric Acid',          pct:70, system:'Metabolic',        unit:'mg/dL',    val:p=>(9-p*0.05).toFixed(1) },
+  { id:'hydration',   label:'Hydration',          pct:72, system:'Hydration',        unit:'%',        val:p=>Math.round(p) },
+  { id:'grip',        label:'Grip Strength',      pct:68, system:'Fitness',          unit:'kg',       val:p=>Math.round(20+p*0.6) },
+  { id:'muscleMass',  label:'Muscle Mass',        pct:72, system:'Composition',      unit:'kg',       val:p=>Math.round(30+p*0.5) },
+  { id:'lactate',     label:'Lactate Threshold',  pct:70, system:'Fitness',          unit:'W/kg',     val:p=>(1.5+p*0.035).toFixed(2) },
+  { id:'albumin',     label:'Serum Albumin',      pct:78, system:'Protein',          unit:'g/dL',     val:p=>(2.5+p*0.025).toFixed(1) },
+  { id:'freeTesto',   label:'Free Testosterone',  pct:73, system:'Hormonal',         unit:'pg/mL',    val:p=>(5+p*0.25).toFixed(1) },
+  { id:'igf1',        label:'IGF-1',             pct:72, system:'Hormonal',         unit:'ng/mL',    val:p=>Math.round(50+p*2.5) },
+  { id:'dhea',        label:'DHEA-S',            pct:70, system:'Adrenal',          unit:'μg/dL',    val:p=>Math.round(80+p*2.5) },
+  { id:'nad',         label:'NAD+',              pct:71, system:'Cellular Energy',  unit:'proxy',    val:p=>Math.round(p) },
+  { id:'thyroid',     label:'Thyroid Function',   pct:76, system:'Endocrine',        unit:'mIU/L',    val:p=>(5-p*0.04).toFixed(2) },
+  { id:'homocysteine',label:'Homocysteine',       pct:68, system:'Cardiovascular',   unit:'μmol/L',   val:p=>(18-p*0.12).toFixed(1) },
+  { id:'apoB',        label:'ApoB',              pct:55, system:'Lipid',            unit:'mg/dL',    val:p=>Math.round(130-p*0.7) },
+  { id:'alt',         label:'ALT Enzyme',         pct:72, system:'Liver',            unit:'U/L',      val:p=>Math.round(55-p*0.35) },
+  { id:'fibrinogen',  label:'Fibrinogen',         pct:74, system:'Coagulation',      unit:'mg/dL',    val:p=>Math.round(450-p*2.5) },
+
+  // ── LIPIDS & METABOLIC ────────────────────────────────────────────────────────
+  { id:'ldl',         label:'LDL Cholesterol',    pct:55, system:'Lipid',           unit:'mg/dL',    val:p=>Math.round(180-p*0.8)  },
+  { id:'hdl',         label:'HDL Cholesterol',    pct:72, system:'Lipid',           unit:'mg/dL',    val:p=>Math.round(30+p*0.55)  },
+  { id:'totalChol',   label:'Total Cholesterol',  pct:60, system:'Lipid',           unit:'mg/dL',    val:p=>Math.round(250-p*0.9)  },
+  { id:'triglycerides',label:'Triglycerides',     pct:48, system:'Lipid',           unit:'mg/dL',    val:p=>Math.round(220-p*1.2)  },
+  { id:'hba1c',       label:'HbA1c',              pct:70, system:'Metabolic',       unit:'%',        val:p=>(9-p*0.045).toFixed(1) },
+  { id:'fastInsulin', label:'Fasting Insulin',    pct:62, system:'Metabolic',       unit:'μU/mL',    val:p=>(20-p*0.13).toFixed(1) },
+  { id:'ketones',     label:'Ketone Level',       pct:55, system:'Metabolic',       unit:'mmol/L',   val:p=>(0.1+p*0.03).toFixed(2)},
+  { id:'calBalance',  label:'Caloric Balance',    pct:65, system:'Nutrition',       unit:'kcal',     val:p=>Math.round(-500+p*10)  },
+
+  // ── VITAMINS & MINERALS ───────────────────────────────────────────────────────
+  { id:'vitaminC',    label:'Vitamin C',          pct:58, system:'Micronutrient',   unit:'mg/dL',    val:p=>(0.2+p*0.007).toFixed(2)},
+  { id:'vitaminE',    label:'Vitamin E',          pct:65, system:'Micronutrient',   unit:'mg/L',     val:p=>(5+p*0.08).toFixed(1)  },
+  { id:'vitaminK2',   label:'Vitamin K2',         pct:40, system:'Micronutrient',   unit:'ng/mL',    val:p=>(0.5+p*0.02).toFixed(2)},
+  { id:'folate',      label:'Folate (B9)',         pct:60, system:'Micronutrient',   unit:'ng/mL',    val:p=>(2+p*0.1).toFixed(1)   },
+  { id:'calcium',     label:'Calcium',            pct:72, system:'Micronutrient',   unit:'mg/dL',    val:p=>(8+p*0.025).toFixed(1) },
+  { id:'potassium',   label:'Potassium',          pct:68, system:'Electrolyte',     unit:'mEq/L',    val:p=>(3+p*0.02).toFixed(1)  },
+  { id:'sodium',      label:'Sodium',             pct:70, system:'Electrolyte',     unit:'mEq/L',    val:p=>Math.round(135+p*0.07) },
+  { id:'phosphorus',  label:'Phosphorus',         pct:72, system:'Micronutrient',   unit:'mg/dL',    val:p=>(2.5+p*0.025).toFixed(1)},
+  { id:'copper',      label:'Copper',             pct:68, system:'Micronutrient',   unit:'μg/dL',    val:p=>Math.round(70+p*0.8)   },
+  { id:'selenium',    label:'Selenium',           pct:55, system:'Micronutrient',   unit:'μg/L',     val:p=>Math.round(40+p*1.0)   },
+  { id:'iodine',      label:'Iodine',             pct:50, system:'Thyroid',         unit:'μg/L',     val:p=>Math.round(20+p*1.5)   },
+  { id:'chromium',    label:'Chromium',           pct:52, system:'Metabolic',       unit:'ng/mL',    val:p=>(0.1+p*0.003).toFixed(3)},
+
+  // ── HORMONES ─────────────────────────────────────────────────────────────────
+  { id:'shbg',        label:'SHBG',               pct:65, system:'Hormonal',        unit:'nmol/L',   val:p=>Math.round(10+p*0.5)   },
+  { id:'estradiol',   label:'Estradiol',          pct:70, system:'Hormonal',        unit:'pg/mL',    val:p=>(5+p*0.45).toFixed(1)  },
+  { id:'melatonin',   label:'Melatonin',          pct:50, system:'Sleep',           unit:'pg/mL',    val:p=>(1+p*0.14).toFixed(1)  },
+  { id:'amCortisol',  label:'AM Cortisol',        pct:58, system:'Hormonal',        unit:'μg/dL',    val:p=>(8+p*0.12).toFixed(1)  },
+  { id:'progesterone',label:'Progesterone',       pct:62, system:'Hormonal',        unit:'ng/mL',    val:p=>(0.2+p*0.15).toFixed(2)},
+  { id:'growth_h',    label:'Growth Hormone',     pct:65, system:'Hormonal',        unit:'ng/mL',    val:p=>(0.1+p*0.05).toFixed(2)},
+
+  // ── NEUROLOGICAL ─────────────────────────────────────────────────────────────
+  { id:'serotonin',   label:'Serotonin',          pct:60, system:'Neurological',    unit:'ng/mL',    val:p=>Math.round(50+p*1.2)   },
+  { id:'dopamine',    label:'Dopamine',           pct:62, system:'Neurological',    unit:'pg/mL',    val:p=>Math.round(20+p*0.8)   },
+  { id:'bdnf',        label:'BDNF',               pct:58, system:'Neurological',    unit:'ng/mL',    val:p=>(5+p*0.25).toFixed(1)  },
+  { id:'gaba',        label:'GABA Level',         pct:55, system:'Neurological',    unit:'nmol/mL',  val:p=>(0.5+p*0.04).toFixed(2)},
+
+  // ── GUT HEALTH ───────────────────────────────────────────────────────────────
+  { id:'gut_div',     label:'Gut Diversity',      pct:44, system:'Gut Health',      unit:'index',    val:p=>Math.round(p)          },
+  { id:'zonulin',     label:'Zonulin',            pct:38, system:'Gut Health',      unit:'ng/mL',    val:p=>(120-p*0.8).toFixed(0) },
+  { id:'butyrate',    label:'Butyrate',           pct:45, system:'Gut Health',      unit:'mmol/L',   val:p=>(1+p*0.05).toFixed(2)  },
+  { id:'calprotectin',label:'Calprotectin',       pct:52, system:'Gut Health',      unit:'μg/g',     val:p=>Math.round(200-p*1.5)  },
+
+  // ── NUTRITION ────────────────────────────────────────────────────────────────
+  { id:'fiber',       label:'Fiber Intake',       pct:35, system:'Nutrition',       unit:'g/day',    val:p=>Math.round(5+p*0.3)    },
+  { id:'protein',     label:'Protein Intake',     pct:65, system:'Nutrition',       unit:'g/day',    val:p=>Math.round(30+p*1.2)   },
+  { id:'omega6ratio', label:'Omega-6:3 Ratio',    pct:40, system:'Nutrition',       unit:'ratio',    val:p=>(20-p*0.15).toFixed(1) },
+  { id:'polyphenols', label:'Polyphenols',        pct:50, system:'Nutrition',       unit:'proxy',    val:p=>Math.round(p)          },
+  { id:'sugarIntake', label:'Sugar Intake',       pct:38, system:'Nutrition',       unit:'g/day',    val:p=>Math.round(80-p*0.6)   },
+  { id:'satFat',      label:'Saturated Fat',      pct:55, system:'Nutrition',       unit:'g/day',    val:p=>Math.round(30-p*0.15)  },
+  { id:'waterIntake', label:'Water Intake',       pct:60, system:'Nutrition',       unit:'L/day',    val:p=>(1+p*0.025).toFixed(1) },
+
+  // ── IMMUNE ───────────────────────────────────────────────────────────────────
+  { id:'lymphocytes', label:'Lymphocytes',        pct:72, system:'Immune',          unit:'%',        val:p=>Math.round(15+p*0.35)  },
+  { id:'neutrophils', label:'Neutrophils',        pct:68, system:'Immune',          unit:'%',        val:p=>Math.round(40+p*0.25)  },
+  { id:'nkCells',     label:'NK Cell Activity',   pct:62, system:'Immune',          unit:'proxy',    val:p=>Math.round(p)          },
+  { id:'il6',         label:'IL-6 (Cytokine)',    pct:55, system:'Immune',          unit:'pg/mL',    val:p=>(8-p*0.06).toFixed(1)  },
+
+  // ── SLEEP & MENTAL ───────────────────────────────────────────────────────────
+  { id:'sleepEff',    label:'Sleep Efficiency',   pct:68, system:'Sleep',           unit:'%',        val:p=>Math.round(60+p*0.38)  },
+  { id:'sleepLatency',label:'Sleep Latency',      pct:62, system:'Sleep',           unit:'min',      val:p=>Math.round(45-p*0.3)   },
+  { id:'stressScore', label:'Stress Score',       pct:32, system:'Mental Health',   unit:'/100',     val:p=>Math.round(100-p)      },
+  { id:'meditation',  label:'Meditation',         pct:44, system:'Mental Health',   unit:'min/day',  val:p=>Math.round(p*0.25)     },
+  { id:'cognitiveLoad',label:'Cognitive Load',    pct:55, system:'Mental Health',   unit:'proxy',    val:p=>Math.round(100-p*0.5)  },
+
+  // ── LIFESTYLE ────────────────────────────────────────────────────────────────
+  { id:'sunlight',    label:'Sunlight',           pct:45, system:'Lifestyle',       unit:'min/day',  val:p=>Math.round(p*0.6)      },
+  { id:'blueLight',   label:'Blue Light',         pct:35, system:'Lifestyle',       unit:'hrs/day',  val:p=>(12-p*0.08).toFixed(1) },
+  { id:'fastWindow',  label:'Fasting Window',     pct:58, system:'Lifestyle',       unit:'hrs',      val:p=>Math.round(8+p*0.08)   },
+  { id:'socialScore', label:'Social Connection',  pct:62, system:'Lifestyle',       unit:'proxy',    val:p=>Math.round(p)          },
+
+  // ── STRUCTURAL & LONGEVITY ───────────────────────────────────────────────────
+  { id:'boneDensity', label:'Bone Density',       pct:74, system:'Skeletal',        unit:'T-score',  val:p=>(-2.5+p*0.035).toFixed(1)},
+  { id:'collagen',    label:'Collagen Score',     pct:65, system:'Connective',      unit:'proxy',    val:p=>Math.round(p)          },
+  { id:'mitochondria',label:'Mito Function',      pct:60, system:'Cellular Energy', unit:'proxy',    val:p=>Math.round(p)          },
+  { id:'telomere',    label:'Telomere Length',    pct:68, system:'Longevity',       unit:'proxy',    val:p=>Math.round(p)          },
+  { id:'muscleRec',   label:'Muscle Recovery',    pct:68, system:'Recovery',        unit:'hrs',      val:p=>(72-p*0.48).toFixed(1) },
+  { id:'jointHealth', label:'Joint Health',       pct:70, system:'Skeletal',        unit:'proxy',    val:p=>Math.round(p)          },
+];
+
+// ─── STATUS & BIOLOGICAL COLORS ───────────────────────────────────────────────
+function getStatus(pct)   { return pct>=68?'green':pct>=38?'orange':'red'; }
+function statusRGB(pct)   {
+  const s = getStatus(pct);
+  // Electric pastels — vivid but soft-edged
+  return s==='green'?[80,255,180]:s==='orange'?[255,200,80]:[255,90,140];
+}
+function cellRGB(pct, seed) {
+  const s = getStatus(pct);
+  const j = ((seed * 37 + 13) % 12) / 12;
+  if (s === 'green')  return [ Math.round(60+j*40),  Math.round(235+j*20), Math.round(165+j*30) ]; // electric mint
+  if (s === 'orange') return [ Math.round(245+j*10), Math.round(188+j*22), Math.round(60+j*30)  ]; // vivid amber
+  return                     [ Math.round(245+j*10), Math.round(72+j*30),  Math.round(128+j*30) ]; // hot coral rose
+}
+
+// ─── CANVAS ───────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+let W, H, CX, CY, coreR, cellR;
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  CX = W/2; CY = H/2;
+  coreR = Math.min(W,H) * 0.058;
+  // Smaller cells to fit ~90 in a tight cluster
+  cellR = Math.min(W,H) * 0.038;
+  initCells();
+}
+window.addEventListener('resize', resize);
+
+// ─── BLOB SHAPE ───────────────────────────────────────────────────────────────
+// Smooth organic outline — each cell has its own wave signature
+function blobR(angle, r, bp, t) {
+  return r * (1
+    + bp.a0 * Math.sin(bp.n0 * angle + t * bp.s0 + bp.ph)
+    + bp.a1 * Math.sin(bp.n1 * angle - t * bp.s1 + bp.ph * 1.3)
+    + bp.a2 * Math.sin(bp.n2 * angle + t * bp.s2 + bp.ph * 0.6)
+  );
+}
+
+function blobPath(cx, cy, r, bp, t) {
+  const steps = 64;
+  ctx.beginPath();
+  for (let i=0; i<=steps; i++) {
+    const a = (i/steps)*Math.PI*2;
+    const br = blobR(a, r, bp, t);
+    i===0 ? ctx.moveTo(cx+Math.cos(a)*br, cy+Math.sin(a)*br)
+           : ctx.lineTo(cx+Math.cos(a)*br, cy+Math.sin(a)*br);
+  }
+  ctx.closePath();
+}
+
+// ─── CELL OBJECTS ─────────────────────────────────────────────────────────────
+let cells = [];
+
+function initCells() {
+  cells = DATA.map((d, i) => {
+    const prev = cells.find(c=>c.id===d.id);
+
+    // Wider size variation — 55% to 145% of base
+    const sizeVar = 0.55 + ((i * 17 + 5) % 46) / 50;
+    const r = cellR * sizeVar;
+
+    // Blob params tuned for real-cell membrane oscillation (~0.3–1 Hz)
+    const ph = (i * 2.399) % (Math.PI*2);
+    const bp = {
+      n0: 2+(i%3), a0: 0.08+(i%5)*0.014, s0: 1.2+(i%4)*0.40, ph,
+      n1: 3+(i%3), a1: 0.06+(i%6)*0.010, s1: 0.9+(i%4)*0.30,
+      n2: 5+(i%3), a2: 0.04+(i%7)*0.007, s2: 0.6+(i%5)*0.25,
+    };
+
+    // Start near center, tightly clustered
+    const startAngle = (i / DATA.length) * Math.PI * 2;
+    const startDist  = coreR * 1.6 + r + Math.random() * r * 1.8;
+
+    return {
+      ...d,
+      r, bp,
+      colorSeed: i,
+      currentPct: d.pct,
+      targetPct: d.pct,
+      x: prev?.x ?? CX + Math.cos(startAngle) * startDist,
+      y: prev?.y ?? CY + Math.sin(startAngle) * startDist,
+      vx: 0, vy: 0,
+      kickTimer: Math.floor(Math.random() * 120),
+    };
+  });
+
+  // Pre-settle so we start with a packed cluster
+  for (let i=0; i<600; i++) physicsStep();
+}
+
+// ─── PHYSICS ─────────────────────────────────────────────────────────────────
+function physicsStep() {
+  const N = cells.length;
+
+  // Per-cell random twitches — independent timers, uniform tiny magnitude
+  cells.forEach(c => {
+    c.kickTimer--;
+    if (c.kickTimer <= 0) {
+      const a = Math.random() * Math.PI * 2;
+      const mag = 0.12 + Math.random() * 0.10;
+      c.vx += Math.cos(a) * mag;
+      c.vy += Math.sin(a) * mag;
+      c.kickTimer = 90 + Math.floor(Math.random() * 180);
+    }
+    c.vx *= 0.91;
+    c.vy *= 0.91;
+    c.x += c.vx;
+    c.y += c.vy;
+  });
+
+  // Subtract mean velocity each frame — prevents blob from drifting or spinning
+  const mvx = cells.reduce((s,c)=>s+c.vx,0)/N;
+  const mvy = cells.reduce((s,c)=>s+c.vy,0)/N;
+  cells.forEach(c => { c.vx -= mvx; c.vy -= mvy; });
+
+  // Cell–cell: repulsion + sticky cohesion
+  for (let i=0; i<N; i++) {
+    for (let j=i+1; j<N; j++) {
+      const a = cells[i], b = cells[j];
+      const dx = b.x-a.x, dy = b.y-a.y;
+      const dist = Math.sqrt(dx*dx+dy*dy) || 0.01;
+      const minD    = (a.r + b.r) * 0.74;
+      const stickyD = (a.r + b.r) * 1.20;
+      if (dist < minD) {
+        const push = (minD - dist) / dist * 0.50;
+        const px = dx*push, py = dy*push;
+        a.x -= px*0.5; a.y -= py*0.5;
+        b.x += px*0.5; b.y += py*0.5;
+      } else if (dist < stickyD) {
+        const pull = (dist - minD) / dist * 0.025;
+        const px = dx*pull, py = dy*pull;
+        a.x += px*0.5; a.y += py*0.5;
+        b.x -= px*0.5; b.y -= py*0.5;
+      }
+    }
+  }
+}
+
+// ─── CELL RENDERING ───────────────────────────────────────────────────────────
+function drawCell(c, t, isHovered) {
+  const [r,g,b] = cellRGB(c.currentPct, c.colorSeed);
+
+  // Faint outer atmosphere — just a breath of color
+  const glowGrad = ctx.createRadialGradient(c.x,c.y,c.r*0.6,c.x,c.y,c.r*1.8);
+  glowGrad.addColorStop(0,   `rgba(${r},${g},${b},0.10)`);
+  glowGrad.addColorStop(0.6, `rgba(${r},${g},${b},0.04)`);
+  glowGrad.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+  ctx.beginPath(); ctx.arc(c.x,c.y,c.r*1.8,0,Math.PI*2);
+  ctx.fillStyle=glowGrad; ctx.fill();
+
+  // ── CELL BODY ──
+  blobPath(c.x, c.y, c.r, c.bp, t);
+  ctx.save(); ctx.clip();
+
+  // Vivid base fill — the cell's actual color, semi-translucent like jelly
+  ctx.fillStyle = `rgba(${r},${g},${b},0.55)`;
+  ctx.fillRect(c.x-c.r*2.2, c.y-c.r*2.2, c.r*4.4, c.r*4.4);
+
+  // Main body gradient — brighter center, richer edges
+  const bx = c.x - c.r*0.18, by = c.y - c.r*0.20;
+  const body = ctx.createRadialGradient(bx,by,0,c.x,c.y,c.r*1.1);
+  body.addColorStop(0,    `rgba(${Math.min(r+70,255)},${Math.min(g+55,255)},${Math.min(b+40,255)},0.78)`);
+  body.addColorStop(0.38, `rgba(${r},${g},${b},0.70)`);
+  body.addColorStop(0.72, `rgba(${Math.round(r*0.72)},${Math.round(g*0.72)},${Math.round(b*0.72)},0.55)`);
+  body.addColorStop(1,    `rgba(${Math.round(r*0.38)},${Math.round(g*0.38)},${Math.round(b*0.38)},0.30)`);
+  ctx.fillStyle=body;
+  ctx.beginPath(); ctx.arc(c.x,c.y,c.r*1.1,0,Math.PI*2); ctx.fill();
+
+  // Soft translucent core — gelatinous interior feel
+  const hollow = ctx.createRadialGradient(c.x+c.r*0.05,c.y+c.r*0.06,0,c.x,c.y,c.r*0.60);
+  hollow.addColorStop(0,   `rgba(${Math.round(r*0.25)},${Math.round(g*0.22)},${Math.round(b*0.18)},0.35)`);
+  hollow.addColorStop(1,   'rgba(0,0,0,0)');
+  ctx.fillStyle=hollow;
+  ctx.beginPath(); ctx.arc(c.x,c.y,c.r*0.60,0,Math.PI*2); ctx.fill();
+
+  // Membrane highlight band — top-left light catch
+  const memX=c.x-c.r*0.26, memY=c.y-c.r*0.24;
+  const mem = ctx.createRadialGradient(memX,memY,c.r*0.45,memX,memY,c.r*0.95);
+  mem.addColorStop(0,   `rgba(255,255,255,0.28)`);
+  mem.addColorStop(0.5, `rgba(${Math.min(r+80,255)},${Math.min(g+70,255)},${Math.min(b+50,255)},0.12)`);
+  mem.addColorStop(1,   'rgba(0,0,0,0)');
+  ctx.fillStyle=mem;
+  ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill();
+
+  // Specular glint
+  const sx=c.x-c.r*0.36, sy=c.y-c.r*0.38;
+  const spec=ctx.createRadialGradient(sx,sy,0,sx,sy,c.r*0.20);
+  spec.addColorStop(0,'rgba(255,255,255,0.55)');
+  spec.addColorStop(0.5,'rgba(255,255,255,0.12)');
+  spec.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=spec; ctx.beginPath(); ctx.arc(sx,sy,c.r*0.20,0,Math.PI*2); ctx.fill();
+
+  ctx.restore();
+
+  // ── MEMBRANE EDGE ──
+  blobPath(c.x, c.y, c.r, c.bp, t);
+  ctx.strokeStyle = isHovered
+    ? 'rgba(255,248,200,0.60)'
+    : `rgba(${Math.min(r+90,255)},${Math.min(g+75,255)},${Math.min(b+50,255)},0.65)`;
+  ctx.lineWidth = Math.max(0.8, c.r*0.028);
+  ctx.stroke();
+
+}
+
+// ─── CENTER DOT ───────────────────────────────────────────────────────────────
+let grailScore = null;
+function fetchScore() {
+  fetch('/api/data').then(r=>r.json()).then(d=>{
+    // Mirror the main app scoring: map live fields to rough pct, fall back to cell average
+    const avg = Math.round(cells.reduce((s,c)=>s+c.currentPct,0) / (cells.length||1));
+    grailScore = avg;
+  }).catch(()=>{
+    grailScore = Math.round(cells.reduce((s,c)=>s+c.currentPct,0) / (cells.length||1));
+  });
+}
+fetchScore();
+setInterval(fetchScore, 30000);
+
+function drawCore() {
+  const score = grailScore ?? Math.round(cells.reduce((s,c)=>s+c.currentPct,0)/(cells.length||1));
+
+  // Faint amber halo so it reads against the cells
+  const halo = ctx.createRadialGradient(CX,CY,coreR*0.6,CX,CY,coreR*2.2);
+  halo.addColorStop(0,  'rgba(0,0,0,0.55)');
+  halo.addColorStop(0.5,'rgba(0,0,0,0.18)');
+  halo.addColorStop(1,  'rgba(0,0,0,0)');
+  ctx.beginPath(); ctx.arc(CX,CY,coreR*2.2,0,Math.PI*2);
+  ctx.fillStyle=halo; ctx.fill();
+
+  // Black dot
+  ctx.beginPath(); ctx.arc(CX,CY,coreR,0,Math.PI*2);
+  ctx.fillStyle='rgba(2,1,4,0.97)'; ctx.fill();
+  ctx.strokeStyle='rgba(201,169,110,0.28)'; ctx.lineWidth=1.2; ctx.stroke();
+
+  // Score number
+  ctx.fillStyle='rgba(240,250,255,0.96)';
+  ctx.shadowColor='rgba(200,230,255,0.75)';
+  ctx.shadowBlur=14;
+  ctx.font=`300 ${Math.round(coreR*1.18)}px "Cormorant Garamond", serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(score, CX, CY+coreR*0.05);
+  ctx.shadowBlur=0;
+}
+
+// ─── HOVER / CLICK ────────────────────────────────────────────────────────────
+let hoveredCell = null;
+const tt = document.getElementById('tooltip');
+
+canvas.addEventListener('mousemove', e => {
+  const mx=e.clientX, my=e.clientY;
+  hoveredCell = null;
+  cells.forEach(c => {
+    const dx=c.x-mx, dy=c.y-my;
+    if (Math.sqrt(dx*dx+dy*dy) < c.r*1.05) hoveredCell = c;
+  });
+  canvas.style.cursor = hoveredCell ? 'pointer' : 'default';
+  if (hoveredCell) {
+    const [sr,sg,sb] = statusRGB(hoveredCell.currentPct);
+    document.getElementById('tt-dot').style.cssText=`background:rgb(${sr},${sg},${sb});box-shadow:0 0 5px rgba(${sr},${sg},${sb},0.7)`;
+    document.getElementById('tt-name').textContent = hoveredCell.label;
+    document.getElementById('tt-pct').textContent  = Math.round(hoveredCell.currentPct)+'%';
+    tt.style.cssText=`display:flex;left:${mx+16}px;top:${my-26}px;`;
+  } else { tt.style.display='none'; }
+});
+
+canvas.addEventListener('click', e => {
+  const mx=e.clientX, my=e.clientY;
+  const c = cells.find(c=>{ const dx=c.x-mx,dy=c.y-my; return Math.sqrt(dx*dx+dy*dy)<c.r*1.05; });
+  if (c) openPanel(c);
+});
+
+function openPanel(c) {
+  const [sr,sg,sb] = statusRGB(c.currentPct);
+  const col=`rgb(${sr},${sg},${sb})`;
+  document.getElementById('p-sys').textContent     = c.system;
+  document.getElementById('p-name').textContent    = c.label;
+  document.getElementById('p-val').textContent     = c.val(c.currentPct);
+  document.getElementById('p-val').style.color     = col;
+  document.getElementById('p-unit-el').textContent = c.unit;
+  document.getElementById('p-bar-fill').style.cssText = `width:${c.currentPct}%;background:${col}`;
+  document.getElementById('p-bar-dot').style.cssText  = `left:calc(${c.currentPct}% - 3.5px);background:${col}`;
+  document.getElementById('overlay').classList.add('on');
+  document.getElementById('cell-panel').classList.add('open');
+}
+document.getElementById('p-close').addEventListener('click', ()=>{
+  document.getElementById('cell-panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('on');
+});
+document.getElementById('overlay').addEventListener('click', ()=>{
+  document.getElementById('cell-panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('on');
+});
+document.getElementById('tb-back').addEventListener('click', ()=>{ window.location.href='/'; });
+
+// Sidebar: fade in on mousemove, auto-hide after 3s inactivity
+const sbItems = document.getElementById('sb-items');
+let sbTimeout;
+document.addEventListener('mousemove', () => {
+  sbItems.classList.add('visible');
+  clearTimeout(sbTimeout);
+  sbTimeout = setTimeout(() => sbItems.classList.remove('visible'), 3000);
+});
+
+// ─── LOOP ─────────────────────────────────────────────────────────────────────
+let time = 0;
+
+function loop() {
+  requestAnimationFrame(loop);
+  time += 0.016;
+
+  ctx.clearRect(0,0,W,H);
+
+  // Background — near black, faint warm center (the body's interior)
+  const bg = ctx.createRadialGradient(CX,CY,0,CX,CY,Math.max(W,H)*0.72);
+  bg.addColorStop(0,'rgba(12,7,20,1)');
+  bg.addColorStop(0.35,'rgba(6,3,12,1)');
+  bg.addColorStop(1,'rgba(1,1,3,1)');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  physicsStep();
+
+  // Drift pct values slowly
+  cells.forEach(c => {
+    if (Math.random()<0.0012) c.targetPct = 20+Math.random()*75;
+    c.currentPct += (c.targetPct-c.currentPct)*0.005;
+  });
+
+  // Draw — back to front
+  const order = [...cells].sort((a,b)=>b.r-a.r);
+  order.forEach(c => drawCell(c, time, c===hoveredCell));
+
+}
+
+resize();
+loop();
+</script>
+</body>
+</html>
