@@ -335,6 +335,28 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 #grail-panel .g-close:hover { color: rgba(201,169,110,0.9); }
 
 
+/* Labs panel */
+#labs-panel { padding: 52px 48px 44px; width: min(560px, 92vw); max-height: 86vh; overflow-y: auto; }
+#labs-panel::-webkit-scrollbar { width: 2px; }
+#labs-panel::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.15); }
+.labs-title { font-size: 11px; letter-spacing: 7px; text-transform: uppercase; color: rgba(201,169,110,0.88); margin-bottom: 8px; text-align: center; display: block; }
+.labs-subtitle { font-size: 13px; font-style: italic; color: rgba(201,169,110,0.38); text-align: center; margin-bottom: 36px; display: block; line-height: 1.6; }
+.labs-group { margin-bottom: 28px; }
+.labs-group-title { font-size: 9px; letter-spacing: 6px; text-transform: uppercase; color: rgba(201,169,110,0.45); border-bottom: 1px solid rgba(201,169,110,0.08); padding-bottom: 10px; margin-bottom: 16px; display: block; }
+.labs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+.labs-field-wrap { display: flex; flex-direction: column; gap: 5px; }
+.labs-lbl { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,169,110,0.58); }
+.labs-unit { font-size: 9px; color: rgba(201,169,110,0.28); margin-left: 4px; }
+.labs-input { background: rgba(201,169,110,0.03); border: 1px solid rgba(201,169,110,0.12); color: rgba(201,169,110,0.88); font-family: 'Cormorant Garamond', serif; font-size: 15px; padding: 8px 10px; outline: none; width: 100%; transition: border-color 0.25s; }
+.labs-input:focus { border-color: rgba(201,169,110,0.38); }
+.labs-input::placeholder { color: rgba(201,169,110,0.18); font-style: italic; }
+.labs-range { font-size: 9px; color: rgba(201,169,110,0.22); font-style: italic; }
+.labs-save { margin-top: 32px; width: 100%; padding: 13px; background: none; border: 1px solid rgba(201,169,110,0.38); color: rgba(201,169,110,0.88); font-family: 'Cormorant Garamond', serif; font-size: 11px; letter-spacing: 5px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+.labs-save:hover { border-color: rgba(201,169,110,0.75); color: rgba(201,169,110,1); background: rgba(201,169,110,0.04); }
+.labs-confirm { font-size: 11px; letter-spacing: 2px; color: rgba(126,200,160,0.75); text-align: center; margin-top: 14px; height: 18px; font-style: italic; }
+.labs-close { margin-top: 16px; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.38); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+.labs-close:hover { color: rgba(201,169,110,0.8); }
+
 /* Node panel — status & recs */
 .p-status-row { display: flex; align-items: center; justify-content: center; gap: 9px; margin-bottom: 22px; }
 .p-status-dot  { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
@@ -365,6 +387,8 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
     <span class="tb-item" id="tb-apikeys">API Keys</span>
     <div class="sb-divider"></div>
     <span class="tb-item" id="tb-export">Export</span>
+    <div class="sb-divider"></div>
+    <span class="tb-item" id="tb-labs">My Labs</span>
   </div>
 </div>
 
@@ -597,6 +621,151 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 
   </div>
   <span class="rp-close" id="reports-close">Close</span>
+</div>
+
+<!-- Lab Values Entry -->
+<div class="panel" id="labs-panel">
+  <span class="labs-title">My Lab Values</span>
+  <span class="labs-subtitle">Enter your most recent blood panel results.<br>Orbs update instantly.</span>
+
+  <div class="labs-group">
+    <span class="labs-group-title">Hormones</span>
+    <div class="labs-grid">
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Testosterone <span class="labs-unit">ng/dL</span></span>
+        <input class="labs-input" id="lab-testosterone" type="number" placeholder="e.g. 550">
+        <span class="labs-range">optimal 500–900</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Cortisol AM <span class="labs-unit">μg/dL</span></span>
+        <input class="labs-input" id="lab-cortisol" type="number" placeholder="e.g. 12" step="0.1">
+        <span class="labs-range">optimal 6–18</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">DHEA-S <span class="labs-unit">μg/dL</span></span>
+        <input class="labs-input" id="lab-dhea" type="number" placeholder="e.g. 250">
+        <span class="labs-range">optimal 200–450</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">IGF-1 <span class="labs-unit">ng/mL</span></span>
+        <input class="labs-input" id="lab-igf1" type="number" placeholder="e.g. 180">
+        <span class="labs-range">optimal 150–300</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">TSH <span class="labs-unit">mIU/L</span></span>
+        <input class="labs-input" id="lab-tsh" type="number" placeholder="e.g. 1.8" step="0.01">
+        <span class="labs-range">optimal 0.5–2.5</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="labs-group">
+    <span class="labs-group-title">Metabolic</span>
+    <div class="labs-grid">
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Fasting Glucose <span class="labs-unit">mg/dL</span></span>
+        <input class="labs-input" id="lab-glucose" type="number" placeholder="e.g. 88">
+        <span class="labs-range">optimal 70–99</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Insulin Sensitivity <span class="labs-unit">HOMA-IR</span></span>
+        <input class="labs-input" id="lab-insulin" type="number" placeholder="e.g. 1.2" step="0.1">
+        <span class="labs-range">optimal &lt;1.5</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Uric Acid <span class="labs-unit">mg/dL</span></span>
+        <input class="labs-input" id="lab-uric" type="number" placeholder="e.g. 5.2" step="0.1">
+        <span class="labs-range">optimal &lt;5.5</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="labs-group">
+    <span class="labs-group-title">Inflammation & Cardiovascular</span>
+    <div class="labs-grid">
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">CRP <span class="labs-unit">mg/L</span></span>
+        <input class="labs-input" id="lab-crp" type="number" placeholder="e.g. 0.8" step="0.1">
+        <span class="labs-range">optimal &lt;1.0</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Homocysteine <span class="labs-unit">μmol/L</span></span>
+        <input class="labs-input" id="lab-homocysteine" type="number" placeholder="e.g. 8" step="0.1">
+        <span class="labs-range">optimal &lt;9</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">ApoB <span class="labs-unit">mg/dL</span></span>
+        <input class="labs-input" id="lab-apob" type="number" placeholder="e.g. 75">
+        <span class="labs-range">optimal &lt;80</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Fibrinogen <span class="labs-unit">mg/dL</span></span>
+        <input class="labs-input" id="lab-fibrinogen" type="number" placeholder="e.g. 240">
+        <span class="labs-range">optimal 180–280</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="labs-group">
+    <span class="labs-group-title">Nutrients</span>
+    <div class="labs-grid">
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Vitamin D <span class="labs-unit">ng/mL</span></span>
+        <input class="labs-input" id="lab-vitd" type="number" placeholder="e.g. 52">
+        <span class="labs-range">optimal 40–70</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Vitamin B12 <span class="labs-unit">pg/mL</span></span>
+        <input class="labs-input" id="lab-b12" type="number" placeholder="e.g. 650">
+        <span class="labs-range">optimal 400–1000</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Magnesium <span class="labs-unit">mg/dL</span></span>
+        <input class="labs-input" id="lab-magnesium" type="number" placeholder="e.g. 2.1" step="0.1">
+        <span class="labs-range">optimal 2.0–2.5</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Zinc <span class="labs-unit">μg/dL</span></span>
+        <input class="labs-input" id="lab-zinc" type="number" placeholder="e.g. 90">
+        <span class="labs-range">optimal 70–120</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Omega-3 Index <span class="labs-unit">%</span></span>
+        <input class="labs-input" id="lab-omega3" type="number" placeholder="e.g. 7" step="0.1">
+        <span class="labs-range">optimal &gt;8%</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">NAD+ <span class="labs-unit">μM</span></span>
+        <input class="labs-input" id="lab-nad" type="number" placeholder="e.g. 40">
+        <span class="labs-range">optimal 30–60</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="labs-group">
+    <span class="labs-group-title">Organ Function</span>
+    <div class="labs-grid">
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Ferritin <span class="labs-unit">ng/mL</span></span>
+        <input class="labs-input" id="lab-ferritin" type="number" placeholder="e.g. 110">
+        <span class="labs-range">optimal 50–200</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">Serum Albumin <span class="labs-unit">g/dL</span></span>
+        <input class="labs-input" id="lab-albumin" type="number" placeholder="e.g. 4.5" step="0.1">
+        <span class="labs-range">optimal 4.0–5.0</span>
+      </div>
+      <div class="labs-field-wrap">
+        <span class="labs-lbl">ALT <span class="labs-unit">U/L</span></span>
+        <input class="labs-input" id="lab-alt" type="number" placeholder="e.g. 22">
+        <span class="labs-range">optimal &lt;30</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="labs-save" onclick="saveLabs()">Save & Update Orbs</button>
+  <div class="labs-confirm" id="labs-confirm"></div>
+  <span class="labs-close" onclick="closeAll()">Close</span>
 </div>
 
 <!-- Ask Grail response -->
@@ -1069,18 +1238,64 @@ let nextScoreUpdate  = 0;
 function applyLiveData(data) {
   liveData = data;
   const byId = Object.fromEntries(NODES.map(n => [n.id, n]));
-  if (data.heart_rate  != null) byId.cardio.targetPct      = clamp((100 - data.heart_rate) * 2, 0, 100);
-  if (data.resting_hr  != null) byId.rhr.targetPct         = clamp((100 - data.resting_hr) * 2.2, 0, 100);
-  if (data.hrv         != null) byId.hrv.targetPct         = clamp((data.hrv - 20) / 80 * 100, 0, 100);
-  if (data.spo2        != null) byId.spo2.targetPct        = clamp((data.spo2 - 94) / 6 * 100, 0, 100);
-  if (data.sleep_hours != null) byId.sleep.targetPct       = clamp((data.sleep_hours - 4) / 5 * 100, 0, 100);
-  if (data.respiratory_rate != null) byId.resp.targetPct  = clamp((20 - data.respiratory_rate) / 10 * 100, 0, 100);
-  if (data.vo2_max     != null) byId.vo2.targetPct         = clamp((data.vo2_max - 25) / 55 * 100, 0, 100);
-  if (data.temperature != null) byId.temp.targetPct        = clamp(50 + (data.temperature - 97.5) * 20, 0, 100);
-  if (data.glucose     != null) byId.glucose.targetPct     = clamp((140 - data.glucose) / 70 * 100, 0, 100);
-  if (data.testosterone!= null) byId.testosterone.targetPct= clamp((data.testosterone - 300) / 700 * 100, 0, 100);
-  if (data.crp         != null) byId.crp.targetPct         = clamp((1 - data.crp / 8) * 100, 0, 100);
-  if (data.last_updated) document.getElementById('dateline').textContent = `Synced ${data.last_updated}`;
+
+  // ── Ring 1 — direct Watch readings ──────────────────────────────────────
+  if (data.resting_hr      != null) byId.rhr.targetPct        = clamp((85 - data.resting_hr) / 30 * 100, 0, 100);
+  if (data.hrv             != null) byId.hrv.targetPct        = clamp((data.hrv - 20) / 80 * 100, 0, 100);
+  if (data.spo2            != null) byId.spo2.targetPct       = clamp((data.spo2 - 94) / 6 * 100, 0, 100);
+  if (data.sleep_hours     != null) byId.sleep.targetPct      = clamp((data.sleep_hours - 4) / 5 * 100, 0, 100);
+  if (data.respiratory_rate!= null) byId.resp.targetPct       = clamp((20 - data.respiratory_rate) / 10 * 100, 0, 100);
+  if (data.vo2_max         != null) byId.vo2.targetPct        = clamp((data.vo2_max - 25) / 55 * 100, 0, 100);
+  if (data.temperature     != null) byId.temp.targetPct       = clamp(50 + (data.temperature - 97.5) * 30, 0, 100);
+  if (data.glucose         != null) byId.glucose.targetPct    = clamp((140 - data.glucose) / 70 * 100, 0, 100);
+
+  // ── Ring 2 — Watch-derived + manual lab ─────────────────────────────────
+  if (data.heart_rate      != null) byId.cardio.targetPct     = clamp((180 - data.heart_rate) / 80 * 100, 0, 100);
+  if (data.testosterone    != null) byId.testosterone.targetPct= clamp((data.testosterone - 300) / 700 * 100, 0, 100);
+  if (data.crp             != null) byId.crp.targetPct        = clamp((1 - data.crp / 8) * 100, 0, 100);
+  if (data.body_fat_pct    != null) byId.bodyFat.targetPct    = clamp((25 - data.body_fat_pct) / 20 * 100, 0, 100);
+  if (data.deep_sleep_pct  != null) byId.deepSleep.targetPct  = clamp((data.deep_sleep_pct - 5) / 20 * 100, 0, 100);
+  if (data.rem_sleep_pct   != null) byId.rem.targetPct        = clamp((data.rem_sleep_pct - 10) / 20 * 100, 0, 100);
+  if (data.step_count      != null) byId.steps.targetPct      = clamp(data.step_count / 10000 * 100, 0, 100);
+  // Recovery — composite: physical effort + walking steadiness + HRV proxy
+  { const e = data.physical_effort  != null ? clamp(data.physical_effort / 4 * 100, 0, 100) : null;
+    const s = data.walking_steadiness!= null ? data.walking_steadiness : null;
+    const h = data.hrv               != null ? clamp((data.hrv - 20) / 80 * 100, 0, 100) : null;
+    const vals = [e, s, h].filter(v => v != null);
+    if (vals.length) byId.recovery.targetPct = clamp(vals.reduce((a,b)=>a+b,0)/vals.length, 0, 100);
+  }
+
+  // ── Ring 3 — functional fitness from Watch ───────────────────────────────
+  if (data.six_min_walk_m    != null) byId.lactate.targetPct  = clamp((data.six_min_walk_m - 300) / 300 * 100, 0, 100);
+  if (data.walking_steadiness!= null) byId.grip.targetPct     = data.walking_steadiness;
+  if (data.hydration         != null) byId.hydration.targetPct= clamp(data.hydration / 3 * 100, 0, 100);
+
+  // ── Lab values → nodes ───────────────────────────────────────────────────
+  if (data.testosterone  != null) byId.testosterone.targetPct = clamp((data.testosterone - 300) / 700 * 100, 0, 100);
+  if (data.cortisol      != null) byId.cortisol.targetPct     = clamp((18 - data.cortisol) / 12 * 100, 0, 100);
+  if (data.dhea          != null) byId.dhea.targetPct         = clamp((data.dhea - 80) / 370 * 100, 0, 100);
+  if (data.igf1          != null) byId.igf1.targetPct         = clamp((data.igf1 - 80) / 220 * 100, 0, 100);
+  if (data.tsh           != null) byId.tsh.targetPct          = clamp((3.0 - data.tsh) / 2.5 * 100, 0, 100);
+  if (data.glucose       != null) byId.glucose.targetPct      = clamp((140 - data.glucose) / 70 * 100, 0, 100);
+  if (data.insulin       != null) byId.insulin.targetPct      = clamp((3 - data.insulin) / 2.5 * 100, 0, 100);
+  if (data.uric_acid     != null) byId.uricAcid.targetPct     = clamp((7 - data.uric_acid) / 4 * 100, 0, 100);
+  if (data.crp           != null) byId.crp.targetPct          = clamp((3 - data.crp) / 3 * 100, 0, 100);
+  if (data.homocysteine  != null) byId.homocysteine.targetPct = clamp((15 - data.homocysteine) / 12 * 100, 0, 100);
+  if (data.apob          != null) byId.apob.targetPct         = clamp((130 - data.apob) / 80 * 100, 0, 100);
+  if (data.fibrinogen    != null) byId.fibrinogen.targetPct   = clamp((350 - data.fibrinogen) / 200 * 100, 0, 100);
+  if (data.vitamin_d     != null) byId.vitd.targetPct         = clamp((data.vitamin_d - 20) / 60 * 100, 0, 100);
+  if (data.b12           != null) byId.b12.targetPct          = clamp((data.b12 - 200) / 800 * 100, 0, 100);
+  if (data.magnesium     != null) byId.magnesium.targetPct    = clamp((data.magnesium - 1.5) / 1.5 * 100, 0, 100);
+  if (data.zinc          != null) byId.zinc.targetPct         = clamp((data.zinc - 50) / 80 * 100, 0, 100);
+  if (data.omega3        != null) byId.omega3.targetPct       = clamp((data.omega3 - 3) / 9 * 100, 0, 100);
+  if (data.nad           != null) byId.nad.targetPct          = clamp((data.nad - 15) / 55 * 100, 0, 100);
+  if (data.ferritin      != null) byId.ferritin.targetPct     = clamp((data.ferritin - 20) / 200 * 100, 0, 100);
+  if (data.albumin       != null) byId.albumin.targetPct      = clamp((data.albumin - 3.5) / 1.5 * 100, 0, 100);
+  if (data.alt           != null) byId.alt.targetPct          = clamp((60 - data.alt) / 55 * 100, 0, 100);
+
+  // ── Sync label ────────────────────────────────────────────────────────────
+  const dlEl = document.getElementById('dateline');
+  if (dlEl && data.last_updated) dlEl.textContent = `Synced ${data.last_updated.slice(0,10)}`;
 }
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
@@ -1547,6 +1762,59 @@ document.getElementById('tb-reports').addEventListener('click', () => { open('re
 document.getElementById('tb-guide').addEventListener('click',         () => open('guide-panel'));
 document.getElementById('tb-settings').addEventListener('click',      () => open('settings-panel'));
 document.getElementById('tb-apikeys').addEventListener('click',       () => open('apikeys-panel'));
+document.getElementById('tb-labs').addEventListener('click', () => { open('labs-panel'); loadLabsFromData(); });
+
+async function loadLabsFromData() {
+  try {
+    const d = await fetch('/api/data').then(r => r.json());
+    const map = {
+      'lab-testosterone': d.testosterone, 'lab-cortisol': d.cortisol,
+      'lab-dhea': d.dhea, 'lab-igf1': d.igf1, 'lab-tsh': d.tsh,
+      'lab-glucose': d.glucose, 'lab-insulin': d.insulin, 'lab-uric': d.uric_acid,
+      'lab-crp': d.crp, 'lab-homocysteine': d.homocysteine, 'lab-apob': d.apob,
+      'lab-fibrinogen': d.fibrinogen, 'lab-vitd': d.vitamin_d, 'lab-b12': d.b12,
+      'lab-magnesium': d.magnesium, 'lab-zinc': d.zinc, 'lab-omega3': d.omega3,
+      'lab-nad': d.nad, 'lab-ferritin': d.ferritin, 'lab-albumin': d.albumin,
+      'lab-alt': d.alt
+    };
+    for (const [id, val] of Object.entries(map)) {
+      const el = document.getElementById(id);
+      if (el && val != null) el.value = val;
+    }
+  } catch(_) {}
+}
+
+async function saveLabs() {
+  const fields = {
+    testosterone: 'lab-testosterone', cortisol: 'lab-cortisol',
+    dhea: 'lab-dhea', igf1: 'lab-igf1', tsh: 'lab-tsh',
+    glucose: 'lab-glucose', insulin: 'lab-insulin', uric_acid: 'lab-uric',
+    crp: 'lab-crp', homocysteine: 'lab-homocysteine', apob: 'lab-apob',
+    fibrinogen: 'lab-fibrinogen', vitamin_d: 'lab-vitd', b12: 'lab-b12',
+    magnesium: 'lab-magnesium', zinc: 'lab-zinc', omega3: 'lab-omega3',
+    nad: 'lab-nad', ferritin: 'lab-ferritin', albumin: 'lab-albumin', alt: 'lab-alt'
+  };
+  const payload = {};
+  for (const [key, id] of Object.entries(fields)) {
+    const v = parseFloat(document.getElementById(id)?.value);
+    if (!isNaN(v)) payload[key] = v;
+  }
+  if (!Object.keys(payload).length) return;
+  try {
+    const d = await fetch('/api/labs', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    }).then(r => r.json());
+    applyLiveData(d);
+    const c = document.getElementById('labs-confirm');
+    c.textContent = 'Orbs updated.';
+    setTimeout(() => { c.textContent = ''; }, 3000);
+  } catch(_) {
+    document.getElementById('labs-confirm').textContent = 'Error saving.';
+  }
+}
+
 document.getElementById('tb-export').addEventListener('click', () => {
   fetch('/api/data').then(r=>r.json()).then(d => {
     const blob = new Blob([JSON.stringify(d,null,2)], {type:'application/json'});

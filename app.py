@@ -100,6 +100,28 @@ def log_meal():
 def api_meals():
     return jsonify(rjson(MEAL_FILE, []))
 
+LAB_FIELDS = [
+    'testosterone','cortisol','dhea','igf1','tsh',
+    'glucose','insulin','uric_acid',
+    'crp','homocysteine','apob','fibrinogen',
+    'vitamin_d','b12','magnesium','zinc','omega3','nad',
+    'ferritin','albumin','alt'
+]
+
+@app.route('/api/labs', methods=['POST'])
+def api_labs():
+    body = request.get_json(force=True, silent=True) or {}
+    data = rjson(HEALTH_FILE, DEFAULT_HEALTH.copy())
+    for f in LAB_FIELDS:
+        if f in body and body[f] is not None:
+            try:
+                data[f] = float(body[f])
+            except (ValueError, TypeError):
+                pass
+    data['last_updated'] = time.strftime('%Y-%m-%dT%H:%M:%S')
+    wjson(HEALTH_FILE, data)
+    return jsonify(data)
+
 # Grail Guide — full synthesis via 5i
 @app.route('/api/grail-guide', methods=['POST'])
 def grail_guide():
