@@ -117,6 +117,51 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 .st-close { margin-top: 32px; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.45); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
 .st-close:hover { color: rgba(201,169,110,0.8); }
 
+/* Toggle switch */
+.st-toggle { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+.st-toggle input { opacity: 0; width: 0; height: 0; }
+.st-toggle-track {
+  position: absolute; inset: 0; border-radius: 24px;
+  background: rgba(201,169,110,0.12); border: 1px solid rgba(201,169,110,0.22);
+  cursor: pointer; transition: background 0.3s, border-color 0.3s;
+}
+.st-toggle input:checked + .st-toggle-track { background: rgba(201,169,110,0.55); border-color: rgba(201,169,110,0.7); }
+.st-toggle-track::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: rgba(201,169,110,0.55); transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
+}
+.st-toggle input:checked + .st-toggle-track::after { transform: translateX(18px); background: rgba(4,4,10,0.85); }
+
+/* ── Light mode overrides ── */
+body.light-mode { background: #EDE8DF; color: #6B5230; }
+body.light-mode canvas { filter: none; }
+body.light-mode .panel { background: rgba(240,234,222,0.98); border-color: rgba(140,100,40,0.18); }
+body.light-mode #overlay { background: rgba(200,188,168,0.55); }
+body.light-mode #grail-word { color: rgba(140,100,40,0.88); text-shadow: 0 0 28px rgba(160,120,50,0.35), 0 0 60px rgba(160,120,50,0.15); }
+body.light-mode #header h1 { color: rgba(140,100,40,0.4); }
+body.light-mode #dateline, body.light-mode #userline { color: rgba(140,100,40,0.32); }
+body.light-mode #credit { color: rgba(140,100,40,0.55); }
+body.light-mode .tb-item { color: rgba(140,100,40,0.72); }
+body.light-mode .tb-item:hover { color: rgba(140,100,40,1); }
+body.light-mode #sidebar::before { background: rgba(140,100,40,0.1); }
+body.light-mode #sidebar:hover::before { background: rgba(140,100,40,0.25); }
+body.light-mode .st-title, body.light-mode .st-label { color: rgba(120,85,30,0.9); }
+body.light-mode .st-val, body.light-mode .st-input { color: rgba(120,85,30,0.75); }
+body.light-mode .st-row { border-bottom-color: rgba(140,100,40,0.1); }
+body.light-mode .st-close, body.light-mode .log-close, body.light-mode .labs-close { color: rgba(120,85,30,0.45); }
+body.light-mode .labs-title, body.light-mode .log-panel-title { color: rgba(120,85,30,0.9); }
+body.light-mode .labs-group-title { color: rgba(120,85,30,0.5); border-bottom-color: rgba(140,100,40,0.12); }
+body.light-mode .labs-lbl { color: rgba(120,85,30,0.65); }
+body.light-mode .labs-input { background: rgba(140,100,40,0.04); border-color: rgba(140,100,40,0.18); color: rgba(100,70,20,0.9); }
+body.light-mode .labs-input:focus { border-color: rgba(140,100,40,0.45); }
+body.light-mode .labs-save { border-color: rgba(140,100,40,0.4); color: rgba(100,70,20,0.9); }
+body.light-mode .labs-save:hover { border-color: rgba(140,100,40,0.75); background: rgba(140,100,40,0.06); }
+body.light-mode .labs-unit, body.light-mode .labs-range, body.light-mode .labs-subtitle, body.light-mode .nav-motto { color: rgba(120,85,30,0.38); }
+body.light-mode .log-field { background: rgba(140,100,40,0.04); border-color: rgba(140,100,40,0.18); color: rgba(100,70,20,0.9); }
+body.light-mode .log-label { color: rgba(120,85,30,0.7); }
+body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(100,70,20,0.9); }
+
 /* API Keys panel */
 #apikeys-panel { padding: 52px 48px; width: 420px; }
 .ak-title { font-size: 10px; letter-spacing: 8px; text-transform: uppercase; color: rgba(201,169,110,0.3); text-align: center; margin-bottom: 36px; }
@@ -451,6 +496,13 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
   <div class="st-row"><span class="st-label">Score Update Speed</span><span class="st-val" id="st-speed">Slow</span></div>
   <div class="st-row"><span class="st-label">Organism Motion</span><span class="st-val" id="st-motion">On</span></div>
   <div class="st-row"><span class="st-label">Simulation Mode</span><span class="st-val" id="st-sim">Active</span></div>
+  <div class="st-row">
+    <span class="st-label">Light Mode</span>
+    <label class="st-toggle">
+      <input type="checkbox" id="st-lightmode">
+      <span class="st-toggle-track"></span>
+    </label>
+  </div>
   <span class="st-close" id="settings-close">Close</span>
 </div>
 
@@ -1474,7 +1526,12 @@ function loop(now) {
   ctx.clearRect(0,0,W,H);
 
   const bg = ctx.createRadialGradient(cx,oy,0,cx,oy,Math.max(W,H)*0.85);
-  bg.addColorStop(0,'rgba(10,8,22,1)'); bg.addColorStop(1,'rgba(2,2,6,1)');
+  const isLight = document.body.classList.contains('light-mode');
+  if (isLight) {
+    bg.addColorStop(0,'rgba(235,226,210,1)'); bg.addColorStop(1,'rgba(220,212,198,1)');
+  } else {
+    bg.addColorStop(0,'rgba(10,8,22,1)'); bg.addColorStop(1,'rgba(2,2,6,1)');
+  }
   ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
 
   // particles (brighten during burst)
@@ -1761,6 +1818,16 @@ document.getElementById('scoring-close').addEventListener('click', closeAll);
 document.getElementById('tb-reports').addEventListener('click', () => { open('reports-panel'); openReports('live'); });
 document.getElementById('tb-guide').addEventListener('click',         () => open('guide-panel'));
 document.getElementById('tb-settings').addEventListener('click',      () => open('settings-panel'));
+
+// ── Light / dark mode toggle ──────────────────────────────────────────────
+const lightToggle = document.getElementById('st-lightmode');
+function applyMode(light) {
+  document.body.classList.toggle('light-mode', light);
+  lightToggle.checked = light;
+  localStorage.setItem('grail-light-mode', light ? '1' : '0');
+}
+lightToggle.addEventListener('change', () => applyMode(lightToggle.checked));
+if (localStorage.getItem('grail-light-mode') === '1') applyMode(true);
 document.getElementById('tb-apikeys').addEventListener('click',       () => open('apikeys-panel'));
 document.getElementById('tb-labs').addEventListener('click', () => { open('labs-panel'); loadLabsFromData(); });
 
