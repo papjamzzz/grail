@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grail</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #04040A;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: #C9A96E;
+  cursor: default;
+}
+
+canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+
+#header {
+  position: fixed; top: 36px; left: 50%; transform: translateX(-50%);
+  text-align: center; z-index: 10; pointer-events: none;
+}
+#header h1 { font-size: 10px; letter-spacing: 10px; text-transform: uppercase; color: rgba(201,169,110,0.3); font-weight: 300; }
+
+#dateline {
+  position: fixed; top: 36px; right: 40px;
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(201,169,110,0.2); z-index: 10; pointer-events: none;
+}
+#userline {
+  position: fixed; top: 36px; left: 40px;
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(201,169,110,0.2); z-index: 10; pointer-events: none;
+}
+
+/* Vitality */
+#grail-word {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(70px, 11vw, 172px); font-weight: 300;
+  letter-spacing: 0.3em; color: rgba(201,169,110,0.45);
+  line-height: 1; white-space: nowrap;
+  z-index: 10; pointer-events: none; text-align: center;
+}
+#vitality {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center; z-index: 11; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+#vitality .score-rule { width: 28px; height: 1px; background: rgba(255,238,190,0.25); }
+#vitality .score {
+  font-size: 48px; font-weight: 300;
+  color: rgba(255,245,215,0.88);
+  line-height: 1; letter-spacing: 3px;
+  text-shadow: 0 0 24px rgba(220,165,60,0.5), 0 0 60px rgba(200,140,40,0.2);
+}
+#vitality .score-label {
+  font-size: 7px; letter-spacing: 5px; text-transform: uppercase;
+  color: rgba(255,230,160,0.28); font-family: 'Cormorant Garamond', serif;
+}
+
+/* Top invisible bar */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 52px; z-index: 50;
+  display: flex; align-items: center; justify-content: center; gap: 52px;
+}
+#topbar::after {
+  content: ''; position: absolute; bottom: 0; left: 10%; right: 10%;
+  height: 1px; background: rgba(201,169,110,0);
+  transition: background 0.5s;
+}
+#topbar:hover::after { background: rgba(201,169,110,0.08); }
+.tb-item {
+  font-family: 'Cormorant Garamond', serif; font-size: 9px;
+  letter-spacing: 6px; text-transform: uppercase;
+  color: rgba(201,169,110,0); cursor: pointer;
+  transition: color 0.5s; user-select: none;
+}
+#topbar:hover .tb-item { color: rgba(201,169,110,0.38); }
+.tb-item:hover { color: rgba(201,169,110,0.85) !important; }
+
+/* Guide panel */
+#guide-panel { padding: 56px 52px; width: min(600px, 90vw); max-height: 82vh; overflow-y: auto; }
+#guide-panel::-webkit-scrollbar { width: 2px; }
+#guide-panel::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.15); }
+.gd-title { font-size: 10px; letter-spacing: 8px; text-transform: uppercase; color: rgba(201,169,110,0.3); text-align: center; margin-bottom: 40px; }
+.gd-eyebrow { font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.35); margin-bottom: 8px; margin-top: 32px; display: block; }
+.gd-heading { font-size: 22px; font-weight: 300; color: rgba(201,169,110,0.85); margin-bottom: 10px; line-height: 1.2; }
+.gd-body { font-size: 14px; font-style: italic; color: rgba(201,169,110,0.5); line-height: 1.8; }
+.gd-rule { width: 100%; height: 1px; background: rgba(201,169,110,0.07); margin: 28px 0; border: none; }
+.gd-close { margin-top: 40px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.2); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+.gd-close:hover { color: rgba(201,169,110,0.6); }
+
+/* Settings panel */
+#settings-panel { padding: 52px 48px; width: 400px; }
+.st-title { font-size: 10px; letter-spacing: 8px; text-transform: uppercase; color: rgba(201,169,110,0.3); text-align: center; margin-bottom: 36px; }
+.st-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(201,169,110,0.06); }
+.st-row:last-of-type { border-bottom: none; }
+.st-label { font-size: 12px; color: rgba(201,169,110,0.65); letter-spacing: 1px; }
+.st-val { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,169,110,0.3); cursor: pointer; transition: color 0.3s; }
+.st-val:hover { color: rgba(201,169,110,0.7); }
+.st-input { background: none; border: none; border-bottom: 1px solid rgba(201,169,110,0.15); color: rgba(201,169,110,0.75); font-family: 'Cormorant Garamond', serif; font-size: 13px; width: 140px; text-align: right; outline: none; padding: 2px 0; }
+.st-close { margin-top: 32px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.2); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+.st-close:hover { color: rgba(201,169,110,0.6); }
+
+/* API Keys panel */
+#apikeys-panel { padding: 52px 48px; width: 420px; }
+.ak-title { font-size: 10px; letter-spacing: 8px; text-transform: uppercase; color: rgba(201,169,110,0.3); text-align: center; margin-bottom: 36px; }
+.ak-row { margin-bottom: 24px; }
+.ak-label { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.28); margin-bottom: 8px; display: block; }
+.ak-field { width: 100%; background: none; border: none; border-bottom: 1px solid rgba(201,169,110,0.1); color: rgba(201,169,110,0.6); font-family: 'Cormorant Garamond', serif; font-size: 13px; padding: 6px 0; outline: none; transition: border-color 0.3s; letter-spacing: 1px; }
+.ak-field:focus { border-color: rgba(201,169,110,0.3); }
+.ak-field::placeholder { color: rgba(201,169,110,0.15); font-style: italic; }
+.ak-note { font-size: 10px; font-style: italic; color: rgba(201,169,110,0.2); text-align: center; margin-top: 24px; line-height: 1.6; }
+.ak-close { margin-top: 28px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.2); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+.ak-close:hover { color: rgba(201,169,110,0.6); }
+
+/* Bottom actions */
+#actions {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 32px; z-index: 10; align-items: center;
+}
+.action-btn {
+  font-size: 8px; letter-spacing: 5px; text-transform: uppercase;
+  color: rgba(201,169,110,0.25); cursor: pointer;
+  transition: color 0.3s; font-family: 'Cormorant Garamond', serif;
+  background: none; border: none; padding: 4px 0;
+}
+.action-btn:hover { color: rgba(201,169,110,0.7); }
+.action-btn.primary {
+  color: rgba(201,169,110,0.55);
+  border-bottom: 1px solid rgba(201,169,110,0.2);
+  padding-bottom: 5px;
+}
+.action-btn.primary:hover { color: rgba(201,169,110,0.9); border-color: rgba(201,169,110,0.5); }
+
+/* Overlay */
+#overlay { position: fixed; inset: 0; z-index: 25; display: none; background: rgba(4,4,10,0.6); }
+#overlay.on { display: block; }
+
+/* Shared panel base */
+.panel {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.92);
+  opacity: 0; pointer-events: none;
+  background: rgba(6,5,14,0.97);
+  border: 1px solid rgba(201,169,110,0.13);
+  z-index: 30;
+  transition: transform 0.42s cubic-bezier(0.34,1.4,0.64,1), opacity 0.28s ease;
+}
+.panel.open { transform: translate(-50%,-50%) scale(1); opacity: 1; pointer-events: all; }
+
+/* Node detail panel */
+#node-panel { padding: 48px 44px; width: 320px; text-align: center; }
+#node-panel .p-tag { font-size: 9px; letter-spacing: 7px; text-transform: uppercase; color: rgba(201,169,110,0.35); margin-bottom: 24px; }
+#node-panel .p-value { font-size: 60px; font-weight: 300; line-height: 1; margin-bottom: 6px; }
+#node-panel .p-unit { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.3); margin-bottom: 32px; }
+#node-panel .p-bar-track { width: 100%; height: 1px; background: rgba(201,169,110,0.08); margin-bottom: 32px; position: relative; }
+#node-panel .p-bar-fill { position: absolute; top: 0; left: 0; height: 1px; transition: width 0.9s cubic-bezier(0.22,1,0.36,1); }
+#node-panel .p-bar-dot { position: absolute; top: -3px; width: 7px; height: 7px; border-radius: 50%; transition: left 0.9s cubic-bezier(0.22,1,0.36,1); }
+#node-panel .p-insight { font-size: 13px; font-style: italic; color: rgba(201,169,110,0.5); line-height: 1.7; }
+#node-panel .p-source { margin-top: 20px; font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,169,110,0.18); }
+#node-panel .p-close { margin-top: 32px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.2); cursor: pointer; transition: color 0.3s; display: inline-block; }
+#node-panel .p-close:hover { color: rgba(201,169,110,0.6); }
+
+/* Log panels */
+#meal-panel, #symptom-panel { padding: 48px 44px; width: 360px; }
+.log-panel-title { font-size: 9px; letter-spacing: 7px; text-transform: uppercase; color: rgba(201,169,110,0.35); margin-bottom: 32px; text-align: center; }
+.log-field { width: 100%; background: rgba(201,169,110,0.04); border: 1px solid rgba(201,169,110,0.12); color: rgba(201,169,110,0.85); font-family: 'Cormorant Garamond', serif; font-size: 15px; padding: 12px 14px; outline: none; transition: border-color 0.3s; resize: none; }
+.log-field:focus { border-color: rgba(201,169,110,0.35); }
+.log-field::placeholder { color: rgba(201,169,110,0.22); font-style: italic; }
+.log-label { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.28); margin-bottom: 8px; margin-top: 20px; display: block; }
+.log-types { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.log-type-btn { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; padding: 6px 12px; border: 1px solid rgba(201,169,110,0.12); color: rgba(201,169,110,0.3); cursor: pointer; background: none; font-family: 'Cormorant Garamond', serif; transition: all 0.2s; }
+.log-type-btn.sel { border-color: rgba(201,169,110,0.5); color: rgba(201,169,110,0.85); background: rgba(201,169,110,0.06); }
+.severity-row { display: flex; gap: 8px; align-items: center; }
+.sev-btn { width: 32px; height: 32px; border: 1px solid rgba(201,169,110,0.12); color: rgba(201,169,110,0.3); cursor: pointer; background: none; font-family: 'Cormorant Garamond', serif; font-size: 14px; transition: all 0.2s; }
+.sev-btn.sel { border-color: rgba(201,169,110,0.5); color: rgba(201,169,110,0.85); background: rgba(201,169,110,0.06); }
+.log-submit { margin-top: 28px; width: 100%; padding: 12px; background: none; border: 1px solid rgba(201,169,110,0.2); color: rgba(201,169,110,0.6); font-family: 'Cormorant Garamond', serif; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+.log-submit:hover { border-color: rgba(201,169,110,0.5); color: rgba(201,169,110,0.9); background: rgba(201,169,110,0.04); }
+.log-close { margin-top: 20px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.18); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+.log-close:hover { color: rgba(201,169,110,0.5); }
+.log-confirm { font-size: 11px; letter-spacing: 2px; color: rgba(126,200,160,0.7); text-align: center; margin-top: 12px; height: 16px; font-style: italic; }
+
+/* Ask Grail response panel */
+#grail-panel { padding: 52px 48px; width: min(640px, 90vw); max-height: 80vh; overflow-y: auto; }
+#grail-panel::-webkit-scrollbar { width: 2px; }
+#grail-panel::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.2); }
+#grail-panel .g-tag { font-size: 9px; letter-spacing: 7px; text-transform: uppercase; color: rgba(201,169,110,0.3); margin-bottom: 32px; text-align: center; }
+#grail-panel .g-loading { text-align: center; }
+#grail-panel .g-spinner { width: 32px; height: 32px; border: 1px solid rgba(201,169,110,0.1); border-top-color: rgba(201,169,110,0.5); border-radius: 50%; animation: spin 1.4s linear infinite; margin: 0 auto 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#grail-panel .g-loading-text { font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.3); font-style: italic; }
+#grail-panel .g-verdict { font-size: 15px; line-height: 1.8; color: rgba(201,169,110,0.75); font-style: italic; }
+#grail-panel .g-verdict strong { font-style: normal; color: rgba(201,169,110,0.95); font-weight: 400; }
+#grail-panel .g-models { margin-top: 32px; border-top: 1px solid rgba(201,169,110,0.08); padding-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+#grail-panel .g-model-block .g-model-name { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.25); margin-bottom: 8px; }
+#grail-panel .g-model-block .g-model-text { font-size: 12px; line-height: 1.7; color: rgba(201,169,110,0.45); }
+#grail-panel .g-elapsed { margin-top: 24px; font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,169,110,0.15); text-align: right; }
+#grail-panel .g-close { margin-top: 28px; font-size: 8px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.2); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
+#grail-panel .g-close:hover { color: rgba(201,169,110,0.6); }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <span class="tb-item" id="tb-guide">The Guide</span>
+  <span class="tb-item" id="tb-settings">Settings</span>
+  <span class="tb-item" id="tb-connect">Connect</span>
+  <span class="tb-item" id="tb-apikeys">API Keys</span>
+  <span class="tb-item" id="tb-export">Export</span>
+</div>
+
+<div id="userline">J. Smith</div>
+<div id="dateline">Apr 2026</div>
+
+<canvas id="canvas"></canvas>
+
+<div id="grail-word">grail</div>
+<div id="vitality">
+  <div class="score-rule"></div>
+  <div class="score" id="vitality-score">—</div>
+  <div class="score-rule"></div>
+  <div class="score-label">vitality</div>
+</div>
+
+<div id="actions">
+  <button class="action-btn" id="btn-symptom">Log Symptom</button>
+  <button class="action-btn primary" id="btn-grail">Ask Grail</button>
+  <button class="action-btn" id="btn-meal">Log Meal</button>
+</div>
+
+<div id="overlay"></div>
+
+<!-- Guide panel -->
+<div class="panel" id="guide-panel">
+  <div class="gd-title">The Grail Guide</div>
+
+  <span class="gd-eyebrow">What this is</span>
+  <div class="gd-heading">Your body, made visible.</div>
+  <div class="gd-body">Grail is a living interface for your biology. It pulls data from your wearables, your labs, and what you tell it — and turns all of it into a single breathing picture of where you are right now.</div>
+  <hr class="gd-rule">
+
+  <span class="gd-eyebrow">The circles</span>
+  <div class="gd-heading">Each node is a biomarker.</div>
+  <div class="gd-body">Touch any glowing circle to open it. You'll see the current reading, its clinical range, and what it means for your performance today. The brighter it glows, the better it's doing. The circles pulse on their own schedule — that's intentional. Biology isn't uniform.</div>
+  <hr class="gd-rule">
+
+  <span class="gd-eyebrow">The core</span>
+  <div class="gd-heading">The number is your Grail Guide score.</div>
+  <div class="gd-body">A weighted composite of all active biomarkers. It updates slowly and randomly — because your body doesn't change by the second. Watch it over days, not minutes. A score above 80 means your systems are aligned. Below 60 means something needs attention.</div>
+  <hr class="gd-rule">
+
+  <span class="gd-eyebrow">Logging</span>
+  <div class="gd-heading">Feed it what you know.</div>
+  <div class="gd-body">Log meals and symptoms at the bottom. The more context you give Grail, the sharper the guidance it returns. Even rough entries — "felt foggy, skipped lunch" — are valuable signals when patterns emerge over weeks.</div>
+  <hr class="gd-rule">
+
+  <span class="gd-eyebrow">Ask Grail</span>
+  <div class="gd-heading">This is where it gets interesting.</div>
+  <div class="gd-body">Hit Ask Grail and your entire biological profile — every biomarker, every logged symptom, every meal — gets routed through five AI models simultaneously. They disagree. They debate. A synthesis verdict comes back: a precise 7-day protocol for diet, sleep, and recovery. Built for you. Right now.</div>
+  <hr class="gd-rule">
+
+  <span class="gd-eyebrow">Connecting data</span>
+  <div class="gd-heading">Make the simulation real.</div>
+  <div class="gd-body">Export your Apple Health data and drop it into Grail. Every node that has real data stops simulating and starts reporting. Use Connect in the top bar to set up live data bridges from your devices.</div>
+
+  <span class="gd-close" id="guide-close">Close</span>
+</div>
+
+<!-- Settings panel -->
+<div class="panel" id="settings-panel">
+  <div class="st-title">Settings</div>
+  <div class="st-row"><span class="st-label">Name</span><input class="st-input" placeholder="J. Smith" value="J. Smith"></div>
+  <div class="st-row"><span class="st-label">Units</span><span class="st-val" id="st-units">Imperial</span></div>
+  <div class="st-row"><span class="st-label">Score Update Speed</span><span class="st-val" id="st-speed">Slow</span></div>
+  <div class="st-row"><span class="st-label">Organism Motion</span><span class="st-val" id="st-motion">On</span></div>
+  <div class="st-row"><span class="st-label">Intro Sequence</span><span class="st-val" id="st-intro">On</span></div>
+  <div class="st-row"><span class="st-label">Simulation Mode</span><span class="st-val" id="st-sim">Active</span></div>
+  <span class="st-close" id="settings-close">Close</span>
+</div>
+
+<!-- API Keys panel -->
+<div class="panel" id="apikeys-panel">
+  <div class="ak-title">API Keys</div>
+  <div class="ak-row"><span class="ak-label">Anthropic (Claude)</span><input class="ak-field" type="password" placeholder="sk-ant-..."></div>
+  <div class="ak-row"><span class="ak-label">OpenAI (GPT)</span><input class="ak-field" type="password" placeholder="sk-..."></div>
+  <div class="ak-row"><span class="ak-label">Google (Gemini)</span><input class="ak-field" type="password" placeholder="AIza..."></div>
+  <div class="ak-row"><span class="ak-label">xAI (Grok)</span><input class="ak-field" type="password" placeholder="xai-..."></div>
+  <div class="ak-row"><span class="ak-label">Oura Ring</span><input class="ak-field" type="password" placeholder="Personal access token..."></div>
+  <div class="ak-note">Keys are stored locally and never transmitted beyond your own server.</div>
+  <span class="ak-close" id="apikeys-close">Close</span>
+</div>
+
+<!-- Node detail -->
+<div class="panel" id="node-panel">
+  <div class="p-tag" id="p-system"></div>
+  <div class="p-value" id="p-value"></div>
+  <div class="p-unit" id="p-unit"></div>
+  <div class="p-bar-track">
+    <div class="p-bar-fill" id="p-bar-fill"></div>
+    <div class="p-bar-dot" id="p-bar-dot"></div>
+  </div>
+  <div class="p-insight" id="p-insight"></div>
+  <div class="p-source" id="p-source"></div>
+  <div class="p-close" id="p-close">Release</div>
+</div>
+
+<!-- Meal log -->
+<div class="panel" id="meal-panel">
+  <div class="log-panel-title">Meal Entry</div>
+  <span class="log-label">What did you eat?</span>
+  <textarea class="log-field" id="meal-text" rows="4" placeholder="Describe your meal..."></textarea>
+  <span class="log-label">Type</span>
+  <div class="log-types" id="meal-types">
+    <button class="log-type-btn sel" data-val="breakfast">Breakfast</button>
+    <button class="log-type-btn" data-val="lunch">Lunch</button>
+    <button class="log-type-btn" data-val="dinner">Dinner</button>
+    <button class="log-type-btn" data-val="snack">Snack</button>
+    <button class="log-type-btn" data-val="supplement">Supplement</button>
+  </div>
+  <button class="log-submit" id="meal-submit">Record</button>
+  <div class="log-confirm" id="meal-confirm"></div>
+  <span class="log-close" id="meal-close">Dismiss</span>
+</div>
+
+<!-- Symptom log -->
+<div class="panel" id="symptom-panel">
+  <div class="log-panel-title">Symptom Entry</div>
+  <span class="log-label">Describe what you're feeling</span>
+  <textarea class="log-field" id="symptom-text" rows="3" placeholder="e.g. brain fog, joint stiffness, low energy..."></textarea>
+  <span class="log-label">Severity</span>
+  <div class="severity-row" id="severity-row">
+    <button class="sev-btn sel" data-val="1">1</button>
+    <button class="sev-btn" data-val="2">2</button>
+    <button class="sev-btn" data-val="3">3</button>
+    <button class="sev-btn" data-val="4">4</button>
+    <button class="sev-btn" data-val="5">5</button>
+  </div>
+  <button class="log-submit" id="symptom-submit">Record</button>
+  <div class="log-confirm" id="symptom-confirm"></div>
+  <span class="log-close" id="symptom-close">Dismiss</span>
+</div>
+
+<!-- Ask Grail response -->
+<div class="panel" id="grail-panel">
+  <div class="g-tag">Grail Protocol — 7-Day Synthesis</div>
+  <div id="grail-content">
+    <div class="g-loading" id="grail-loading">
+      <div class="g-spinner"></div>
+      <div class="g-loading-text">Synthesising across models…</div>
+    </div>
+    <div id="grail-result" style="display:none">
+      <div class="g-verdict" id="grail-verdict"></div>
+      <div class="g-models" id="grail-models"></div>
+      <div class="g-elapsed" id="grail-elapsed"></div>
+    </div>
+  </div>
+  <span class="g-close" id="grail-close">Dismiss</span>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let W, H, cx, cy;
+
+const NODES = [
+  {
+    id: 'rhr', label: 'Rest HR', angle: 0,
+    color: '#D4766A', glow: [212,118,106],
+    system: 'Resting Heart Rate', unit: 'BPM',
+    pct: 72, currentPct: 72, targetPct: 72,
+    minPct: 45, maxPct: 94,
+    calcValue: p => Math.round(95 - p * 0.43),
+    insight: 'Resting HR reflects baseline cardiovascular efficiency and autonomic recovery.',
+    source: 'Apple Watch Ultra 2', phase: 0, nextChange: 0
+  },
+  {
+    id: 'hrv', label: 'HRV', angle: Math.PI / 6,
+    color: '#D4AF6E', glow: [212,175,110],
+    system: 'Autonomic Balance', unit: 'ms · RMSSD',
+    pct: 78, currentPct: 78, targetPct: 78,
+    minPct: 35, maxPct: 96,
+    calcValue: p => Math.round(20 + p * 0.8),
+    insight: 'HRV is your highest-signal recovery metric. Trending upward indicates nervous system readiness.',
+    source: 'Apple Watch Ultra 2', phase: 0.25, nextChange: 0
+  },
+  {
+    id: 'spo2', label: 'SpO₂', angle: Math.PI / 3,
+    color: '#4ABDB5', glow: [74,189,181],
+    system: 'Blood Oxygen', unit: '% Saturation',
+    pct: 88, currentPct: 88, targetPct: 88,
+    minPct: 55, maxPct: 99,
+    calcValue: p => (94 + p * 0.06).toFixed(1),
+    insight: 'Blood oxygen saturation. Optimal range is 97–100%. Dips during sleep indicate respiratory load.',
+    source: 'Apple Watch Ultra 2', phase: 0.5, nextChange: 0
+  },
+  {
+    id: 'sleep', label: 'Sleep', angle: Math.PI / 2,
+    color: '#9B8EC4', glow: [155,142,196],
+    system: 'Sleep Architecture', unit: 'Hours',
+    pct: 68, currentPct: 68, targetPct: 68,
+    minPct: 30, maxPct: 96,
+    calcValue: p => (4.5 + p * 0.045).toFixed(1),
+    insight: 'Total sleep duration and architecture. Deep sleep drives physical repair; REM drives cognition.',
+    source: 'Apple Watch Ultra 2', phase: 0.75, nextChange: 0
+  },
+  {
+    id: 'resp', label: 'Breath', angle: 2 * Math.PI / 3,
+    color: '#7EC8E3', glow: [126,200,227],
+    system: 'Respiratory Rate', unit: 'Breaths/min',
+    pct: 74, currentPct: 74, targetPct: 74,
+    minPct: 40, maxPct: 92,
+    calcValue: p => (22 - p * 0.08).toFixed(1),
+    insight: 'Resting respiratory rate. Lower is generally better — elite athletes often breathe 8–12/min at rest.',
+    source: 'Apple Watch Ultra 2', phase: 1.0, nextChange: 0
+  },
+  {
+    id: 'vo2', label: 'VO₂ Max', angle: 5 * Math.PI / 6,
+    color: '#E8C87A', glow: [232,200,122],
+    system: 'Cardio Fitness', unit: 'ml/kg/min',
+    pct: 80, currentPct: 80, targetPct: 80,
+    minPct: 35, maxPct: 97,
+    calcValue: p => Math.round(25 + p * 0.55),
+    insight: 'VO₂ Max is the single strongest predictor of longevity. Each unit increase adds measurable lifespan.',
+    source: 'Apple Watch Ultra 2', phase: 1.25, nextChange: 0
+  },
+  {
+    id: 'temp', label: 'Temp', angle: Math.PI,
+    color: '#D4906A', glow: [212,144,106],
+    system: 'Wrist Temperature', unit: '°F Deviation',
+    pct: 75, currentPct: 75, targetPct: 75,
+    minPct: 40, maxPct: 95,
+    calcValue: p => ((p - 50) * 0.04).toFixed(2),
+    insight: 'Deviation from baseline wrist temperature. Elevated readings can signal inflammation or illness onset.',
+    source: 'Apple Watch Ultra 2', phase: 1.5, nextChange: 0
+  },
+  {
+    id: 'cardio', label: 'Heart Rate', angle: 7 * Math.PI / 6,
+    color: '#C4706A', glow: [196,112,106],
+    system: 'Active Heart Rate', unit: 'BPM Current',
+    pct: 70, currentPct: 70, targetPct: 70,
+    minPct: 40, maxPct: 90,
+    calcValue: p => Math.round(100 - p * 0.5),
+    insight: 'Current heart rate. In a resting state this should converge toward your resting HR baseline.',
+    source: 'Apple Watch Ultra 2', phase: 1.75, nextChange: 0
+  },
+  {
+    id: 'glucose', label: 'Glucose', angle: 4 * Math.PI / 3,
+    color: '#A8D4A0', glow: [168,212,160],
+    system: 'Fasting Glucose', unit: 'mg/dL',
+    pct: 82, currentPct: 82, targetPct: 82,
+    minPct: 40, maxPct: 97,
+    calcValue: p => Math.round(140 - p * 0.85),
+    insight: 'Fasting glucose reflects metabolic flexibility. Optimal range for biohackers is 70–90 mg/dL.',
+    source: 'Manual / CGM', phase: 2.0, nextChange: 0
+  },
+  {
+    id: 'testosterone', label: 'Hormones', angle: 3 * Math.PI / 2,
+    color: '#D4906A', glow: [212,144,106],
+    system: 'Testosterone', unit: 'ng/dL',
+    pct: 80, currentPct: 80, targetPct: 80,
+    minPct: 35, maxPct: 96,
+    calcValue: p => Math.round(300 + p * 7),
+    insight: 'Testosterone underpins energy, muscle, cognition, and drive. Free T matters as much as total.',
+    source: 'Blood Lab', phase: 2.25, nextChange: 0
+  },
+  {
+    id: 'crp', label: 'Inflam.', angle: 5 * Math.PI / 3,
+    color: '#C4906A', glow: [196,144,106],
+    system: 'Inflammation (CRP)', unit: 'mg/L',
+    pct: 85, currentPct: 85, targetPct: 85,
+    minPct: 30, maxPct: 99,
+    calcValue: p => ((1 - p / 100) * 8).toFixed(1),
+    insight: 'C-reactive protein measures systemic inflammation. Below 0.5 mg/L is elite. Above 3 is concerning.',
+    source: 'Blood Lab', phase: 2.5, nextChange: 0
+  },
+  {
+    id: 'recovery', label: 'Recovery', angle: 11 * Math.PI / 6,
+    color: '#7EC8A0', glow: [126,200,160],
+    system: 'Recovery Index', unit: 'Composite',
+    pct: 81, currentPct: 81, targetPct: 81,
+    minPct: 30, maxPct: 97,
+    calcValue: p => Math.round(p),
+    insight: 'Composite recovery score derived from HRV, resting HR, sleep, and respiratory rate trends.',
+    source: 'Computed', phase: 2.75, nextChange: 0
+  },
+];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  cx = W / 2; cy = H / 2;
+  const r = Math.min(W, H) * 0.41;
+  NODES.forEach(n => { n.r = r; });
+  // Pin "grail" just below the center core circle
+  const coreBottom = cy + Math.min(W, H) * 0.15 + 10;
+  const gw = document.getElementById('grail-word');
+  if (gw) gw.style.top = Math.round(coreBottom) + 'px';
+}
+resize();
+
+// --- Simulation & live data ---
+let liveData = {};
+let activeNode = null;
+let lastDisplayScore = null;
+let nextScoreUpdate  = 0;
+
+function applyLiveData(data) {
+  liveData = data;
+  const byId = Object.fromEntries(NODES.map(n => [n.id, n]));
+  if (data.heart_rate  != null) byId.cardio.targetPct      = clamp((100 - data.heart_rate) * 2, 0, 100);
+  if (data.resting_hr  != null) byId.rhr.targetPct         = clamp((100 - data.resting_hr) * 2.2, 0, 100);
+  if (data.hrv         != null) byId.hrv.targetPct         = clamp((data.hrv - 20) / 80 * 100, 0, 100);
+  if (data.spo2        != null) byId.spo2.targetPct        = clamp((data.spo2 - 94) / 6 * 100, 0, 100);
+  if (data.sleep_hours != null) byId.sleep.targetPct       = clamp((data.sleep_hours - 4) / 5 * 100, 0, 100);
+  if (data.respiratory_rate != null) byId.resp.targetPct  = clamp((20 - data.respiratory_rate) / 10 * 100, 0, 100);
+  if (data.vo2_max     != null) byId.vo2.targetPct         = clamp((data.vo2_max - 25) / 55 * 100, 0, 100);
+  if (data.temperature != null) byId.temp.targetPct        = clamp(50 + (data.temperature - 97.5) * 20, 0, 100);
+  if (data.glucose     != null) byId.glucose.targetPct     = clamp((140 - data.glucose) / 70 * 100, 0, 100);
+  if (data.testosterone!= null) byId.testosterone.targetPct= clamp((data.testosterone - 300) / 700 * 100, 0, 100);
+  if (data.crp         != null) byId.crp.targetPct         = clamp((1 - data.crp / 8) * 100, 0, 100);
+  if (data.last_updated) document.getElementById('dateline').textContent = `Synced ${data.last_updated}`;
+}
+
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+async function fetchLive() {
+  try {
+    const d = await fetch('/api/data').then(r => r.json());
+    applyLiveData(d);
+  } catch(_) {}
+}
+fetchLive();
+setInterval(fetchLive, 30000);
+
+function computeRecovery() {
+  const hrv = NODES.find(n=>n.id==='hrv').currentPct;
+  const rhr = NODES.find(n=>n.id==='rhr').currentPct;
+  const slp = NODES.find(n=>n.id==='sleep').currentPct;
+  const rsp = NODES.find(n=>n.id==='resp').currentPct;
+  return hrv * 0.4 + rhr * 0.25 + slp * 0.25 + rsp * 0.1;
+}
+
+function simulate(now) {
+  NODES.forEach(n => {
+    if (n.id === 'recovery') {
+      n.targetPct = computeRecovery();
+    } else {
+      const hasLive = liveData[{
+        cardio:'heart_rate',rhr:'resting_hr',hrv:'hrv',spo2:'spo2',
+        sleep:'sleep_hours',resp:'respiratory_rate',vo2:'vo2_max',
+        temp:'temperature',glucose:'glucose',testosterone:'testosterone',crp:'crp'
+      }[n.id]] != null;
+      if (!hasLive && now > n.nextChange) {
+        n.targetPct = n.minPct + Math.random() * (n.maxPct - n.minPct);
+        n.nextChange = now + 9000 + Math.random() * 12000;
+      }
+    }
+    n.currentPct += (n.targetPct - n.currentPct) * 0.0007;
+  });
+
+  // Symptom penalty applied to score display only
+  const raw = NODES.reduce((s, n) => s + n.currentPct, 0) / NODES.length;
+  const score = Math.round(raw);
+  if (score !== lastDisplayScore && now > nextScoreUpdate) {
+    document.getElementById('vitality-score').textContent = score;
+    lastDisplayScore = score;
+    nextScoreUpdate  = now + 4000 + Math.random() * 9000;
+  }
+  if (activeNode) liveUpdatePanel(activeNode);
+}
+
+function liveUpdatePanel(n) {
+  document.getElementById('p-value').textContent = n.calcValue(n.currentPct);
+  const p = n.currentPct;
+  document.getElementById('p-bar-fill').style.width = p + '%';
+  document.getElementById('p-bar-dot').style.left = `calc(${p}% - 3.5px)`;
+}
+
+// --- Intro sequence ---
+let introPhase = 'text-in'; // text-in → text-hold → text-out → burst → alive
+let introTimer = null;
+let textAlpha   = 0;
+let burstMult   = 0.0; // circles start dark, burst on cue
+
+function runIntro(now) {
+  if (introTimer === null) introTimer = now;
+  const e = now - introTimer;
+
+  if (introPhase === 'text-in') {
+    textAlpha = Math.min(1, e / 500);
+    burstMult = 0.0;
+    if (e > 500) { introPhase = 'text-hold'; introTimer = now; }
+
+  } else if (introPhase === 'text-hold') {
+    textAlpha = 1;
+    burstMult = 0.0;
+    if (e > 4000) { introPhase = 'text-out'; introTimer = now; }
+
+  } else if (introPhase === 'text-out') {
+    textAlpha = Math.max(0, 1 - e / 380);
+    burstMult = 0.0;
+    if (e > 380) {
+      introPhase = 'burst';
+      introTimer = now;
+      textAlpha = 0;
+    }
+
+  } else if (introPhase === 'burst') {
+    textAlpha = 0;
+    // instant spike to 5, decay to 1.3 over 1800ms
+    const t = Math.min(1, e / 1800);
+    burstMult = 5.0 - (5.0 - 1.3) * t;
+    if (e > 1800) { introPhase = 'alive'; burstMult = 1.3; }
+
+  } else {
+    textAlpha = 0;
+    burstMult = 1.3;
+  }
+}
+
+function drawIntroText(alpha) {
+  if (alpha <= 0.005) return;
+  const coreBase = Math.min(W,H) * 0.15;
+  const sz       = Math.max(14, Math.min(W, H) * 0.024);
+  const grailSz  = Math.max(28, Math.min(W, H) * 0.055);
+  const sayingY  = cy - coreBase * 2.1;
+  const grailY   = cy - coreBase * 1.35;
+  const text     = 'Fix the inputs & the system regulates itself.';
+
+  ctx.save();
+  ctx.textAlign = 'center';
+
+  // gothic saying — outer bloom
+  ctx.globalAlpha = alpha * 0.55;
+  ctx.shadowColor = '#FFAA00';
+  ctx.shadowBlur  = 70;
+  ctx.fillStyle   = '#FFD060';
+  ctx.font = `${sz}px 'UnifrakturMaguntia', serif`;
+  ctx.fillText(text, cx, sayingY);
+  // bright core pass
+  ctx.globalAlpha = alpha;
+  ctx.shadowColor = '#FFE080';
+  ctx.shadowBlur  = 28;
+  ctx.fillStyle   = '#FFF4C0';
+  ctx.fillText(text, cx, sayingY);
+
+  // GRAIL — Cormorant Garamond, letter-spaced via spacing trick
+  ctx.globalAlpha = alpha * 0.7;
+  ctx.shadowColor = '#C9A96E';
+  ctx.shadowBlur  = 40;
+  ctx.fillStyle   = '#D4AF6E';
+  ctx.font = `300 ${grailSz}px 'Cormorant Garamond', Georgia, serif`;
+  ctx.fillText('G R A I L', cx, grailY);
+  ctx.globalAlpha = alpha;
+  ctx.shadowBlur  = 16;
+  ctx.fillStyle   = '#E8C880';
+  ctx.fillText('G R A I L', cx, grailY);
+
+  ctx.restore();
+}
+
+// --- Heartbeat system (per node) ---
+NODES.forEach(n => { n.hbFlash = 0; n.hbNext = 3000 + Math.random() * 18000; });
+function tickHeartbeats(now) {
+  NODES.forEach(n => {
+    if (now > n.hbNext) {
+      n.hbFlash = 1.0;
+      n.hbNext  = now + 10000 + Math.random() * 35000;
+    }
+    n.hbFlash *= 0.90;
+  });
+}
+
+// --- Canvas rendering ---
+const particles = Array.from({length:90}, () => ({
+  x: Math.random(), y: Math.random(),
+  vx: (Math.random()-0.5)*0.0003, vy: (Math.random()-0.5)*0.0003,
+  size: Math.random()*1.4+0.3, a: Math.random()*0.12+0.02
+}));
+
+function blobR(a, t, base) {
+  return base
+    + Math.sin(a*3  + t*0.70) * base * 0.07
+    + Math.sin(a*5  - t*0.45) * base * 0.045
+    + Math.sin(a*7  + t*1.10) * base * 0.028
+    + Math.sin(a*2  + t*0.20) * base * 0.09
+    + Math.sin(a*11 - t*0.55) * base * 0.015
+    + Math.sin(a*1  + t*0.08) * base * 0.06;
+}
+
+function drawBlob(bx, by, base, t, glow, alpha, inner) {
+  const steps = 140;
+  ctx.beginPath();
+  for (let i=0; i<=steps; i++) {
+    const a = (i/steps)*Math.PI*2;
+    const r = blobR(a, t, base);
+    i===0 ? ctx.moveTo(bx+Math.cos(a)*r, by+Math.sin(a)*r)
+           : ctx.lineTo(bx+Math.cos(a)*r, by+Math.sin(a)*r);
+  }
+  ctx.closePath();
+  const [r,g,b] = glow;
+  const gr = ctx.createRadialGradient(bx,by,0,bx,by,base*1.4);
+  gr.addColorStop(0, `rgba(${r},${g},${b},${inner})`);
+  gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+  ctx.fillStyle = gr; ctx.globalAlpha = alpha; ctx.fill(); ctx.globalAlpha = 1;
+}
+
+let time    = 0;
+let hovered = null;
+
+function loop(now) {
+  runIntro(now);
+  tickHeartbeats(now);
+  simulate(now);
+
+  ctx.clearRect(0,0,W,H);
+
+  const bg = ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(W,H)*0.85);
+  bg.addColorStop(0,'rgba(10,8,22,1)'); bg.addColorStop(1,'rgba(2,2,6,1)');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+  // particles (brighten during burst)
+  const pBright = Math.min(1, burstMult * 0.4);
+  particles.forEach(p => {
+    p.x=(p.x+p.vx+1)%1; p.y=(p.y+p.vy+1)%1;
+    ctx.beginPath(); ctx.arc(p.x*W,p.y*H,p.size,0,Math.PI*2);
+    ctx.fillStyle=`rgba(201,169,110,${p.a * pBright})`; ctx.fill();
+  });
+
+  // global slow breath — living baseline
+  const breathe = 1 + Math.sin(time * 0.38) * 0.10;
+  const alive   = burstMult * breathe;
+
+  const coreBase = Math.min(W,H) * 0.15;
+
+  // lighthouse pulse — slow, long rest, quiet peak
+  const rawPulse = Math.sin(time * 0.9) * 0.5 + 0.5;
+  const lp       = Math.pow(rawPulse, 3);
+  const burstLp  = Math.min(lp + (burstMult - 1) * 0.15, 1);
+
+  const aR = Math.round(200 + burstLp * 25);
+  const aG = Math.round(135 + burstLp * 30);
+  const aB = Math.round(45  + burstLp * 10);
+
+  const coreR = coreBase * (1 + burstLp * 0.04);
+
+  // very soft outer bloom — dimmed way down
+  for (let i = 5; i >= 0; i--) {
+    const glowR = coreR * (2.0 + i * 0.6);
+    const str   = Math.max(0, (0.018 + burstLp * 0.028) * (1 - i * 0.16) * Math.min(alive, 1.5));
+    const gr = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
+    gr.addColorStop(0, `rgba(${aR},${aG},${aB},${str})`);
+    gr.addColorStop(1, 'rgba(180,100,30,0)');
+    ctx.beginPath(); ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+    ctx.fillStyle = gr; ctx.fill();
+  }
+
+  // dark base fill — gives the sphere depth
+  ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(6,4,2,0.88)';
+  ctx.fill();
+
+  // shiny material — offset radial gradient (the liquid sphere look)
+  const shineX = cx - coreR * 0.25;
+  const shineY = cy - coreR * 0.22;
+  const shineGrad = ctx.createRadialGradient(shineX, shineY, 0, cx, cy, coreR);
+  shineGrad.addColorStop(0,    `rgba(255,225,140,${0.22 + burstLp * 0.14})`);
+  shineGrad.addColorStop(0.35, `rgba(${aR},${aG},${aB},${0.14 + burstLp * 0.10})`);
+  shineGrad.addColorStop(0.75, `rgba(${aR},${aG},${aB},${0.05 + burstLp * 0.04})`);
+  shineGrad.addColorStop(1,    `rgba(${aR},${aG},${aB},0)`);
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2); ctx.clip();
+  ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+  ctx.fillStyle = shineGrad; ctx.fill();
+
+  // specular highlight — top-left bright spot, the "gloss"
+  const specX = cx - coreR * 0.3;
+  const specY = cy - coreR * 0.3;
+  const specGrad = ctx.createRadialGradient(specX, specY, 0, specX, specY, coreR * 0.52);
+  specGrad.addColorStop(0, `rgba(255,248,215,${0.28 + burstLp * 0.16})`);
+  specGrad.addColorStop(0.5,`rgba(255,220,140,${0.06 + burstLp * 0.05})`);
+  specGrad.addColorStop(1,  'rgba(255,200,100,0)');
+  ctx.beginPath(); ctx.arc(specX, specY, coreR * 0.52, 0, Math.PI * 2);
+  ctx.fillStyle = specGrad; ctx.fill();
+  ctx.restore();
+
+  // thin edge ring
+  ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+  ctx.strokeStyle = `rgba(${aR},${aG},${aB},${0.12 + burstLp * 0.28})`;
+  ctx.lineWidth = 0.8; ctx.stroke();
+
+  // nodes
+  NODES.forEach(n => {
+    const oa = n.angle + time * 0.035;
+    const nx = cx + Math.cos(oa)*n.r;
+    const ny = cy + Math.sin(oa)*n.r;
+    n._x=nx; n._y=ny;
+
+    const pulse    = Math.sin(time*1.9 + n.phase*8)*0.5 + 0.5;
+    const hbBoost  = n.hbFlash * 1.4;
+    const nodeAlive= alive + hbBoost;
+    const isHov    = hovered===n;
+    const nb       = ((isHov?26:21) + pulse*4) * Math.min(1 + burstMult*0.08, 1.5);
+
+    const connA = Math.atan2(ny-cy,nx-cx);
+    const ex = cx + Math.cos(connA)*blobR(connA,time,coreBase);
+    const ey = cy + Math.sin(connA)*blobR(connA,time,coreBase);
+    const [r,g,b] = n.glow;
+
+    // connector
+    ctx.beginPath(); ctx.moveTo(ex,ey);
+    ctx.lineTo(nx-Math.cos(connA)*nb*0.88, ny-Math.sin(connA)*nb*0.88);
+    ctx.strokeStyle = `rgba(${r},${g},${b},${Math.min(0.55,(0.1+pulse*0.08)*nodeAlive*0.5)})`;
+    ctx.lineWidth = 0.5; ctx.stroke();
+
+    // outer halo glow
+    const haloR  = nb * (isHov ? 4 : 3.2);
+    const haloStr= Math.min(0.55, (isHov ? 0.22 : 0.11) * nodeAlive);
+    const halo   = ctx.createRadialGradient(nx,ny,0,nx,ny,haloR);
+    halo.addColorStop(0, `rgba(${r},${g},${b},${haloStr})`);
+    halo.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    ctx.beginPath(); ctx.arc(nx,ny,haloR,0,Math.PI*2); ctx.fillStyle=halo; ctx.fill();
+
+    // node blob
+    const innerStr = Math.min(0.95, (isHov ? 0.6 : 0.35) * nodeAlive);
+    drawBlob(nx,ny,nb*0.74,time*2.4+n.phase*14,n.glow,1,innerStr);
+
+    // outer ring
+    ctx.beginPath(); ctx.arc(nx,ny,nb,0,Math.PI*2);
+    ctx.strokeStyle = `rgba(${r},${g},${b},${Math.min(0.8,(0.18+pulse*0.25)*Math.min(nodeAlive,2))})`;
+    ctx.lineWidth = isHov ? 1 : 0.6; ctx.stroke();
+
+    // second faint ring (living effect)
+    ctx.beginPath(); ctx.arc(nx,ny,nb*1.35,0,Math.PI*2);
+    ctx.strokeStyle = `rgba(${r},${g},${b},${Math.min(0.2,(0.04+pulse*0.06)*Math.min(nodeAlive,1.5))})`;
+    ctx.lineWidth = 0.4; ctx.stroke();
+
+    // label
+    ctx.font = '7px "Cormorant Garamond",Georgia,serif';
+    const labelAngle = Math.atan2(ny - cy, nx - cx);
+    const labelDist  = nb + 22;
+    const lx = nx + Math.cos(labelAngle) * labelDist;
+    const ly = ny + Math.sin(labelAngle) * labelDist;
+    ctx.font = '8.5px "Cormorant Garamond",Georgia,serif';
+    ctx.fillStyle    = isHov ? 'rgba(255,245,220,0.98)' : 'rgba(218,198,162,0.88)';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(n.label.toUpperCase(), lx, ly);
+    ctx.textBaseline = 'alphabetic';
+  });
+
+  // intro text drawn last so it's on top
+  drawIntroText(textAlpha);
+
+  time += 0.007;
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// --- Hover & click ---
+canvas.addEventListener('mousemove', e => {
+  const {left,top}=canvas.getBoundingClientRect();
+  const mx=e.clientX-left, my=e.clientY-top;
+  hovered=null;
+  for (const n of NODES) {
+    if (!n._x) continue;
+    if (Math.hypot(mx-n._x,my-n._y)<44) { hovered=n; break; }
+  }
+  canvas.style.cursor = hovered ? 'pointer' : 'default';
+});
+canvas.addEventListener('mouseleave',()=>{ hovered=null; });
+canvas.addEventListener('click', e => {
+  const {left,top}=canvas.getBoundingClientRect();
+  const mx=e.clientX-left, my=e.clientY-top;
+  for (const n of NODES) {
+    if (!n._x) continue;
+    if (Math.hypot(mx-n._x,my-n._y)<44) { openNodePanel(n); return; }
+  }
+  closeAll();
+});
+
+// --- Node panel ---
+function openNodePanel(n) {
+  activeNode = n;
+  const p = n.currentPct;
+  const [r,g,b]=n.glow;
+  document.getElementById('p-system').textContent  = n.system;
+  document.getElementById('p-value').textContent   = n.calcValue(p);
+  document.getElementById('p-value').style.color   = n.color;
+  document.getElementById('p-unit').textContent    = n.unit;
+  document.getElementById('p-insight').textContent = n.insight;
+  document.getElementById('p-source').textContent  = n.source;
+  document.getElementById('p-bar-fill').style.width      = p+'%';
+  document.getElementById('p-bar-fill').style.background = `linear-gradient(90deg,rgba(${r},${g},${b},0.15),${n.color})`;
+  document.getElementById('p-bar-dot').style.left        = `calc(${p}% - 3.5px)`;
+  document.getElementById('p-bar-dot').style.background  = n.color;
+  document.getElementById('p-bar-dot').style.boxShadow   = `0 0 6px ${n.color}`;
+  open('node-panel');
+}
+document.getElementById('p-close').addEventListener('click', closeAll);
+
+// --- Top bar ---
+document.getElementById('tb-guide').addEventListener('click',   () => open('guide-panel'));
+document.getElementById('tb-settings').addEventListener('click', () => open('settings-panel'));
+document.getElementById('tb-apikeys').addEventListener('click',  () => open('apikeys-panel'));
+document.getElementById('tb-connect').addEventListener('click',  () => open('guide-panel')); // placeholder
+document.getElementById('tb-export').addEventListener('click', () => {
+  fetch('/api/data').then(r=>r.json()).then(d => {
+    const blob = new Blob([JSON.stringify(d,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'grail-export.json';
+    a.click();
+  });
+});
+document.getElementById('guide-close').addEventListener('click',   closeAll);
+document.getElementById('settings-close').addEventListener('click', closeAll);
+document.getElementById('apikeys-close').addEventListener('click',  closeAll);
+
+// settings toggles
+['st-units','st-speed','st-motion','st-intro','st-sim'].forEach(id => {
+  const maps = {
+    'st-units':  ['Imperial','Metric'],
+    'st-speed':  ['Slow','Medium','Fast'],
+    'st-motion': ['On','Off'],
+    'st-intro':  ['On','Off'],
+    'st-sim':    ['Active','Paused'],
+  };
+  const el = document.getElementById(id);
+  const opts = maps[id];
+  el.addEventListener('click', () => {
+    const i = opts.indexOf(el.textContent);
+    el.textContent = opts[(i+1) % opts.length];
+  });
+});
+
+// --- Meal log ---
+let mealType = 'breakfast';
+document.querySelectorAll('#meal-types .log-type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#meal-types .log-type-btn').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    mealType = btn.dataset.val;
+  });
+});
+document.getElementById('btn-meal').addEventListener('click', () => open('meal-panel'));
+document.getElementById('meal-close').addEventListener('click', closeAll);
+document.getElementById('meal-submit').addEventListener('click', async () => {
+  const text = document.getElementById('meal-text').value.trim();
+  if (!text) return;
+  await fetch('/log/meal', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({description:text, meal_type:mealType}) });
+  document.getElementById('meal-confirm').textContent = 'Recorded.';
+  document.getElementById('meal-text').value = '';
+  setTimeout(()=>{ document.getElementById('meal-confirm').textContent=''; }, 2000);
+});
+
+// --- Symptom log ---
+let severity = 1;
+document.querySelectorAll('#severity-row .sev-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#severity-row .sev-btn').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    severity = parseInt(btn.dataset.val);
+  });
+});
+document.getElementById('btn-symptom').addEventListener('click', () => open('symptom-panel'));
+document.getElementById('symptom-close').addEventListener('click', closeAll);
+document.getElementById('symptom-submit').addEventListener('click', async () => {
+  const text = document.getElementById('symptom-text').value.trim();
+  if (!text) return;
+  await fetch('/log/symptom', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({text, severity}) });
+  document.getElementById('symptom-confirm').textContent = 'Recorded.';
+  document.getElementById('symptom-text').value = '';
+  setTimeout(()=>{ document.getElementById('symptom-confirm').textContent=''; }, 2000);
+});
+
+// --- Ask Grail ---
+document.getElementById('btn-grail').addEventListener('click', async () => {
+  open('grail-panel');
+  document.getElementById('grail-loading').style.display = 'block';
+  document.getElementById('grail-result').style.display  = 'none';
+  try {
+    const score = lastDisplayScore || '—';
+    const res = await fetch('/api/grail-guide', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({score})
+    }).then(r=>r.json());
+
+    document.getElementById('grail-loading').style.display = 'none';
+    document.getElementById('grail-result').style.display  = 'block';
+
+    if (res.verdict) {
+      document.getElementById('grail-verdict').innerHTML =
+        res.verdict.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    }
+    const modelsEl = document.getElementById('grail-models');
+    modelsEl.innerHTML = '';
+    for (const [key, val] of Object.entries(res.results || {})) {
+      const div = document.createElement('div');
+      div.className = 'g-model-block';
+      div.innerHTML = `<div class="g-model-name">${key}</div><div class="g-model-text">${(val.response||'').substring(0,300)}…</div>`;
+      modelsEl.appendChild(div);
+    }
+    document.getElementById('grail-elapsed').textContent = res.elapsed ? `${res.elapsed}s synthesis` : '';
+  } catch(e) {
+    document.getElementById('grail-loading').style.display = 'none';
+    document.getElementById('grail-result').style.display  = 'block';
+    document.getElementById('grail-verdict').textContent   = '5i unavailable — start it at port 5562.';
+  }
+});
+document.getElementById('grail-close').addEventListener('click', closeAll);
+
+// --- Panel helpers ---
+function open(id) {
+  closeAll(false);
+  document.getElementById(id).classList.add('open');
+  document.getElementById('overlay').classList.add('on');
+  if (id !== 'node-panel') activeNode = null;
+}
+function closeAll(resetOverlay=true) {
+  activeNode = null;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('open'));
+  if (resetOverlay) document.getElementById('overlay').classList.remove('on');
+}
+document.getElementById('overlay').addEventListener('click', closeAll);
+window.addEventListener('resize', resize);
+</script>
+</body>
+</html>
