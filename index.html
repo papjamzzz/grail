@@ -460,6 +460,8 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
     <span class="tb-item" id="tb-export">Export</span>
     <div class="sb-divider"></div>
     <span class="tb-item" id="tb-labs">My Labs</span>
+    <div class="sb-divider"></div>
+    <span class="tb-item" id="tb-records">Medical Records</span>
   </div>
 </div>
 
@@ -860,7 +862,20 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
   <span class="labs-close" onclick="closeAll()">Close</span>
 </div>
 
-<!-- Ask Grail response -->
+<!-- Medical Records Panel -->
+<div class="panel" id="records-panel">
+  <div class="labs-title" style="margin-bottom:32px">Medical Records</div>
+  <div id="records-list" style="margin-bottom:28px"></div>
+  <div class="labs-import-zone" id="records-drop-zone" style="margin-bottom:18px">
+    <input type="file" id="records-file-input" accept="image/*,application/pdf,.pdf" multiple>
+    <div class="labs-drop-label">Drop records here or <span class="labs-drop-link" onclick="document.getElementById('records-file-input').click()">browse</span></div>
+    <div class="labs-drop-sub" id="records-file-names">PDF, image files accepted</div>
+  </div>
+  <input type="text" id="records-note" placeholder="Note (optional — e.g. Annual physical 2026)" class="labs-input" style="width:100%;margin-bottom:14px">
+  <button class="labs-import-btn" id="records-upload-btn" onclick="uploadRecords()">Save Record</button>
+  <div class="labs-import-status" id="records-status"></div>
+  <span class="labs-close" onclick="closeAll()">Close</span>
+</div>
 
 <script>
 const canvas = document.getElementById('canvas');
@@ -1848,6 +1863,56 @@ lightToggle.addEventListener('change', () => applyMode(lightToggle.checked));
 if (localStorage.getItem('grail-light-mode') === '1') applyMode(true);
 document.getElementById('tb-apikeys').addEventListener('click',       () => open('apikeys-panel'));
 document.getElementById('tb-labs').addEventListener('click', () => { open('labs-panel'); loadLabsFromData(); });
+document.getElementById('tb-records').addEventListener('click', () => { open('records-panel'); loadRecords(); });
+
+// ── Medical Records ──────────────────────────────────────────────────────
+const RECORDS_KEY = 'grail_medical_records';
+
+function loadRecords() {
+  const records = JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]');
+  const el = document.getElementById('records-list');
+  if (!records.length) { el.innerHTML = '<div style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,169,110,0.35);text-align:center;padding:16px 0">No records saved yet</div>'; return; }
+  el.innerHTML = records.map((r, i) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(201,169,110,0.08)">
+      <div>
+        <div style="font-size:13px;color:rgba(201,169,110,0.88)">${r.note || r.filename || 'Record'}</div>
+        <div style="font-size:10px;letter-spacing:2px;color:rgba(201,169,110,0.4);margin-top:3px">${r.date} · ${r.filename}</div>
+      </div>
+      <span onclick="deleteRecord(${i})" style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,169,110,0.35);cursor:pointer">Remove</span>
+    </div>`).join('');
+}
+
+function deleteRecord(i) {
+  const records = JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]');
+  records.splice(i, 1);
+  localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+  loadRecords();
+}
+
+const recFileInput = document.getElementById('records-file-input');
+recFileInput.addEventListener('change', () => {
+  const names = Array.from(recFileInput.files).map(f => f.name).join(', ');
+  document.getElementById('records-file-names').textContent = names || 'PDF, image files accepted';
+});
+
+async function uploadRecords() {
+  const files = recFileInput.files;
+  const note  = document.getElementById('records-note').value.trim();
+  const status = document.getElementById('records-status');
+  if (!files.length) { status.textContent = 'Select at least one file.'; return; }
+  const records = JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]');
+  for (const f of files) {
+    const b64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(f); });
+    records.unshift({ filename: f.name, note, date: new Date().toLocaleDateString(), data: b64 });
+  }
+  localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+  recFileInput.value = '';
+  document.getElementById('records-note').value = '';
+  document.getElementById('records-file-names').textContent = 'PDF, image files accepted';
+  status.textContent = `${files.length} record${files.length>1?'s':''} saved.`;
+  setTimeout(() => { status.textContent = ''; }, 2500);
+  loadRecords();
+}
 
 // ── Lab image import ─────────────────────────────────────────────────────
 const labFileInput = document.getElementById('labs-file-input');
