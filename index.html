@@ -362,22 +362,6 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
 .log-confirm { font-size: 11px; letter-spacing: 2px; color: rgba(126,200,160,0.7); text-align: center; margin-top: 12px; height: 16px; font-style: italic; }
 
 /* Ask Grail response panel */
-#grail-panel { padding: 52px 48px; width: min(640px, 90vw); max-height: 80vh; overflow-y: auto; }
-#grail-panel::-webkit-scrollbar { width: 2px; }
-#grail-panel::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.2); }
-#grail-panel .g-tag { font-size: 10px; letter-spacing: 7px; text-transform: uppercase; color: rgba(201,169,110,0.65); margin-bottom: 32px; text-align: center; }
-#grail-panel .g-loading { text-align: center; }
-#grail-panel .g-spinner { width: 32px; height: 32px; border: 1px solid rgba(201,169,110,0.1); border-top-color: rgba(201,169,110,0.5); border-radius: 50%; animation: spin 1.4s linear infinite; margin: 0 auto 20px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-#grail-panel .g-loading-text { font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.3); font-style: italic; }
-#grail-panel .g-verdict { font-size: 15px; line-height: 1.8; color: rgba(201,169,110,0.75); font-style: italic; }
-#grail-panel .g-verdict strong { font-style: normal; color: rgba(201,169,110,0.95); font-weight: 400; }
-#grail-panel .g-models { margin-top: 32px; border-top: 1px solid rgba(201,169,110,0.08); padding-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-#grail-panel .g-model-block .g-model-name { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.72); margin-bottom: 8px; }
-#grail-panel .g-model-block .g-model-text { font-size: 13px; line-height: 1.7; color: rgba(201,169,110,0.82); }
-#grail-panel .g-elapsed { margin-top: 24px; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(201,169,110,0.52); text-align: right; }
-#grail-panel .g-close { margin-top: 28px; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.48); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
-#grail-panel .g-close:hover { color: rgba(201,169,110,0.9); }
 
 
 /* Labs import zone */
@@ -2250,54 +2234,6 @@ document.getElementById('rp-meal-submit').addEventListener('click', async () => 
   setTimeout(()=>{ conf.textContent=''; }, 2000);
 });
 
-// --- Grail Guidance ---
-async function askGrail() {
-  try {
-    const score = lastDisplayScore || '—';
-    const res = await fetch('/api/grail-guide', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({score})
-    }).then(r=>r.json());
-
-    document.getElementById('grail-loading').style.display = 'none';
-    document.getElementById('grail-result').style.display  = 'block';
-
-    // verdict may be a string or an object depending on 5i synthesis result
-    const verdictRaw = res.verdict;
-    const verdictText = typeof verdictRaw === 'string'
-      ? verdictRaw
-      : (verdictRaw?.signal && verdictRaw.signal !== 'Synthesis failed.'
-          ? verdictRaw.signal
-          : null);
-
-    const verdictEl = document.getElementById('grail-verdict');
-    if (verdictText) {
-      verdictEl.innerHTML = verdictText
-        .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-        .replace(/\n/g,'<br>');
-    } else {
-      verdictEl.style.display = 'none';
-    }
-
-    const modelsEl = document.getElementById('grail-models');
-    modelsEl.innerHTML = '';
-    for (const [key, val] of Object.entries(res.results || {})) {
-      const text = typeof val === 'string' ? val : (val?.response || val?.text || JSON.stringify(val));
-      const div = document.createElement('div');
-      div.className = 'g-model-block';
-      div.innerHTML = `<div class="g-model-name">${key}</div><div class="g-model-text">${text.substring(0,400).replace(/\n/g,'<br>')}…</div>`;
-      modelsEl.appendChild(div);
-    }
-    document.getElementById('grail-elapsed').textContent = res.elapsed ? `${res.elapsed}s synthesis` : '';
-  } catch(e) {
-    console.error('Ask Grail error:', e);
-    document.getElementById('grail-loading').style.display = 'none';
-    document.getElementById('grail-result').style.display  = 'block';
-    document.getElementById('grail-verdict').textContent   = 'Error: ' + e.message;
-    document.getElementById('grail-verdict').style.display = 'block';
-  }
-}
-document.getElementById('grail-close').addEventListener('click', closeAll);
 
 // --- Panel helpers ---
 function open(id) {
