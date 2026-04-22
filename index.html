@@ -380,6 +380,36 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
 #grail-panel .g-close:hover { color: rgba(201,169,110,0.9); }
 
 
+/* Labs import zone */
+.labs-import-zone {
+  border: 1px dashed rgba(201,169,110,0.28); padding: 22px 18px;
+  text-align: center; margin-bottom: 28px; cursor: pointer;
+  transition: border-color 0.25s, background 0.25s; position: relative;
+}
+.labs-import-zone:hover, .labs-import-zone.drag-over {
+  border-color: rgba(201,169,110,0.65); background: rgba(201,169,110,0.04);
+}
+.labs-import-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.labs-import-icon { font-size: 22px; margin-bottom: 6px; display: block; color: rgba(201,169,110,0.45); }
+.labs-import-cta  { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: rgba(201,169,110,0.55); }
+.labs-import-sub  { font-size: 11px; font-style: italic; color: rgba(201,169,110,0.28); margin-top: 5px; display: block; }
+.labs-import-btn  {
+  margin-top: 12px; padding: 8px 22px; background: none;
+  border: 1px solid rgba(201,169,110,0.32); color: rgba(201,169,110,0.75);
+  font-family: 'Cormorant Garamond', serif; font-size: 11px; letter-spacing: 4px;
+  text-transform: uppercase; cursor: pointer; transition: all 0.25s; display: none;
+}
+.labs-import-btn:hover { border-color: rgba(201,169,110,0.7); color: rgba(201,169,110,1); }
+.labs-import-status {
+  font-size: 12px; font-style: italic; color: rgba(201,169,110,0.52);
+  text-align: center; margin-bottom: 16px; min-height: 18px;
+}
+.labs-import-result {
+  font-size: 11px; letter-spacing: 1px; color: rgba(126,200,160,0.72);
+  text-align: center; margin-bottom: 16px; line-height: 1.7; display: none;
+}
+.labs-import-result .defaulted-note { color: rgba(201,169,110,0.38); }
+
 /* Labs panel */
 #labs-panel { padding: 52px 48px 44px; width: min(560px, 92vw); max-height: 86vh; overflow-y: auto; }
 #labs-panel::-webkit-scrollbar { width: 2px; }
@@ -678,7 +708,21 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
 <!-- Lab Values Entry -->
 <div class="panel" id="labs-panel">
   <span class="labs-title">My Lab Values</span>
-  <span class="labs-subtitle">Enter your most recent blood panel results.<br>Orbs update instantly.</span>
+  <span class="labs-subtitle">Upload screenshots or photos of your lab results.<br>AI reads them and fills every field instantly.</span>
+
+  <div class="labs-import-zone" id="labs-drop-zone">
+    <input type="file" id="labs-file-input" accept="image/*" multiple>
+    <span class="labs-import-icon">⬆</span>
+    <span class="labs-import-cta">Drop screenshots here or click to browse</span>
+    <span class="labs-import-sub">Quest, LabCorp, InsideTracker, doctor portal — any screenshot works</span>
+  </div>
+  <button class="labs-import-btn" id="labs-upload-btn" onclick="uploadLabs()">Scan with AI</button>
+  <div class="labs-import-status" id="labs-import-status"></div>
+  <div class="labs-import-result" id="labs-import-result"></div>
+
+  <div style="text-align:center;margin-bottom:20px;">
+    <span style="font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(201,169,110,0.28);">— or enter manually below —</span>
+  </div>
 
   <div class="labs-group">
     <span class="labs-group-title">Hormones</span>
@@ -1830,6 +1874,73 @@ lightToggle.addEventListener('change', () => applyMode(lightToggle.checked));
 if (localStorage.getItem('grail-light-mode') === '1') applyMode(true);
 document.getElementById('tb-apikeys').addEventListener('click',       () => open('apikeys-panel'));
 document.getElementById('tb-labs').addEventListener('click', () => { open('labs-panel'); loadLabsFromData(); });
+
+// ── Lab image import ─────────────────────────────────────────────────────
+const labFileInput = document.getElementById('labs-file-input');
+const labUploadBtn = document.getElementById('labs-upload-btn');
+const labDropZone  = document.getElementById('labs-drop-zone');
+
+labFileInput.addEventListener('change', () => {
+  const n = labFileInput.files.length;
+  labUploadBtn.style.display = n ? 'block' : 'none';
+  labUploadBtn.textContent = `Scan ${n} image${n>1?'s':''} with AI`;
+  document.getElementById('labs-import-status').textContent = n ? `${n} file${n>1?'s':''} ready` : '';
+  document.getElementById('labs-import-result').style.display = 'none';
+});
+
+labDropZone.addEventListener('dragover', e => { e.preventDefault(); labDropZone.classList.add('drag-over'); });
+labDropZone.addEventListener('dragleave', () => labDropZone.classList.remove('drag-over'));
+labDropZone.addEventListener('drop', e => {
+  e.preventDefault(); labDropZone.classList.remove('drag-over');
+  labFileInput.files = e.dataTransfer.files;
+  labFileInput.dispatchEvent(new Event('change'));
+});
+
+async function uploadLabs() {
+  const files = labFileInput.files;
+  if (!files.length) return;
+
+  const statusEl = document.getElementById('labs-import-status');
+  const resultEl = document.getElementById('labs-import-result');
+  labUploadBtn.disabled = true;
+  labUploadBtn.textContent = 'Scanning…';
+  statusEl.textContent = 'Reading your labs with AI — this takes a few seconds…';
+  resultEl.style.display = 'none';
+
+  const form = new FormData();
+  for (const f of files) form.append('files', f);
+
+  try {
+    const res = await fetch('/api/import-labs', { method: 'POST', body: form });
+    const json = await res.json();
+
+    if (!json.ok) {
+      statusEl.textContent = `Error: ${json.error}`;
+      labUploadBtn.disabled = false;
+      labUploadBtn.textContent = 'Scan with AI';
+      return;
+    }
+
+    applyLiveData(json.data);
+    await loadLabsFromData();
+
+    const foundList    = json.found.join(', ') || 'none';
+    const defaultCount = json.defaulted.length;
+    resultEl.innerHTML =
+      `<strong>${json.found.length} values extracted</strong> from your upload.<br>` +
+      `Found: ${foundList}<br>` +
+      (defaultCount ? `<span class="defaulted-note">${defaultCount} missing markers set to optimal green defaults.</span>` : '');
+    resultEl.style.display = 'block';
+    statusEl.textContent = 'Done. All orbs updated.';
+    labUploadBtn.disabled = false;
+    labUploadBtn.textContent = 'Scan more images';
+
+  } catch(e) {
+    statusEl.textContent = 'Upload failed — check your connection.';
+    labUploadBtn.disabled = false;
+    labUploadBtn.textContent = 'Scan with AI';
+  }
+}
 
 async function loadLabsFromData() {
   try {

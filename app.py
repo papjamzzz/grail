@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory
-import json, os, time, requests as req
+import json, os, time, requests as req, base64, re
 
 app = Flask(__name__)
 
@@ -100,6 +100,21 @@ def log_meal():
 def api_meals():
     return jsonify(rjson(MEAL_FILE, []))
 
+LAB_DEFAULTS_GREEN = {
+    'testosterone': 600,  'cortisol': 12,    'dhea': 300,   'igf1': 200,
+    'tsh': 1.5,           'glucose': 88,     'insulin': 1.0,'uric_acid': 4.5,
+    'crp': 0.4,           'homocysteine': 8, 'apob': 70,    'fibrinogen': 240,
+    'vitamin_d': 55,      'b12': 700,        'magnesium': 2.2,'zinc': 90,
+    'omega3': 8.5,        'nad': 45,         'ferritin': 100,'albumin': 4.5,
+    'alt': 18,
+}
+
+EXTRACT_PROMPT = """Extract all lab values from this medical lab report. Return ONLY a raw JSON object — no markdown, no explanation, no units.
+Use these exact keys where the value is present: testosterone, cortisol, dhea, igf1, tsh, glucose, insulin, uric_acid, crp, homocysteine, apob, fibrinogen, vitamin_d, b12, magnesium, zinc, omega3, nad, ferritin, albumin, alt.
+Also extract any other clearly readable lab values using lowercase_underscore keys.
+Values must be numbers only. Example: {"testosterone": 542, "vitamin_d": 48, "tsh": 1.8, "crp": 0.6}
+Only include values you can clearly read from the image."""
+
 LAB_FIELDS = [
     'testosterone','cortisol','dhea','igf1','tsh',
     'glucose','insulin','uric_acid',
@@ -107,6 +122,73 @@ LAB_FIELDS = [
     'vitamin_d','b12','magnesium','zinc','omega3','nad',
     'ferritin','albumin','alt'
 ]
+
+@app.route('/api/import-labs', methods=['POST'])
+def import_labs():
+    try:
+        import anthropic as ant
+    except ImportError:
+        return jsonify({'ok': False, 'error': 'anthropic library not installed'}), 500
+
+    api_key = os.environ.get('ANTHROPIC_API_KEY', '').strip()
+    if not api_key:
+        return jsonify({'ok': False, 'error': 'ANTHROPIC_API_KEY environment variable not set'}), 400
+
+    files = request.files.getlist('files')
+    if not files:
+        return jsonify({'ok': False, 'error': 'No files uploaded'}), 400
+
+    client = ant.Anthropic(api_key=api_key)
+    extracted = {}
+
+    for f in files:
+        raw = f.read()
+        if not raw:
+            continue
+        mime = f.content_type or 'image/jpeg'
+        if mime not in ('image/jpeg','image/png','image/gif','image/webp'):
+            mime = 'image/jpeg'
+        b64 = base64.standard_b64encode(raw).decode('utf-8')
+
+        try:
+            msg = client.messages.create(
+                model='claude-sonnet-4-6',
+                max_tokens=1024,
+                messages=[{
+                    'role': 'user',
+                    'content': [
+                        {'type': 'image', 'source': {'type': 'base64', 'media_type': mime, 'data': b64}},
+                        {'type': 'text', 'text': EXTRACT_PROMPT}
+                    ]
+                }]
+            )
+            text = msg.content[0].text.strip()
+            m = re.search(r'\{[\s\S]*\}', text)
+            if m:
+                parsed = json.loads(m.group())
+                for k, v in parsed.items():
+                    try:
+                        extracted[k.lower().replace(' ','_')] = float(v)
+                    except Exception:
+                        pass
+        except Exception as e:
+            print(f'[import-labs] Claude error: {e}')
+
+    data = rjson(HEALTH_FILE, DEFAULT_HEALTH.copy())
+    found = []
+    for k, v in extracted.items():
+        data[k] = v
+        found.append(k)
+
+    defaulted = []
+    for field, val in LAB_DEFAULTS_GREEN.items():
+        if data.get(field) is None:
+            data[field] = val
+            defaulted.append(field)
+
+    data['last_updated'] = time.strftime('%Y-%m-%dT%H:%M:%S')
+    wjson(HEALTH_FILE, data)
+    return jsonify({'ok': True, 'found': found, 'defaulted': defaulted, 'data': data})
 
 @app.route('/api/labs', methods=['POST'])
 def api_labs():
