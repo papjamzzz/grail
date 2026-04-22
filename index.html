@@ -1696,7 +1696,7 @@ function loop(now) {
     const hbBoost  = n.hbFlash * 2.4;
     const nodeAlive= alive + hbBoost;
     const isHov    = hovered===n;
-    const nb       = ((isHov?24:17) + pulse*7) * Math.min(1 + burstMult*0.08, 1.5);
+    const nb       = ((isHov ? n.r*0.0952 : n.r*0.0675) + pulse*n.r*0.0278) * Math.min(1 + burstMult*0.08, 1.5);
 
     const connA = Math.atan2(ny-oy,nx-cx);
     const ex = cx + Math.cos(connA)*blobR(connA,time,coreBase);
