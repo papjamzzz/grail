@@ -266,7 +266,7 @@ function resize() {
   CX = W/2; CY = H/2;
   coreR = Math.min(W,H) * 0.058;
   // Smaller cells to fit ~90 in a tight cluster
-  cellR = Math.min(W,H) * 0.038;
+  cellR = Math.min(W,H) * 0.032;
   initCells();
 }
 window.addEventListener('resize', resize);
@@ -364,10 +364,12 @@ function physicsStep() {
   const mvy = cells.reduce((s,c)=>s+c.vy,0)/N;
   cells.forEach(c => { c.vx -= mvx; c.vy -= mvy; });
 
-  // Centering pull — anchors whole blob to CX, CY
+  // Hard centering — directly correct position drift each frame
   const mcx = cells.reduce((s,c)=>s+c.x,0)/N;
   const mcy = cells.reduce((s,c)=>s+c.y,0)/N;
-  cells.forEach(c => { c.vx += (CX-mcx)*0.01; c.vy += (CY-mcy)*0.01; });
+  const offX = (CX - mcx) * 0.12;
+  const offY = (CY - mcy) * 0.12;
+  cells.forEach(c => { c.x += offX; c.y += offY; });
 
   // Cell–cell: repulsion + sticky cohesion
   for (let i=0; i<N; i++) {
