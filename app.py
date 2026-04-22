@@ -1,6 +1,16 @@
 from flask import Flask, request, jsonify, send_from_directory
 import json, os, time, requests as req, base64, re
 
+# Load .env for local dev
+_env_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(_env_path):
+    for _line in open(_env_path):
+        _line = _line.strip()
+        if _line and not _line.startswith('#') and '=' in _line:
+            _k, _v = _line.split('=', 1)
+            if not os.environ.get(_k.strip()):
+                os.environ[_k.strip()] = _v.strip()
+
 app = Flask(__name__)
 
 BASE = os.path.dirname(__file__)
