@@ -1742,11 +1742,11 @@ function loop(now) {
     const sc = st==='green' ? [126,232,160] : st==='orange' ? [232,200,100] : [232,100,100];
     const lbl = n.label;
     ctx.save();
-    ctx.font = '11px "Cormorant Garamond",Georgia,serif';
+    ctx.font = '22px "Cormorant Garamond",Georgia,serif';
     const tw = ctx.measureText(lbl).width;
-    const pad = 11, dotR = 4, gap = 7;
+    const pad = 14, dotR = 6, gap = 9;
     const boxW = dotR*2 + gap + tw + pad*2;
-    const boxH = 22;
+    const boxH = 38;
     const bx = n._x - boxW/2;
     const by = n._y - 34 - boxH;
     // background
