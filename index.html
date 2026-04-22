@@ -449,13 +449,9 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
 
 <div id="sidebar">
   <div class="sb-items">
-    <span class="tb-item" id="tb-grail-guidance">Grail Guidance</span>
-    <div class="sb-divider"></div>
-    <span class="tb-item" id="tb-scoring">Scoring</span>
+<span class="tb-item" id="tb-scoring">Scoring</span>
     <div class="sb-divider"></div>
     <span class="tb-item" id="tb-reports">Reports</span>
-    <div class="sb-divider"></div>
-    <span class="tb-item" id="tb-guide">The Guide</span>
     <div class="sb-divider"></div>
     <span class="tb-item" id="tb-settings">Settings</span>
     <div class="sb-divider"></div>
@@ -865,21 +861,6 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
 </div>
 
 <!-- Ask Grail response -->
-<div class="panel" id="grail-panel">
-  <div class="g-tag">Grail Protocol — 7-Day Synthesis</div>
-  <div id="grail-content">
-    <div class="g-loading" id="grail-loading">
-      <div class="g-spinner"></div>
-      <div class="g-loading-text">Synthesising across models…</div>
-    </div>
-    <div id="grail-result" style="display:none">
-      <div class="g-verdict" id="grail-verdict"></div>
-      <div class="g-models" id="grail-models"></div>
-      <div class="g-elapsed" id="grail-elapsed"></div>
-    </div>
-  </div>
-  <span class="g-close" id="grail-close">Dismiss</span>
-</div>
 
 <script>
 const canvas = document.getElementById('canvas');
@@ -1851,16 +1832,9 @@ function openNodePanel(n) {
 document.getElementById('p-close').addEventListener('click', closeAll);
 
 // --- Top bar ---
-document.getElementById('tb-grail-guidance').addEventListener('click', () => {
-  open('grail-panel');
-  document.getElementById('grail-loading').style.display = 'block';
-  document.getElementById('grail-result').style.display  = 'none';
-  askGrail();
-});
 document.getElementById('tb-scoring').addEventListener('click', () => { open('scoring-panel'); renderScoring(); });
 document.getElementById('scoring-close').addEventListener('click', closeAll);
 document.getElementById('tb-reports').addEventListener('click', () => { open('reports-panel'); openReports('live'); });
-document.getElementById('tb-guide').addEventListener('click',         () => open('guide-panel'));
 document.getElementById('tb-settings').addEventListener('click',      () => open('settings-panel'));
 
 // ── Light / dark mode toggle ──────────────────────────────────────────────
