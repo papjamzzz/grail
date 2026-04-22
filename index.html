@@ -1907,11 +1907,11 @@ function resize() {
   const gw = document.getElementById('grail-word');
   const grailTop = gw ? gw.getBoundingClientRect().top : H - 140;
 
-  // Center orbit between top edge and grail word
+  // Center orbit between top edge and grail word — target 65% page coverage
   const topBound  = 28;
   const midY      = topBound + (grailTop - topBound) / 2;
-  const maxR      = Math.min((grailTop - topBound) / 2 - 16, Math.min(W, H) * 0.28);
-  const r         = Math.max(80, maxR);
+  const maxR      = Math.min((grailTop - topBound) / 2 - 20, Math.min(W, H) * 0.205);
+  const r         = Math.max(70, maxR);
   oy = midY;
 
   NODES.forEach(n => { n.r = r; });
@@ -2287,7 +2287,7 @@ function loop(now) {
 
   // nodes
   NODES.forEach(n => {
-    const ringMult = n.ringLevel===1 ? 0.50 : n.ringLevel===2 ? 0.76 : n.ringLevel===3 ? 1.04 : n.ringLevel===4 ? 1.34 : n.ringLevel===5 ? 1.62 : 1.90;
+    const ringMult = n.ringLevel===1 ? 0.38 : n.ringLevel===2 ? 0.56 : n.ringLevel===3 ? 0.75 : n.ringLevel===4 ? 0.94 : n.ringLevel===5 ? 1.14 : 1.34;
     const orbitSpd = n.ringLevel===1 ? 0.042 : n.ringLevel===2 ? 0.030 : n.ringLevel===3 ? 0.021 : n.ringLevel===4 ? 0.014 : n.ringLevel===5 ? 0.009 : 0.006;
     const oa = n.angle + time * orbitSpd;
     const nx = cx + Math.cos(oa)*n.r*ringMult;
@@ -2298,7 +2298,7 @@ function loop(now) {
     const hbBoost  = n.hbFlash * 2.4;
     const nodeAlive= alive + hbBoost;
     const isHov    = hovered===n;
-    const nb       = ((isHov?24:17) + pulse*7) * Math.min(1 + burstMult*0.08, 1.5);
+    const nb       = ((isHov?22:15) + pulse*6) * Math.min(1 + burstMult*0.08, 1.5);
 
     const connA = Math.atan2(ny-oy,nx-cx);
     const ex = cx + Math.cos(connA)*blobR(connA,time,coreBase);
