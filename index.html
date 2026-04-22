@@ -1295,607 +1295,106 @@ const NODES = [
     rec:{ diet:'Selenium (brazil nuts), iodine (seaweed, fish), and zinc support thyroid synthesis. Avoid raw goitrogens.', sleep:'TSH follows circadian rhythm — poor sleep disrupts thyroid hormone production cycles significantly.', exercise:'Both hypo and hyperthyroid affect exercise tolerance. Get levels right before optimizing intensity.', green:'Thyroid function is optimal. Your metabolism, temperature, and energy production are all well-governed.' }
   },
   {
-    id:'lpa', label:'Lp(a)', angle:0.1047, ringLevel:5,
-    color:'#D46A8A', glow:[212,106,138],
-    system:'Lipoprotein(a)', unit:'nmol/L',
-    pct:62, currentPct:62, targetPct:62, minPct:30, maxPct:96,
-    calcValue: p => Math.round(200-p*1.8),
-    insight:'Lp(a) is genetically driven cardiovascular risk. High = atherosclerosis accelerator.',
-    source:'Lab Panel', phase:0.00, nextChange:0,
-    rec:{ diet:'Diet low in refined carbs modestly lowers Lp(a). Niacin most studied intervention.', sleep:'Lp(a) has little sleep relationship but poor sleep elevates baseline inflammation.', exercise:'Zone 2 cardio weakly lowers Lp(a). This one is mostly genetics — focus on managing other CVD risk.', green:'Your Lp(a) is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
     id:'hdl', label:'HDL', angle:0.3142, ringLevel:5,
     color:'#7ABCA8', glow:[122,188,168],
     system:'HDL Cholesterol', unit:'mg/dL',
-    pct:75, currentPct:75, targetPct:75, minPct:30, maxPct:96,
+    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
     calcValue: p => Math.round(20+p*0.8),
-    insight:'HDL removes cholesterol from arteries. Higher is generally protective.',
-    source:'Lab Panel', phase:0.13, nextChange:0,
-    rec:{ diet:'Olive oil, fatty fish, avocado raise HDL meaningfully. Sugar and seed oils tank it.', sleep:'Good sleep maintains HDL. Chronic sleep deprivation drops it 5–10 mg/dL.', exercise:'Exercise is the #1 way to raise HDL. 30 min cardio 4×/week raises it 5–10% in 3 months.', green:'Your HDL is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
+    insight:'HDL removes cholesterol from arteries. The higher the better — your cardiovascular janitor.',
+    source:'Lab Panel', phase:0.00, nextChange:0,
+    rec:{ diet:'Olive oil, fatty fish, and avocado raise HDL. Sugar and seed oils tank it fast.', sleep:'Good sleep maintains HDL. Chronic short sleep drops it 5–10 mg/dL over months.', exercise:'Cardio exercise is the #1 way to raise HDL. Thirty minutes 4×/week raises it 5–10% in 3 months.', green:'Your HDL is in the optimal range — a genuine longevity marker. Keep doing what you\'re doing.' }
   },
   {
-    id:'ldl', label:'LDL', angle:0.5236, ringLevel:5,
+    id:'ldl', label:'LDL', angle:0.9425, ringLevel:5,
     color:'#D4A06A', glow:[212,160,106],
     system:'LDL Cholesterol', unit:'mg/dL',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
+    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
     calcValue: p => Math.round(200-p*1.3),
-    insight:'Pattern B small dense LDL is the real culprit. Optimize particle size, not just total LDL.',
-    source:'Lab Panel', phase:0.26, nextChange:0,
-    rec:{ diet:'Saturated fat raises LDL but fiber (psyllium, oats) lowers it. Focus on particle size.', sleep:'Sleep deprivation raises LDL. 7+ hours is protective.', exercise:'Cardio exercise reduces LDL particle size risk. Resistance training helps HDL ratio.', green:'Your LDL is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
+    insight:'LDL particle size matters more than total count. Small dense LDL is the atherogenic form to watch.',
+    source:'Lab Panel', phase:0.20, nextChange:0,
+    rec:{ diet:'Fiber (psyllium, oats) lowers LDL. Focus on particle size over total number.', sleep:'Sleep deprivation raises LDL. Seven-plus hours is protective for cholesterol balance.', exercise:'Cardio reduces LDL particle size risk. Resistance training improves the overall lipid ratio.', green:'Your LDL is in the optimal range — a genuine longevity marker. Keep doing what you\'re doing.' }
   },
   {
-    id:'trigs', label:'Triglycerides', angle:0.7330, ringLevel:5,
+    id:'trigs', label:'Triglycerides', angle:1.5708, ringLevel:5,
     color:'#D4C06A', glow:[212,192,106],
     system:'Lipid Metabolism', unit:'mg/dL',
-    pct:70, currentPct:70, targetPct:70, minPct:30, maxPct:96,
+    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
     calcValue: p => Math.round(300-p*2),
-    insight:'Triglycerides spike with sugar, alcohol, and refined carbs. Direct fuel-economy metric.',
-    source:'Lab Panel', phase:0.39, nextChange:0,
-    rec:{ diet:'Cutting sugar, fructose, and alcohol drops triglycerides within weeks. Omega-3 helps.', sleep:'Poor sleep raises triglycerides via cortisol spike. Sleep is underrated lipid therapy.', exercise:'Cardio burns triglycerides directly. Even a 30-min walk post-meal makes a measurable dent.', green:'Your Triglycerides is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
+    insight:'Triglycerides spike with sugar, alcohol, and refined carbs. A direct fuel-economy metric.',
+    source:'Lab Panel', phase:0.40, nextChange:0,
+    rec:{ diet:'Cut sugar, fructose, and alcohol — drops triglycerides within weeks. Omega-3 fish oil helps.', sleep:'Poor sleep raises triglycerides via cortisol. Sleep is underrated lipid therapy.', exercise:'Even a 30-min walk after meals makes a measurable dent in triglycerides.', green:'Your Triglycerides is in the optimal range — a genuine longevity marker. Keep doing what you\'re doing.' }
   },
   {
-    id:'a1c', label:'HbA1c', angle:0.9425, ringLevel:5,
+    id:'a1c', label:'HbA1c', angle:2.1991, ringLevel:5,
     color:'#D4886A', glow:[212,136,106],
     system:'Glycemic Control', unit:'%',
-    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
+    pct:70, currentPct:70, targetPct:70, minPct:30, maxPct:96,
     calcValue: p => (5+p*0.025).toFixed(1),
-    insight:'A1c is your 90-day glucose average baked into red blood cells. The metabolic report card.',
-    source:'Lab Panel', phase:0.52, nextChange:0,
-    rec:{ diet:'Low glycemic index diet with time-restricted eating reliably brings A1c down.', sleep:'Sleep controls dawn glucose. Poor sleep raises A1c over months without diet change.', exercise:'Post-meal walks (10 min) cut glucose spikes 30%. Resistance training improves insulin sensitivity.', green:'Your HbA1c is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
+    insight:'HbA1c is your 90-day blood glucose average baked into red blood cells. The metabolic report card.',
+    source:'Lab Panel', phase:0.60, nextChange:0,
+    rec:{ diet:'Low glycemic index diet with time-restricted eating reliably brings A1c down over 3 months.', sleep:'Sleep controls dawn glucose. Poor sleep raises A1c without any diet change.', exercise:'Post-meal 10-minute walks cut glucose spikes 30%. Resistance training improves insulin sensitivity.', green:'Your HbA1c is in the optimal range — a genuine longevity marker. Keep doing what you\'re doing.' }
   },
   {
-    id:'fastInsulin', label:'Fasting Insulin', angle:1.1519, ringLevel:5,
-    color:'#C8A0D8', glow:[200,160,216],
-    system:'Insulin Sensitivity', unit:'µIU/mL',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => Math.round(25-p*0.2),
-    insight:'Fasting insulin reveals insulin resistance years before glucose goes wrong. Catch it early.',
-    source:'Lab Panel', phase:0.65, nextChange:0,
-    rec:{ diet:'Protein-first meals, time-restricted eating, and fiber all blunt insulin response.', sleep:'Sleep is the most underrated insulin sensitizer. 6-hour nights cause insulin resistance.', exercise:'Heavy compound lifts build muscle that acts as a glucose sponge. Mandatory for metabolic health.', green:'Your Fasting Insulin is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'oxLDL', label:'Oxidized LDL', angle:1.3614, ringLevel:5,
-    color:'#D46A6A', glow:[212,106,106],
-    system:'Oxidative Stress', unit:'U/L',
-    pct:60, currentPct:60, targetPct:60, minPct:30, maxPct:96,
-    calcValue: p => Math.round(120-p),
-    insight:'Oxidized LDL is the true atherogenic form. Antioxidants, not statins, address this.',
-    source:'Lab Panel', phase:0.78, nextChange:0,
-    rec:{ diet:'Polyphenols — olive oil, berries, dark chocolate — neutralize oxidized LDL directly.', sleep:'Sleep allows cellular repair. Chronic short sleep raises oxidative stress markers.', exercise:'Moderate exercise paradoxically reduces ox-LDL long-term despite short-term oxidative burst.', green:'Your Oxidized LDL is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'coq10', label:'CoQ10', angle:1.5708, ringLevel:5,
-    color:'#A8D4A0', glow:[168,212,160],
-    system:'Cellular Energy', unit:'µg/mL',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => (0.3+p*0.007).toFixed(2),
-    insight:'CoQ10 powers mitochondria and is depleted by statins. Critical for heart muscle and energy.',
-    source:'Lab Panel', phase:0.91, nextChange:0,
-    rec:{ diet:'Ubiquinol form absorbs 3× better. Fat-soluble — take with a meal. Sardines are richest food source.', sleep:'CoQ10 synthesis peaks during deep sleep. Sleep is free CoQ10.', exercise:'High-intensity exercise depletes CoQ10 short-term. Supplement if training hard.', green:'Your CoQ10 is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'glutathione', label:'Glutathione', angle:1.7802, ringLevel:5,
-    color:'#A0D4B8', glow:[160,212,184],
-    system:'Antioxidant Defense', unit:'µmol/L',
-    pct:63, currentPct:63, targetPct:63, minPct:30, maxPct:96,
-    calcValue: p => Math.round(500+p*8),
-    insight:'Glutathione is the master antioxidant. Detoxification, immune defense, cellular repair all depend on it.',
-    source:'Lab Panel', phase:1.04, nextChange:0,
-    rec:{ diet:'N-acetylcysteine (NAC) is the direct precursor. Broccoli sprouts and sulfur foods boost synthesis.', sleep:'Glutathione is depleted by sleep loss within 48 hours. Sleep is the cheapest antioxidant.', exercise:'Exercise temporarily depletes glutathione but chronic training upregulates glutathione synthase.', green:'Your Glutathione is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'vitC', label:'Vitamin C', angle:1.9897, ringLevel:5,
-    color:'#D4D06A', glow:[212,208,106],
-    system:'Immune & Collagen', unit:'mg/dL',
-    pct:70, currentPct:70, targetPct:70, minPct:30, maxPct:96,
-    calcValue: p => (0.4+p*0.006).toFixed(2),
-    insight:'Vitamin C is water-soluble and depleted by stress, smoking, and illness. Collagen synthesis requires it.',
-    source:'Lab Panel', phase:1.17, nextChange:0,
-    rec:{ diet:'Bell peppers have more vitamin C than oranges. Kiwi, broccoli, citrus. Supplement buffered C.', sleep:'Stress depletes vitamin C rapidly. Sleep is essential repair time for collagen.', exercise:'Endurance athletes deplete vitamin C faster. Supplement 500–1000mg around training.', green:'Your Vitamin C is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'vitE', label:'Vitamin E', angle:2.1991, ringLevel:5,
-    color:'#D4C86A', glow:[212,200,106],
-    system:'Lipid Protection', unit:'mg/L',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => (5+p*0.15).toFixed(1),
-    insight:'Vitamin E protects lipid membranes from oxidation. The fat-soluble antioxidant counterpart to vitamin C.',
-    source:'Lab Panel', phase:1.30, nextChange:0,
-    rec:{ diet:'Almonds, sunflower seeds, olive oil. Mixed tocopherols beat synthetic alpha-tocopherol.', sleep:'Fat-soluble vitamins recycle during sleep. Rest is essential for vitamin E\'s protective cycle.', exercise:'Exercise increases vitamin E demand. Athletes benefit from whole-food sources rather than high-dose supplements.', green:'Your Vitamin E is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'vitK2', label:'Vitamin K2', angle:2.4086, ringLevel:5,
-    color:'#A8C8D4', glow:[168,200,212],
-    system:'Calcium Routing', unit:'ng/mL',
-    pct:62, currentPct:62, targetPct:62, minPct:30, maxPct:96,
-    calcValue: p => (0.2+p*0.003).toFixed(3),
-    insight:'K2 routes calcium into bones and away from arteries. The missing piece of cardiovascular and bone health.',
-    source:'Lab Panel', phase:1.43, nextChange:0,
-    rec:{ diet:'MK-7 form (natto, fermented foods) has 72-hour half-life. Pair with vitamin D3.', sleep:'K2-dependent proteins activate during sleep for bone remodeling and arterial protection.', exercise:'High-impact exercise increases K2 demand for bone matrix proteins. Supplement if not eating fermented foods daily.', green:'Your Vitamin K2 is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'selenium', label:'Selenium', angle:2.6180, ringLevel:5,
-    color:'#C8D4A0', glow:[200,212,160],
-    system:'Thyroid & Antioxidant', unit:'µg/L',
-    pct:70, currentPct:70, targetPct:70, minPct:30, maxPct:96,
-    calcValue: p => Math.round(60+p*0.8),
-    insight:'Selenium activates thyroid hormones and powers glutathione peroxidase. Two Brazil nuts daily covers it.',
-    source:'Lab Panel', phase:1.56, nextChange:0,
-    rec:{ diet:'Two Brazil nuts = 100mcg selenium. Don\'t exceed 400mcg/day — selenium toxicity is real.', sleep:'Selenium is essential for sleep-regulating thyroid conversion. Low selenium = disrupted sleep.', exercise:'Endurance athletes deplete selenium through sweat. Monitor if training heavily.', green:'Your Selenium is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'copper', label:'Copper', angle:2.8274, ringLevel:5,
-    color:'#D4986A', glow:[212,152,106],
-    system:'Iron & Collagen', unit:'µg/dL',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => Math.round(70+p*1.3),
-    insight:'Copper partners with iron for hemoglobin and powers collagen cross-linking. Often overlooked.',
-    source:'Lab Panel', phase:1.69, nextChange:0,
-    rec:{ diet:'Liver, shellfish, dark chocolate, cashews. High zinc supplementation depletes copper — balance them.', sleep:'Copper-dependent enzymes support circadian regulation. Imbalance disrupts sleep cycles.', exercise:'Aerobic exercise increases copper demand for energy metabolism enzymes.', green:'Your Copper is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'iodine', label:'Iodine', angle:3.0369, ringLevel:5,
-    color:'#A8B8D4', glow:[168,184,212],
-    system:'Thyroid Function', unit:'µg/L',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => Math.round(50+p*1.5),
-    insight:'Iodine is the rate-limiting nutrient for thyroid hormone synthesis. Deficiency is global epidemic.',
-    source:'Lab Panel', phase:1.82, nextChange:0,
-    rec:{ diet:'Seaweed, seafood, iodized salt. Don\'t over-supplement — thyroid autoimmunity risk above 1mg/day.', sleep:'Thyroid hormones regulate sleep architecture. Iodine deficiency causes fatigue and disrupted sleep.', exercise:'Thyroid optimization through adequate iodine improves exercise recovery and metabolic rate.', green:'Your Iodine is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'egfr', label:'eGFR', angle:3.2463, ringLevel:5,
+    id:'egfr', label:'eGFR', angle:2.8274, ringLevel:5,
     color:'#6AD4C8', glow:[106,212,200],
     system:'Kidney Function', unit:'mL/min',
-    pct:75, currentPct:75, targetPct:75, minPct:30, maxPct:96,
+    pct:74, currentPct:74, targetPct:74, minPct:30, maxPct:96,
     calcValue: p => Math.round(60+p*0.5),
-    insight:'eGFR measures kidney filtration rate. Declines silently with age, blood pressure, and blood sugar.',
-    source:'Lab Panel', phase:1.95, nextChange:0,
-    rec:{ diet:'Hydration is primary. Plant protein easier on kidneys than animal protein at high quantities.', sleep:'Kidneys do peak filtration and repair during sleep. Chronic sleep debt accelerates kidney decline.', exercise:'Exercise supports kidney health via blood pressure reduction. Avoid anti-inflammatory overuse.', green:'Your eGFR is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
+    insight:'eGFR measures kidney filtration rate. It declines silently with age, blood pressure, and blood sugar.',
+    source:'Lab Panel', phase:0.80, nextChange:0,
+    rec:{ diet:'Hydration is primary. Plant protein is easier on kidneys at high intake than animal protein.', sleep:'Kidneys do peak filtration during sleep. Chronic sleep debt accelerates kidney decline.', exercise:'Exercise supports kidney health via blood pressure reduction. Avoid anti-inflammatory overuse.', green:'Your eGFR is in the optimal range — a genuine longevity marker. Keep doing what you\'re doing.' }
   },
   {
-    id:'creatinine', label:'Creatinine', angle:3.4558, ringLevel:5,
-    color:'#7AB8D4', glow:[122,184,212],
-    system:'Kidney & Muscle', unit:'mg/dL',
-    pct:70, currentPct:70, targetPct:70, minPct:30, maxPct:96,
-    calcValue: p => (0.5+p*0.008).toFixed(2),
-    insight:'Creatinine rises with muscle mass AND kidney dysfunction. Context matters enormously here.',
-    source:'Lab Panel', phase:2.08, nextChange:0,
-    rec:{ diet:'High meat intake raises creatinine. Creatine supplementation raises it without kidney harm.', sleep:'Kidneys clear creatinine during sleep. Chronic poor sleep can raise creatinine slightly.', exercise:'Athletes naturally run higher creatinine. Track trends over time rather than absolute values.', green:'Your Creatinine is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'bun', label:'BUN', angle:3.6652, ringLevel:5,
-    color:'#8AB4D4', glow:[138,180,212],
-    system:'Kidney & Protein', unit:'mg/dL',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => Math.round(8+p*0.2),
-    insight:'Blood urea nitrogen reflects protein metabolism and kidney clearance. High protein raises it.',
-    source:'Lab Panel', phase:2.21, nextChange:0,
-    rec:{ diet:'BUN rises with dehydration and very high protein intake. Adequate water is primary lever.', sleep:'Kidneys regulate BUN clearance through sleep. Chronic dehydration + poor sleep is hard on kidneys.', exercise:'Post-workout protein spikes BUN temporarily. Hydration blunts this effect substantially.', green:'Your BUN is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'sodium', label:'Sodium', angle:3.8746, ringLevel:5,
-    color:'#D4B86A', glow:[212,184,106],
-    system:'Electrolyte Balance', unit:'mEq/L',
-    pct:78, currentPct:78, targetPct:78, minPct:30, maxPct:96,
-    calcValue: p => Math.round(135+p*0.1),
-    insight:'Sodium regulates fluid balance, blood pressure, and nerve signaling. Stability is the goal.',
-    source:'Lab Panel', phase:2.34, nextChange:0,
-    rec:{ diet:'Electrolyte balance over total restriction. Quality salt (Himalayan, sea salt) with potassium.', sleep:'Sodium regulation affects sleep. Low sodium causes nighttime cramping and poor sleep.', exercise:'Athletes lose substantial sodium in sweat. Replace with electrolytes, not just water.', green:'Your Sodium is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'potassium', label:'Potassium', angle:4.0841, ringLevel:5,
-    color:'#A8D4A8', glow:[168,212,168],
-    system:'Heart & Muscle', unit:'mEq/L',
-    pct:76, currentPct:76, targetPct:76, minPct:30, maxPct:96,
-    calcValue: p => (3.5+p*0.015).toFixed(1),
-    insight:'Potassium is the most underconsumed essential mineral. Heart rhythm, blood pressure, and muscle depend on it.',
-    source:'Lab Panel', phase:2.47, nextChange:0,
-    rec:{ diet:'Avocado, sweet potato, leafy greens, banana. Potassium is the sodium antidote for blood pressure.', sleep:'Potassium deficiency causes restless sleep and muscle cramps at night.', exercise:'Exercise depletes potassium through sweat and muscle contraction. Replace through food, not supplements.', green:'Your Potassium is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'calcium', label:'Calcium', angle:4.2935, ringLevel:5,
-    color:'#D4D8D4', glow:[212,216,212],
-    system:'Bone & Signaling', unit:'mg/dL',
-    pct:74, currentPct:74, targetPct:74, minPct:30, maxPct:96,
-    calcValue: p => (8.5+p*0.015).toFixed(1),
-    insight:'Calcium is the most abundant mineral. Bone density, muscle contraction, nerve signaling all require it.',
-    source:'Lab Panel', phase:2.60, nextChange:0,
-    rec:{ diet:'Dairy, sardines with bones, leafy greens, fortified foods. Pair with K2 and D3.', sleep:'Calcium metabolism is tightly regulated at night. K2 ensures it goes to bones during sleep.', exercise:'Weight-bearing exercise is the most powerful bone-building signal. Walk, lift, jump.', green:'Your Calcium is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'phosphorus', label:'Phosphorus', angle:4.5029, ringLevel:5,
-    color:'#C8C4D4', glow:[200,196,212],
-    system:'Bone & Energy', unit:'mg/dL',
-    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
-    calcValue: p => (2.5+p*0.025).toFixed(1),
-    insight:'Phosphorus powers ATP synthesis and bone mineralization. Almost universally adequate in Western diets.',
-    source:'Lab Panel', phase:2.73, nextChange:0,
-    rec:{ diet:'Phosphorus is in nearly all protein foods. Deficiency is rare but excess (sodas) harms kidney.', sleep:'Phosphorus cycling supports cellular energy renewal during sleep.', exercise:'Exercise increases phosphorus demand for ATP. Well-nourished athletes rarely need to track this.', green:'Your Phosphorus is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'bilirubin', label:'Bilirubin', angle:4.7124, ringLevel:5,
-    color:'#D4D46A', glow:[212,212,106],
-    system:'Liver Clearance', unit:'mg/dL',
-    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
-    calcValue: p => (0.1+p*0.002).toFixed(2),
-    insight:'Bilirubin is a potent antioxidant at low levels. Elevated levels signal liver stress or hemolysis.',
-    source:'Lab Panel', phase:2.86, nextChange:0,
-    rec:{ diet:'Cruciferous vegetables support bilirubin clearance. Limit alcohol which competes for clearance.', sleep:'Liver detoxification peaks during sleep (11pm–3am). Sleep deprivation impairs bilirubin clearance.', exercise:'Moderate exercise increases bilirubin turnover positively. Extreme endurance can cause hemolytic stress.', green:'Your Bilirubin is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'ast', label:'AST', angle:4.9218, ringLevel:5,
-    color:'#D4906A', glow:[212,144,106],
-    system:'Liver & Muscle', unit:'U/L',
-    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
-    calcValue: p => Math.round(50-p*0.35),
-    insight:'AST is in liver AND muscle. Post-workout AST elevation is normal. Context determines meaning.',
-    source:'Lab Panel', phase:2.99, nextChange:0,
-    rec:{ diet:'Avoid hepatotoxic supplements (high-dose niacin, kava, EGCG isolates). Milk thistle is protective.', sleep:'Liver regeneration happens during sleep. Consistent late nights measurably raise liver enzymes.', exercise:'Heavy lifting temporarily raises AST from muscle damage. This is normal — track trends, not single readings.', green:'Your AST is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'ggt', label:'GGT', angle:5.1313, ringLevel:5,
-    color:'#C8906A', glow:[200,144,106],
-    system:'Liver Oxidative Stress', unit:'U/L',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => Math.round(60-p*0.5),
-    insight:'GGT is the most sensitive liver marker for alcohol, oxidative stress, and metabolic syndrome.',
-    source:'Lab Panel', phase:3.12, nextChange:0,
-    rec:{ diet:'GGT is the canary in the liver. Cut alcohol — even two drinks nightly elevates GGT significantly.', sleep:'GGT correlates inversely with sleep quality. Poor sleep raises GGT even without alcohol.', exercise:'Aerobic exercise reliably lowers GGT. It is one of the clearest exercise-responsive liver markers.', green:'Your GGT is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'vitA', label:'Vitamin A', angle:5.3407, ringLevel:5,
-    color:'#D4A86A', glow:[212,168,106],
-    system:'Vision & Immunity', unit:'µg/dL',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => (20+p*0.5).toFixed(1),
-    insight:'Vitamin A drives night vision, immune T-cell maturation, and skin barrier integrity.',
-    source:'Lab Panel', phase:3.25, nextChange:0,
-    rec:{ diet:'Preformed A in liver and eggs. Beta-carotene (sweet potato, carrots) converts — inefficiently.', sleep:'Vitamin A is a fat-soluble vitamin recycled during sleep. Eye repair and regeneration require it.', exercise:'Exercise increases vitamin A demand for muscle repair. Avoid mega-dosing — toxicity is real above 10,000 IU/day.', green:'Your Vitamin A is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'omega6to3', label:'Omega-6:3 Ratio', angle:5.5501, ringLevel:5,
-    color:'#D4786A', glow:[212,120,106],
-    system:'Inflammatory Balance', unit:'ratio',
-    pct:60, currentPct:60, targetPct:60, minPct:30, maxPct:96,
-    calcValue: p => (20-p*0.15).toFixed(1),
-    insight:'The omega-6:3 ratio reflects chronic inflammation. Western diet = 15:1. Optimal = 4:1 or lower.',
-    source:'Lab Panel', phase:3.38, nextChange:0,
-    rec:{ diet:'Drop seed oils (soybean, corn, sunflower). Add sardines, salmon, walnuts. This is the big lever.', sleep:'Poor sleep increases AA (omega-6) and decreases EPA/DHA. Chronic sleep debt worsens the ratio.', exercise:'Endurance training increases omega-3 utilization. Supplement 2–4g EPA+DHA daily if training heavily.', green:'Your Omega-6:3 Ratio is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'mthfr', label:'MTHFR', angle:5.7596, ringLevel:5,
-    color:'#C8A8D4', glow:[200,168,212],
-    system:'Methylation', unit:'score',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => Math.round(p),
-    insight:'MTHFR variants affect folate metabolism, homocysteine clearance, and neurotransmitter synthesis.',
-    source:'Genetic Panel', phase:3.51, nextChange:0,
-    rec:{ diet:'5-MTHF (active folate) bypasses MTHFR mutations. Methylated B vitamins are the fix.', sleep:'MTHFR affects serotonin synthesis which regulates sleep architecture.', exercise:'Exercise upregulates methylation pathway activity. Physical stress is a methylation demand.', green:'Your MTHFR is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'insulin_like', label:'Insulin Growth', angle:5.9690, ringLevel:5,
-    color:'#A8C8A8', glow:[168,200,168],
-    system:'Anabolic Signaling', unit:'ng/mL',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => Math.round(80+p*1.5),
-    insight:'Growth factors regulate tissue repair and protein synthesis. Optimize through sleep and resistance training.',
-    source:'Lab Panel', phase:3.64, nextChange:0,
-    rec:{ diet:'Protein timing around training and before bed supports anabolic signaling.', sleep:'Growth hormone surges 90 minutes after sleep onset. Sleep IS your anabolic window.', exercise:'Heavy compound lifts are the most powerful stimulus for growth factor release.', green:'Your Insulin Growth is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'ceruloplasmin', label:'Ceruloplasmin', angle:6.1785, ringLevel:5,
-    color:'#B8C8D4', glow:[184,200,212],
-    system:'Copper Transport', unit:'mg/dL',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => (18+p*0.15).toFixed(1),
-    insight:'Ceruloplasmin transports copper and is an acute phase reactant. Reflects iron-copper metabolism.',
-    source:'Lab Panel', phase:3.77, nextChange:0,
-    rec:{ diet:'Adequate dietary copper and vitamin C support ceruloplasmin synthesis.', sleep:'Liver produces ceruloplasmin during overnight repair. Sleep supports healthy copper metabolism.', exercise:'Aerobic exercise modulates ceruloplasmin as part of the antioxidant response.', green:'Your Ceruloplasmin is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'wbc', label:'White Cells', angle:0.0524, ringLevel:6,
-    color:'#A8C4D4', glow:[168,196,212],
-    system:'Immune Defense', unit:'K/µL',
-    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
-    calcValue: p => (3+p*0.07).toFixed(1),
-    insight:'WBC count reflects immune activation. Low = suppression risk. High = active infection or inflammation.',
-    source:'Lab Panel', phase:0.00, nextChange:0,
-    rec:{ diet:'Zinc, vitamin C, and elderberry support WBC production. Avoid immunosuppressants unnecessarily.', sleep:'Immune function largely reconstitutes during sleep. One night of poor sleep drops NK cell activity 70%.', exercise:'Moderate exercise raises WBC. Overtraining suppresses it. The J-curve of immune and exercise is real.', green:'Your White Cells is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'rbc', label:'Red Cells', angle:0.2618, ringLevel:6,
-    color:'#D46A6A', glow:[212,106,106],
-    system:'Oxygen Transport', unit:'M/µL',
-    pct:74, currentPct:74, targetPct:74, minPct:30, maxPct:96,
-    calcValue: p => (3.8+p*0.02).toFixed(2),
-    insight:'RBC count sets oxygen-carrying capacity. Altitude, iron, B12, and folate are the primary levers.',
-    source:'Lab Panel', phase:0.13, nextChange:0,
-    rec:{ diet:'Iron, B12, and folate are the RBC production triad. Deficiency in any one causes anemia.', sleep:'Erythropoiesis (RBC production) is supported by deep sleep and growth hormone.', exercise:'Altitude exposure and endurance training increase RBC through EPO stimulation. Natural doping.', green:'Your Red Cells is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'hemoglobin', label:'Hemoglobin', angle:0.4712, ringLevel:6,
+    id:'hemoglobin', label:'Hemoglobin', angle:3.4558, ringLevel:5,
     color:'#D47A6A', glow:[212,122,106],
     system:'Oxygen Carrier', unit:'g/dL',
     pct:74, currentPct:74, targetPct:74, minPct:30, maxPct:96,
     calcValue: p => (10+p*0.07).toFixed(1),
     insight:'Hemoglobin carries oxygen from lungs to tissues. The most direct determinant of aerobic capacity.',
-    source:'Lab Panel', phase:0.26, nextChange:0,
-    rec:{ diet:'Iron is inside every hemoglobin molecule. Heme iron (meat) absorbs 3× better than plant sources.', sleep:'Growth hormone released during deep sleep stimulates hemoglobin synthesis.', exercise:'Endurance training is the most powerful natural stimulus for hemoglobin increase.', green:'Your Hemoglobin is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
+    source:'Lab Panel', phase:1.00, nextChange:0,
+    rec:{ diet:'Iron is inside every hemoglobin molecule. Heme iron (meat) absorbs 3x better than plant iron.', sleep:'Growth hormone released during deep sleep stimulates hemoglobin synthesis overnight.', exercise:'Endurance training is the most powerful natural stimulus for increasing hemoglobin.', green:'Your Hemoglobin is in the optimal range — a genuine longevity marker. Keep doing what you\'re doing.' }
   },
   {
-    id:'hematocrit', label:'Hematocrit', angle:0.6807, ringLevel:6,
-    color:'#D4846A', glow:[212,132,106],
-    system:'Blood Density', unit:'%',
-    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
-    calcValue: p => Math.round(35+p*0.15),
-    insight:'Hematocrit is the percentage of blood that is red cells. Too low = anemia. Too high = clotting risk.',
-    source:'Lab Panel', phase:0.39, nextChange:0,
-    rec:{ diet:'Iron, B12, folate, copper all affect hematocrit. Hydration status affects readings.', sleep:'Sleep deprivation causes hemoconcentration through cortisol and water retention changes.', exercise:'Athletes run higher hematocrit naturally. This is beneficial, not pathological.', green:'Your Hematocrit is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'platelets', label:'Platelets', angle:0.8901, ringLevel:6,
+    id:'platelets', label:'Platelets', angle:4.0841, ringLevel:5,
     color:'#D4C0A8', glow:[212,192,168],
-    system:'Clotting & Repair', unit:'K/µL',
+    system:'Clotting & Repair', unit:'K/uL',
     pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
     calcValue: p => Math.round(150+p*1.5),
     insight:'Platelets initiate clotting and deliver growth factors to injured tissue. Essential for recovery.',
-    source:'Lab Panel', phase:0.52, nextChange:0,
-    rec:{ diet:'Omega-3 reduces platelet stickiness (good). Vitamin K2 supports appropriate clotting balance.', sleep:'Platelet production peaks during sleep. Aspirin and sleep deprivation both suppress platelet function.', exercise:'Eccentric exercise causes platelet activation at injury sites — necessary for muscle repair.', green:'Your Platelets is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
+    source:'Lab Panel', phase:1.20, nextChange:0,
+    rec:{ diet:'Omega-3 reduces platelet stickiness (beneficial). Vitamin K2 supports appropriate clotting balance.', sleep:'Platelet production peaks during sleep. Sleep deprivation suppresses platelet function.', exercise:'Eccentric exercise causes platelet activation at injury sites — necessary for muscle repair.', green:'Your Platelets is in the optimal range — a genuine longevity marker. Keep doing what you\'re doing.' }
   },
   {
-    id:'neutrophils', label:'Neutrophils', angle:1.0996, ringLevel:6,
-    color:'#B8D4A8', glow:[184,212,168],
-    system:'First-Line Immune', unit:'%',
+    id:'creatinine', label:'Creatinine', angle:4.7124, ringLevel:5,
+    color:'#7AB8D4', glow:[122,184,212],
+    system:'Kidney & Muscle', unit:'mg/dL',
     pct:70, currentPct:70, targetPct:70, minPct:30, maxPct:96,
-    calcValue: p => Math.round(45+p*0.2),
-    insight:'Neutrophils are the first responders of immunity. They kill bacteria by engulfing and destroying them.',
-    source:'Lab Panel', phase:0.65, nextChange:0,
-    rec:{ diet:'Zinc directly supports neutrophil function. Deficiency causes neutropenia.', sleep:'Sleep loss drops neutrophil function within 48 hours. Sleep before a sickness exposure.', exercise:'Moderate exercise boosts neutrophil circulation. Extreme exercise temporarily suppresses it.', green:'Your Neutrophils is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
+    calcValue: p => (0.5+p*0.008).toFixed(2),
+    insight:'Creatinine rises with muscle mass AND kidney dysfunction. Trends over time matter more than one reading.',
+    source:'Lab Panel', phase:1.40, nextChange:0,
+    rec:{ diet:'High meat intake raises creatinine. Creatine supplementation raises it without kidney harm.', sleep:'Kidneys clear creatinine during sleep. Chronic poor sleep can elevate creatinine slightly.', exercise:'Athletes naturally run higher creatinine. Track trends not absolute values.', green:'Your Creatinine is in the optimal range — a genuine longevity marker. Keep doing what you\'re doing.' }
   },
   {
-    id:'lymphocytes', label:'Lymphocytes', angle:1.3090, ringLevel:6,
-    color:'#A8B4D4', glow:[168,180,212],
-    system:'Adaptive Immunity', unit:'%',
-    pct:70, currentPct:70, targetPct:70, minPct:30, maxPct:96,
-    calcValue: p => Math.round(20+p*0.25),
-    insight:'Lymphocytes (T and B cells) are the memory and precision units of the immune system.',
-    source:'Lab Panel', phase:0.78, nextChange:0,
-    rec:{ diet:'Vitamin D is the master regulator of lymphocyte activity. Deficiency = impaired immunity.', sleep:'T-cell memory consolidation happens during slow-wave sleep. Sleep is immune education.', exercise:'Regular moderate exercise improves lymphocyte surveillance. The immune system needs physical stimulus.', green:'Your Lymphocytes is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'il6', label:'Interleukin-6', angle:1.5184, ringLevel:6,
-    color:'#D4706A', glow:[212,112,106],
-    system:'Inflammatory Signal', unit:'pg/mL',
-    pct:60, currentPct:60, targetPct:60, minPct:30, maxPct:96,
-    calcValue: p => (0.5+p*0.05).toFixed(2),
-    insight:'IL-6 is pro-inflammatory in chronic excess but beneficial acutely from exercise. Context is everything.',
-    source:'Lab Panel', phase:0.91, nextChange:0,
-    rec:{ diet:'Mediterranean diet measurably lowers chronic IL-6. Omega-3 is most studied supplement.', sleep:'Sleep deprivation raises IL-6 markedly. Even one bad night spikes inflammatory cytokines.', exercise:'Exercise briefly spikes IL-6 but chronic exercise lowers baseline. Train consistently.', green:'Your Interleukin-6 is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'tnf', label:'TNF-alpha', angle:1.7279, ringLevel:6,
-    color:'#D46870', glow:[212,104,112],
-    system:'Systemic Inflammation', unit:'pg/mL',
-    pct:60, currentPct:60, targetPct:60, minPct:30, maxPct:96,
-    calcValue: p => (0.5+p*0.04).toFixed(2),
-    insight:'TNF-alpha drives systemic inflammation. Elevated chronically in metabolic syndrome, obesity, depression.',
-    source:'Lab Panel', phase:1.04, nextChange:0,
-    rec:{ diet:'Anti-inflammatory diet, omega-3, curcumin with piperine. Gut health is the primary driver.', sleep:'Sleep is the most potent anti-inflammatory intervention known. 8 hours vs 6 hours cuts TNF meaningfully.', exercise:'Vigorous exercise is a powerful TNF reducer. Multiple mechanisms — adipokines, myokines, cortisol rhythm.', green:'Your TNF-alpha is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'nkCells', label:'NK Cell Activity', angle:1.9373, ringLevel:6,
-    color:'#A8D4C0', glow:[168,212,192],
-    system:'Cancer Surveillance', unit:'% active',
+    id:'fastInsulin', label:'Fasting Insulin', angle:5.3407, ringLevel:5,
+    color:'#C8A0D8', glow:[200,160,216],
+    system:'Insulin Sensitivity', unit:'uIU/mL',
     pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => Math.round(p),
-    insight:'Natural Killer cells patrol for cancer cells and viral infections 24/7. Sleep is their primary fuel.',
-    source:'Lab Panel', phase:1.17, nextChange:0,
-    rec:{ diet:'AHCC (active hexose correlated compound) is the most studied NK cell supplement.', sleep:'Just one night of 4-hour sleep drops NK cell activity by 70%. This is the immune-sleep connection.', exercise:'Moderate exercise increases NK cell circulation and activity within 30 minutes of starting.', green:'Your NK Cell Activity is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
+    calcValue: p => Math.round(25-p*0.2),
+    insight:'Fasting insulin reveals insulin resistance years before glucose goes wrong. Catch it early.',
+    source:'Lab Panel', phase:1.60, nextChange:0,
+    rec:{ diet:'Protein-first meals, time-restricted eating, and fiber all reduce fasting insulin over weeks.', sleep:'Sleep is the most underrated insulin sensitizer. Six-hour nights cause measurable insulin resistance.', exercise:'Heavy compound lifts build muscle that acts as a glucose sponge. Mandatory for metabolic health.', green:'Your Fasting Insulin is in the optimal range — a genuine longevity marker. Keep doing what you\'re doing.' }
   },
   {
-    id:'estradiol', label:'Estradiol', angle:2.1468, ringLevel:6,
-    color:'#D4A0C8', glow:[212,160,200],
-    system:'Hormonal Balance', unit:'pg/mL',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => Math.round(10+p*0.3),
-    insight:'Estradiol (E2) is the primary estrogen — critical for bone, brain, cardiovascular, and mood health.',
-    source:'Lab Panel', phase:1.30, nextChange:0,
-    rec:{ diet:'Cruciferous vegetables (DIM) support healthy estrogen metabolism. Avoid xenoestrogen plastics.', sleep:'Estradiol regulates sleep architecture — low levels cause night sweats and fragmented sleep.', exercise:'Exercise modulates estrogen metabolism. Both too much and too little exercise disrupts estrogen balance.', green:'Your Estradiol is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'shbg', label:'SHBG', angle:2.3562, ringLevel:6,
-    color:'#C8A8C8', glow:[200,168,200],
-    system:'Hormone Binding', unit:'nmol/L',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => Math.round(10+p*0.4),
-    insight:'SHBG binds sex hormones, controlling how much is biologically active. High SHBG = low free testosterone.',
-    source:'Lab Panel', phase:1.43, nextChange:0,
-    rec:{ diet:'High-fiber diet raises SHBG. Zinc, magnesium, boron lower it. Obesity suppresses SHBG.', sleep:'Sleep regulates SHBG through insulin and cortisol interactions.', exercise:'Resistance training lowers SHBG by raising free testosterone through improved insulin sensitivity.', green:'Your SHBG is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'cortisol_pm', label:'Evening Cortisol', angle:2.5656, ringLevel:6,
-    color:'#D4A86A', glow:[212,168,106],
-    system:'Stress Response', unit:'µg/dL',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => (0.5+p*0.05).toFixed(2),
-    insight:'Evening cortisol should be low. Elevated PM cortisol is the biological signature of chronic stress.',
-    source:'Lab Panel', phase:1.56, nextChange:0,
-    rec:{ diet:'Ashwagandha, rhodiola, phosphatidylserine all lower cortisol. Magnesium glycinate at night.', sleep:'High PM cortisol is the single biggest destroyer of sleep quality and sleep onset.', exercise:'Evening exercise raises cortisol — train in the morning if sleep is suffering.', green:'Your Evening Cortisol is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'melatonin', label:'Melatonin', angle:2.7751, ringLevel:6,
-    color:'#8A8AC8', glow:[138,138,200],
-    system:'Sleep Hormone', unit:'pg/mL',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => (5+p*0.45).toFixed(1),
-    insight:'Melatonin signals darkness to the body and initiates the sleep cascade. Light is its greatest enemy.',
-    source:'Lab Panel', phase:1.69, nextChange:0,
-    rec:{ diet:'Blue light after sunset crushes melatonin 50–70%. Dark bedroom is the first intervention.', sleep:'Melatonin IS the sleep signal. Protecting it with darkness and cool temps is foundational.', exercise:'Morning outdoor light sets the melatonin timer for that night. Exercise outdoors at sunrise is optimal.', green:'Your Melatonin is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'serotonin', label:'Serotonin', angle:2.9845, ringLevel:6,
-    color:'#A8A8D4', glow:[168,168,212],
-    system:'Mood & Gut', unit:'ng/mL',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => (50+p*0.8).toFixed(1),
-    insight:'90% of serotonin is in the gut. Mood, appetite, sleep onset, and gut motility all depend on it.',
-    source:'Lab Panel', phase:1.82, nextChange:0,
-    rec:{ diet:'Tryptophan-rich foods (turkey, eggs, pumpkin seeds) + complex carbs at dinner boost serotonin.', sleep:'Serotonin converts to melatonin at night. Low serotonin = poor sleep onset and quality.', exercise:'Morning sunlight and exercise are the two most powerful natural serotonin boosters. Both free.', green:'Your Serotonin is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'dopamine', label:'Dopamine', angle:3.1940, ringLevel:6,
-    color:'#A0B4D4', glow:[160,180,212],
-    system:'Motivation & Drive', unit:'pg/mL',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => Math.round(30+p*0.5),
-    insight:'Dopamine drives motivation, reward, focus, and executive function. It is depleted by chronic stress.',
-    source:'Lab Panel', phase:1.95, nextChange:0,
-    rec:{ diet:'Tyrosine-rich foods (meat, eggs, cheese) are precursors. Reduce dopamine hijacking (social media, junk food).', sleep:'Sleep restores dopamine receptor sensitivity. Chronic sleep debt leads to anhedonia and low drive.', exercise:'Intense exercise is one of the most powerful natural dopamine boosters known to science.', green:'Your Dopamine is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'bdnf', label:'BDNF', angle:3.4034, ringLevel:6,
-    color:'#A8C4A8', glow:[168,196,168],
-    system:'Brain Plasticity', unit:'pg/mL',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => Math.round(5000+p*200),
-    insight:'BDNF grows new neurons and strengthens synapses. Exercise and learning are its primary triggers.',
-    source:'Lab Panel', phase:2.08, nextChange:0,
-    rec:{ diet:'Aerobic exercise raises BDNF more than any drug. Omega-3, blueberries, curcumin also help.', sleep:'BDNF consolidates memory during deep sleep. Sleep after learning is non-negotiable.', exercise:'Aerobic exercise is the single most powerful BDNF stimulus. 30 min at 70% max HR is the sweet spot.', green:'Your BDNF is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'telomere', label:'Telomere Length', angle:3.6128, ringLevel:6,
-    color:'#6AD4B8', glow:[106,212,184],
-    system:'Biological Age', unit:'kb',
-    pct:62, currentPct:62, targetPct:62, minPct:30, maxPct:96,
-    calcValue: p => (5+p*0.04).toFixed(2),
-    insight:'Telomere length is a direct marker of biological age and remaining cellular lifespan.',
-    source:'Genetic Panel', phase:2.21, nextChange:0,
-    rec:{ diet:'Omega-3, vitamin D, magnesium, and polyphenols protect telomere length. Chronic stress erodes it.', sleep:'Short sleepers have shorter telomeres. 7+ hours sleep is telomere protective.', exercise:'Moderate aerobic exercise lengthens telomeres. Extreme overtraining shortens them.', green:'Your Telomere Length is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'oxytocin', label:'Oxytocin', angle:3.8223, ringLevel:6,
-    color:'#D4A8C0', glow:[212,168,192],
-    system:'Connection & Trust', unit:'pg/mL',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => Math.round(10+p*0.4),
-    insight:'Oxytocin reduces cortisol, lowers blood pressure, and improves immunity through social connection.',
-    source:'Lab Panel', phase:2.34, nextChange:0,
-    rec:{ diet:'Human connection, touch, and gratitude practices release oxytocin as effectively as any supplement.', sleep:'Oxytocin promotes deep sleep. Social isolation and loneliness fragment sleep architecture.', exercise:'Team sports and group exercise release oxytocin beyond what solo training achieves.', green:'Your Oxytocin is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'prolactin', label:'Prolactin', angle:4.0317, ringLevel:6,
-    color:'#C8A0C4', glow:[200,160,196],
-    system:'Recovery Hormone', unit:'ng/mL',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => (2+p*0.1).toFixed(1),
-    insight:'Prolactin surges during REM sleep and drives immune repair. It is the recovery signal of deep rest.',
-    source:'Lab Panel', phase:2.47, nextChange:0,
-    rec:{ diet:'Excess stress and dopamine agonists suppress prolactin. Adequate zinc supports normal levels.', sleep:'Prolactin is the REM sleep hormone. Deep restorative sleep is the only way to optimize it.', exercise:'Post-exercise prolactin rise signals tissue repair. Rest days allow this cascade to complete.', green:'Your Prolactin is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'lh', label:'LH', angle:4.2412, ringLevel:6,
-    color:'#C8B4D4', glow:[200,180,212],
-    system:'Pituitary Signal', unit:'mIU/mL',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => (1+p*0.07).toFixed(1),
-    insight:'LH from the pituitary drives testosterone production. The upstream signal for reproductive health.',
-    source:'Lab Panel', phase:2.60, nextChange:0,
-    rec:{ diet:'LH is suppressed by chronic stress, excess estrogen, and anabolic steroids.', sleep:'LH is released in pulses during sleep. Sleep deprivation disrupts the entire hormonal cascade.', exercise:'Resistance training increases LH pulsatility and downstream testosterone production.', green:'Your LH is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'fsh', label:'FSH', angle:4.4506, ringLevel:6,
-    color:'#B8B4D4', glow:[184,180,212],
-    system:'Gonadal Health', unit:'mIU/mL',
-    pct:68, currentPct:68, targetPct:68, minPct:30, maxPct:96,
-    calcValue: p => (1+p*0.05).toFixed(1),
-    insight:'FSH signals the gonads for sperm and egg production. Rising FSH can indicate gonadal decline.',
-    source:'Lab Panel', phase:2.73, nextChange:0,
-    rec:{ diet:'Adequate zinc, selenium, and antioxidants support FSH signaling and gonadal response.', sleep:'Sleep deprivation suppresses FSH through cortisol interference with pituitary signaling.', exercise:'Regular moderate exercise maintains FSH balance. Overtraining suppresses it significantly.', green:'Your FSH is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'microbiome', label:'Microbiome', angle:4.6600, ringLevel:6,
-    color:'#A8D4A0', glow:[168,212,160],
-    system:'Gut Ecosystem', unit:'diversity',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => Math.round(p),
-    insight:'Microbiome diversity is the cornerstone of immunity, mental health, metabolism, and inflammation.',
-    source:'Microbiome Test', phase:2.86, nextChange:0,
-    rec:{ diet:'30 different plant foods per week is the most evidence-backed intervention for microbiome diversity.', sleep:'The gut-brain axis runs both ways. Microbiome disruption worsens sleep; poor sleep disrupts the microbiome.', exercise:'Exercise dramatically increases microbiome diversity — independently of diet changes. Move daily.', green:'Your Microbiome is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'akkermansia', label:'Akkermansia', angle:4.8695, ringLevel:6,
-    color:'#90C8A8', glow:[144,200,168],
-    system:'Gut Lining Defense', unit:'% abundance',
-    pct:62, currentPct:62, targetPct:62, minPct:30, maxPct:96,
-    calcValue: p => Math.round(p),
-    insight:'Akkermansia muciniphila protects the gut lining. Low levels correlate with obesity and metabolic disease.',
-    source:'Microbiome Test', phase:2.99, nextChange:0,
-    rec:{ diet:'Pomegranate, cranberry, and fasting increase Akkermansia. Antibiotics devastate it.', sleep:'Akkermansia colonization follows circadian rhythms. Consistent sleep schedules protect its populations.', exercise:'Exercise increases Akkermansia abundance. It is one of the most exercise-responsive gut bacteria.', green:'Your Akkermansia is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'butyrate', label:'Butyrate', angle:5.0789, ringLevel:6,
-    color:'#A8C8A0', glow:[168,200,160],
-    system:'Gut Fuel', unit:'µmol/g',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => Math.round(10+p*0.5),
-    insight:'Butyrate feeds colonocytes, seals gut junctions, and reduces inflammation. The gut\'s primary fuel.',
-    source:'Microbiome Test', phase:3.12, nextChange:0,
-    rec:{ diet:'Resistant starch (cooked/cooled rice, green banana, oats) is the most powerful butyrate booster.', sleep:'Butyrate crosses the blood-brain barrier and promotes NREM sleep directly. Fiber = better sleep.', exercise:'Short-chain fatty acids like butyrate are produced more in active people. Exercise feeds the gut.', green:'Your Butyrate is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'vegf', label:'VEGF', angle:5.2883, ringLevel:6,
+    id:'ast', label:'AST', angle:5.9690, ringLevel:5,
     color:'#D4906A', glow:[212,144,106],
-    system:'Blood Vessel Growth', unit:'pg/mL',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => Math.round(100+p*2),
-    insight:'VEGF drives formation of new blood vessels into tissue and muscles. The angiogenesis signal.',
-    source:'Lab Panel', phase:3.25, nextChange:0,
-    rec:{ diet:'VEGF is stimulated by exercise hypoxia. Nitrate-rich foods (beets, arugula) support vascular health.', sleep:'Sleep deprivation impairs angiogenesis and slows tissue recovery from training.', exercise:'Endurance training is the most powerful VEGF stimulus. It is why trained athletes have superior capillary density.', green:'Your VEGF is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'hsCRP', label:'hs-CRP', angle:5.4978, ringLevel:6,
-    color:'#D46A6A', glow:[212,106,106],
-    system:'Precision Inflammation', unit:'mg/L',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => (0.1+p*0.02).toFixed(2),
-    insight:'High-sensitivity CRP catches subclinical inflammation that standard CRP misses. The early warning system.',
-    source:'Lab Panel', phase:3.38, nextChange:0,
-    rec:{ diet:'Mediterranean diet cuts hs-CRP as effectively as statin therapy in some studies.', sleep:'Even partial sleep deprivation raises hs-CRP within 3 days. Sleep IS anti-inflammatory therapy.', exercise:'Regular exercise is the most evidence-based non-pharmacological way to lower hs-CRP.', green:'Your hs-CRP is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'methylation', label:'Methylation', angle:5.7072, ringLevel:6,
-    color:'#B8A8D4', glow:[184,168,212],
-    system:'Epigenetic Health', unit:'score',
-    pct:65, currentPct:65, targetPct:65, minPct:30, maxPct:96,
-    calcValue: p => Math.round(p),
-    insight:'DNA methylation controls gene expression aging. Lifestyle directly affects your methylation patterns.',
-    source:'Epigenetic Test', phase:3.51, nextChange:0,
-    rec:{ diet:'Methylated B vitamins (5-MTHF, methylcobalamin), betaine, and choline support healthy methylation.', sleep:'Sleep is when methylation patterns are reset and consolidated for the next day.', exercise:'Exercise upregulates beneficial methylation across hundreds of genes simultaneously.', green:'Your Methylation is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'cortisol_am', label:'Morning Cortisol', angle:5.9167, ringLevel:6,
-    color:'#D4C06A', glow:[212,192,106],
-    system:'Cortisol Awakening', unit:'µg/dL',
-    pct:70, currentPct:70, targetPct:70, minPct:30, maxPct:96,
-    calcValue: p => (10+p*0.08).toFixed(1),
-    insight:'The cortisol awakening response (CAR) is a healthy spike that mobilizes glucose and motivates action.',
-    source:'Lab Panel', phase:3.64, nextChange:0,
-    rec:{ diet:'A healthy CAR requires adequate cortisol precursors: cholesterol, vitamin C, B5, and zinc.', sleep:'Blunted CAR indicates HPA axis fatigue from chronic stress or poor sleep. Sleep restores it.', exercise:'Morning exercise amplifies a healthy CAR and sets a positive hormonal tone for the day.', green:'Your Morning Cortisol is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
-  },
-  {
-    id:'zonulin', label:'Zonulin', angle:6.1261, ringLevel:6,
-    color:'#D4B06A', glow:[212,176,106],
-    system:'Gut Permeability', unit:'ng/mL',
-    pct:62, currentPct:62, targetPct:62, minPct:30, maxPct:96,
-    calcValue: p => Math.round(80-p*0.6),
-    insight:'Zonulin opens tight junctions in the gut. Elevated = leaky gut = systemic inflammation.',
-    source:'Lab Panel', phase:3.77, nextChange:0,
-    rec:{ diet:'Gluten and gliadin are the primary zonulin triggers. Probiotics and zinc carnosine seal the gut.', sleep:'Sleep deprivation increases gut permeability within 24 hours through cortisol and mast cell activation.', exercise:'Regular moderate exercise tightens gut junctions over time. Extreme endurance can temporarily increase permeability.', green:'Your Zonulin is in the elite performance zone. Whatever you\'re doing here — keep doing it exactly.' }
+    system:'Liver & Muscle', unit:'U/L',
+    pct:72, currentPct:72, targetPct:72, minPct:30, maxPct:96,
+    calcValue: p => Math.round(50-p*0.35),
+    insight:'AST is in both liver and muscle. Post-workout elevation is normal — context determines meaning.',
+    source:'Lab Panel', phase:1.80, nextChange:0,
+    rec:{ diet:'Avoid hepatotoxic supplements (high-dose niacin, kava, EGCG isolates). Milk thistle is protective.', sleep:'Liver regeneration happens during sleep. Consistent late nights measurably raise liver enzymes.', exercise:'Heavy lifting temporarily raises AST from muscle damage. Track trends not single readings.', green:'Your AST is in the optimal range — a genuine longevity marker. Keep doing what you\'re doing.' }
   }
 
-,
 ];
 
 function resize() {
@@ -2287,7 +1786,7 @@ function loop(now) {
 
   // nodes
   NODES.forEach(n => {
-    const ringMult = n.ringLevel===1 ? 0.38 : n.ringLevel===2 ? 0.56 : n.ringLevel===3 ? 0.75 : n.ringLevel===4 ? 0.94 : n.ringLevel===5 ? 1.14 : 1.34;
+    const ringMult = n.ringLevel===1 ? 0.42 : n.ringLevel===2 ? 0.64 : n.ringLevel===3 ? 0.88 : n.ringLevel===4 ? 1.12 : 1.36;
     const orbitSpd = n.ringLevel===1 ? 0.042 : n.ringLevel===2 ? 0.030 : n.ringLevel===3 ? 0.021 : n.ringLevel===4 ? 0.014 : n.ringLevel===5 ? 0.009 : 0.006;
     const oa = n.angle + time * orbitSpd;
     const nx = cx + Math.cos(oa)*n.r*ringMult;
