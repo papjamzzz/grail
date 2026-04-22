@@ -569,10 +569,9 @@ function loop() {
 
   physicsStep();
 
-  // Drift pct values slowly
+  // Values fixed — no random drift
   cells.forEach(c => {
-    if (Math.random()<0.0012) c.targetPct = 20+Math.random()*75;
-    c.currentPct += (c.targetPct-c.currentPct)*0.005;
+    c.currentPct = c.targetPct;
   });
 
   // Draw — back to front
