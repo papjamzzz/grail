@@ -569,9 +569,39 @@ function loop() {
 
   physicsStep();
 
-  // Values fixed — no random drift
+  // Subtle live fluctuation — 3 active cells drift slowly, rotate every ~20s
+  if (!window._livePool) {
+    window._livePool = new Set();
+    window._liveTimer = 0;
+    cells.forEach(c => { c._baseP = c.pct; c._driftTarget = c.pct; c._driftTimer = 0; });
+  }
+  window._liveTimer--;
+  if (window._liveTimer <= 0) {
+    window._liveTimer = 1100 + Math.floor(Math.random() * 700); // ~20–30s at 60fps
+    // Swap one cell out of the active pool
+    const all = cells.filter(c => !window._livePool.has(c));
+    if (all.length && window._livePool.size >= 3) {
+      const drop = [...window._livePool][Math.floor(Math.random()*window._livePool.size)];
+      window._livePool.delete(drop);
+    }
+    if (window._livePool.size < 3 && all.length) {
+      const pick = all[Math.floor(Math.random()*all.length)];
+      window._livePool.add(pick);
+    }
+  }
   cells.forEach(c => {
-    c.currentPct = c.targetPct;
+    if (window._livePool.has(c)) {
+      c._driftTimer--;
+      if (c._driftTimer <= 0) {
+        // New target within ±12% of base, stays same status 80% of the time
+        const swing = (Math.random() - 0.5) * 24;
+        c._driftTarget = Math.max(5, Math.min(98, c._baseP + swing));
+        c._driftTimer = 180 + Math.floor(Math.random() * 240); // 3–7s
+      }
+      c.currentPct += (c._driftTarget - c.currentPct) * 0.004;
+    } else {
+      c.currentPct += (c._baseP - c.currentPct) * 0.02; // drift back to base
+    }
   });
 
   // Draw — back to front
