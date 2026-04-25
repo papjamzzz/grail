@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grail — Your Body</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:#FEFCF7;
+  color:#1C1826;
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* ── Paper texture overlay ────────────────────────────────────────────── */
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(ellipse 2px 3px at 12% 8%, rgba(100,70,30,0.18) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 2px at 34% 15%, rgba(80,55,20,0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 3px 2px at 67% 5%,  rgba(110,80,40,0.14) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 3px at 81% 22%, rgba(90,65,25,0.10) 0%, transparent 100%),
+    radial-gradient(ellipse 2px 1px at 5%  38%, rgba(120,85,35,0.13) 0%, transparent 100%),
+    radial-gradient(ellipse 2px 2px at 23% 47%, rgba(70,50,18,0.09) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 2px at 49% 33%, rgba(100,72,28,0.11) 0%, transparent 100%),
+    radial-gradient(ellipse 3px 1px at 72% 41%, rgba(85,60,22,0.15) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 3px at 91% 55%, rgba(110,78,32,0.10) 0%, transparent 100%),
+    radial-gradient(ellipse 2px 2px at 18% 62%, rgba(95,68,26,0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 2px 1px at 38% 71%, rgba(75,52,20,0.09) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 2px at 56% 66%, rgba(115,82,34,0.13) 0%, transparent 100%),
+    radial-gradient(ellipse 3px 2px at 77% 78%, rgba(88,63,24,0.11) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 1px at 8%  85%, rgba(105,74,30,0.14) 0%, transparent 100%),
+    radial-gradient(ellipse 2px 3px at 29% 91%, rgba(80,56,22,0.10) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 2px at 63% 88%, rgba(95,67,27,0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 2px 1px at 85% 94%, rgba(70,48,18,0.09) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 2px at 44% 53%, rgba(120,86,36,0.08) 0%, transparent 100%),
+    radial-gradient(ellipse 3px 2px at 3%  19%, rgba(90,64,26,0.13) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 3px at 97% 37%, rgba(100,71,29,0.11) 0%, transparent 100%),
+    radial-gradient(ellipse 2px 2px at 52% 97%, rgba(85,59,23,0.10) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 1px at 74% 12%, rgba(112,80,33,0.14) 0%, transparent 100%),
+    radial-gradient(ellipse 2px 2px at 16% 76%, rgba(78,54,21,0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 3px 1px at 88% 68%, rgba(102,73,30,0.09) 0%, transparent 100%);
+  opacity:1;
+}
+
+/* paper fiber lines */
+body::after{
+  content:'';
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(178deg, transparent 49.8%, rgba(100,70,28,0.04) 50%, transparent 50.2%),
+    linear-gradient(182deg, transparent 49.6%, rgba(90,62,24,0.03) 50%, transparent 50.4%),
+    linear-gradient(176deg, transparent 49.9%, rgba(110,78,32,0.04) 50%, transparent 50.1%);
+  background-size: 100% 4px, 100% 7px, 100% 11px;
+}
+
+/* ── Nav ─────────────────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 44px 16px 64px;
+  background:rgba(254,252,247,0.88);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+}
+.nav-brand{
+  font-family:'Playfair Display',serif;
+  font-size:28px;font-style:italic;font-weight:400;
+  letter-spacing:.04em;text-transform:none;
+  color:rgba(28,24,38,0.55);text-decoration:none;
+  line-height:1;
+}
+.nav-views{display:flex;gap:6px}
+.nav-pill{
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(28,24,38,0.4);text-decoration:none;
+  padding:5px 14px;border-radius:20px;
+  border:1px solid rgba(0,0,0,0.1);
+  transition:all .2s;
+}
+.nav-pill:hover{color:rgba(28,24,38,.8);border-color:rgba(0,0,0,.22);background:rgba(0,0,0,0.04)}
+.nav-pill.active{color:#1C1826;background:rgba(0,0,0,0.07);border-color:rgba(0,0,0,.18)}
+
+/* ── Hero ────────────────────────────────────────────────────────────── */
+.hero{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:80px 220px 50px 44px;
+  gap:80px;
+}
+
+/* ── Score card ──────────────────────────────────────────────────────── */
+.score-card{
+  flex:0 0 310px;
+  align-self:center;
+  width:310px;
+  background:#FEFCF7;
+  border-radius:20px;
+  border:1px solid rgba(100,70,28,0.1);
+  box-shadow:0 4px 6px rgba(0,0,0,0.03), 0 16px 48px rgba(0,0,0,0.07);
+  overflow:hidden;
+  z-index:100;
+}
+.score-card-top{
+  padding:32px 30px 24px;
+  border-bottom:1px solid rgba(100,70,28,0.07);
+}
+.score-eyebrow{
+  font-size:9px;letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(28,24,38,.35);margin-bottom:18px;
+}
+.score-gauge{
+  display:flex;align-items:flex-end;gap:0;margin-bottom:6px;
+}
+.score-number{
+  font-family:'Cormorant Garamond',serif;
+  font-size:110px;font-weight:300;line-height:.85;
+  transition:color .6s;
+}
+.score-denom{
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;font-weight:300;
+  color:rgba(28,24,38,.25);
+  margin-bottom:10px;margin-left:3px;
+}
+.score-label{
+  font-size:13px;color:rgba(28,24,38,.5);
+  line-height:1.5;margin-top:10px;
+}
+.score-bar-wrap{
+  margin-top:18px;
+  height:3px;background:rgba(0,0,0,.07);border-radius:3px;overflow:hidden;
+}
+.score-bar-fill{
+  height:100%;border-radius:3px;
+  transition:width 1.8s cubic-bezier(.16,1,.3,1),background .6s;
+}
+
+.score-card-body{padding:22px 30px 24px}
+.alerts-label{
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(28,24,38,.3);margin-bottom:14px;
+}
+.alert-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.05);
+  cursor:pointer;transition:opacity .15s;
+}
+.alert-row:last-child{border-bottom:none}
+.alert-row:hover{opacity:.6}
+.alert-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.alert-name{font-size:12px;color:rgba(28,24,38,.65);flex:1}
+.alert-pct{font-size:10px;color:rgba(28,24,38,.3);font-variant-numeric:tabular-nums}
+
+/* system indicator bar on card */
+.score-systems{
+  display:flex;gap:4px;padding:0 26px 22px;
+}
+.sys-pip{
+  flex:1;height:4px;border-radius:4px;
+  transition:background .6s;
+}
+
+/* ── Body wrap ───────────────────────────────────────────────────────── */
+.body-wrap{
+  flex:1;
+  display:flex;justify-content:center;align-items:stretch;
+  position:relative;
+  min-height:calc(100vh - 130px);
+}
+.body-svg-box{
+  position:relative;
+  flex:0 0 auto;
+  width:min(480px, calc(100vw - 560px));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#bodySvg{
+  width:100%;
+  height:100%;
+  max-height:calc(100vh - 120px);
+  /* preserve aspect ratio naturally */
+}
+
+/* ── Dynamic dot animations ─────────────────────────────────────────── */
+/* These are defined per-dot via SVG animate — see JS */
+
+/* ── Tooltip ─────────────────────────────────────────────────────────── */
+.body-tooltip{
+  position:absolute;
+  background:#FEFCF7;
+  border:1px solid rgba(100,70,28,0.14);
+  border-radius:12px;
+  padding:18px 20px 16px;
+  width:240px;
+  pointer-events:none;opacity:0;
+  transition:opacity .18s ease;
+  z-index:400;
+  box-shadow:0 8px 32px rgba(0,0,0,0.10),0 2px 8px rgba(0,0,0,0.06);
+}
+.body-tooltip.on{opacity:1}
+.btt-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.btt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.btt-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:rgba(28,18,6,0.88);letter-spacing:.02em;line-height:1.1;}
+.btt-score{
+  display:inline-flex;align-items:baseline;gap:2px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:13px;letter-spacing:3px;text-transform:uppercase;
+  margin-bottom:10px;
+}
+.btt-score-num{font-size:26px;font-weight:300;line-height:1;}
+.btt-score-denom{font-size:11px;color:rgba(90,58,22,0.4);letter-spacing:1px;}
+.btt-insight{
+  font-family:'Cormorant Garamond',serif;
+  font-size:13px;font-style:italic;font-weight:300;
+  color:rgba(40,25,8,0.65);line-height:1.55;
+  border-top:1px solid rgba(100,70,28,0.08);
+  padding-top:9px;margin-bottom:10px;
+}
+.btt-rec{
+  font-size:11px;color:rgba(60,38,14,0.6);line-height:1.5;
+  padding:7px 10px;
+  background:rgba(100,70,28,0.04);
+  border-radius:6px;margin-bottom:9px;
+}
+.btt-rec strong{display:block;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(90,58,22,0.45);margin-bottom:3px;}
+.btt-cheer{
+  font-family:'Cormorant Garamond',serif;
+  font-size:12px;font-style:italic;
+  color:rgba(60,38,14,0.52);
+  text-align:center;padding-top:8px;border-top:1px solid rgba(100,70,28,0.07);
+  line-height:1.4;
+}
+
+/* ── Systems section ─────────────────────────────────────────────────── */
+.systems{
+  padding:0 194px 90px 44px;
+  max-width:1340px;margin:0 auto;
+}
+
+/* ── Grail sidebar ───────────────────────────────────────────────────── */
+#grail-sidebar{
+  position:fixed;top:0;right:0;bottom:0;
+  width:200px;
+  background:#FEFCF7;
+  border-left:1px solid rgba(100,70,28,0.12);
+  display:flex;flex-direction:column;
+  align-items:flex-end;justify-content:center;
+  z-index:150;
+}
+.gsb-items-wrap{
+  display:flex;flex-direction:column;align-items:flex-end;
+  gap:28px;padding-right:32px;
+}
+.gsb-item{
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;letter-spacing:4px;text-transform:uppercase;
+  color:rgba(90,58,22,0.72);cursor:pointer;
+  transition:color .3s;
+  user-select:none;white-space:nowrap;
+}
+.gsb-item:hover{color:rgba(90,58,22,1);}
+.gsb-div{width:22px;height:1px;background:rgba(100,70,28,0.12);}
+
+/* ── Overlay ─────────────────────────────────────────────────────────── */
+#gsb-overlay{
+  position:fixed;inset:0;z-index:200;
+  display:none;background:rgba(4,4,10,0.62);
+}
+#gsb-overlay.on{display:block;}
+
+/* ── Shared panel base ───────────────────────────────────────────────── */
+.gsb-panel{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0.92);
+  opacity:0;pointer-events:none;
+  background:rgba(6,5,14,0.97);
+  border:1px solid rgba(201,169,110,0.13);
+  z-index:210;
+  transition:transform .42s cubic-bezier(.34,1.4,.64,1),opacity .28s ease;
+  font-family:'Cormorant Garamond',serif;
+  color:rgba(201,169,110,0.88);
+}
+.gsb-panel.open{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:all;}
+.gsb-panel::-webkit-scrollbar{width:2px;}
+.gsb-panel::-webkit-scrollbar-thumb{background:rgba(201,169,110,0.15);}
+
+/* Panel typography */
+.gp-title{font-size:11px;letter-spacing:8px;text-transform:uppercase;color:rgba(201,169,110,0.62);text-align:center;margin-bottom:36px;}
+.gp-close{margin-top:32px;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(201,169,110,0.45);cursor:pointer;transition:color .3s;display:block;text-align:center;}
+.gp-close:hover{color:rgba(201,169,110,0.85);}
+.gp-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(201,169,110,0.06);}
+.gp-row:last-of-type{border-bottom:none;}
+.gp-label{font-size:13px;color:rgba(201,169,110,0.85);letter-spacing:1px;}
+.gp-val{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,169,110,0.62);cursor:pointer;transition:color .3s;}
+.gp-val:hover{color:rgba(201,169,110,.9);}
+.gp-input{background:none;border:none;border-bottom:1px solid rgba(201,169,110,0.15);color:rgba(201,169,110,0.88);font-family:'Cormorant Garamond',serif;font-size:13px;width:140px;text-align:right;outline:none;padding:2px 0;}
+
+/* Settings toggle */
+.gp-toggle{position:relative;width:42px;height:24px;flex-shrink:0;}
+.gp-toggle input{opacity:0;width:0;height:0;}
+.gp-toggle-track{position:absolute;inset:0;border-radius:24px;background:rgba(201,169,110,0.12);border:1px solid rgba(201,169,110,0.22);cursor:pointer;transition:background .3s,border-color .3s;}
+.gp-toggle input:checked+.gp-toggle-track{background:rgba(201,169,110,0.55);border-color:rgba(201,169,110,0.7);}
+.gp-toggle-track::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:rgba(201,169,110,0.55);transition:transform .28s cubic-bezier(.34,1.56,.64,1),background .3s;}
+.gp-toggle input:checked+.gp-toggle-track::after{transform:translateX(18px);background:rgba(4,4,10,0.85);}
+
+/* API Keys */
+.gp-ak-row{margin-bottom:22px;}
+.gp-ak-label{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:rgba(201,169,110,0.65);margin-bottom:8px;display:block;}
+.gp-ak-field{width:100%;background:none;border:none;border-bottom:1px solid rgba(201,169,110,0.1);color:rgba(201,169,110,0.88);font-family:'Cormorant Garamond',serif;font-size:13px;padding:6px 0;outline:none;transition:border-color .3s;letter-spacing:1px;}
+.gp-ak-field:focus{border-color:rgba(201,169,110,0.3);}
+.gp-ak-field::placeholder{color:rgba(201,169,110,0.3);font-style:italic;}
+.gp-ak-note{font-size:11px;font-style:italic;color:rgba(201,169,110,0.5);text-align:center;margin-top:22px;line-height:1.6;}
+
+/* Scoring panel */
+.gp-sc-num{font-size:88px;font-weight:300;color:rgba(255,245,215,0.92);text-align:center;line-height:1;letter-spacing:4px;text-shadow:0 0 40px rgba(220,165,60,0.4);}
+.gp-sc-verdict{font-size:11px;letter-spacing:6px;text-transform:uppercase;text-align:center;margin:10px 0 24px;}
+.gp-sc-narrative{font-size:15px;font-style:italic;color:rgba(201,169,110,0.78);line-height:1.9;text-align:center;margin-bottom:32px;}
+.gp-sc-rule{width:100%;height:1px;background:rgba(201,169,110,0.07);border:none;margin:0 0 24px;}
+.gp-sc-section{margin-bottom:28px;}
+.gp-sc-head{font-size:10px;letter-spacing:5px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.gp-sc-head::after{content:'';flex:1;height:1px;background:currentColor;opacity:.12;}
+.gp-sc-section.red .gp-sc-head{color:rgba(232,100,100,0.7);}
+.gp-sc-section.orange .gp-sc-head{color:rgba(232,200,100,0.7);}
+.gp-sc-section.green .gp-sc-head{color:rgba(126,232,160,0.7);}
+.gp-sc-row{display:flex;align-items:flex-start;gap:13px;padding:10px 0;border-bottom:1px solid rgba(201,169,110,0.05);}
+.gp-sc-row:last-child{border-bottom:none;}
+.gp-sc-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.gp-sc-section.red .gp-sc-dot{background:rgb(232,100,100);box-shadow:0 0 7px rgba(232,100,100,0.55);}
+.gp-sc-section.orange .gp-sc-dot{background:rgb(232,200,100);box-shadow:0 0 7px rgba(232,200,100,0.55);}
+.gp-sc-section.green .gp-sc-dot{background:rgb(126,232,160);box-shadow:0 0 7px rgba(126,232,160,0.55);}
+.gp-sc-body{flex:1;}
+.gp-sc-row-label{font-size:13px;color:rgba(201,169,110,0.78);margin-bottom:3px;display:flex;align-items:center;justify-content:space-between;}
+.gp-sc-pct{font-size:11px;letter-spacing:2px;}
+.gp-sc-section.red .gp-sc-pct{color:rgba(232,100,100,0.7);}
+.gp-sc-section.orange .gp-sc-pct{color:rgba(232,200,100,0.6);}
+.gp-sc-section.green .gp-sc-pct{color:rgba(126,232,160,0.6);}
+.gp-sc-row-text{font-size:12px;font-style:italic;color:rgba(201,169,110,0.65);line-height:1.6;}
+
+/* Reports panel */
+.gp-rp-tabs{display:flex;gap:0;padding:0 0 0;border-bottom:1px solid rgba(201,169,110,0.08);margin-bottom:0;}
+.gp-rp-tab{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:rgba(201,169,110,0.5);background:none;border:none;border-bottom:1px solid transparent;margin-bottom:-1px;padding:0 16px 12px;cursor:pointer;transition:color .25s,border-color .25s;}
+.gp-rp-tab:hover{color:rgba(201,169,110,0.8);}
+.gp-rp-tab.active{color:rgba(201,169,110,0.95);border-bottom-color:rgba(201,169,110,0.55);}
+.gp-rp-section{display:none;padding:22px 0 0;max-height:420px;overflow-y:auto;}
+.gp-rp-section.active{display:block;}
+.gp-rp-section::-webkit-scrollbar{width:2px;}
+.gp-rp-section::-webkit-scrollbar-thumb{background:rgba(201,169,110,0.15);}
+.gp-log-lbl{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(201,169,110,0.65);margin-bottom:8px;margin-top:16px;display:block;}
+.gp-log-lbl:first-child{margin-top:0;}
+.gp-log-row{display:flex;gap:12px;align-items:flex-start;margin-top:12px;}
+.gp-log-field{flex:1;background:rgba(201,169,110,0.03);border:1px solid rgba(201,169,110,0.1);color:rgba(201,169,110,0.82);font-family:'Cormorant Garamond',serif;font-size:14px;padding:9px 11px;outline:none;resize:none;transition:border-color .3s;}
+.gp-log-field:focus{border-color:rgba(201,169,110,0.3);}
+.gp-log-field::placeholder{color:rgba(201,169,110,0.2);font-style:italic;}
+.gp-log-submit{flex-shrink:0;align-self:flex-end;padding:9px 16px;background:none;border:1px solid rgba(201,169,110,0.2);color:rgba(201,169,110,0.55);font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:4px;text-transform:uppercase;cursor:pointer;transition:all .25s;white-space:nowrap;}
+.gp-log-submit:hover{border-color:rgba(201,169,110,0.5);color:rgba(201,169,110,0.9);}
+.gp-sev-row{display:flex;gap:5px;margin-top:10px;}
+.gp-sev-btn{width:28px;height:28px;border:1px solid rgba(201,169,110,0.1);color:rgba(201,169,110,0.65);cursor:pointer;background:none;font-family:'Cormorant Garamond',serif;font-size:13px;transition:all .2s;}
+.gp-sev-btn.sel{border-color:rgba(201,169,110,0.45);color:rgba(201,169,110,0.9);background:rgba(201,169,110,0.05);}
+.gp-meal-types{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
+.gp-type-btn{font-size:7px;letter-spacing:3px;text-transform:uppercase;padding:4px 8px;border:1px solid rgba(201,169,110,0.1);color:rgba(201,169,110,0.28);cursor:pointer;background:none;font-family:'Cormorant Garamond',serif;transition:all .2s;}
+.gp-type-btn.sel{border-color:rgba(201,169,110,0.45);color:rgba(201,169,110,0.8);background:rgba(201,169,110,0.05);}
+.gp-confirm{font-size:11px;letter-spacing:2px;color:rgba(126,200,160,0.7);margin-top:8px;height:16px;font-style:italic;}
+.gp-entry{padding:12px 0;border-bottom:1px solid rgba(201,169,110,0.05);}
+.gp-entry:last-child{border-bottom:none;}
+.gp-entry-meta{display:flex;justify-content:space-between;margin-bottom:5px;}
+.gp-entry-time{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,169,110,0.5);}
+.gp-entry-text{font-size:13px;font-style:italic;color:rgba(201,169,110,0.82);line-height:1.55;}
+.gp-empty{font-size:13px;font-style:italic;color:rgba(201,169,110,0.42);text-align:center;padding:28px 0;}
+
+/* Live data table */
+.gp-table{width:100%;border-collapse:collapse;}
+.gp-table th{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(201,169,110,0.55);text-align:left;padding:0 0 10px;border-bottom:1px solid rgba(201,169,110,0.08);font-weight:400;}
+.gp-table td{padding:9px 0;border-bottom:1px solid rgba(201,169,110,0.05);font-family:'Cormorant Garamond',serif;vertical-align:middle;}
+.gp-table tr:last-child td{border-bottom:none;}
+.gp-rp-dot{display:inline-block;width:5px;height:5px;border-radius:50%;}
+.gp-rp-dot.green{background:rgb(126,232,160);box-shadow:0 0 5px rgba(126,232,160,0.7);}
+.gp-rp-dot.orange{background:rgb(232,200,100);box-shadow:0 0 5px rgba(232,200,100,0.7);}
+.gp-rp-dot.red{background:rgb(232,100,100);box-shadow:0 0 5px rgba(232,100,100,0.7);}
+.gp-rp-marker{font-size:12px;color:rgba(201,169,110,0.75);padding-left:10px;}
+.gp-rp-sys{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,169,110,0.5);padding-left:10px;}
+.gp-rp-val{font-size:14px;font-weight:300;color:rgba(201,169,110,0.9);}
+.gp-rp-pct-track{width:60px;height:1px;background:rgba(201,169,110,0.1);position:relative;display:inline-block;vertical-align:middle;}
+.gp-rp-pct-fill{position:absolute;top:0;left:0;height:1px;}
+
+/* Labs */
+.gp-labs-group{margin-bottom:24px;}
+.gp-labs-gtitle{font-size:9px;letter-spacing:6px;text-transform:uppercase;color:rgba(201,169,110,0.45);border-bottom:1px solid rgba(201,169,110,0.08);padding-bottom:9px;margin-bottom:14px;display:block;}
+.gp-labs-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;}
+.gp-labs-wrap{display:flex;flex-direction:column;gap:4px;}
+.gp-labs-lbl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,169,110,0.55);}
+.gp-labs-unit{font-size:9px;color:rgba(201,169,110,0.28);margin-left:3px;}
+.gp-labs-input{background:rgba(201,169,110,0.03);border:1px solid rgba(201,169,110,0.12);color:rgba(201,169,110,0.88);font-family:'Cormorant Garamond',serif;font-size:14px;padding:6px 8px;outline:none;width:100%;transition:border-color .25s;}
+.gp-labs-input:focus{border-color:rgba(201,169,110,0.38);}
+.gp-labs-input::placeholder{color:rgba(201,169,110,0.18);font-style:italic;}
+.gp-labs-range{font-size:9px;color:rgba(201,169,110,0.22);font-style:italic;}
+.gp-labs-save{margin-top:24px;width:100%;padding:12px;background:none;border:1px solid rgba(201,169,110,0.38);color:rgba(201,169,110,0.88);font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:5px;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.gp-labs-save:hover{border-color:rgba(201,169,110,0.75);color:rgba(201,169,110,1);background:rgba(201,169,110,0.04);}
+.gp-labs-confirm{font-size:11px;letter-spacing:2px;color:rgba(126,200,160,0.75);text-align:center;margin-top:12px;height:16px;font-style:italic;}
+.gp-labs-import-zone{border:1px dashed rgba(201,169,110,0.28);padding:18px;text-align:center;margin-bottom:22px;cursor:pointer;transition:border-color .25s,background .25s;position:relative;}
+.gp-labs-import-zone:hover{border-color:rgba(201,169,110,0.6);background:rgba(201,169,110,0.03);}
+.gp-labs-import-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
+.gp-labs-import-cta{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:rgba(201,169,110,0.5);display:block;}
+.gp-labs-import-sub{font-size:11px;font-style:italic;color:rgba(201,169,110,0.28);margin-top:4px;display:block;}
+.gp-labs-import-status{font-size:12px;font-style:italic;color:rgba(201,169,110,0.5);text-align:center;margin-bottom:14px;min-height:16px;}
+.gp-labs-or{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(201,169,110,0.28);text-align:center;margin-bottom:18px;}
+
+/* Medical Records */
+.gp-rec-note{font-size:13px;font-style:italic;color:rgba(201,169,110,0.5);line-height:1.65;margin-bottom:20px;text-align:center;}
+.gp-rec-entry{padding:12px 0;border-bottom:1px solid rgba(201,169,110,0.05);}
+.gp-rec-entry:last-child{border-bottom:none;}
+.gp-rec-meta{display:flex;justify-content:space-between;margin-bottom:4px;}
+.gp-rec-time{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,169,110,0.45);}
+.gp-rec-name{font-size:13px;color:rgba(201,169,110,0.8);}
+.systems-head{
+  display:flex;align-items:baseline;gap:18px;margin-bottom:28px;
+  padding-top:20px;
+  border-top:1px solid rgba(0,0,0,0.06);
+}
+.systems-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:32px;font-weight:300;
+}
+.systems-sub{
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(28,24,38,.3);
+}
+.systems-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:14px;
+}
+.sys-card{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.07);
+  border-radius:14px;padding:18px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
+  transition:box-shadow .2s,border-color .2s;
+}
+.sys-card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.09);border-color:rgba(0,0,0,0.12)}
+.sys-card-top{
+  display:flex;align-items:center;
+  justify-content:space-between;margin-bottom:12px;
+}
+.sys-name{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(28,24,38,.4);
+}
+.sys-score{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-weight:300;
+}
+.sys-track{height:2px;background:rgba(0,0,0,.06);margin-bottom:14px;overflow:hidden;border-radius:2px}
+.sys-fill{height:100%;transition:width 1.6s cubic-bezier(.16,1,.3,1)}
+.sys-markers{display:flex;flex-direction:column;gap:8px}
+.sys-row{
+  display:flex;align-items:center;gap:8px;
+  cursor:pointer;transition:opacity .15s;
+}
+.sys-row:hover{opacity:.55}
+.mini-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.mini-label{font-size:11px;color:rgba(28,24,38,.5);flex:1}
+.mini-val{font-size:10px;color:rgba(28,24,38,.3);font-variant-numeric:tabular-nums}
+
+/* ── Detail panel ────────────────────────────────────────────────────── */
+.detail{
+  position:fixed;right:200px;top:0;bottom:0;
+  width:300px;
+  background:#FEFCF7;
+  border-left:1px solid rgba(100,70,28,0.12);
+  padding:56px 28px 28px;
+  transform:translateX(calc(100% + 201px));
+  transition:transform .36s cubic-bezier(.16,1,.3,1);
+  z-index:300;overflow-y:auto;
+  box-shadow:-8px 0 40px rgba(0,0,0,0.06);
+}
+.detail.open{transform:translateX(0)}
+.detail-x{
+  position:absolute;top:18px;right:20px;
+  background:none;border:none;
+  color:rgba(28,24,38,.3);cursor:pointer;
+  font-size:22px;line-height:1;padding:4px;
+}
+.detail-x:hover{color:rgba(28,24,38,.7)}
+.d-sdot{width:8px;height:8px;border-radius:50%;margin-bottom:16px}
+.d-label{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:300;line-height:1.15;margin-bottom:4px;
+}
+.d-sys{
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(28,24,38,.3);margin-bottom:24px;
+}
+.d-valrow{display:flex;align-items:baseline;gap:6px;margin-bottom:20px}
+.d-val{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:300;line-height:1}
+.d-unit{font-size:11px;color:rgba(28,24,38,.35)}
+.d-range-lbl{
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(28,24,38,.25);margin-bottom:7px;
+}
+.d-range-track{height:3px;background:rgba(0,0,0,.08);margin-bottom:22px;overflow:hidden;border-radius:2px}
+.d-range-fill{height:100%;transition:width .8s cubic-bezier(.16,1,.3,1)}
+.d-insight{
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px;font-weight:300;font-style:italic;
+  color:rgba(28,24,38,.6);line-height:1.7;margin-bottom:18px;
+}
+.d-hr{height:1px;background:rgba(0,0,0,.06);margin:18px 0}
+.d-recs{display:flex;flex-direction:column;gap:11px}
+.d-rec{display:flex;gap:10px}
+.d-rec-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.d-rec-text{font-size:12px;color:rgba(28,24,38,.5);line-height:1.55}
+</style>
+</head>
+<body>
+
+<nav>
+  <div style="display:flex;flex-direction:column;gap:3px;">
+    <a href="/" class="nav-brand">grail</a>
+    <span style="font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.22em;color:rgba(90,58,22,0.42);font-style:italic;">know it. own it. optimize it.</span>
+  </div>
+  <div class="nav-views">
+    <a href="/" class="nav-pill">Orbital</a>
+    <a href="/cells" class="nav-pill">Cells</a>
+    <a href="/body" class="nav-pill active">Body</a>
+  </div>
+</nav>
+
+<section class="hero">
+
+  <!-- Score card -->
+  <div class="score-card">
+    <div class="score-card-top">
+      <div class="score-eyebrow">BioBaseline</div>
+      <div class="score-gauge">
+        <div class="score-number" id="heroScore">—</div>
+        <div class="score-denom">/100</div>
+      </div>
+      <div class="score-label" id="heroLabel">Calculating your baseline…</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-fill" id="heroFill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="score-card-body">
+      <div class="alerts-label">Needs Attention</div>
+      <div id="alertsList"></div>
+    </div>
+    <div class="score-systems" id="scorePips"></div>
+  </div>
+
+  <!-- Body figure -->
+  <div class="body-wrap">
+    <div class="body-svg-box">
+
+      <svg id="bodySvg" viewBox="-55 -5 330 502" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Crayon / hand-drawn texture filter -->
+          <filter id="crayon" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="4" seed="7" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.2"
+              xChannelSelector="R" yChannelSelector="G" result="displaced"/>
+            <feComposite in="displaced" in2="SourceGraphic" operator="in"/>
+          </filter>
+
+          <!-- Body fill — warm parchment/peach -->
+          <linearGradient id="skinGrad" x1="30%" y1="0%" x2="70%" y2="100%">
+            <stop offset="0%" stop-color="#F9DFC8"/>
+            <stop offset="60%" stop-color="#F5CEB2"/>
+            <stop offset="100%" stop-color="#EEC09E"/>
+          </linearGradient>
+
+          <!-- Face feature color -->
+          <radialGradient id="cheekL" cx="35%" cy="60%" r="50%">
+            <stop offset="0%" stop-color="#F4A0A0" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#F4A0A0" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="cheekR" cx="65%" cy="60%" r="50%">
+            <stop offset="0%" stop-color="#F4A0A0" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#F4A0A0" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- ── Body silhouette (crayon style) ── -->
+        <g filter="url(#crayon)" stroke="#7A4E2D" stroke-linecap="round" stroke-linejoin="round" fill="url(#skinGrad)">
+
+          <!-- Head — big and round for cartoon feel -->
+          <ellipse cx="110" cy="52" rx="38" ry="42" stroke-width="2.8"/>
+
+          <!-- Neck -->
+          <path d="M92,90 Q110,98 128,90 L126,106 Q110,112 94,106 Z" stroke-width="2.2"/>
+
+          <!-- Torso — wider shoulders, defined waist, rounded hips -->
+          <path d="
+            M58,108
+            C46,116 42,136 44,158
+            C42,178 44,202 46,222
+            C48,244 58,258 68,264
+            L70,290 L66,390 L68,444
+            L88,444 L90,390 L94,290
+            L98,272 L110,266 L122,272
+            L126,290 L130,390 L132,444
+            L152,444 L154,390 L150,290
+            L152,264 C162,258 172,244 174,222
+            C176,202 178,178 176,158
+            C174,136 172,116 162,108
+            C148,100 130,96 110,96
+            C90,96 72,100 58,108 Z"
+            stroke-width="2.8"/>
+
+          <!-- Left arm — rounded, friendly -->
+          <path d="
+            M58,108
+            C48,116 37,138 30,164
+            C24,184 20,206 20,224
+            L34,228
+            C34,212 38,192 44,172
+            C51,148 60,126 70,114 Z"
+            stroke-width="2.6"/>
+
+          <!-- Right arm -->
+          <path d="
+            M162,108
+            C172,116 183,138 190,164
+            C196,184 200,206 200,224
+            L186,228
+            C186,212 182,192 176,172
+            C169,148 160,126 150,114 Z"
+            stroke-width="2.6"/>
+
+          <!-- Left hand — rounded blob -->
+          <ellipse cx="27" cy="234" rx="11" ry="13" stroke-width="2.2"/>
+
+          <!-- Right hand -->
+          <ellipse cx="193" cy="234" rx="11" ry="13" stroke-width="2.2"/>
+
+          <!-- Left foot -->
+          <ellipse cx="77" cy="451" rx="15" ry="10" stroke-width="2.2"/>
+
+          <!-- Right foot -->
+          <ellipse cx="143" cy="451" rx="15" ry="10" stroke-width="2.2"/>
+        </g>
+
+        <!-- ── Face features (on top of body, before dots) ── -->
+        <!-- Blush circles -->
+        <ellipse cx="88" cy="62" rx="12" ry="8" fill="url(#cheekL)"/>
+        <ellipse cx="132" cy="62" rx="12" ry="8" fill="url(#cheekR)"/>
+
+        <!-- Eyes -->
+        <circle cx="100" cy="50" r="4" fill="#4A2E18" filter="url(#crayon)"/>
+        <circle cx="120" cy="50" r="4" fill="#4A2E18" filter="url(#crayon)"/>
+        <!-- Eye shine -->
+        <circle cx="102" cy="48" r="1.4" fill="#fff"/>
+        <circle cx="122" cy="48" r="1.4" fill="#fff"/>
+
+        <!-- Smile -->
+        <path d="M98,68 Q110,80 122,68"
+          fill="none" stroke="#7A4E2D" stroke-width="2.4"
+          stroke-linecap="round" filter="url(#crayon)"/>
+
+        <!-- ── Dots layer — filled by JS ── -->
+        <g id="dotsLayer"></g>
+      </svg>
+
+      <div class="body-tooltip" id="bTip"></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- Systems -->
+<section class="systems">
+  <div class="systems-head">
+    <h2 class="systems-title">Your Systems</h2>
+    <span class="systems-sub">Click any marker to explore</span>
+  </div>
+  <div class="systems-grid" id="sysGrid"></div>
+</section>
+
+<!-- Detail panel -->
+<div class="detail" id="detail">
+  <button class="detail-x" onclick="closeDetail()">×</button>
+  <div class="d-sdot" id="dDot"></div>
+  <div class="d-label" id="dLabel">—</div>
+  <div class="d-sys" id="dSys">—</div>
+  <div class="d-valrow">
+    <div class="d-val" id="dVal">—</div>
+    <div class="d-unit" id="dUnit">/ 100</div>
+  </div>
+  <div class="d-range-lbl">Optimization Level</div>
+  <div class="d-range-track"><div class="d-range-fill" id="dRange" style="width:0%"></div></div>
+  <div class="d-insight" id="dInsight"></div>
+  <div class="d-hr"></div>
+  <div class="d-recs" id="dRecs"></div>
+</div>
+
+<script>
+// ── Biomarker definitions with SVG positions (viewBox -55 -5 330 502) ─────────
+// Positions are ORIGINAL svg coords (within 0 0 220 490 space)
+const SYSTEMS = [
+  { id:'brain', name:'Brain & Sleep', markers:[
+    { id:'sleep_dur',  label:'Sleep Duration',   pos:[88,28],  unit:'hrs',     insight:'Sleep is when your body rebuilds. Every hour shapes everything that follows.',                           rec:{diet:'Magnesium glycinate 200mg before bed',sleep:'No screens after 9pm — blue light suppresses melatonin',move:'Morning sunlight within 30 min of waking anchors your rhythm',green:'Sleep is locked in. Your body is rebuilding every night.'} },
+    { id:'deep_sleep', label:'Deep Sleep %',     pos:[100,18], unit:'%',       insight:'Deep sleep is when tissue repairs, memory consolidates, and growth hormone peaks.',                      rec:{diet:'Avoid alcohol — it collapses deep sleep dramatically',sleep:'Keep room below 67°F — core temp drop triggers deep sleep',move:'Strength training increases slow-wave sleep meaningfully',green:'Deep sleep is dialed. Brain and body are doing their nightly rebuild.'} },
+    { id:'rem_sleep',  label:'REM Sleep %',      pos:[116,28], unit:'%',       insight:'REM is emotional processing, creativity, and memory consolidation.',                                     rec:{diet:'B6 supports REM — salmon, chickpeas, bananas',sleep:'Consistent wake time is the most powerful way to protect REM',move:'Moderate aerobic exercise reliably increases REM',green:'REM is cycling beautifully. Processing and creativity are supported.'} },
+    { id:'cortisol',   label:'Cortisol',         pos:[130,44], unit:'μg/dL',   insight:'Cortisol should peak at dawn and fall through the day. Disruption drives inflammation.',                rec:{diet:'Ashwagandha and phosphatidylserine are studied for cortisol',sleep:'Dark, cool room signals safety to your nervous system',move:'Intense morning training lets cortisol peak naturally then fall',green:'Stress response is calibrated. You are not running from lions.'} },
+    { id:'hrv',        label:'HRV',              pos:[92,46],  unit:'ms',      insight:'Heart rate variability reflects how adaptable your nervous system truly is.',                           rec:{diet:'Omega-3s support autonomic nervous system balance',sleep:'Sleep consistency is the single best HRV intervention',move:'Zone 2 cardio is the most reliable long-term HRV builder',green:'HRV is strong. Your nervous system is balanced and ready.'} },
+    { id:'nad',        label:'NAD+',             pos:[110,48], unit:'μM',      insight:'NAD+ fuels every cell\'s energy production. It declines predictably with age.',                        rec:{diet:'NMN or NR supplementation; niacin-rich foods like chicken and tuna',sleep:'Sleep is when NAD+ is replenished — protect it',move:'HIIT boosts NAD+ naturally',green:'Cellular energy is humming. Engines are fueled at the deepest level.'} },
+  ]},
+  { id:'thyroid', name:'Thyroid', markers:[
+    { id:'tsh',        label:'TSH / Thyroid',    pos:[110,80], unit:'mIU/L',   insight:'TSH is the thermostat of your metabolism. Small shifts have large downstream effects.',                rec:{diet:'Selenium and iodine are foundational for thyroid function',sleep:'Chronic sleep deprivation stresses the thyroid axis',move:'Resistance training supports thyroid hormone sensitivity',green:'Thyroid is perfectly tuned. Metabolism is running at the right speed.'} },
+    { id:'homocys',    label:'Homocysteine',     pos:[110,90], unit:'μmol/L',  insight:'Elevated homocysteine signals cardiovascular and neurological risk. It\'s fixable.',                   rec:{diet:'B6, B12, folate are the antidote — eggs, leafy greens, legumes',sleep:'Sleep deprivation elevates homocysteine acutely',move:'Aerobic exercise meaningfully lowers homocysteine',green:'Homocysteine is clear. Vessels and brain are protected.'} },
+  ]},
+  { id:'heart', name:'Heart & Circulation', markers:[
+    { id:'resting_hr', label:'Resting HR',       pos:[88,122], unit:'bpm',     insight:'A lower resting heart rate signals greater cardiac efficiency and fitness.',                           rec:{diet:'Potassium and magnesium support healthy heart rhythm',sleep:'7–9 hours consistently lowers resting HR over weeks',move:'Zone 2 cardio is the most effective long-term resting HR reducer',green:'Heart is efficient. Beating steady and strong.'} },
+    { id:'active_hr',  label:'Active HR',        pos:[80,136], unit:'bpm',     insight:'Your heart\'s response to exertion is a direct window into cardiovascular fitness.',                  rec:{diet:'Beet root juice enhances nitric oxide and blood flow',sleep:'Well-rested hearts recover faster between beats',move:'Interval training improves cardiac output and efficiency',green:'Active heart response is excellent. Cardiovascular fitness is showing.'} },
+    { id:'spo2',       label:'SpO₂',             pos:[110,112],unit:'%',       insight:'Blood oxygen saturation. Below 95% is clinically significant. Above 98% is optimal.',                 rec:{diet:'Iron-rich foods support oxygen-carrying capacity',sleep:'Check for sleep apnea if SpO2 dips at night on a wearable',move:'Breath training and altitude exposure improve SpO2 over time',green:'Oxygen saturation is optimal. Every cell is being fed.'} },
+    { id:'sys_bp',     label:'Systolic BP',      pos:[178,155],unit:'mmHg',    insight:'Blood pressure is the long story of vascular health. It\'s also highly modifiable.',                  rec:{diet:'DASH diet — potassium, magnesium, fiber',sleep:'Blood pressure resets during sleep — protect it',move:'Aerobic exercise is first-line treatment for elevated BP',green:'Blood pressure is clean. Vessels are relaxed and open.'} },
+    { id:'resp_rate',  label:'Respiratory Rate', pos:[122,126],unit:'brpm',    insight:'Resting breath rate is a sensitive marker of nervous system state and metabolic health.',               rec:{diet:'Anti-inflammatory diet reduces respiratory inflammation',sleep:'Nasal breathing during sleep lowers resting rate over time',move:'Daily box breathing resets your baseline',green:'Breathing is calm and efficient. Nervous system is at ease.'} },
+  ]},
+  { id:'fitness', name:'Fitness & Recovery', markers:[
+    { id:'vo2max',     label:'VO₂ Max',          pos:[134,136],unit:'mL/kg/min',insight:'VO₂ Max is the single strongest predictor of longevity in all of medicine.',                         rec:{diet:'Adequate carbohydrates fuel aerobic capacity',sleep:'Sleep is when aerobic adaptations are made',move:'Long Zone 2 sessions + 1x/week VO₂ max intervals',green:'Aerobic engine is world-class. You are built for the long game.'} },
+    { id:'recovery',   label:'Recovery Index',   pos:[20,202], unit:'score',   insight:'Composite of HRV, sleep quality, and resting HR. Your readiness to perform today.',                    rec:{diet:'Protein within 2 hours of training accelerates recovery',sleep:'This IS recovery. Protect it above all other interventions',move:'Match training intensity to recovery score — not to ego',green:'Recovery is excellent. Body is primed and ready to perform.'} },
+    { id:'lactate',    label:'Lactate Threshold',pos:[80,300], unit:'bpm',     insight:'The intensity you can sustain indefinitely. Higher threshold means more engine.',                       rec:{diet:'Beta-alanine is studied for threshold performance',sleep:'Threshold adaptations happen during sleep — don\'t skip it',move:'Tempo runs and sweet-spot cycling are the primary stimulus',green:'Lactate threshold is elevated. You can sustain serious output.'} },
+    { id:'grip',       label:'Grip Strength',    pos:[23,218], unit:'kg',      insight:'Grip strength predicts all-cause mortality more strongly than blood pressure.',                         rec:{diet:'Creatine and adequate protein support strength',sleep:'Testosterone peaks during deep sleep — protect it',move:'Dead hangs, farmer carries, and plate pinches daily',green:'Grip is strong. Functional strength is banking longevity.'} },
+  ]},
+  { id:'liver', name:'Liver & Blood Health', markers:[
+    { id:'crp',        label:'CRP',              pos:[100,156],unit:'mg/L',    insight:'C-reactive protein is the body\'s global inflammation alarm. It touches everything.',                  rec:{diet:'Omega-3s, curcumin, and polyphenols are evidence-based',sleep:'Sleep deprivation doubles inflammatory markers within days',move:'Regular moderate exercise is profoundly anti-inflammatory',green:'Inflammation is low. Body is at peace with itself.'} },
+    { id:'alt',        label:'ALT Liver Enzyme', pos:[122,166],unit:'U/L',     insight:'ALT spills into the bloodstream when liver cells are under stress.',                                    rec:{diet:'Avoid alcohol, excess fructose, processed food',sleep:'Liver detoxifies maximally during deep sleep — protect it',move:'Even walking reduces liver fat significantly',green:'Liver enzymes are clean. Your filter is working beautifully.'} },
+    { id:'albumin',    label:'Serum Albumin',    pos:[90,168], unit:'g/dL',    insight:'Albumin reflects protein synthesis capacity and overall nutritional status.',                           rec:{diet:'Adequate protein — 0.8–1g per lb bodyweight',sleep:'Growth hormone during sleep drives albumin synthesis',move:'Resistance training signals albumin production',green:'Albumin is strong. Protein status and liver function confirmed.'} },
+    { id:'apob',       label:'ApoB',             pos:[116,156],unit:'mg/dL',   insight:'ApoB counts every atherogenic particle. The best cardiovascular risk marker we have.',                 rec:{diet:'Reduce saturated fat, add soluble fiber',sleep:'Sleep quality directly impacts lipid metabolism',move:'Aerobic exercise lowers ApoB meaningfully',green:'ApoB is low. Arteries are protected from plaque formation.'} },
+    { id:'fibrinogen', label:'Fibrinogen',       pos:[100,145],unit:'mg/dL',   insight:'Elevated fibrinogen signals clotting risk and cardiovascular inflammation.',                           rec:{diet:'Omega-3s and niacin reduce fibrinogen',sleep:'Poor sleep elevates fibrinogen acutely',move:'Aerobic exercise is a potent fibrinogen reducer',green:'Fibrinogen is balanced. Clotting and flow are in harmony.'} },
+    { id:'ferritin',   label:'Ferritin',         pos:[180,178],unit:'ng/mL',   insight:'Iron storage. Too low drives fatigue. Too high drives oxidative stress. Range matters.',               rec:{diet:'Red meat + vitamin C for absorption; avoid coffee with meals',sleep:'Iron deficiency dramatically worsens sleep quality',move:'Heavy training increases iron demand — monitor closely',green:'Iron stores are balanced. Energy and oxygen delivery are optimal.'} },
+  ]},
+  { id:'metabolism', name:'Metabolism', markers:[
+    { id:'glucose',    label:'Fasting Glucose',  pos:[100,192],unit:'mg/dL',   insight:'Fasting glucose is the clearest single window into metabolic health.',                                  rec:{diet:'Low glycemic, fiber-rich, time-restricted eating',sleep:'One bad night raises glucose by up to 20% the next day',move:'Walking after meals blunts glucose spikes more than most drugs',green:'Glucose is stable. Metabolic machinery is running clean.'} },
+    { id:'insulin_s',  label:'Insulin Sensitivity',pos:[100,206],unit:'HOMA-IR',insight:'Insulin sensitivity determines whether your cells hear the body\'s fuel signal clearly.',            rec:{diet:'Berberine, apple cider vinegar, and cinnamon are all studied',sleep:'Sleep deprivation causes insulin resistance within 48 hours',move:'Muscle is the biggest glucose sink in the body — build it',green:'Insulin sensitivity is excellent. Cells are listening and responding.'} },
+    { id:'hydration',  label:'Hydration',        pos:[100,220],unit:'%',       insight:'Even mild dehydration degrades cognition, mood, and physical performance measurably.',                 rec:{diet:'Half your bodyweight in oz daily; add electrolytes in heat',sleep:'Hydrate before bed — you lose significant water breathing overnight',move:'Drink 16oz before morning exercise minimum',green:'Hydration is optimal. Every cell is swimming in what it needs.'} },
+  ]},
+  { id:'hormones', name:'Hormones', markers:[
+    { id:'testosterone',label:'Testosterone',    pos:[116,236],unit:'ng/dL',   insight:'Testosterone drives muscle, mood, libido, and drive — in both men and women.',                         rec:{diet:'Zinc, vitamin D, and dietary fat all support testosterone production',sleep:'Testosterone is manufactured during deep sleep — this is the primary lever',move:'Compound lifts — deadlift, squat — are the strongest natural stimulus',green:'Testosterone is strong. Drive, muscle, and vitality are all supported.'} },
+    { id:'free_t',     label:'Free Testosterone',pos:[108,228],unit:'pg/mL',   insight:'Free testosterone is what your cells actually use. Total can look fine while free is low.',           rec:{diet:'Boron supplementation is studied for reducing SHBG',sleep:'SHBG rises with stress and chronic sleep deprivation',move:'Resistance training lowers SHBG and raises free testosterone',green:'Free testosterone is bioavailable and strong. The active hormone is flowing.'} },
+    { id:'dheas',      label:'DHEA-S',           pos:[100,244],unit:'μg/dL',   insight:'DHEA-S is the mother hormone. It declines with age — where it sits matters.',                          rec:{diet:'DHEA supplementation is available — discuss with your provider',sleep:'DHEA peaks in the morning — morning light and early rising help',move:'HIIT increases DHEA more reliably than any supplement',green:'DHEA is youthful. Hormonal foundation is solid.'} },
+    { id:'igf1',       label:'IGF-1',            pos:[42,124], unit:'ng/mL',   insight:'IGF-1 reflects growth hormone activity — tissue repair, muscle growth, and longevity.',               rec:{diet:'Protein and adequate total calories support IGF-1',sleep:'GH and IGF-1 peak 90 minutes after sleep onset — protect early sleep',move:'Heavy compound training is the strongest natural stimulus',green:'IGF-1 is in the optimal zone. Growth and repair are active.'} },
+  ]},
+  { id:'micros', name:'Micronutrients', markers:[
+    { id:'vit_d',      label:'Vitamin D',        pos:[38,154], unit:'ng/mL',   insight:'Vitamin D is a hormone. Deficiency is implicated in nearly every chronic disease studied.',          rec:{diet:'D3 + K2 with fat; 5,000 IU/day is commonly needed in deficiency',sleep:'Vitamin D deficiency disrupts sleep architecture',move:'Outdoor training gives sunlight and movement together',green:'Vitamin D is optimal. Immune, bone, and hormonal function are all supported.'} },
+    { id:'magnesium',  label:'Magnesium',        pos:[32,174], unit:'mg/dL',   insight:'Magnesium is a cofactor in over 300 enzymatic reactions. Most people are chronically deficient.',    rec:{diet:'Dark leafy greens, pumpkin seeds, magnesium glycinate at night',sleep:'Magnesium is one of the most effective sleep supplements that exist',move:'Exercise depletes magnesium — athletes need significantly more',green:'Magnesium is sufficient. Hundreds of metabolic pathways are running smoothly.'} },
+    { id:'omega3',     label:'Omega-3 Index',    pos:[72,250], unit:'%',       insight:'The omega-3 index reflects the anti-inflammatory baseline of every cell membrane.',                    rec:{diet:'Fatty fish 3x/week or 2–4g EPA+DHA daily',sleep:'Omega-3s improve sleep quality and total duration',move:'Omega-3s meaningfully reduce exercise-induced inflammation',green:'Omega-3 index is excellent. Cells are anti-inflammatory by default.'} },
+    { id:'b12',        label:'B12',              pos:[56,110], unit:'pg/mL',   insight:'B12 is essential for nerve function, DNA synthesis, and red blood cell formation.',                    rec:{diet:'Methylcobalamin sublingual absorbs far better than cyanocobalamin',sleep:'B12 deficiency causes sleep fragmentation and vivid dreaming',move:'High B12 supports oxygen transport during sustained exercise',green:'B12 is sufficient. Nerves and blood cells are well-nourished.'} },
+    { id:'zinc',       label:'Zinc',             pos:[144,110],unit:'μg/dL',   insight:'Zinc is foundational for immune function, testosterone, wound healing, and taste.',                    rec:{diet:'Oysters are the richest source; 25–45mg/day if deficient',sleep:'Zinc + magnesium at night is a time-tested combination',move:'Exercise dramatically increases zinc demand — athletes need more',green:'Zinc is strong. Immune system and hormonal function have what they need.'} },
+  ]},
+  { id:'body_comp', name:'Body Composition', markers:[
+    { id:'wrist_temp', label:'Wrist Temp',       pos:[200,200],unit:'°F',      insight:'Wrist temperature tracks your circadian rhythm and inflammatory state.',                               rec:{diet:'Balanced metabolism keeps temperature stable day-to-day',sleep:'Temperature drop at night signals your body it\'s time to sleep',move:'Track before activity — exercise temporarily elevates it',green:'Temperature is in normal range. Circadian rhythm is intact.'} },
+    { id:'muscle_mass',label:'Muscle Mass',      pos:[122,276],unit:'kg',      insight:'Muscle is the longevity organ. Metabolically active, insulin-sensitive, and protective.',              rec:{diet:'1g protein per lb bodyweight; spread across 4+ meals',sleep:'Muscle protein synthesis peaks during sleep — fuel and rest',move:'Progressive overload, 3–4 days per week, consistently',green:'Muscle mass is strong. Metabolic health has a structural foundation.'} },
+    { id:'body_fat',   label:'Body Fat %',       pos:[128,250],unit:'%',       insight:'Body fat % matters — especially visceral fat, which drives systemic inflammation.',                  rec:{diet:'Caloric deficit plus protein priority is the reliable path',sleep:'Sleep deprivation increases fat storage hormones within days',move:'Cardio burns calories; strength training reshapes composition',green:'Body composition is healthy. Inflammatory load is low.'} },
+  ]},
+  { id:'movement', name:'Movement', markers:[
+    { id:'steps',      label:'Daily Steps',      pos:[78,430], unit:'steps',   insight:'Steps are not exercise — they are the baseline of human biology. We evolved to walk.',                rec:{diet:'Walk after every meal — the most underrated metabolic intervention',sleep:'Morning walks anchor circadian rhythm for the whole day',move:'7,000–10,000 steps is the evidence-based daily target',green:'Step count is excellent. Non-exercise movement is doing its job.'} },
+  ]},
+];
+
+const ALL = SYSTEMS.flatMap(s => s.markers.map(m => ({...m, sysName:s.name, sysId:s.id})));
+
+// ── Status helpers ─────────────────────────────────────────────────────────────
+function status(p){ return p>=68?'green':p>=38?'orange':'red' }
+function col(p){ return p>=68?'#22C55E':p>=38?'#F97316':'#EF4444' }
+function colSoft(p){ return p>=68?'rgba(34,197,94,0.14)':p>=38?'rgba(249,115,22,0.14)':'rgba(239,68,68,0.14)' }
+
+function initPcts(){ ALL.forEach(m=>{ m.pct=38+Math.random()*50; }); }
+
+// ── Render dots with dynamic pulsing lights ────────────────────────────────────
+function renderDots(){
+  const layer=document.getElementById('dotsLayer');
+  layer.innerHTML='';
+
+  ALL.forEach(m=>{
+    const [x,y]=m.pos;
+    const c=col(m.pct);
+    const st=status(m.pct);
+
+    // Random timing offsets for organic feel
+    const speed=(2+Math.random()*1.6).toFixed(2);
+    const d1=(Math.random()*0.8).toFixed(2);
+    const d2=(parseFloat(d1)+0.5+Math.random()*0.4).toFixed(2);
+    const flashDur=(3+Math.random()*2).toFixed(1);
+    const flashBegin=(Math.random()*2).toFixed(1);
+
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.style.cursor='pointer';
+
+    // Ring 2 — outermost, slowest fade
+    const r2=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    r2.setAttribute('cx',x); r2.setAttribute('cy',y); r2.setAttribute('r',5);
+    r2.setAttribute('fill','none'); r2.setAttribute('stroke',c);
+    r2.setAttribute('stroke-width','0.7'); r2.setAttribute('opacity','0');
+    r2.innerHTML=`
+      <animate attributeName="r" values="5;22;26" dur="${speed}s" begin="${d2}s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 1 1;0.4 0 1 1"/>
+      <animate attributeName="opacity" values="0;0.55;0" dur="${speed}s" begin="${d2}s" repeatCount="indefinite" calcMode="spline" keySplines="0 0 0.3 1;0.6 0 1 1"/>
+      <animate attributeName="stroke-width" values="1.2;0.3;0" dur="${speed}s" begin="${d2}s" repeatCount="indefinite"/>`;
+    g.appendChild(r2);
+
+    // Ring 1 — inner, faster
+    const r1=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    r1.setAttribute('cx',x); r1.setAttribute('cy',y); r1.setAttribute('r',4);
+    r1.setAttribute('fill','none'); r1.setAttribute('stroke',c);
+    r1.setAttribute('stroke-width','1'); r1.setAttribute('opacity','0');
+    r1.innerHTML=`
+      <animate attributeName="r" values="4;14;18" dur="${speed}s" begin="${d1}s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 1 1;0.4 0 1 1"/>
+      <animate attributeName="opacity" values="0;0.8;0" dur="${speed}s" begin="${d1}s" repeatCount="indefinite" calcMode="spline" keySplines="0 0 0.3 1;0.6 0 1 1"/>
+      <animate attributeName="stroke-width" values="1.8;0.6;0" dur="${speed}s" begin="${d1}s" repeatCount="indefinite"/>`;
+    g.appendChild(r1);
+
+    // Core dot glow halo
+    const halo=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    halo.setAttribute('cx',x); halo.setAttribute('cy',y); halo.setAttribute('r',6);
+    halo.setAttribute('fill',c); halo.setAttribute('opacity','0.18');
+    halo.innerHTML=`<animate attributeName="r" values="5;8;5" dur="${flashDur}s" begin="${flashBegin}s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.12;0.28;0.12" dur="${flashDur}s" begin="${flashBegin}s" repeatCount="indefinite"/>`;
+    g.appendChild(halo);
+
+    // Core dot — breathing
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',x); dot.setAttribute('cy',y); dot.setAttribute('r',3.8);
+    dot.setAttribute('fill',c); dot.setAttribute('opacity','0.92');
+    dot.innerHTML=`<animate attributeName="r" values="3.2;4.4;3.2" dur="${flashDur}s" begin="${flashBegin}s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.82;1;0.82" dur="${flashDur}s" begin="${flashBegin}s" repeatCount="indefinite"/>`;
+    g.appendChild(dot);
+
+    // White center pinpoint for readability
+    const pin=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    pin.setAttribute('cx',x); pin.setAttribute('cy',y); pin.setAttribute('r',1.5);
+    pin.setAttribute('fill','rgba(255,255,255,0.75)');
+    g.appendChild(pin);
+
+    g.addEventListener('mouseenter',e=>showTip(m));
+    g.addEventListener('mouseleave',hideTip);
+    g.addEventListener('click',()=>openDetail(m));
+    layer.appendChild(g);
+  });
+}
+
+// ── Tooltip ────────────────────────────────────────────────────────────────────
+const tip=document.getElementById('bTip');
+let tipTarget=null;
+
+const CHEERS=[
+  'Every small step compounds. You are building something lasting.',
+  'Awareness is the first move. You are already ahead.',
+  'The body responds to attention. Keep paying it.',
+  'Progress is quiet but real. Trust the process.',
+  'You are doing something most people never start.',
+  'Consistency beats intensity every time. Keep showing up.',
+  'Your future self is being shaped by today\'s choices.',
+  'Small optimizations, stacked daily, become transformation.',
+];
+
+function showTip(m){
+  tipTarget=m;
+  const svg=document.getElementById('bodySvg');
+  const sr=svg.getBoundingClientRect();
+  const cr=svg.parentElement.getBoundingClientRect();
+  const vb=svg.viewBox.baseVal;
+  const sx=sr.width/vb.width;
+  const sy=sr.height/vb.height;
+  const ox=vb.x; const oy=vb.y;
+  const cx=((m.pos[0]-ox)*sx)+(sr.left-cr.left);
+  const cy=((m.pos[1]-oy)*sy)+(sr.top-cr.top);
+  const c=col(m.pct);
+  const st=status(m.pct);
+  const pct=Math.round(m.pct);
+
+  // pick rec: if green show green message, else show diet rec (shortest & most actionable)
+  const recText = st==='green' && m.rec.green ? m.rec.green : (m.rec.diet || m.rec.sleep || m.rec.move || '');
+  const recLabel = st==='green' ? 'Looking good' : 'Quick win';
+
+  const cheer = CHEERS[Math.floor(Math.random()*CHEERS.length)];
+
+  tip.innerHTML=`
+    <div class="btt-header">
+      <div class="btt-dot" style="background:${c};box-shadow:0 0 6px ${c}88"></div>
+      <div class="btt-name">${m.label}</div>
+    </div>
+    <div class="btt-score">
+      <span class="btt-score-num" style="color:${c}">${pct}</span>
+      <span class="btt-score-denom">/ 100</span>
+    </div>
+    <div class="btt-insight">${m.insight}</div>
+    <div class="btt-rec"><strong>${recLabel}</strong>${recText}</div>
+    <div class="btt-cheer">${cheer}</div>`;
+
+  // position: prefer left of dot, flip right if near left edge, keep within container
+  const cardW=248, cardH=tip.offsetHeight||260;
+  const contW=cr.width;
+  let lx=cx-cardW-14;
+  if(lx<4) lx=cx+18;
+  if(lx+cardW>contW-208) lx=cx-cardW-14;
+  let ly=cy-40;
+  if(ly<4) ly=4;
+  if(ly+cardH>cr.height-8) ly=cr.height-cardH-8;
+
+  tip.style.left=lx+'px';
+  tip.style.top=ly+'px';
+  tip.classList.add('on');
+}
+function hideTip(){ tip.classList.remove('on'); tipTarget=null; }
+
+// ── Detail panel ──────────────────────────────────────────────────────────────
+function openDetail(m){
+  const c=col(m.pct);
+  const st=status(m.pct);
+  document.getElementById('dDot').style.cssText=`background:${c};box-shadow:0 0 10px ${c}66`;
+  document.getElementById('dLabel').textContent=m.label;
+  document.getElementById('dSys').textContent=m.sysName;
+  document.getElementById('dVal').textContent=Math.round(m.pct);
+  document.getElementById('dRange').style.width=m.pct+'%';
+  document.getElementById('dRange').style.background=`linear-gradient(to right,${c},${c}88)`;
+  document.getElementById('dInsight').textContent=m.insight;
+  const icons={diet:'🥗',sleep:'🌙',move:'⚡',green:'✦'};
+  const recs=document.getElementById('dRecs');
+  if(st==='green'&&m.rec.green){
+    recs.innerHTML=`<div class="d-rec"><span class="d-rec-icon">✦</span><span class="d-rec-text" style="color:#22C55E;font-style:italic">${m.rec.green}</span></div>`;
+  } else {
+    recs.innerHTML=Object.entries(m.rec).filter(([k])=>k!=='green')
+      .map(([k,v])=>`<div class="d-rec"><span class="d-rec-icon">${icons[k]||'•'}</span><span class="d-rec-text">${v}</span></div>`).join('');
+  }
+  document.getElementById('detail').classList.add('open');
+}
+function closeDetail(){ document.getElementById('detail').classList.remove('open'); }
+
+// ── Score / header ─────────────────────────────────────────────────────────────
+function updateScore(){
+  const avg=ALL.reduce((s,m)=>s+m.pct,0)/ALL.length;
+  const sc=Math.round(avg);
+  const c=col(avg);
+  document.getElementById('heroScore').textContent=sc;
+  document.getElementById('heroScore').style.color=c;
+  const lbl=[
+    [80,'Exceptional — your body is performing at a high level'],
+    [65,'Strong foundation with room to optimize'],
+    [50,'Moderate — several systems need attention'],
+    [0, 'Below baseline — focused intervention recommended'],
+  ];
+  document.getElementById('heroLabel').textContent=(lbl.find(([t])=>sc>=t)||lbl[lbl.length-1])[1];
+  document.getElementById('heroFill').style.width=sc+'%';
+  document.getElementById('heroFill').style.background=`linear-gradient(to right,${c},${c}99)`;
+
+  // Bottom system pips
+  document.getElementById('scorePips').innerHTML=SYSTEMS.map(s=>{
+    const a=s.markers.reduce((x,m)=>x+m.pct,0)/s.markers.length;
+    return `<div class="sys-pip" title="${s.name}" style="background:${col(a)};opacity:0.55"></div>`;
+  }).join('');
+
+  // Alerts
+  const sorted=[...ALL].sort((a,b)=>a.pct-b.pct);
+  document.getElementById('alertsList').innerHTML=sorted.slice(0,3).map(m=>`
+    <div class="alert-row" onclick="openDetail(ALL.find(x=>x.id==='${m.id}'))">
+      <div class="alert-dot" style="background:${col(m.pct)};box-shadow:0 0 5px ${col(m.pct)}88"></div>
+      <div class="alert-name">${m.label}</div>
+      <div class="alert-pct">${Math.round(m.pct)}%</div>
+    </div>`).join('');
+}
+
+// ── Systems grid ───────────────────────────────────────────────────────────────
+function renderSystems(){
+  document.getElementById('sysGrid').innerHTML=SYSTEMS.map(s=>{
+    const avg=s.markers.reduce((a,m)=>a+m.pct,0)/s.markers.length;
+    const sc=Math.round(avg); const c=col(avg);
+    const rows=s.markers.map(m=>`
+      <div class="sys-row" onclick="openDetail(ALL.find(x=>x.id==='${m.id}'))">
+        <div class="mini-dot" style="background:${col(m.pct)};box-shadow:0 0 4px ${col(m.pct)}66"></div>
+        <div class="mini-label">${m.label}</div>
+        <div class="mini-val">${Math.round(m.pct)}%</div>
+      </div>`).join('');
+    return `<div class="sys-card">
+      <div class="sys-card-top">
+        <div class="sys-name">${s.name}</div>
+        <div class="sys-score" style="color:${c}">${sc}</div>
+      </div>
+      <div class="sys-track"><div class="sys-fill" style="width:${sc}%;background:${c}88"></div></div>
+      <div class="sys-markers">${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Live data ──────────────────────────────────────────────────────────────────
+const LIVE_MAP={
+  heart_rate:'active_hr',resting_hr:'resting_hr',hrv:'hrv',
+  spo2:'spo2',sleep_hours:'sleep_dur',respiratory_rate:'resp_rate',
+  vo2_max:'vo2max',temperature:'wrist_temp',glucose:'glucose',
+  testosterone:'testosterone',crp:'crp',
+};
+async function fetchLive(){
+  try{
+    const d=await(await fetch('/api/data')).json();
+    Object.entries(LIVE_MAP).forEach(([f,id])=>{
+      if(d[f]!=null){ const m=ALL.find(x=>x.id===id); if(m) m.pct=Math.min(100,Math.max(0,d[f])); }
+    });
+  }catch(e){}
+  renderDots(); updateScore(); renderSystems();
+}
+
+// ── Outside click ──────────────────────────────────────────────────────────────
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('detail');
+  if(panel.classList.contains('open')&&!panel.contains(e.target)
+    &&!e.target.closest('#dotsLayer')&&!e.target.closest('.sys-row')&&!e.target.closest('.alert-row'))
+    closeDetail();
+});
+
+// ── Boot ───────────────────────────────────────────────────────────────────────
+initPcts();
+renderDots();
+updateScore();
+renderSystems();
+fetchLive();
+setInterval(fetchLive,30000);
+</script>
+<!-- ── Grail Sidebar ─────────────────────────────────────────────────── -->
+<div id="grail-sidebar">
+  <div class="gsb-items-wrap">
+    <span class="gsb-item" onclick="gsbOpen('scoring')">Scoring</span>
+    <div class="gsb-div"></div>
+    <span class="gsb-item" onclick="gsbOpen('labs')">My Labs</span>
+    <div class="gsb-div"></div>
+    <span class="gsb-item" onclick="gsbOpen('reports')">Reports</span>
+    <div class="gsb-div"></div>
+    <span class="gsb-item" onclick="gsbOpen('records')">Medical Records</span>
+    <div class="gsb-div"></div>
+    <span class="gsb-item" onclick="gsbExport()">Export</span>
+    <div class="gsb-div"></div>
+    <span class="gsb-item" onclick="gsbOpen('settings')">Settings</span>
+    <div class="gsb-div"></div>
+    <span class="gsb-item" onclick="gsbOpen('apikeys')">API Keys</span>
+  </div>
+</div>
+
+<div id="gsb-overlay" onclick="gsbCloseAll()"></div>
+
+<!-- Scoring Panel -->
+<div class="gsb-panel" id="gsb-scoring" style="padding:52px 48px 44px;width:min(580px,90vw);max-height:84vh;overflow-y:auto;">
+  <div class="gp-title">Grail Score</div>
+  <div class="gp-sc-num" id="gp-sc-num">—</div>
+  <div class="gp-sc-verdict" id="gp-sc-verdict"></div>
+  <div class="gp-sc-narrative" id="gp-sc-narrative"></div>
+  <hr class="gp-sc-rule">
+  <div id="gp-sc-red" class="gp-sc-section red"></div>
+  <div id="gp-sc-orange" class="gp-sc-section orange"></div>
+  <div id="gp-sc-green" class="gp-sc-section green"></div>
+  <span class="gp-close" onclick="gsbCloseAll()">Close</span>
+</div>
+
+<!-- Reports Panel -->
+<div class="gsb-panel" id="gsb-reports" style="padding:36px 40px 0;width:min(860px,92vw);height:min(82vh,740px);display:flex;flex-direction:column;">
+  <div class="gp-title" style="margin-bottom:20px">Reports</div>
+  <div class="gp-rp-tabs">
+    <button class="gp-rp-tab active" data-tab="live">Live Data</button>
+    <button class="gp-rp-tab" data-tab="body">Body</button>
+    <button class="gp-rp-tab" data-tab="mind">Mind</button>
+    <button class="gp-rp-tab" data-tab="spirit">Spirit</button>
+    <button class="gp-rp-tab" data-tab="meals">Meals</button>
+  </div>
+  <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+    <!-- Live Data -->
+    <div class="gp-rp-section active" id="gp-rp-live">
+      <table class="gp-table"><thead><tr>
+        <th style="width:16px"></th><th>Marker</th><th>System</th>
+        <th>Score</th><th style="width:70px">Level</th>
+      </tr></thead><tbody id="gp-live-tbody"></tbody></table>
+    </div>
+    <!-- Body -->
+    <div class="gp-rp-section" id="gp-rp-body">
+      <span class="gp-log-lbl">Describe what you're feeling</span>
+      <div class="gp-log-row">
+        <textarea class="gp-log-field" id="gp-body-text" rows="2" placeholder="e.g. brain fog, joint stiffness, low energy..."></textarea>
+        <button class="gp-log-submit" onclick="gsbLogSymptom('body')">Record</button>
+      </div>
+      <span class="gp-log-lbl" style="margin-top:12px">Severity</span>
+      <div class="gp-sev-row" id="gp-body-sev">
+        <button class="gp-sev-btn sel" data-val="1">1</button><button class="gp-sev-btn" data-val="2">2</button>
+        <button class="gp-sev-btn" data-val="3">3</button><button class="gp-sev-btn" data-val="4">4</button>
+        <button class="gp-sev-btn" data-val="5">5</button>
+      </div>
+      <div class="gp-confirm" id="gp-body-confirm"></div>
+      <div style="margin-top:16px;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(201,169,110,0.45);margin-bottom:10px">Body Log</div>
+      <div id="gp-body-entries"></div>
+    </div>
+    <!-- Mind -->
+    <div class="gp-rp-section" id="gp-rp-mind">
+      <span class="gp-log-lbl">What is your mental state?</span>
+      <div class="gp-log-row">
+        <textarea class="gp-log-field" id="gp-mind-text" rows="2" placeholder="e.g. scattered focus, mental clarity, racing thoughts..."></textarea>
+        <button class="gp-log-submit" onclick="gsbLogSymptom('mind')">Record</button>
+      </div>
+      <span class="gp-log-lbl" style="margin-top:12px">Severity</span>
+      <div class="gp-sev-row" id="gp-mind-sev">
+        <button class="gp-sev-btn sel" data-val="1">1</button><button class="gp-sev-btn" data-val="2">2</button>
+        <button class="gp-sev-btn" data-val="3">3</button><button class="gp-sev-btn" data-val="4">4</button>
+        <button class="gp-sev-btn" data-val="5">5</button>
+      </div>
+      <div class="gp-confirm" id="gp-mind-confirm"></div>
+      <div style="margin-top:16px;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(201,169,110,0.45);margin-bottom:10px">Mind Log</div>
+      <div id="gp-mind-entries"></div>
+    </div>
+    <!-- Spirit -->
+    <div class="gp-rp-section" id="gp-rp-spirit">
+      <span class="gp-log-lbl">How is your inner state?</span>
+      <div class="gp-log-row">
+        <textarea class="gp-log-field" id="gp-spirit-text" rows="2" placeholder="e.g. grounded, disconnected, purposeful..."></textarea>
+        <button class="gp-log-submit" onclick="gsbLogSymptom('spirit')">Record</button>
+      </div>
+      <span class="gp-log-lbl" style="margin-top:12px">Depth</span>
+      <div class="gp-sev-row" id="gp-spirit-sev">
+        <button class="gp-sev-btn sel" data-val="1">1</button><button class="gp-sev-btn" data-val="2">2</button>
+        <button class="gp-sev-btn" data-val="3">3</button><button class="gp-sev-btn" data-val="4">4</button>
+        <button class="gp-sev-btn" data-val="5">5</button>
+      </div>
+      <div class="gp-confirm" id="gp-spirit-confirm"></div>
+      <div style="margin-top:16px;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(201,169,110,0.45);margin-bottom:10px">Spirit Log</div>
+      <div id="gp-spirit-entries"></div>
+    </div>
+    <!-- Meals -->
+    <div class="gp-rp-section" id="gp-rp-meals">
+      <span class="gp-log-lbl">What did you eat?</span>
+      <div class="gp-log-row">
+        <textarea class="gp-log-field" id="gp-meal-text" rows="2" placeholder="Describe your meal..."></textarea>
+        <button class="gp-log-submit" onclick="gsbLogMeal()">Record</button>
+      </div>
+      <span class="gp-log-lbl" style="margin-top:12px">Type</span>
+      <div class="gp-meal-types" id="gp-meal-types">
+        <button class="gp-type-btn sel" data-val="breakfast">Breakfast</button>
+        <button class="gp-type-btn" data-val="lunch">Lunch</button>
+        <button class="gp-type-btn" data-val="dinner">Dinner</button>
+        <button class="gp-type-btn" data-val="snack">Snack</button>
+        <button class="gp-type-btn" data-val="supplement">Supplement</button>
+      </div>
+      <div class="gp-confirm" id="gp-meal-confirm"></div>
+      <div style="margin-top:16px;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(201,169,110,0.45);margin-bottom:10px">Meal Log</div>
+      <div id="gp-meal-entries"></div>
+    </div>
+  </div>
+  <span class="gp-close" style="padding:16px 0;flex-shrink:0" onclick="gsbCloseAll()">Close</span>
+</div>
+
+<!-- Settings Panel -->
+<div class="gsb-panel" id="gsb-settings" style="padding:48px 44px;width:380px;">
+  <div class="gp-title">Settings</div>
+  <div class="gp-row"><span class="gp-label">Name</span><input class="gp-input" placeholder="J. Smith" value="J. Smith"></div>
+  <div class="gp-row"><span class="gp-label">Units</span><span class="gp-val" onclick="this.textContent=this.textContent==='Imperial'?'Metric':'Imperial'">Imperial</span></div>
+  <div class="gp-row"><span class="gp-label">Score Speed</span><span class="gp-val" onclick="this.textContent=this.textContent==='Slow'?'Fast':'Slow'">Slow</span></div>
+  <div class="gp-row"><span class="gp-label">Simulation</span><span class="gp-val" onclick="this.textContent=this.textContent==='Active'?'Off':'Active'">Active</span></div>
+  <span class="gp-close" onclick="gsbCloseAll()">Close</span>
+</div>
+
+<!-- API Keys Panel -->
+<div class="gsb-panel" id="gsb-apikeys" style="padding:48px 44px;width:400px;">
+  <div class="gp-title">API Keys</div>
+  <div class="gp-ak-row"><span class="gp-ak-label">Anthropic (Claude)</span><input class="gp-ak-field" type="password" placeholder="sk-ant-..."></div>
+  <div class="gp-ak-row"><span class="gp-ak-label">OpenAI (GPT)</span><input class="gp-ak-field" type="password" placeholder="sk-..."></div>
+  <div class="gp-ak-row"><span class="gp-ak-label">Google (Gemini)</span><input class="gp-ak-field" type="password" placeholder="AIza..."></div>
+  <div class="gp-ak-row"><span class="gp-ak-label">xAI (Grok)</span><input class="gp-ak-field" type="password" placeholder="xai-..."></div>
+  <div class="gp-ak-row"><span class="gp-ak-label">Oura Ring</span><input class="gp-ak-field" type="password" placeholder="Personal access token..."></div>
+  <div class="gp-ak-note">Keys are stored locally and never transmitted beyond your own server.</div>
+  <span class="gp-close" onclick="gsbCloseAll()">Close</span>
+</div>
+
+<!-- My Labs Panel -->
+<div class="gsb-panel" id="gsb-labs" style="padding:44px 44px 36px;width:min(540px,92vw);max-height:86vh;overflow-y:auto;">
+  <div class="gp-title">My Lab Values</div>
+  <div style="font-size:13px;font-style:italic;color:rgba(201,169,110,0.38);text-align:center;margin-bottom:24px;line-height:1.6">Upload screenshots of your lab results.<br>AI reads them and fills every field instantly.</div>
+  <div class="gp-labs-import-zone">
+    <input type="file" id="gp-labs-file" accept="image/*" multiple>
+    <span class="gp-labs-import-cta">Drop screenshots or click to browse</span>
+    <span class="gp-labs-import-sub">Quest, LabCorp, InsideTracker — any screenshot works</span>
+  </div>
+  <div class="gp-labs-import-status" id="gp-labs-status"></div>
+  <div class="gp-labs-or">— or enter manually —</div>
+  <div class="gp-labs-group">
+    <span class="gp-labs-gtitle">Hormones</span>
+    <div class="gp-labs-grid">
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Testosterone <span class="gp-labs-unit">ng/dL</span></span><input class="gp-labs-input" id="glab-testosterone" type="number" placeholder="e.g. 550"><span class="gp-labs-range">optimal 500–900</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Cortisol AM <span class="gp-labs-unit">μg/dL</span></span><input class="gp-labs-input" id="glab-cortisol" type="number" placeholder="e.g. 12" step="0.1"><span class="gp-labs-range">optimal 6–18</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">DHEA-S <span class="gp-labs-unit">μg/dL</span></span><input class="gp-labs-input" id="glab-dhea" type="number" placeholder="e.g. 250"><span class="gp-labs-range">optimal 200–450</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">IGF-1 <span class="gp-labs-unit">ng/mL</span></span><input class="gp-labs-input" id="glab-igf1" type="number" placeholder="e.g. 180"><span class="gp-labs-range">optimal 150–300</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">TSH <span class="gp-labs-unit">mIU/L</span></span><input class="gp-labs-input" id="glab-tsh" type="number" placeholder="e.g. 1.8" step="0.01"><span class="gp-labs-range">optimal 0.5–2.5</span></div>
+    </div>
+  </div>
+  <div class="gp-labs-group">
+    <span class="gp-labs-gtitle">Metabolic</span>
+    <div class="gp-labs-grid">
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Fasting Glucose <span class="gp-labs-unit">mg/dL</span></span><input class="gp-labs-input" id="glab-glucose" type="number" placeholder="e.g. 88"><span class="gp-labs-range">optimal 70–99</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Insulin Sensitivity <span class="gp-labs-unit">HOMA-IR</span></span><input class="gp-labs-input" id="glab-insulin" type="number" placeholder="e.g. 1.2" step="0.1"><span class="gp-labs-range">optimal &lt;1.5</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Uric Acid <span class="gp-labs-unit">mg/dL</span></span><input class="gp-labs-input" id="glab-uric" type="number" placeholder="e.g. 5.2" step="0.1"><span class="gp-labs-range">optimal &lt;5.5</span></div>
+    </div>
+  </div>
+  <div class="gp-labs-group">
+    <span class="gp-labs-gtitle">Inflammation & Cardiovascular</span>
+    <div class="gp-labs-grid">
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">CRP <span class="gp-labs-unit">mg/L</span></span><input class="gp-labs-input" id="glab-crp" type="number" placeholder="e.g. 0.8" step="0.1"><span class="gp-labs-range">optimal &lt;1.0</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Homocysteine <span class="gp-labs-unit">μmol/L</span></span><input class="gp-labs-input" id="glab-homocysteine" type="number" placeholder="e.g. 8" step="0.1"><span class="gp-labs-range">optimal &lt;9</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">ApoB <span class="gp-labs-unit">mg/dL</span></span><input class="gp-labs-input" id="glab-apob" type="number" placeholder="e.g. 75"><span class="gp-labs-range">optimal &lt;80</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Fibrinogen <span class="gp-labs-unit">mg/dL</span></span><input class="gp-labs-input" id="glab-fibrinogen" type="number" placeholder="e.g. 240"><span class="gp-labs-range">optimal 180–280</span></div>
+    </div>
+  </div>
+  <div class="gp-labs-group">
+    <span class="gp-labs-gtitle">Nutrients</span>
+    <div class="gp-labs-grid">
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Vitamin D <span class="gp-labs-unit">ng/mL</span></span><input class="gp-labs-input" id="glab-vitd" type="number" placeholder="e.g. 52"><span class="gp-labs-range">optimal 40–70</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Vitamin B12 <span class="gp-labs-unit">pg/mL</span></span><input class="gp-labs-input" id="glab-b12" type="number" placeholder="e.g. 650"><span class="gp-labs-range">optimal 400–1000</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Magnesium <span class="gp-labs-unit">mg/dL</span></span><input class="gp-labs-input" id="glab-magnesium" type="number" placeholder="e.g. 2.1" step="0.1"><span class="gp-labs-range">optimal 2.0–2.5</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Zinc <span class="gp-labs-unit">μg/dL</span></span><input class="gp-labs-input" id="glab-zinc" type="number" placeholder="e.g. 90"><span class="gp-labs-range">optimal 70–120</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Omega-3 Index <span class="gp-labs-unit">%</span></span><input class="gp-labs-input" id="glab-omega3" type="number" placeholder="e.g. 7" step="0.1"><span class="gp-labs-range">optimal &gt;8%</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">NAD+ <span class="gp-labs-unit">μM</span></span><input class="gp-labs-input" id="glab-nad" type="number" placeholder="e.g. 40"><span class="gp-labs-range">optimal 30–60</span></div>
+    </div>
+  </div>
+  <div class="gp-labs-group">
+    <span class="gp-labs-gtitle">Organ Function</span>
+    <div class="gp-labs-grid">
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Ferritin <span class="gp-labs-unit">ng/mL</span></span><input class="gp-labs-input" id="glab-ferritin" type="number" placeholder="e.g. 110"><span class="gp-labs-range">optimal 50–200</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">Serum Albumin <span class="gp-labs-unit">g/dL</span></span><input class="gp-labs-input" id="glab-albumin" type="number" placeholder="e.g. 4.5" step="0.1"><span class="gp-labs-range">optimal 4.0–5.0</span></div>
+      <div class="gp-labs-wrap"><span class="gp-labs-lbl">ALT <span class="gp-labs-unit">U/L</span></span><input class="gp-labs-input" id="glab-alt" type="number" placeholder="e.g. 22"><span class="gp-labs-range">optimal &lt;30</span></div>
+    </div>
+  </div>
+  <button class="gp-labs-save" onclick="gsbSaveLabs()">Save & Update Body</button>
+  <div class="gp-labs-confirm" id="gp-labs-confirm"></div>
+  <span class="gp-close" onclick="gsbCloseAll()">Close</span>
+</div>
+
+<!-- Medical Records Panel -->
+<div class="gsb-panel" id="gsb-records" style="padding:48px 44px;width:420px;max-height:80vh;overflow-y:auto;">
+  <div class="gp-title">Medical Records</div>
+  <div class="gp-rec-note">Drop in PDFs or images of lab results, physician notes, or any health document.</div>
+  <div id="gp-rec-list" style="margin-bottom:20px"></div>
+  <div class="gp-labs-import-zone" style="margin-bottom:14px">
+    <input type="file" id="gp-rec-file" accept="image/*,application/pdf,.pdf" multiple>
+    <span class="gp-labs-import-cta">Drop files or click to browse</span>
+    <span class="gp-labs-import-sub">PDF, JPG, PNG accepted</span>
+  </div>
+  <input type="text" id="gp-rec-note-input" placeholder="Note (e.g. Annual physical 2026)" class="gp-labs-input" style="width:100%;margin-bottom:12px">
+  <button class="gp-labs-save" onclick="gsbSaveRecord()" style="margin-top:0">Save Record</button>
+  <div class="gp-labs-confirm" id="gp-rec-confirm"></div>
+  <span class="gp-close" onclick="gsbCloseAll()">Close</span>
+</div>
+
+<script>
+// ── Sidebar panel controller ──────────────────────────────────────────────────
+const GSB_PANELS = ['scoring','reports','settings','apikeys','labs','records'];
+
+function gsbOpen(id){
+  gsbCloseAll();
+  document.getElementById('gsb-'+id).classList.add('open');
+  document.getElementById('gsb-overlay').classList.add('on');
+  if(id==='scoring') gsbBuildScoring();
+  if(id==='reports') gsbBuildLive();
+}
+function gsbCloseAll(){
+  GSB_PANELS.forEach(id=>document.getElementById('gsb-'+id).classList.remove('open'));
+  document.getElementById('gsb-overlay').classList.remove('on');
+}
+
+// ── Scoring panel ──────────────────────────────────────────────────────────────
+function gsbBuildScoring(){
+  const avg=ALL.reduce((s,m)=>s+m.pct,0)/ALL.length;
+  const sc=Math.round(avg);
+  document.getElementById('gp-sc-num').textContent=sc;
+  document.getElementById('gp-sc-num').style.color=col(avg);
+  const verdicts=[[80,'Exceptional'],[65,'Strong'],[50,'Moderate'],[0,'Below Baseline']];
+  const v=(verdicts.find(([t])=>sc>=t)||verdicts[verdicts.length-1]);
+  document.getElementById('gp-sc-verdict').textContent=v[1];
+  document.getElementById('gp-sc-verdict').style.color=col(avg);
+  const narratives=[[80,'Your systems are well aligned. The data is telling a good story.'],[65,'A solid foundation. A few systems need focus to reach the next level.'],[50,'Several markers need attention. The data points to clear intervention points.'],[0,'Your body is signalling for help. Focus on the red markers first.']];
+  document.getElementById('gp-sc-narrative').textContent=(narratives.find(([t])=>sc>=t)||narratives[narratives.length-1])[1];
+
+  const red=ALL.filter(m=>status(m.pct)==='red').sort((a,b)=>a.pct-b.pct);
+  const orange=ALL.filter(m=>status(m.pct)==='orange').sort((a,b)=>a.pct-b.pct);
+  const green=ALL.filter(m=>status(m.pct)==='green').sort((a,b)=>b.pct-a.pct);
+
+  function buildSection(el,items,cls){
+    if(!items.length){el.style.display='none';return;}
+    el.style.display='';
+    el.innerHTML=`<div class="gp-sc-head">${cls==='red'?'Needs Work':cls==='orange'?'Watch':'Optimized'}</div>`+
+      items.map(m=>`<div class="gp-sc-row">
+        <div class="gp-sc-dot"></div>
+        <div class="gp-sc-body">
+          <div class="gp-sc-row-label"><span>${m.label}</span><span class="gp-sc-pct">${Math.round(m.pct)}%</span></div>
+          <div class="gp-sc-row-text">${m.insight.split('.')[0]}.</div>
+        </div></div>`).join('');
+  }
+  buildSection(document.getElementById('gp-sc-red'),red,'red');
+  buildSection(document.getElementById('gp-sc-orange'),orange,'orange');
+  buildSection(document.getElementById('gp-sc-green'),green,'green');
+}
+
+// ── Reports — Live Data ────────────────────────────────────────────────────────
+function gsbBuildLive(){
+  const sorted=[...ALL].sort((a,b)=>a.pct-b.pct);
+  document.getElementById('gp-live-tbody').innerHTML=sorted.map(m=>{
+    const st=status(m.pct);
+    const c=col(m.pct);
+    return `<tr>
+      <td><span class="gp-rp-dot ${st}"></span></td>
+      <td><div class="gp-rp-marker">${m.label}</div><div class="gp-rp-sys">${m.sysName}</div></td>
+      <td><span class="gp-rp-sys">${m.sysId}</span></td>
+      <td><span class="gp-rp-val">${Math.round(m.pct)}</span></td>
+      <td><span class="gp-rp-pct-track"><span class="gp-rp-pct-fill" style="width:${m.pct}%;background:${c}"></span></span></td>
+    </tr>`;
+  }).join('');
+}
+
+// Report tabs
+document.querySelectorAll('.gp-rp-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.gp-rp-tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.gp-rp-section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('gp-rp-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='live') gsbBuildLive();
+    else gsbLoadEntries(btn.dataset.tab);
+  });
+});
+
+// ── Severity buttons ───────────────────────────────────────────────────────────
+['body','mind','spirit'].forEach(type=>{
+  document.querySelectorAll(`#gp-${type}-sev .gp-sev-btn`).forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll(`#gp-${type}-sev .gp-sev-btn`).forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+    });
+  });
+});
+document.querySelectorAll('#gp-meal-types .gp-type-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#gp-meal-types .gp-type-btn').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+  });
+});
+
+// ── Log symptom ────────────────────────────────────────────────────────────────
+async function gsbLogSymptom(type){
+  const text=document.getElementById('gp-'+type+'-text').value.trim();
+  if(!text) return;
+  const sev=parseInt(document.querySelector(`#gp-${type}-sev .gp-sev-btn.sel`)?.dataset.val||3);
+  try{
+    await fetch('/log/symptom',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text,severity:sev,type})});
+    document.getElementById('gp-'+type+'-text').value='';
+    document.getElementById('gp-'+type+'-confirm').textContent='Recorded.';
+    setTimeout(()=>document.getElementById('gp-'+type+'-confirm').textContent='',2500);
+    gsbLoadEntries(type);
+  }catch(e){}
+}
+
+// ── Log meal ───────────────────────────────────────────────────────────────────
+async function gsbLogMeal(){
+  const text=document.getElementById('gp-meal-text').value.trim();
+  if(!text) return;
+  const meal_type=document.querySelector('#gp-meal-types .gp-type-btn.sel')?.dataset.val||'meal';
+  try{
+    await fetch('/log/meal',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({description:text,meal_type})});
+    document.getElementById('gp-meal-text').value='';
+    document.getElementById('gp-meal-confirm').textContent='Recorded.';
+    setTimeout(()=>document.getElementById('gp-meal-confirm').textContent='',2500);
+    gsbLoadEntries('meals');
+  }catch(e){}
+}
+
+// ── Load entries ───────────────────────────────────────────────────────────────
+async function gsbLoadEntries(type){
+  try{
+    if(type==='meals'){
+      const d=await(await fetch('/api/meals')).json();
+      document.getElementById('gp-meal-entries').innerHTML=d.length?
+        d.slice(0,12).map(e=>`<div class="gp-entry"><div class="gp-entry-meta"><span class="gp-entry-time">${e.ts}</span><span style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(201,169,110,0.45)">${e.meal_type}</span></div><div class="gp-entry-text">${e.description}</div></div>`).join(''):
+        '<div class="gp-empty">No meals logged yet.</div>';
+    } else {
+      const d=await(await fetch('/api/symptoms')).json();
+      const filtered=d.filter(e=>!e.type||e.type===type);
+      const el=document.getElementById('gp-'+type+'-entries');
+      if(el) el.innerHTML=filtered.length?
+        filtered.slice(0,10).map(e=>`<div class="gp-entry"><div class="gp-entry-meta"><span class="gp-entry-time">${e.ts}</span><span style="font-size:9px;color:rgba(201,169,110,0.45)">sev ${e.severity}/5</span></div><div class="gp-entry-text">${e.text}</div></div>`).join(''):
+        '<div class="gp-empty">No entries yet.</div>';
+    }
+  }catch(e){}
+}
+
+// ── Save labs ──────────────────────────────────────────────────────────────────
+async function gsbSaveLabs(){
+  const fields={testosterone:'glab-testosterone',cortisol:'glab-cortisol',dhea:'glab-dhea',igf1:'glab-igf1',
+    tsh:'glab-tsh',glucose:'glab-glucose',insulin:'glab-insulin',uric_acid:'glab-uric',
+    crp:'glab-crp',homocysteine:'glab-homocysteine',apob:'glab-apob',fibrinogen:'glab-fibrinogen',
+    vitamin_d:'glab-vitd',b12:'glab-b12',magnesium:'glab-magnesium',zinc:'glab-zinc',
+    omega3:'glab-omega3',nad:'glab-nad',ferritin:'glab-ferritin',albumin:'glab-albumin',alt:'glab-alt'};
+  const body={};
+  Object.entries(fields).forEach(([k,id])=>{
+    const v=document.getElementById(id)?.value;
+    if(v) body[k]=parseFloat(v);
+  });
+  try{
+    await fetch('/api/labs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    document.getElementById('gp-labs-confirm').textContent='Saved. Body updating…';
+    setTimeout(()=>document.getElementById('gp-labs-confirm').textContent='',3000);
+    fetchLive();
+  }catch(e){}
+}
+
+// ── Save record ────────────────────────────────────────────────────────────────
+function gsbSaveRecord(){
+  const note=document.getElementById('gp-rec-note-input').value.trim()||'Record';
+  const ts=new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const entry=document.createElement('div');
+  entry.className='gp-rec-entry';
+  entry.innerHTML=`<div class="gp-rec-meta"><span class="gp-rec-time">${ts}</span></div><div class="gp-rec-name">${note}</div>`;
+  document.getElementById('gp-rec-list').prepend(entry);
+  document.getElementById('gp-rec-note-input').value='';
+  document.getElementById('gp-rec-confirm').textContent='Saved.';
+  setTimeout(()=>document.getElementById('gp-rec-confirm').textContent='',2500);
+}
+
+// ── Export ─────────────────────────────────────────────────────────────────────
+function gsbExport(){
+  const data={exported:new Date().toISOString(),score:Math.round(ALL.reduce((s,m)=>s+m.pct,0)/ALL.length),markers:ALL.map(m=>({id:m.id,label:m.label,system:m.sysName,pct:Math.round(m.pct),status:status(m.pct)}))};
+  const a=document.createElement('a');
+  a.href='data:application/json,'+encodeURIComponent(JSON.stringify(data,null,2));
+  a.download='grail-body-export.json';
+  a.click();
+}
+</script>
+</body>
+</html>

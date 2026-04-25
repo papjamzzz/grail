@@ -50,6 +50,10 @@ def index():
 def cells():
     return send_from_directory('.', 'cells.html')
 
+@app.route('/body')
+def body():
+    return send_from_directory('.', 'body.html')
+
 # Health ingest from Shortcuts / Health export parser
 @app.route('/ingest', methods=['POST'])
 def ingest():
