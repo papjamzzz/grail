@@ -62,11 +62,20 @@ def cells():
 
 @app.route('/bodyfigure')
 def bodyfigure():
-    return send_from_directory(BASE, 'bodyfigure.html')
+    path = os.path.join(BASE, 'bodyfigure.html')
+    with open(path, 'r', encoding='utf-8') as f:
+        return f.read(), 200, {'Content-Type': 'text/html; charset=utf-8'}
 
 @app.route('/console')
 def console():
-    return send_from_directory(BASE, 'console.html')
+    path = os.path.join(BASE, 'console.html')
+    with open(path, 'r', encoding='utf-8') as f:
+        return f.read(), 200, {'Content-Type': 'text/html; charset=utf-8'}
+
+@app.route('/debug-files')
+def debug_files():
+    files = os.listdir(BASE)
+    return jsonify({'base': BASE, 'files': sorted(files)})
 
 # Health ingest from Shortcuts / Health export parser
 @app.route('/ingest', methods=['POST'])
