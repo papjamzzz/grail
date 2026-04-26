@@ -233,10 +233,7 @@ nav{
     <div class="nav-tagline">Precision Longevity Intelligence</div>
   </div>
   <div class="nav-right">
-    <a href="/" class="nav-pill">Orbital</a>
-    <a href="/cells" class="nav-pill">Cells</a>
-    <a href="/bodyfigure" class="nav-pill">Body</a>
-    <a href="/console" class="nav-pill active">Console</a>
+    <a href="/biodata" style="padding:6px 13px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;color:var(--cyan);border:1.5px solid var(--cyan);transition:all .2s;font-family:'Outfit',sans-serif;" onmouseover="this.style.background='var(--cyan)';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='var(--cyan)'">Link BioData</a>
     <div class="theme-row">
       <span class="theme-lbl" id="themeLbl">Light</span>
       <button class="tog" id="themeBtn"><div class="tog-k"></div></button>
@@ -738,26 +735,26 @@ function toggleAction(i){document.getElementById('ac'+i).classList.toggle('open'
 // ── GOALS ─────────────────────────────────────────────────────────────
 const GOALS={
   daily:[
-    {text:'Sleep 7.5–9 hours tonight',why:'Impacts 12+ biomarkers simultaneously — highest ROI in biohacking.',badge:'Foundational'},
-    {text:'Walk 8,000–10,000 steps',why:'Lowers glucose, CRP, resting HR, and ApoB at the same time.',badge:'High Impact'},
-    {text:'Drink 3 liters of water',why:'Dehydration degrades cognition, energy, and elevates uric acid.',badge:'Daily'},
-    {text:'10 min sunlight before 10am',why:'Anchors cortisol rhythm and programs better sleep 14–16 hrs later.',badge:'Free'},
-    {text:'No screens 1hr before bed',why:'Blue light blocks melatonin synthesis by up to 50%.',badge:'Sleep'},
-    {text:'Protein at every meal (30–50g)',why:'Leucine-rich protein 3× daily maximizes muscle protein synthesis.',badge:'Build'},
+    {text:'7.5h+ sleep — your HRV drops 18% below this threshold',why:'HRV is your highest-signal recovery metric. Protect it with sleep above all else.',badge:'HRV + Recovery'},
+    {text:'10-min walk after every meal — targets your glucose & uric acid',why:'Post-meal walks reduce glucose response by ~30% and lower uric acid over time.',badge:'Metabolism'},
+    {text:'500ml water on waking + 3L total — hydration & uric acid',why:'Uric acid rises sharply with dehydration. Morning hydration sets the metabolic baseline.',badge:'Hydration'},
+    {text:'30g protein at breakfast — testosterone & muscle mass lever',why:'Leucine-rich protein first thing spikes muscle protein synthesis and supports free testosterone.',badge:'Hormones'},
+    {text:'Morning sunlight 10+ min — cortisol rhythm & Vitamin D',why:'Outdoor light anchors the circadian cortisol curve. Compounds with Vitamin D synthesis.',badge:'Cortisol + D'},
+    {text:'No screens 1hr before bed — REM & deep sleep protection',why:'Blue light blocks melatonin by up to 50%, destroying the deep sleep stages where HGH peaks.',badge:'Sleep'},
   ],
   weekly:[
-    {text:'3× resistance training sessions',why:'Improves testosterone, muscle mass, insulin sensitivity, and grip.',badge:'Biggest ROI'},
-    {text:'Cold exposure 3× (2–3 min)',why:'Raises HRV, reduces inflammation, increases norepinephrine 300%.',badge:'Mental Edge'},
-    {text:'Sauna 2× (15–20 min at 175°F)',why:'Increases GH, improves VO₂ max, reduces ApoB and blood pressure.',badge:'Longevity'},
-    {text:'Zone 2 cardio 3× (45+ min)',why:'Single best VO₂ max and HRV intervention at any age.',badge:'Core'},
-    {text:'Omega-3s daily (2g EPA+DHA)',why:'Reduces inflammation, improves HRV, cell membrane quality.',badge:'Baseline'},
+    {text:'3× heavy compound lifts — testosterone, grip, muscle mass',why:'Squats and deadlifts are the single biggest lever for free testosterone and grip strength markers.',badge:'Testosterone'},
+    {text:'Zone 2 cardio 3× (45min) — VO₂ Max & ApoB intervention',why:'Zone 2 is the most evidence-backed lever for VO₂ Max gains and ApoB reduction simultaneously.',badge:'VO₂ + Heart'},
+    {text:'Omega-3s 2g EPA+DHA daily — CRP & inflammation index',why:'Omega-3 index above 8% directly reduces CRP and improves HRV measurably within 4–6 weeks.',badge:'Inflammation'},
+    {text:'Cold exposure 3× (2–3 min) — HRV, NAD+, norepinephrine',why:'Cold raises HRV, boosts NAD+ precursors, and spikes norepinephrine 300% — lasting 2–4 hrs.',badge:'HRV + NAD+'},
+    {text:'Sauna 2× (15–20 min) — VO₂ Max, ApoB, fibrinogen',why:'Sauna clinically reduces ApoB and fibrinogen while adding measurable VO₂ Max points over weeks.',badge:'Longevity'},
   ],
   monthly:[
-    {text:'Full blood panel — ApoB, homocysteine, ferritin',why:'Wearables catch trends. Blood catches what wearables miss.',badge:'Non-Negotiable'},
-    {text:'VO₂ max assessment (Cooper 12-min run)',why:'Strongest longevity predictor in medicine. Know your number.',badge:'Benchmark'},
-    {text:'Review and rotate supplement stack',why:'Cycling prevents tolerance. Needs change as you improve.',badge:'Optimize'},
-    {text:'Track HRV trend vs last month',why:'Monthly HRV trend reveals systemic recovery and adaptation.',badge:'Insight'},
-    {text:'Mobility assessment — hip flexor + thoracic',why:'Structural deficits show in biomarkers. Posture drives breath drives HRV.',badge:'Structural'},
+    {text:'Full blood panel — ApoB, homocysteine, ferritin, CRP',why:'These four are the markers wearables can\'t catch. One test prevents years of silent damage.',badge:'Non-Negotiable'},
+    {text:'VO₂ Max assessment (Cooper 12-min run)',why:'The single strongest longevity predictor in medicine. Know your number every 30 days.',badge:'Benchmark'},
+    {text:'Testosterone + free T + SHBG panel',why:'Free T is the bioavailable fraction. Total T alone misses the full hormonal picture.',badge:'Hormones'},
+    {text:'HRV 30-day trend review vs prior month',why:'Monthly HRV trend reveals systemic adaptation — or overtraining — before symptoms appear.',badge:'Recovery'},
+    {text:'Supplement audit — rotate, dose-check, blood-verify',why:'Cycling prevents tolerance. Magnesium, Zinc, D3+K2, Omega-3 all need verification vs. labs.',badge:'Optimize'},
   ]
 };
 let curTab='daily';
@@ -908,5 +905,6 @@ function renderSystems(){
 // ── INIT ──────────────────────────────────────────────────────────────
 renderScore();renderBioAge();renderInsight();renderActions();renderDots();renderGoals();renderSystems();
 </script>
+<div style="position:fixed;bottom:16px;left:20px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);opacity:.45;pointer-events:none;z-index:10;">© Grail</div>
 </body>
 </html>

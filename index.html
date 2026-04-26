@@ -446,15 +446,23 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
     <span class="tb-item" id="tb-labs">My Labs</span>
     <div class="sb-divider"></div>
     <span class="tb-item" id="tb-records">Medical Records</span>
+    <div class="sb-divider"></div>
+    <span class="tb-item" onclick="window.location.href='/biodata'">Link BioData</span>
   </div>
 </div>
 
 
 
 <canvas id="canvas"></canvas>
+<div id="orbThemeRow" style="position:fixed;top:20px;right:28px;z-index:200;display:flex;align-items:center;gap:8px;">
+  <span id="orbThemeLbl" style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,169,110,0.52);">Dark</span>
+  <button id="orbThemeBtn" style="width:42px;height:24px;border-radius:12px;border:none;outline:none;padding:2px;background:rgba(201,169,110,0.10);display:flex;align-items:center;cursor:pointer;transition:background .28s;" onclick="orbToggleTheme()">
+    <div id="orbThemeK" style="width:18px;height:18px;border-radius:50%;background:rgba(201,169,110,0.7);box-shadow:0 1px 4px rgba(0,0,0,0.3);transition:transform .28s;flex-shrink:0;"></div>
+  </button>
+</div>
 
 <div id="grail-word">grail</div>
-<div id="credit">© Christian Seeber</div>
+<div id="credit">© Grail</div>
 <div id="vitality">
   <div class="score-rule"></div>
   <div class="score" id="vitality-score">—</div>
@@ -1835,6 +1843,15 @@ document.getElementById('tb-scoring').addEventListener('click', () => { open('sc
 document.getElementById('scoring-close').addEventListener('click', closeAll);
 document.getElementById('tb-reports').addEventListener('click', () => { open('reports-panel'); openReports('live'); });
 document.getElementById('tb-settings').addEventListener('click',      () => open('settings-panel'));
+
+function orbToggleTheme(){
+  const lbl=document.getElementById('orbThemeLbl');
+  const k=document.getElementById('orbThemeK');
+  const isDark=lbl.textContent==='Dark';
+  const lightToggle=document.getElementById('st-lightmode');
+  if(isDark){lbl.textContent='Light';k.style.transform='translateX(18px)';applyMode(true);}
+  else{lbl.textContent='Dark';k.style.transform='translateX(0)';applyMode(false);}
+}
 
 // ── Light / dark mode toggle ──────────────────────────────────────────────
 const lightToggle = document.getElementById('st-lightmode');

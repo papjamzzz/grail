@@ -7,6 +7,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+[data-theme="dark"] body {
+  background: #04040A !important;
+  color: rgba(215,228,248,0.92);
+}
+[data-theme="dark"] nav {
+  background: rgba(10,12,24,0.98) !important;
+  border-bottom-color: rgba(255,255,255,0.07) !important;
+}
+[data-theme="dark"] .score-card,
+[data-theme="dark"] .hero-col,
+[data-theme="dark"] .hero-right { background: rgba(12,20,36,0.94) !important; border-color: rgba(255,255,255,0.07) !important; }
 
 body{
   background:#FEFCF7;
@@ -526,10 +537,11 @@ nav{
     <a href="/" class="nav-brand">grail</a>
     <span style="font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.22em;color:rgba(90,58,22,0.42);font-style:italic;">know it. own it. optimize it.</span>
   </div>
-  <div class="nav-views">
-    <a href="/" class="nav-pill">Orbital</a>
-    <a href="/cells" class="nav-pill">Cells</a>
-    <a href="/body" class="nav-pill active">Body</a>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(90,58,22,0.42);" id="bfThemeLbl">Light</span>
+    <button id="bfThemeBtn" style="width:46px;height:26px;border-radius:13px;cursor:pointer;border:none;outline:none;padding:3px;background:rgba(0,0,0,0.08);display:flex;align-items:center;transition:background .28s;" onclick="bfToggleTheme()">
+      <div id="bfThemeK" style="width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.22);transition:transform .28s;flex-shrink:0;"></div>
+    </button>
   </div>
 </nav>
 
@@ -1422,6 +1434,25 @@ function gsbSaveRecord(){
   setTimeout(()=>document.getElementById('gp-rec-confirm').textContent='',2500);
 }
 
+// Theme toggle
+(function(){
+  const saved=localStorage.getItem('grail-bf-theme')||'light';
+  if(saved==='dark') document.documentElement.setAttribute('data-theme','dark');
+  document.getElementById('bfThemeLbl').textContent=saved==='dark'?'Dark':'Light';
+  if(saved==='dark'){document.getElementById('bfThemeBtn').style.background='rgba(61,214,200,0.22)';document.getElementById('bfThemeK').style.transform='translateX(20px)';document.getElementById('bfThemeK').style.background='#3DD6C8';}
+})();
+function bfToggleTheme(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const next=isDark?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem('grail-bf-theme',next);
+  document.getElementById('bfThemeLbl').textContent=next==='dark'?'Dark':'Light';
+  const k=document.getElementById('bfThemeK');
+  const btn=document.getElementById('bfThemeBtn');
+  if(next==='dark'){btn.style.background='rgba(61,214,200,0.22)';k.style.transform='translateX(20px)';k.style.background='#3DD6C8';}
+  else{btn.style.background='rgba(0,0,0,0.08)';k.style.transform='translateX(0)';k.style.background='#fff';}
+}
+
 // ── Export ─────────────────────────────────────────────────────────────────────
 function gsbExport(){
   const data={exported:new Date().toISOString(),score:Math.round(ALL.reduce((s,m)=>s+m.pct,0)/ALL.length),markers:ALL.map(m=>({id:m.id,label:m.label,system:m.sysName,pct:Math.round(m.pct),status:status(m.pct)}))};
@@ -1431,5 +1462,6 @@ function gsbExport(){
   a.click();
 }
 </script>
+<div style="position:fixed;bottom:20px;left:28px;font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:rgba(90,58,22,0.35);z-index:10;pointer-events:none;">© Grail</div>
 </body>
 </html>

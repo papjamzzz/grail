@@ -94,8 +94,14 @@ canvas { display:block; }
 </head>
 <body>
 <canvas id="canvas"></canvas>
+<div id="cellThemeRow" style="position:fixed;top:20px;right:28px;z-index:100;display:flex;align-items:center;gap:8px;">
+  <span id="cellThemeLbl" style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,169,110,0.52);">Light</span>
+  <button id="cellThemeBtn" style="width:42px;height:24px;border-radius:12px;border:none;outline:none;padding:2px;background:rgba(201,169,110,0.10);display:flex;align-items:center;cursor:pointer;transition:background .28s;" onclick="cellToggleTheme()">
+    <div id="cellThemeK" style="width:18px;height:18px;border-radius:50%;background:rgba(201,169,110,0.7);box-shadow:0 1px 4px rgba(0,0,0,0.3);transition:transform .28s;flex-shrink:0;"></div>
+  </button>
+</div>
 <div id="grail-word">grail</div>
-<div id="credit">© Christian Seeber</div>
+<div id="credit">© Grail</div>
 <div id="tagline">Add Life to Your Days</div>
 <div id="sidebar">
   <div class="sb-items" id="sb-items">
@@ -618,6 +624,27 @@ function loop() {
 
 resize();
 loop();
+
+// Theme (cells is always dark canvas — toggle shows/hides UI tint)
+(function(){
+  const lbl=document.getElementById('cellThemeLbl');
+  const saved=localStorage.getItem('grail-cell-theme')||'dark';
+  if(saved==='light'){document.body.style.background='#0d0a20';lbl.textContent='Dark';}
+  else lbl.textContent='Dark';
+})();
+function cellToggleTheme(){
+  const lbl=document.getElementById('cellThemeLbl');
+  const k=document.getElementById('cellThemeK');
+  const btn=document.getElementById('cellThemeBtn');
+  const isDark=lbl.textContent==='Dark';
+  if(!isDark){
+    lbl.textContent='Dark';k.style.transform='translateX(0)';
+    localStorage.setItem('grail-cell-theme','dark');
+  } else {
+    lbl.textContent='Light';k.style.transform='translateX(20px)';
+    localStorage.setItem('grail-cell-theme','light');
+  }
+}
 </script>
 </body>
 </html>

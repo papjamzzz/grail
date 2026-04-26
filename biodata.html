@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Grail — BioData Link</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--green:#2DC46A;--yellow:#F5A623;--red:#E0556A}
+[data-theme="light"]{--bg:#F2F2F7;--card:#FFFFFF;--border:rgba(0,0,0,0.07);--sh:0 1px 8px rgba(0,0,0,0.06);--sh2:0 4px 22px rgba(0,0,0,0.10);--text:#1C1C1E;--mid:#3A3A3C;--dim:#8E8E93;--cyan:#007AFF;}
+[data-theme="dark"]{--bg:#060A14;--card:rgba(12,20,36,0.94);--border:rgba(255,255,255,0.07);--sh:0 2px 12px rgba(0,0,0,0.35);--sh2:0 8px 32px rgba(0,0,0,0.50);--text:rgba(215,228,248,0.92);--mid:rgba(185,205,238,0.72);--dim:rgba(155,178,220,0.50);--cyan:#3DD6C8;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Outfit',system-ui,sans-serif;transition:background .28s,color .28s}
+nav{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:var(--sh);}
+.nav-brand{font-size:18px;font-weight:900;letter-spacing:5px;color:var(--cyan);text-decoration:none}
+.nav-tagline{font-size:9px;font-weight:500;letter-spacing:.2em;color:var(--dim);margin-top:1px}
+.theme-row{display:flex;align-items:center;gap:7px}
+.theme-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.tog{width:46px;height:26px;border-radius:13px;cursor:pointer;border:none;outline:none;padding:3px;background:rgba(0,0,0,0.1);display:flex;align-items:center;transition:background .28s}
+[data-theme="dark"] .tog{background:rgba(61,214,200,0.22)}
+.tog-k{width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.22);transition:transform .28s;flex-shrink:0}
+[data-theme="dark"] .tog-k{transform:translateX(20px);background:var(--cyan)}
+.page{max-width:720px;margin:0 auto;padding:60px 24px}
+.eyebrow{font-size:10px;font-weight:800;letter-spacing:.34em;text-transform:uppercase;color:var(--cyan);margin-bottom:12px}
+h1{font-size:36px;font-weight:900;letter-spacing:-1px;color:var(--text);margin-bottom:10px;line-height:1.1}
+.sub{font-size:15px;font-weight:400;color:var(--dim);line-height:1.65;margin-bottom:48px;max-width:480px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:48px}
+.wcard{background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--sh);opacity:.55;position:relative}
+.wcard-ico{font-size:28px}
+.wcard-name{font-size:15px;font-weight:700;color:var(--text)}
+.wcard-desc{font-size:11px;font-weight:400;color:var(--dim);line-height:1.5}
+.wcard-tag{font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:3px 10px;border-radius:20px;background:rgba(0,0,0,0.05);color:var(--dim);align-self:flex-start}
+[data-theme="dark"] .wcard-tag{background:rgba(255,255,255,0.06)}
+.wcard-soon{position:absolute;top:14px;right:14px;font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:3px 10px;border-radius:20px;background:rgba(0,122,255,0.08);color:var(--cyan)}
+[data-theme="dark"] .wcard-soon{background:rgba(61,214,200,0.10);color:var(--cyan)}
+.note{font-size:12px;font-weight:400;color:var(--dim);line-height:1.65;padding:20px 24px;background:var(--card);border:1px solid var(--border);border-radius:14px}
+</style>
+</head>
+<body>
+<nav>
+  <div>
+    <div class="nav-brand">GRAIL</div>
+    <div class="nav-tagline">Precision Longevity Intelligence</div>
+  </div>
+  <div class="theme-row">
+    <span class="theme-lbl" id="themeLbl">Light</span>
+    <button class="tog" id="themeBtn"><div class="tog-k"></div></button>
+  </div>
+</nav>
+<div class="page">
+  <div class="eyebrow">BioData Integration</div>
+  <h1>Link Your<br>Wearables</h1>
+  <p class="sub">Connect your devices and Grail updates every biomarker in real time — sleep, HRV, glucose, temperature, and more flowing directly into your dashboard.</p>
+
+  <div class="grid">
+    <div class="wcard">
+      <div class="wcard-ico">⌚</div>
+      <div class="wcard-name">Apple Watch</div>
+      <div class="wcard-desc">HRV, resting HR, SpO₂, sleep stages, respiratory rate, temperature deviation</div>
+      <div class="wcard-tag">Health Kit</div>
+      <div class="wcard-soon">Coming Soon</div>
+    </div>
+    <div class="wcard">
+      <div class="wcard-ico">💍</div>
+      <div class="wcard-name">Oura Ring</div>
+      <div class="wcard-desc">Deep sleep, REM, recovery score, body temperature, activity, readiness</div>
+      <div class="wcard-tag">Oura API</div>
+      <div class="wcard-soon">Coming Soon</div>
+    </div>
+    <div class="wcard">
+      <div class="wcard-ico">📊</div>
+      <div class="wcard-name">Continuous Glucose</div>
+      <div class="wcard-desc">Fasting glucose, post-meal response, time-in-range — Dexcom or Freestyle Libre</div>
+      <div class="wcard-tag">CGM API</div>
+      <div class="wcard-soon">Coming Soon</div>
+    </div>
+    <div class="wcard">
+      <div class="wcard-ico">🧬</div>
+      <div class="wcard-name">Lab Results</div>
+      <div class="wcard-desc">Upload lab PDFs and Grail extracts testosterone, ApoB, CRP, homocysteine, and 15+ more markers automatically</div>
+      <div class="wcard-tag">AI Extraction</div>
+      <div class="wcard-soon">Live Now</div>
+    </div>
+    <div class="wcard">
+      <div class="wcard-ico">🏃</div>
+      <div class="wcard-name">Garmin / Whoop</div>
+      <div class="wcard-desc">VO₂ Max, lactate threshold, training load, strain score, recovery grade</div>
+      <div class="wcard-tag">Connect API</div>
+      <div class="wcard-soon">Coming Soon</div>
+    </div>
+    <div class="wcard">
+      <div class="wcard-ico">💪</div>
+      <div class="wcard-name">DEXA / InBody</div>
+      <div class="wcard-desc">Body fat %, lean muscle mass, visceral fat area — direct body composition data</div>
+      <div class="wcard-tag">Manual Import</div>
+      <div class="wcard-soon">Coming Soon</div>
+    </div>
+  </div>
+
+  <div class="note">Data is stored locally on your device or your private server. Grail never sends your biomarkers to third parties.</div>
+</div>
+<div style="position:fixed;bottom:16px;left:20px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);opacity:.45;pointer-events:none;z-index:10;">© Grail</div>
+<script>
+(()=>{
+  const t=localStorage.getItem('grail-theme')||'light';
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('themeLbl').textContent=t==='dark'?'Dark':'Light';
+})();
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  const t=document.documentElement.getAttribute('data-theme');
+  const n=t==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',n);
+  document.getElementById('themeLbl').textContent=n==='dark'?'Dark':'Light';
+  localStorage.setItem('grail-theme',n);
+});
+</script>
+</body>
+</html>

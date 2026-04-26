@@ -72,6 +72,12 @@ def console():
     with open(path, 'r', encoding='utf-8') as f:
         return f.read(), 200, {'Content-Type': 'text/html; charset=utf-8'}
 
+@app.route('/biodata')
+def biodata():
+    path = os.path.join(BASE, 'biodata.html')
+    with open(path, 'r', encoding='utf-8') as f:
+        return f.read(), 200, {'Content-Type': 'text/html; charset=utf-8'}
+
 @app.route('/debug-files')
 def debug_files():
     files = os.listdir(BASE)
