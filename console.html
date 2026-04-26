@@ -79,17 +79,27 @@ nav{
 .bleg{display:flex;gap:12px;justify-content:center;margin-top:10px}
 .bli{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 .bld{width:8px;height:8px;border-radius:50%}
-/* tooltip */
+/* tooltip card */
 .btip{
   position:fixed;background:var(--card);border:1px solid var(--border);
-  border-radius:12px;padding:10px 14px;font-size:11px;font-weight:500;
-  pointer-events:none;opacity:0;transition:opacity .15s;z-index:500;max-width:180px;box-shadow:var(--sh2);
+  border-radius:18px;padding:15px 16px;
+  pointer-events:none;opacity:0;transition:opacity .18s;z-index:500;
+  width:248px;box-shadow:var(--sh2);backdrop-filter:blur(20px);
 }
 .btip.on{opacity:1}
-.btn{font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px}
-.bts{font-size:9px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
-.btb{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
-.btf{height:100%;border-radius:2px}
+.btcard-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:3px;gap:8px}
+.btn{font-size:15px;font-weight:800;color:var(--text);line-height:1.2;flex:1}
+.btcard-badge{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  padding:3px 9px;border-radius:20px;flex-shrink:0;margin-top:2px}
+.btcard-sys{font-size:9px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.btb{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:10px}
+.btf{height:100%;border-radius:2px;transition:width .3s}
+.btcard-ins{font-size:10px;font-weight:400;color:var(--mid);line-height:1.62;margin-bottom:10px}
+.btcard-acts{display:flex;flex-direction:column;gap:5px}
+.btcard-act{border-radius:9px;padding:7px 10px;background:rgba(0,0,0,0.03)}
+[data-theme="dark"] .btcard-act{background:rgba(255,255,255,0.04)}
+.btcard-act-lbl{font-size:8px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:2px}
+.btcard-act-txt{font-size:10px;font-weight:400;color:var(--mid);line-height:1.45}
 
 /* ─── CENTER ────────────────────────────────────────────── */
 .center-panel{align-items:center}
@@ -258,11 +268,25 @@ nav{
       <path d="M76,102 C64,106 50,120 44,145 L38,204 L36,258 C36,269 40,278 50,281 L52,291
                C54,282 57,268 60,256 L66,208 L72,150 C74,133 77,118 80,110 Z"
             fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.6" stroke-linejoin="round"/>
+      <!-- LEFT HAND -->
+      <ellipse cx="51" cy="298" rx="10" ry="7" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.4"/>
+      <rect x="40" y="303" width="5" height="9" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="46" y="305" width="5" height="10" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="52" y="305" width="5" height="10" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="58" y="303" width="4.5" height="8.5" rx="2.2" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <ellipse cx="38" cy="296" rx="3.5" ry="5.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2" transform="rotate(-18 38 296)"/>
 
       <!-- RIGHT ARM -->
       <path d="M144,102 C156,106 170,120 176,145 L182,204 L184,258 C184,269 180,278 170,281 L168,291
                C166,282 163,268 160,256 L154,208 L148,150 C146,133 143,118 140,110 Z"
             fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.6" stroke-linejoin="round"/>
+      <!-- RIGHT HAND -->
+      <ellipse cx="169" cy="298" rx="10" ry="7" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.4"/>
+      <rect x="158" y="303" width="4.5" height="8.5" rx="2.2" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="163" y="305" width="5" height="10" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="169" y="305" width="5" height="10" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="175" y="303" width="5" height="9" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <ellipse cx="182" cy="296" rx="3.5" ry="5.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2" transform="rotate(18 182 296)"/>
 
       <!-- TORSO + LEGS — single clean path -->
       <path d="
@@ -307,10 +331,24 @@ nav{
       <path d="M76,102 C64,106 50,120 44,145 L38,204 L36,258 C36,269 40,278 50,281 L52,291
                C54,282 57,268 60,256 L66,208 L72,150 C74,133 77,118 80,110 Z"
             fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.6" stroke-linejoin="round"/>
+      <!-- LEFT HAND -->
+      <ellipse cx="51" cy="298" rx="10" ry="7" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.4"/>
+      <rect x="40" y="303" width="5" height="9" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="46" y="305" width="5" height="10" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="52" y="305" width="5" height="10" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="58" y="303" width="4.5" height="8.5" rx="2.2" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <ellipse cx="38" cy="296" rx="3.5" ry="5.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2" transform="rotate(-18 38 296)"/>
       <!-- RIGHT ARM -->
       <path d="M144,102 C156,106 170,120 176,145 L182,204 L184,258 C184,269 180,278 170,281 L168,291
                C166,282 163,268 160,256 L154,208 L148,150 C146,133 143,118 140,110 Z"
             fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.6" stroke-linejoin="round"/>
+      <!-- RIGHT HAND -->
+      <ellipse cx="169" cy="298" rx="10" ry="7" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.4"/>
+      <rect x="158" y="303" width="4.5" height="8.5" rx="2.2" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="163" y="305" width="5" height="10" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="169" y="305" width="5" height="10" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <rect x="175" y="303" width="5" height="9" rx="2.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2"/>
+      <ellipse cx="182" cy="296" rx="3.5" ry="5.5" fill="var(--bsk)" stroke="var(--bs)" stroke-width="1.2" transform="rotate(18 182 296)"/>
       <!-- BODY -->
       <path d="
         M 76,102 C 70,106 63,117 61,134
@@ -403,11 +441,16 @@ nav{
 
 </div>
 
-<!-- Tooltip -->
+<!-- Tooltip card -->
 <div class="btip" id="btip">
-  <div class="btn" id="btipN"></div>
-  <div class="bts" id="btipS"></div>
+  <div class="btcard-hdr">
+    <div class="btn" id="btipN"></div>
+    <div class="btcard-badge" id="btipBadge"></div>
+  </div>
+  <div class="btcard-sys" id="btipSys"></div>
   <div class="btb"><div class="btf" id="btipF"></div></div>
+  <div class="btcard-ins" id="btipIns"></div>
+  <div class="btcard-acts" id="btipActs"></div>
 </div>
 
 <!-- Detail drawer -->
@@ -722,17 +765,34 @@ function makeDot(bm,svgEl,gid){
   g.appendChild(c);
   c.addEventListener('mouseenter',e=>{
     tip.classList.add('on');
+    const statusLbl=gl(bm.pct);
     document.getElementById('btipN').textContent=bm.label;
-    document.getElementById('btipS').textContent=bm.system+' · '+gl(bm.pct);
+    const badge=document.getElementById('btipBadge');
+    badge.textContent=statusLbl;
+    badge.style.color=col;
+    badge.style.background=bm.pct>=68?'rgba(45,196,106,0.12)':bm.pct>=42?'rgba(245,166,35,0.12)':'rgba(224,85,106,0.12)';
+    document.getElementById('btipSys').textContent=bm.system;
     document.getElementById('btipF').style.width=bm.pct+'%';
     document.getElementById('btipF').style.background=col;
+    document.getElementById('btipIns').textContent=bm.insight;
+    const actsEl=document.getElementById('btipActs');actsEl.innerHTML='';
+    [['diet','🥗 Nutrition'],['sleep','🌙 Sleep'],['exercise','🏃 Move']].forEach(([k,lbl])=>{
+      if(!bm.rec[k])return;
+      const d=document.createElement('div');d.className='btcard-act';
+      d.innerHTML=`<div class="btcard-act-lbl" style="color:${col}">${lbl}</div><div class="btcard-act-txt">${bm.rec[k].split('.')[0]}.</div>`;
+      actsEl.appendChild(d);
+    });
     moveTip(e);
   });
   c.addEventListener('mousemove',moveTip);
   c.addEventListener('mouseleave',()=>tip.classList.remove('on'));
   c.addEventListener('click',()=>openDetail(bm));
 }
-function moveTip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-8)+'px'}
+function moveTip(e){
+  const w=248,pad=14;
+  const x=e.clientX+pad+w>window.innerWidth?e.clientX-w-pad:e.clientX+pad;
+  tip.style.left=x+'px';tip.style.top=(e.clientY-8)+'px';
+}
 function renderDots(){
   const fS=document.getElementById('svgFront'),bS=document.getElementById('svgBack');
   BM.filter(b=>b.side==='front').forEach(b=>makeDot(b,fS,'dotsF'));
