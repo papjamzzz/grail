@@ -59,13 +59,13 @@ def index():
 def cells():
     return send_from_directory(BASE, 'cells.html')
 
-@app.route('/body')
-def body():
-    return send_from_directory(BASE, 'body.html')
+@app.route('/bodyfigure')
+def bodyfigure():
+    return send_from_directory(BASE, 'bodyfigure.html')
 
-@app.route('/bodydash')
-def bodydash():
-    return send_from_directory(BASE, 'bodydash.html')
+@app.route('/console')
+def console():
+    return send_from_directory(BASE, 'console.html')
 
 # Health ingest from Shortcuts / Health export parser
 @app.route('/ingest', methods=['POST'])

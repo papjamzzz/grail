@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Grail — Body Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#060A14;color:rgba(210,225,245,0.88);font-family:'DM Sans',system-ui,sans-serif;overflow-x:hidden}
+:root{
+  --bg:#060A14;--card:rgba(10,18,32,0.92);--border:rgba(61,214,200,0.10);
+  --cyan:#3DD6C8;--amber:#C9A96E;--green:#3DBA7E;--yellow:#E8A838;--red:#E0556A;
+  --text:rgba(210,225,245,0.88);--dim:rgba(160,180,220,0.45);--mid:rgba(180,200,235,0.65);
+}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid rgba(61,214,200,0.08);background:rgba(6,10,20,0.96);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.nav-brand{font-family:'Cormorant Garamond',serif;font-size:22px;letter-spacing:6px;color:var(--amber);text-decoration:none;font-style:italic}
+.nav-tagline{font-size:9px;letter-spacing:.22em;color:rgba(201,169,110,0.38);font-family:'Cormorant Garamond',serif;font-style:italic;margin-top:2px}
+.nav-views{display:flex;gap:6px}
+.nav-pill{padding:6px 16px;border-radius:20px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--dim);border:1px solid rgba(61,214,200,0.08);transition:all .25s}
+.nav-pill:hover{color:var(--cyan);border-color:rgba(61,214,200,0.25)}
+.nav-pill.active{background:rgba(61,214,200,0.08);color:var(--cyan);border-color:rgba(61,214,200,0.3)}
+
+.dash{display:grid;grid-template-columns:260px 1fr 300px;gap:18px;padding:20px 24px;min-height:calc(100vh - 64px);max-width:1380px;margin:0 auto}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;display:flex;flex-direction:column}
+.panel-title{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--dim);margin-bottom:18px}
+
+/* LEFT — body figure */
+.view-toggle{display:flex;gap:6px;margin-bottom:16px}
+.vt-btn{flex:1;padding:7px;background:none;border:1px solid rgba(61,214,200,0.12);border-radius:8px;color:var(--dim);font-size:9px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.vt-btn.active{background:rgba(61,214,200,0.08);border-color:rgba(61,214,200,0.35);color:var(--cyan)}
+.body-svg-wrap{flex:1;display:flex;align-items:center;justify-content:center;position:relative}
+#svgFront,#svgBack{width:100%;max-width:190px;height:auto}
+.body-legend{display:flex;gap:14px;justify-content:center;margin-top:14px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.leg-dot{width:7px;height:7px;border-radius:50%}
+.btip{position:fixed;background:rgba(6,10,20,0.97);border:1px solid rgba(61,214,200,0.22);border-radius:10px;padding:10px 14px;font-size:11px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:200;max-width:190px}
+.btip.on{opacity:1}
+.btip-label{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--text);margin-bottom:3px}
+.btip-sys{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.btip-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.btip-fill{height:100%;border-radius:2px}
+
+/* CENTER — score + insight */
+.center-panel{align-items:center}
+.score-orb-wrap{position:relative;width:240px;height:240px;flex-shrink:0;margin-bottom:20px}
+#cellCanvas{width:240px;height:240px;border-radius:50%;display:block}
+.orb-ring{position:absolute;inset:-6px;border-radius:50%;border:1.5px solid rgba(61,214,200,0.18);box-shadow:0 0 40px rgba(61,214,200,0.06),inset 0 0 30px rgba(61,214,200,0.03);pointer-events:none}
+.orb-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.orb-score{font-family:'Cormorant Garamond',serif;font-size:68px;font-weight:300;line-height:1;color:#fff;text-shadow:0 0 28px rgba(61,214,200,0.45)}
+.orb-denom{font-size:9px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;margin-top:3px}
+.orb-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin-top:5px}
+.score-sub{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);text-align:center;margin-bottom:18px}
+.insight-card{width:100%;background:rgba(61,214,200,0.04);border:1px solid rgba(61,214,200,0.10);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.insight-pos{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:rgba(210,225,245,0.82);line-height:1.55;margin-bottom:10px}
+.insight-detail{font-size:11px;color:var(--mid);line-height:1.6}
+.actions-title{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);width:100%;margin-bottom:10px}
+.action-item{width:100%;display:flex;align-items:flex-start;gap:10px;padding:11px 14px;background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.04);border-radius:10px;margin-bottom:7px;cursor:pointer;transition:border-color .2s}
+.action-item:hover{border-color:rgba(61,214,200,0.18)}
+.action-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.action-text{flex:1}
+.action-main{font-size:12px;color:var(--text);margin-bottom:2px;line-height:1.4}
+.action-why{font-size:10px;color:var(--dim);line-height:1.4}
+.action-impact{flex-shrink:0;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);background:rgba(61,214,200,0.08);border-radius:4px;padding:2px 7px;align-self:flex-start;margin-top:2px}
+
+/* RIGHT — goals */
+.goal-tabs{display:flex;gap:4px;margin-bottom:18px}
+.goal-tab{flex:1;padding:7px 4px;background:none;border:1px solid rgba(201,169,110,0.10);border-radius:8px;color:var(--dim);font-size:9px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.goal-tab.active{background:rgba(201,169,110,0.06);border-color:rgba(201,169,110,0.3);color:var(--amber)}
+.goal-list{display:flex;flex-direction:column;gap:9px;overflow-y:auto;flex:1}
+.goal-item{display:flex;align-items:flex-start;gap:10px;padding:12px 13px;background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.04);border-radius:10px;flex-shrink:0}
+.goal-check{width:17px;height:17px;border-radius:50%;border:1.5px solid rgba(201,169,110,0.28);flex-shrink:0;margin-top:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:9px;color:#fff}
+.goal-check.done{background:var(--amber);border-color:var(--amber)}
+.goal-body{flex:1}
+.goal-text{font-size:12px;color:var(--text);line-height:1.4;margin-bottom:2px}
+.goal-text.done{opacity:.4;text-decoration:line-through}
+.goal-why{font-size:10px;color:var(--dim);line-height:1.4}
+.goal-badge{font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:rgba(232,168,56,0.10);color:var(--amber);flex-shrink:0;align-self:flex-start;margin-top:2px}
+
+/* DETAIL */
+.detail{position:fixed;right:-400px;top:0;bottom:0;width:370px;background:rgba(5,8,18,0.98);border-left:1px solid rgba(61,214,200,0.12);padding:30px 26px;overflow-y:auto;transition:right .3s cubic-bezier(.2,.8,.2,1);z-index:300;backdrop-filter:blur(20px)}
+.detail.open{right:0}
+.detail-x{position:absolute;top:18px;right:18px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer}
+.d-dot{width:9px;height:9px;border-radius:50%;margin-bottom:10px}
+.d-label{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--text);margin-bottom:3px}
+.d-sys{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-bottom:18px}
+.d-bar-track{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;margin-bottom:18px}
+.d-bar-fill{height:100%;border-radius:2px;transition:width .5s}
+.d-insight{font-size:12px;color:var(--mid);line-height:1.75;margin-bottom:18px}
+.d-hr{height:1px;background:rgba(255,255,255,0.05);margin-bottom:18px}
+.d-rec-group{margin-bottom:13px}
+.d-rec-type{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.d-rec-text{font-size:12px;color:var(--mid);line-height:1.6}
+
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(61,214,200,0.15);border-radius:2px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div>
+    <a href="/" class="nav-brand">grail</a>
+    <div class="nav-tagline">know it. own it. optimize it.</div>
+  </div>
+  <div class="nav-views">
+    <a href="/" class="nav-pill">Orbital</a>
+    <a href="/cells" class="nav-pill">Cells</a>
+    <a href="/body" class="nav-pill active">Body</a>
+  </div>
+</nav>
+
+<div class="dash">
+
+  <!-- LEFT: Body Figure -->
+  <div class="panel">
+    <div class="panel-title">Body Map</div>
+    <div class="view-toggle">
+      <button class="vt-btn active" id="btnFront" onclick="setView('front')">Front</button>
+      <button class="vt-btn" id="btnBack" onclick="setView('back')">Back</button>
+    </div>
+    <div class="body-svg-wrap">
+      <!-- ATHLETIC FRONT -->
+      <svg id="svgFront" viewBox="0 0 180 440" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="skF" x1="30%" y1="0%" x2="70%" y2="100%">
+            <stop offset="0%" stop-color="#E8C89A"/><stop offset="50%" stop-color="#D4A86E"/><stop offset="100%" stop-color="#C09058"/>
+          </linearGradient>
+          <linearGradient id="hairF" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2A1A08"/><stop offset="100%" stop-color="#3D2810"/>
+          </linearGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <!-- Short athletic hair -->
+        <ellipse cx="90" cy="24" rx="27" ry="16" fill="url(#hairF)"/>
+        <ellipse cx="90" cy="32" rx="27" ry="10" fill="url(#hairF)" opacity="0.7"/>
+        <!-- Head — slightly smaller, more proportionate -->
+        <ellipse cx="90" cy="38" rx="26" ry="28" fill="url(#skF)" stroke="#8B5E35" stroke-width="1.5"/>
+        <!-- Jawline hint -->
+        <path d="M68,50 Q90,68 112,50" fill="none" stroke="#8B5E35" stroke-width="0.6" stroke-opacity="0.3"/>
+        <!-- Neck — athletic, wider -->
+        <path d="M80,64 Q90,70 100,64 L99,78 Q90,83 81,78 Z" fill="url(#skF)" stroke="#8B5E35" stroke-width="1.3"/>
+        <!-- Torso — wide shoulders, defined V-taper -->
+        <path d="
+          M34,86
+          C20,96 14,120 16,146
+          C16,166 20,186 24,204
+          C28,220 38,234 56,242
+          L60,268 L56,370 L58,424
+          L78,424 L80,370 L84,268
+          L90,254 L96,268 L100,370 L102,424
+          L122,424 L124,370 L120,242
+          C138,234 152,220 156,204
+          C160,186 164,166 164,146
+          C166,120 160,96 146,86
+          C132,76 112,72 90,72
+          C68,72 48,76 34,86 Z"
+          fill="url(#skF)" stroke="#8B5E35" stroke-width="1.6" stroke-linejoin="round"/>
+        <!-- Chest muscle definition -->
+        <path d="M90,86 L90,130" stroke="#8B5E35" stroke-width="0.8" stroke-opacity="0.22"/>
+        <path d="M58,102 Q74,112 90,110 Q106,112 122,102" fill="none" stroke="#8B5E35" stroke-width="0.7" stroke-opacity="0.18"/>
+        <path d="M58,118 Q74,128 90,126 Q106,128 122,118" fill="none" stroke="#8B5E35" stroke-width="0.6" stroke-opacity="0.14"/>
+        <!-- Ab lines -->
+        <path d="M78,148 Q90,152 102,148" fill="none" stroke="#8B5E35" stroke-width="0.7" stroke-opacity="0.16"/>
+        <path d="M76,162 Q90,166 104,162" fill="none" stroke="#8B5E35" stroke-width="0.6" stroke-opacity="0.13"/>
+        <path d="M76,176 Q90,180 104,176" fill="none" stroke="#8B5E35" stroke-width="0.6" stroke-opacity="0.11"/>
+        <!-- Left arm — muscular -->
+        <path d="
+          M34,86 C20,96 10,118 8,144
+          C6,164 6,186 8,204 L24,208
+          C22,190 22,170 24,150
+          C28,126 38,104 50,92 Z"
+          fill="url(#skF)" stroke="#8B5E35" stroke-width="1.5"/>
+        <!-- Left bicep hint -->
+        <path d="M14,148 Q20,138 28,146" fill="none" stroke="#8B5E35" stroke-width="0.7" stroke-opacity="0.18"/>
+        <!-- Right arm — muscular -->
+        <path d="
+          M146,86 C160,96 170,118 172,144
+          C174,164 174,186 172,204 L156,208
+          C158,190 158,170 156,150
+          C152,126 142,104 130,92 Z"
+          fill="url(#skF)" stroke="#8B5E35" stroke-width="1.5"/>
+        <!-- Right bicep hint -->
+        <path d="M166,148 Q160,138 152,146" fill="none" stroke="#8B5E35" stroke-width="0.7" stroke-opacity="0.18"/>
+        <!-- Hands -->
+        <ellipse cx="11" cy="213" rx="10" ry="12" fill="url(#skF)" stroke="#8B5E35" stroke-width="1.3"/>
+        <ellipse cx="169" cy="213" rx="10" ry="12" fill="url(#skF)" stroke="#8B5E35" stroke-width="1.3"/>
+        <!-- Feet -->
+        <ellipse cx="68" cy="428" rx="15" ry="8" fill="url(#skF)" stroke="#8B5E35" stroke-width="1.3"/>
+        <ellipse cx="112" cy="428" rx="15" ry="8" fill="url(#skF)" stroke="#8B5E35" stroke-width="1.3"/>
+        <!-- Eyes — confident, slightly narrowed -->
+        <path d="M80,32 Q86,29 92,32" fill="none" stroke="#2A1A08" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M88,32 Q94,29 100,32" fill="none" stroke="#2A1A08" stroke-width="2.2" stroke-linecap="round"/>
+        <ellipse cx="85" cy="34" rx="3" ry="3.2" fill="#2A1A08"/>
+        <ellipse cx="95" cy="34" rx="3" ry="3.2" fill="#2A1A08"/>
+        <circle cx="86.2" cy="32.8" r="1" fill="#fff"/>
+        <circle cx="96.2" cy="32.8" r="1" fill="#fff"/>
+        <!-- Confident smirk -->
+        <path d="M83,54 Q92,62 101,56" fill="none" stroke="#8B5E35" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- Nose -->
+        <path d="M88,44 Q90,50 92,44" fill="none" stroke="#A06840" stroke-width="1.1" stroke-linecap="round"/>
+        <g id="dotsF"></g>
+      </svg>
+
+      <!-- ATHLETIC BACK -->
+      <svg id="svgBack" viewBox="0 0 180 440" xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <defs>
+          <linearGradient id="skB" x1="70%" y1="0%" x2="30%" y2="100%">
+            <stop offset="0%" stop-color="#DDB87E"/><stop offset="50%" stop-color="#C89A5C"/><stop offset="100%" stop-color="#B88448"/>
+          </linearGradient>
+        </defs>
+        <!-- Hair back -->
+        <ellipse cx="90" cy="18" rx="26" ry="14" fill="#2A1A08" opacity="0.85"/>
+        <!-- Head back -->
+        <ellipse cx="90" cy="38" rx="26" ry="28" fill="url(#skB)" stroke="#8B5E35" stroke-width="1.5"/>
+        <!-- Neck back -->
+        <path d="M80,64 Q90,70 100,64 L99,78 Q90,83 81,78 Z" fill="url(#skB)" stroke="#8B5E35" stroke-width="1.3"/>
+        <!-- Torso back -->
+        <path d="
+          M34,86 C20,96 14,120 16,146
+          C16,166 20,186 24,204
+          C28,220 38,234 56,242
+          L60,268 L56,370 L58,424
+          L78,424 L80,370 L84,268
+          L90,254 L96,268 L100,370 L102,424
+          L122,424 L124,370 L120,242
+          C138,234 152,220 156,204
+          C160,186 164,166 164,146
+          C166,120 160,96 146,86
+          C132,76 112,72 90,72
+          C68,72 48,76 34,86 Z"
+          fill="url(#skB)" stroke="#8B5E35" stroke-width="1.6" stroke-linejoin="round"/>
+        <!-- Spine -->
+        <line x1="90" y1="86" x2="90" y2="242" stroke="#8B5E35" stroke-width="0.9" stroke-dasharray="2,4" stroke-opacity="0.25"/>
+        <!-- Lat/back muscle definition -->
+        <path d="M56,100 C46,120 42,148 48,170 Q60,180 72,172" fill="none" stroke="#8B5E35" stroke-width="0.8" stroke-opacity="0.2"/>
+        <path d="M124,100 C134,120 138,148 132,170 Q120,180 108,172" fill="none" stroke="#8B5E35" stroke-width="0.8" stroke-opacity="0.2"/>
+        <!-- Shoulder blades -->
+        <ellipse cx="68" cy="118" rx="14" ry="18" fill="none" stroke="#8B5E35" stroke-width="0.7" stroke-opacity="0.15"/>
+        <ellipse cx="112" cy="118" rx="14" ry="18" fill="none" stroke="#8B5E35" stroke-width="0.7" stroke-opacity="0.15"/>
+        <!-- Lower back muscle hint -->
+        <path d="M72,210 Q90,218 108,210" fill="none" stroke="#8B5E35" stroke-width="0.8" stroke-opacity="0.18"/>
+        <!-- Arms back -->
+        <path d="M34,86 C20,96 10,118 8,144 C6,164 6,186 8,204 L24,208 C22,190 22,170 24,150 C28,126 38,104 50,92 Z" fill="url(#skB)" stroke="#8B5E35" stroke-width="1.5"/>
+        <path d="M146,86 C160,96 170,118 172,144 C174,164 174,186 172,204 L156,208 C158,190 158,170 156,150 C152,126 142,104 130,92 Z" fill="url(#skB)" stroke="#8B5E35" stroke-width="1.5"/>
+        <ellipse cx="11" cy="213" rx="10" ry="12" fill="url(#skB)" stroke="#8B5E35" stroke-width="1.3"/>
+        <ellipse cx="169" cy="213" rx="10" ry="12" fill="url(#skB)" stroke="#8B5E35" stroke-width="1.3"/>
+        <ellipse cx="68" cy="428" rx="15" ry="8" fill="url(#skB)" stroke="#8B5E35" stroke-width="1.3"/>
+        <ellipse cx="112" cy="428" rx="15" ry="8" fill="url(#skB)" stroke="#8B5E35" stroke-width="1.3"/>
+        <g id="dotsB"></g>
+      </svg>
+    </div>
+    <div class="body-legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Optimal</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--yellow)"></div>Monitor</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>Act</div>
+    </div>
+  </div>
+
+  <!-- CENTER: Score + Insight -->
+  <div class="panel center-panel">
+    <div class="panel-title">BioBaseline Score</div>
+    <div class="score-orb-wrap">
+      <canvas id="cellCanvas" width="240" height="240"></canvas>
+      <div class="orb-ring"></div>
+      <div class="orb-overlay">
+        <div class="orb-score" id="orbScore">—</div>
+        <div class="orb-denom">/ 100</div>
+        <div class="orb-label" id="orbLabel">Calculating…</div>
+      </div>
+    </div>
+    <div class="score-sub" id="scoreSub"></div>
+    <div class="insight-card">
+      <div class="insight-pos" id="insPos">Loading your body report…</div>
+      <div class="insight-detail" id="insDet"></div>
+    </div>
+    <div class="actions-title">Highest-Impact Actions Right Now</div>
+    <div id="actionsList"></div>
+  </div>
+
+  <!-- RIGHT: Goals -->
+  <div class="panel">
+    <div class="panel-title">Your Goals</div>
+    <div class="goal-tabs">
+      <button class="goal-tab active" onclick="setGoalTab('daily',this)">Daily</button>
+      <button class="goal-tab" onclick="setGoalTab('weekly',this)">Weekly</button>
+      <button class="goal-tab" onclick="setGoalTab('monthly',this)">Monthly</button>
+    </div>
+    <div class="goal-list" id="goalList"></div>
+  </div>
+</div>
+
+<div class="btip" id="btip">
+  <div class="btip-label" id="btipLabel"></div>
+  <div class="btip-sys" id="btipSys"></div>
+  <div class="btip-bar"><div class="btip-fill" id="btipFill"></div></div>
+</div>
+
+<div class="detail" id="detail">
+  <button class="detail-x" onclick="closeDetail()">×</button>
+  <div class="d-dot" id="dDot"></div>
+  <div class="d-label" id="dLabel"></div>
+  <div class="d-sys" id="dSys"></div>
+  <div class="d-bar-track"><div class="d-bar-fill" id="dBar"></div></div>
+  <div class="d-insight" id="dInsight"></div>
+  <div class="d-hr"></div>
+  <div id="dRecs"></div>
+</div>
+
+<script>
+const BM=[
+  {id:'sleep_dur',label:'Sleep Duration',side:'front',x:78,y:22,pct:72,system:'Recovery',unit:'hrs',insight:'Sleep is your body\'s master repair cycle. Every hour you protect shapes hormones, immunity, and cognition — nothing else comes close.',rec:{diet:'Magnesium glycinate 200mg 1hr before bed',move:'Morning sunlight within 30min anchors your circadian rhythm',sleep:'No screens after 9pm — blue light blocks melatonin by up to 50%',green:'Sleep is locked in. Your body is doing its nightly rebuild.'}},
+  {id:'deep_sleep',label:'Deep Sleep %',side:'front',x:90,y:16,pct:65,system:'Recovery',unit:'%',insight:'Deep sleep is the only time your brain physically shrinks to flush metabolic waste. Tissue rebuilds and growth hormone peaks exclusively here.',rec:{diet:'Avoid alcohol within 3hrs of bed — it collapses deep sleep dramatically',move:'Strength training in the morning meaningfully increases slow-wave sleep',sleep:'Keep room below 67°F — core temp drop is what triggers deep sleep',green:'Deep sleep is dialed. Brain and body are doing their nightly rebuild.'}},
+  {id:'rem_sleep',label:'REM Sleep %',side:'front',x:102,y:22,pct:70,system:'Recovery',unit:'%',insight:'REM is emotional processing, memory consolidation, and creativity. Alcohol and late eating crush it — often invisibly.',rec:{diet:'B6 supports REM — salmon, chickpeas, and bananas are rich sources',move:'Moderate aerobic exercise reliably increases REM duration',sleep:'Consistent wake time is the single most powerful REM protector',green:'REM is cycling beautifully. Processing and creativity are both supported.'}},
+  {id:'hrv',label:'HRV',side:'front',x:90,y:30,pct:68,system:'Recovery',unit:'ms',insight:'HRV is the most accurate daily window into nervous system health. Low HRV means your body is under load — physical, emotional, or inflammatory.',rec:{diet:'Omega-3s support autonomic balance — 2g EPA+DHA daily',move:'Zone 2 cardio 3–4x/week is the most reliable long-term HRV builder',sleep:'Sleep consistency is the single best HRV intervention that exists',green:'HRV is strong. Nervous system is balanced and ready to perform.'}},
+  {id:'cortisol',label:'Cortisol',side:'front',x:112,y:40,pct:62,system:'Hormones',unit:'μg/dL',insight:'Cortisol should peak sharply at dawn and fall all day. Disrupted rhythm drives fat storage, inflammation, anxiety, and poor sleep.',rec:{diet:'Ashwagandha KSM-66 300mg is the most studied cortisol supplement',move:'Intense morning training aligns with your natural cortisol peak',sleep:'Dark, cool room at night signals safety to your nervous system',green:'Stress response is calibrated. You are not running from lions.'}},
+  {id:'tsh',label:'TSH / Thyroid',side:'front',x:90,y:76,pct:74,system:'Thyroid',unit:'mIU/L',insight:'TSH is the thermostat of your metabolism. Small shifts cascade into changes in energy, mood, body temperature, and weight.',rec:{diet:'Selenium 200mcg and iodine are foundational for thyroid function',move:'Resistance training improves thyroid hormone sensitivity',sleep:'Chronic sleep deprivation stresses the entire thyroid axis',green:'Thyroid is perfectly tuned. Metabolism is running at the right speed.'}},
+  {id:'resting_hr',label:'Resting HR',side:'front',x:72,y:118,pct:78,system:'Heart',unit:'bpm',insight:'A low resting heart rate means your heart pumps more blood per beat. Elite athletes sit at 40–50bpm. Every saved beat extends your engine.',rec:{diet:'Potassium and magnesium both support healthy cardiac rhythm',move:'Zone 2 cardio is the most effective long-term resting HR reducer',sleep:'7–9hrs consistently lowers resting HR over weeks — it\'s documented',green:'Heart is efficient. Beating steady and strong with minimal effort.'}},
+  {id:'active_hr',label:'Active HR',side:'front',x:80,y:130,pct:71,system:'Heart',unit:'bpm',insight:'How your heart responds to exertion tells the whole cardiovascular fitness story. Lower active HR at the same effort equals greater efficiency.',rec:{diet:'Beet root juice 500ml raises nitric oxide and improves cardiac output',move:'Interval training improves cardiac output and efficiency measurably',sleep:'Well-rested hearts recover faster between beats during exertion',green:'Active heart response is excellent. Cardiovascular fitness is showing.'}},
+  {id:'spo2',label:'SpO₂',side:'front',x:108,y:114,pct:88,system:'Heart',unit:'%',insight:'Blood oxygen saturation. Above 98% is optimal. Below 95% is clinically meaningful. A wearable at night catches what daytime readings miss.',rec:{diet:'Iron-rich foods support oxygen-carrying red blood cell capacity',move:'Breath training and altitude exposure improve SpO2 over time',sleep:'Check if SpO2 dips at night — that\'s a sleep apnea signal worth investigating',green:'Oxygen saturation is optimal. Every cell is being fully fed.'}},
+  {id:'vo2max',label:'VO₂ Max',side:'front',x:114,y:126,pct:66,system:'Fitness',unit:'mL/kg/min',insight:'VO₂ Max is the single strongest predictor of longevity in all of medicine — stronger than smoking status, blood pressure, or BMI.',rec:{diet:'Adequate carbohydrates are essential fuel for aerobic adaptation',move:'Zone 2 sessions 3–4x/week plus one VO₂ max interval session weekly',sleep:'All aerobic adaptations are made during sleep — protect it',green:'Aerobic engine is elite. You are built for the long game.'}},
+  {id:'crp',label:'CRP',side:'front',x:76,y:154,pct:55,system:'Inflammation',unit:'mg/L',insight:'C-reactive protein is the body\'s global inflammation alarm. Chronically elevated CRP is implicated in heart disease, cancer, depression, and early death.',rec:{diet:'4g EPA+DHA daily and curcumin 1g with black pepper are both well-studied',move:'Regular moderate exercise is profoundly anti-inflammatory at the cellular level',sleep:'Sleep deprivation doubles inflammatory markers within days — it\'s that fast',green:'Inflammation is low. Body is at peace with itself.'}},
+  {id:'alt',label:'ALT Liver Enzyme',side:'front',x:112,y:160,pct:73,system:'Liver',unit:'U/L',insight:'ALT spills into your bloodstream when liver cells are stressed. Fatty liver is now epidemic — most people have no symptoms until late.',rec:{diet:'Eliminate alcohol, excess fructose, and ultra-processed food',move:'Even 20 minutes of walking per day significantly reduces liver fat',sleep:'The liver does its deepest detox work during slow-wave sleep',green:'Liver enzymes are clean. Your filter is working beautifully.'}},
+  {id:'apob',label:'ApoB',side:'front',x:104,y:152,pct:60,system:'Liver',unit:'mg/dL',insight:'ApoB counts every atherogenic particle in your blood. It\'s a better cardiovascular risk marker than LDL-C and most standard panels still skip it.',rec:{diet:'Reduce saturated fat and dramatically increase soluble fiber',move:'Aerobic exercise lowers ApoB meaningfully over 8–12 weeks',sleep:'Sleep quality directly regulates lipid metabolism — this is not optional',green:'ApoB is low. Arteries are protected from plaque formation.'}},
+  {id:'glucose',label:'Fasting Glucose',side:'front',x:90,y:176,pct:76,system:'Metabolism',unit:'mg/dL',insight:'Fasting glucose is the clearest single window into metabolic health. Optimal is 72–85mg/dL — the standard "normal" range is far too wide.',rec:{diet:'Time-restricted eating 16:8 alone lowers fasting glucose significantly',move:'Walking 10 minutes after every meal blunts spikes more than most drugs',sleep:'One bad night raises fasting glucose by up to 20% the next morning',green:'Glucose is stable. Metabolic machinery is running clean.'}},
+  {id:'insulin_s',label:'Insulin Sensitivity',side:'front',x:82,y:188,pct:64,system:'Metabolism',unit:'HOMA-IR',insight:'Insulin sensitivity determines whether your cells hear the fuel signal clearly. Low sensitivity drives energy crashes, fat gain, and accelerated aging.',rec:{diet:'Berberine 500mg 3x/day rivals metformin for insulin sensitivity',move:'Muscle is the largest glucose sink in the body — building it changes everything',sleep:'48hrs of poor sleep causes meaningful insulin resistance — it\'s fast',green:'Insulin sensitivity is excellent. Cells are listening and responding perfectly.'}},
+  {id:'testosterone',label:'Testosterone',side:'front',x:96,y:208,pct:69,system:'Hormones',unit:'ng/dL',insight:'Testosterone drives muscle, mood, drive, and libido in both men and women. It has been declining in Western populations for 40 years.',rec:{diet:'Zinc, vitamin D, and dietary fat all support testosterone production',move:'Heavy compound lifts — deadlift, squat — are the strongest natural stimulus',sleep:'Testosterone is manufactured during deep sleep — this is the primary lever',green:'Testosterone is strong. Drive, muscle, and vitality are all supported.'}},
+  {id:'grip',label:'Grip Strength',side:'front',x:22,y:208,pct:67,system:'Fitness',unit:'kg',insight:'Grip strength predicts all-cause mortality more powerfully than blood pressure in studies. It\'s a proxy for total musculoskeletal function.',rec:{diet:'Creatine 5g/day and adequate protein directly support strength',move:'Dead hangs, farmer carries, and plate pinches daily — takes 5 minutes',sleep:'Testosterone peaks during deep sleep and drives all strength adaptations',green:'Grip is strong. Functional strength is banking longevity directly.'}},
+  {id:'vit_d',label:'Vitamin D',side:'front',x:38,y:150,pct:58,system:'Micronutrients',unit:'ng/mL',insight:'Vitamin D is a hormone, not a vitamin. Deficiency is implicated in nearly every chronic disease studied in the last 20 years.',rec:{diet:'D3 + K2 with fat — 5,000 IU/day is commonly needed to correct deficiency',move:'Outdoor training at solar noon gives sunlight and movement together',sleep:'Vitamin D deficiency directly disrupts sleep architecture',green:'Vitamin D is optimal. Immune, bone, and hormonal function are all supported.'}},
+  {id:'omega3',label:'Omega-3 Index',side:'front',x:68,y:262,pct:61,system:'Micronutrients',unit:'%',insight:'The omega-3 index reflects the anti-inflammatory default state of every cell membrane in your body. Most people are severely deficient.',rec:{diet:'Fatty fish 3x/week or 3–4g EPA+DHA daily — this is the lever to pull',move:'Omega-3s reduce exercise-induced inflammation and speed recovery',sleep:'EPA+DHA supplementation improves sleep quality and total duration',green:'Omega-3 index is excellent. Cells are anti-inflammatory by default.'}},
+  {id:'body_fat',label:'Body Fat %',side:'front',x:112,y:262,pct:72,system:'Composition',unit:'%',insight:'Body fat percentage — especially visceral fat — is a more accurate metabolic health indicator than weight or BMI by a wide margin.',rec:{diet:'Protein at 1g per lb of target bodyweight drives body recomposition',move:'Resistance training preserves muscle while losing fat — cardio alone does not',sleep:'Sleep deprivation increases fat-storage hormones and breaks down muscle',green:'Body composition is solid. Muscle-to-fat ratio is in a healthy range.'}},
+  {id:'daily_steps',label:'Daily Steps',side:'front',x:90,y:340,pct:63,system:'Fitness',unit:'steps',insight:'Step count is one of the most powerful mortality predictors we have. Every 1,000 steps above baseline meaningfully reduces risk.',rec:{diet:'Higher step counts increase insulin sensitivity — movement is medicine',move:'10,000 steps/day. Walking after meals is the highest-leverage window.',sleep:'Morning walks anchor your circadian rhythm and improve that night\'s sleep',green:'Step count is strong. Movement is woven into your day.'}},
+  {id:'muscle_mass',label:'Muscle Mass',side:'front',x:112,y:298,pct:70,system:'Composition',unit:'lbs',insight:'Muscle mass is the most important longevity variable most people ignore. It is your metabolic organ, glucose sink, and fall insurance.',rec:{diet:'Leucine-rich protein at every meal triggers muscle protein synthesis',move:'3x/week resistance training minimum — progressive overload is the key',sleep:'GH pulses every 90 minutes during sleep rebuild muscle — protect your sleep',green:'Muscle mass is solid. Your metabolic engine and structural reserve are supported.'}},
+  {id:'sys_bp',label:'Systolic BP',side:'front',x:150,y:185,pct:75,system:'Heart',unit:'mmHg',insight:'Blood pressure is the long story of vascular health. Optimal is 110–120/70–80 — the standard "normal" range extends far too high.',rec:{diet:'DASH diet — potassium, magnesium, fiber — moves the needle meaningfully',move:'Aerobic exercise is first-line treatment; Zone 2 is especially effective',sleep:'Blood pressure physiologically resets during sleep — one of many reasons to protect it',green:'Blood pressure is clean. Vessels are relaxed and open.'}},
+  // BACK
+  {id:'magnesium',label:'Magnesium',side:'back',x:62,y:115,pct:55,system:'Micronutrients',unit:'mg/dL',insight:'Magnesium is a cofactor in over 300 enzymatic reactions. Most people are chronically deficient and standard blood panels do not catch it reliably.',rec:{diet:'Dark leafy greens, pumpkin seeds, magnesium glycinate 400mg at night',move:'Exercise dramatically depletes magnesium — athletes need 50% more than the RDA',sleep:'Magnesium glycinate is one of the most effective sleep supplements that exist',green:'Magnesium is sufficient. Hundreds of metabolic pathways are running smoothly.'}},
+  {id:'ferritin',label:'Ferritin',side:'back',x:118,y:115,pct:66,system:'Blood',unit:'ng/mL',insight:'Iron storage marker. Too low drives fatigue and cognitive fog. Too high drives oxidative stress. The range matters more than just being normal.',rec:{diet:'Red meat plus vitamin C for absorption; avoid coffee with iron-rich meals',move:'Heavy training increases iron demand significantly — monitor closely',sleep:'Iron deficiency dramatically worsens sleep quality and increases restless legs',green:'Iron stores are balanced. Energy and oxygen delivery are optimal.'}},
+  {id:'uric_acid',label:'Uric Acid',side:'back',x:64,y:148,pct:64,system:'Metabolism',unit:'mg/dL',insight:'Uric acid is more than gout risk. It is a metabolic health marker linked to insulin resistance, hypertension, and cardiovascular disease.',rec:{diet:'Reduce fructose dramatically — especially high-fructose corn syrup',move:'Regular exercise lowers uric acid independent of diet',sleep:'Dehydration concentrates uric acid — hydrate well before bed',green:'Uric acid is in a healthy range. Metabolic and joint health are protected.'}},
+  {id:'homocys',label:'Homocysteine',side:'back',x:116,y:148,pct:62,system:'Blood',unit:'μmol/L',insight:'Elevated homocysteine is a cardiovascular and neurological risk marker almost entirely driven by B-vitamin status — and it is highly fixable.',rec:{diet:'B6, B12, and folate are the antidote — methylated forms absorb better',move:'Aerobic exercise meaningfully and consistently lowers homocysteine',sleep:'Sleep deprivation acutely elevates homocysteine — the effect is fast',green:'Homocysteine is clear. Vessels and brain are protected.'}},
+  {id:'dheas',label:'DHEA-S',side:'back',x:90,y:182,pct:61,system:'Hormones',unit:'μg/dL',insight:'DHEA-S is the precursor to both testosterone and estrogen. It declines predictably with age — where it sits is a reliable biological age marker.',rec:{diet:'DHEA supplementation 25–50mg is available; discuss with a provider first',move:'HIIT increases DHEA more reliably and more than any supplement',sleep:'DHEA secretion follows cortisol patterns — morning light and consistent wake time help',green:'DHEA is youthful. Hormonal foundation is solid and functioning well.'}},
+  {id:'recovery',label:'Recovery Index',side:'back',x:70,y:222,pct:67,system:'Fitness',unit:'score',insight:'A composite of HRV, resting HR, and sleep quality. The single number that tells you whether to train hard or back off today.',rec:{diet:'Protein within 2hrs of training; tart cherry juice is studied for recovery',move:'Match training intensity to your recovery score — not to ego',sleep:'This IS recovery. Everything you do for sleep is a direct investment here.',green:'Recovery is excellent. Body is primed and ready to perform.'}},
+  {id:'nad',label:'NAD+',side:'back',x:110,y:222,pct:58,system:'Metabolism',unit:'μM',insight:'NAD+ fuels every cell\'s energy production and drives DNA repair. It declines with age and many things drain it faster — alcohol, poor sleep, sun damage.',rec:{diet:'NMN 500mg or NR 300mg; niacin-rich foods like chicken, tuna, peanuts',move:'HIIT is the most effective natural NAD+ booster that exists',sleep:'NAD+ is replenished during sleep — chronic poor sleep is a direct drain',green:'Cellular energy is humming. Engines are fueled at the deepest level.'}},
+  {id:'b12',label:'B12',side:'back',x:56,y:108,pct:77,system:'Micronutrients',unit:'pg/mL',insight:'B12 is essential for nerve myelin, DNA synthesis, and red blood cell formation. Deficiency is insidious — symptoms appear months after depletion.',rec:{diet:'Methylcobalamin sublingual absorbs far better than standard cyanocobalamin',move:'High B12 supports oxygen transport and endurance during sustained exercise',sleep:'B12 deficiency causes sleep fragmentation and unusually vivid dreams',green:'B12 is sufficient. Nerves and blood cells are well-nourished.'}},
+  {id:'zinc',label:'Zinc',side:'back',x:124,y:108,pct:71,system:'Micronutrients',unit:'μg/dL',insight:'Zinc is foundational for immune function, testosterone synthesis, wound healing, and taste. Athletes burn through it fast.',rec:{diet:'Oysters are the richest source; supplement 25–45mg/day if deficient',move:'Intense exercise dramatically increases zinc demand — athletes need more',sleep:'Zinc and magnesium together at night is a well-documented combination',green:'Zinc is strong. Immune system and hormonal function have what they need.'}},
+  {id:'igf1',label:'IGF-1',side:'back',x:44,y:130,pct:68,system:'Hormones',unit:'ng/mL',insight:'IGF-1 reflects growth hormone activity — the driver of tissue repair, muscle growth, and cellular renewal. A key biological age indicator.',rec:{diet:'Adequate total protein and calories support IGF-1 production',move:'Heavy compound training is the strongest natural stimulus for GH and IGF-1',sleep:'GH pulses peak in the first 90 minutes of sleep — protecting early sleep is critical',green:'IGF-1 is in the optimal zone. Growth and repair are active and working for you.'}},
+  {id:'resp_rate',label:'Respiratory Rate',side:'back',x:136,y:130,pct:74,system:'Heart',unit:'brpm',insight:'Resting breath rate is a sensitive marker of nervous system state. A high rate at rest signals chronic stress, poor conditioning, or inflammation.',rec:{diet:'Anti-inflammatory diet reduces chronic respiratory inflammation over time',move:'Daily 4-7-8 breathing resets your baseline respiratory rate over weeks',sleep:'Nasal breathing during sleep lowers resting respiratory rate over time',green:'Breathing is calm and efficient. Nervous system is settled and at ease.'}}
+];
+
+function getStatus(p){if(p>=68)return{color:'var(--green)',label:'Optimal'};if(p>=42)return{color:'var(--yellow)',label:'Monitor'};return{color:'var(--red)',label:'Act'}}
+function calcScore(){return Math.round(BM.reduce((s,b)=>s+b.pct,0)/BM.length)}
+
+function getTopActions(){
+  const bad=BM.filter(b=>b.pct<68);
+  const map={};
+  bad.forEach(b=>{['diet','move','sleep'].forEach(t=>{const tx=b.rec[t];if(!tx)return;const k=tx.slice(0,45);if(!map[k])map[k]={text:tx,type:t,count:0,markers:[]};map[k].count++;map[k].markers.push(b.label)})});
+  return Object.values(map).sort((a,b)=>b.count-a.count).slice(0,3);
+}
+
+function getInsight(s){
+  const greens=BM.filter(b=>b.pct>=68);const best=[...BM].sort((a,b)=>b.pct-a.pct)[0];
+  let pos,det;
+  if(s>=80){pos=`You're operating in elite territory. ${greens.length} of ${BM.length} biomarkers are optimized — your body is working with you, not against you.`;det=`Your strongest marker is ${best.label}. Systems like ${greens.slice(0,3).map(b=>b.label).join(', ')} are all firing well. The goal now is protecting what's working.`}
+  else if(s>=65){pos=`${greens.length} of your ${BM.length} biomarkers are in the optimal zone. That's a solid foundation — your body has real assets to build from.`;det=`${best.label} is leading the way. The markers below optimal aren't failures — they're your highest-leverage opportunities. Small changes here move the whole score.`}
+  else if(s>=50){pos=`You have ${greens.length} biomarkers already optimized. That's where we build from — not from scratch, but from a base that's already partially dialed in.`;det=`${best.label} is your strongest system right now. The biomarkers below optimal are among the most responsive to intervention. This score can move quickly.`}
+  else{pos=`You're early in the process — and that's actually the best place to be. Every marker you improve from here will compound.`;det=`${best.label} is your current anchor point. Focus on the 2–3 highest-impact interventions below. Stacking small wins is how this score moves.`}
+  return{pos,det};
+}
+
+const GOALS={
+  daily:[
+    {text:'Sleep 7.5–9 hours tonight',why:'Impacts 12+ biomarkers simultaneously — the highest ROI intervention in biohacking.',badge:'Foundational'},
+    {text:'Walk 8,000–10,000 steps',why:'Lowers glucose, CRP, resting HR, and ApoB at the same time.',badge:'High Impact'},
+    {text:'Drink 3 liters of water',why:'Dehydration degrades cognition, energy, and elevates uric acid.',badge:'Daily'},
+    {text:'Protein at every meal',why:'Drives muscle protein synthesis and stabilizes glucose throughout the day.',badge:'Daily'},
+    {text:'10 min sunlight before 10am',why:'Anchors cortisol rhythm and programs better sleep 14–16 hours later.',badge:'Free'},
+  ],
+  weekly:[
+    {text:'3x resistance training sessions',why:'Improves testosterone, muscle mass, insulin sensitivity, and grip simultaneously.',badge:'Biggest ROI'},
+    {text:'One 16–18hr intermittent fast',why:'Resets insulin, reduces CRP, spikes growth hormone and NAD+.',badge:'Metabolic'},
+    {text:'Cold exposure 3x (2–3 min)',why:'Raises HRV, reduces inflammation, increases norepinephrine by 300%.',badge:'Mental Edge'},
+    {text:'Sauna 2x (15–20 min at 175°F)',why:'Increases GH, improves VO₂ max, reduces ApoB and blood pressure.',badge:'Longevity'},
+    {text:'Zone 2 cardio 3x (45+ min)',why:'The single best VO₂ max and HRV intervention at any age.',badge:'Core'},
+  ],
+  monthly:[
+    {text:'Full blood panel — request ApoB, homocysteine, ferritin',why:'Wearables catch trends. Blood catches what wearables completely miss.',badge:'Non-Negotiable'},
+    {text:'VO₂ max assessment (12-min Cooper run)',why:'The single strongest longevity predictor in medicine. Know your number.',badge:'Benchmark'},
+    {text:'Review and rotate supplement stack',why:'Cycling prevents tolerance and catches changing needs as you improve.',badge:'Optimize'},
+    {text:'Track HRV trend vs last month',why:'Monthly HRV trend reveals systemic recovery and training adaptation.',badge:'Insight'},
+    {text:'Mobility assessment — hip flexor and thoracic',why:'Structural deficits show up in biomarkers. Posture drives breath drives HRV.',badge:'Structural'},
+  ]
+};
+
+// ── CELLS ANIMATION ────────────────────────────────────────────────
+const canvas=document.getElementById('cellCanvas');
+const ctx=canvas.getContext('2d');
+const W=canvas.width,H=canvas.height,CX=W/2,CY=H/2;
+const score=calcScore();
+const gr=BM.filter(b=>b.pct>=68).length/BM.length;
+const yr=BM.filter(b=>b.pct>=42&&b.pct<68).length/BM.length;
+function cellColor(i){const n=13,gc=Math.round(gr*n),yc=Math.round(yr*n);if(i<gc)return{h:158,s:.5,l:.44};if(i<gc+yc)return{h:36,s:.72,l:.5};return{h:348,s:.58,l:.5}}
+const CELLS=Array.from({length:13},(_,i)=>{const a=(i/13)*Math.PI*2,d=(.1+Math.random()*.28)*CX,c=cellColor(i);return{x:CX+Math.cos(a)*d,y:CY+Math.sin(a)*d,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28,r:11+Math.random()*10,phase:Math.random()*Math.PI*2,spd:.28+Math.random()*.38,color:c,op:.52+Math.random()*.24}});
+let t=0;
+function drawCells(){
+  ctx.clearRect(0,0,W,H);
+  ctx.save();ctx.beginPath();ctx.arc(CX,CY,CX,0,Math.PI*2);ctx.clip();
+  const bg=ctx.createRadialGradient(CX,CY,0,CX,CY,CX);
+  bg.addColorStop(0,'rgba(18,32,52,0.85)');bg.addColorStop(1,'rgba(4,6,14,0.95)');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  CELLS.forEach(c=>{
+    c.x+=c.vx;c.y+=c.vy;
+    const dx=c.x-CX,dy=c.y-CY,dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist>CX*.7){c.vx-=dx*.002;c.vy-=dy*.002}
+    c.vx*=.998;c.vy*=.998;c.vx+=(Math.random()-.5)*.04;c.vy+=(Math.random()-.5)*.04;
+    const pulse=Math.sin(t*c.spd+c.phase)*.5+.5,pr=c.r*(.88+pulse*.22);
+    const{h,s,l}=c.color,al=c.op*(.7+pulse*.3);
+    const grd=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,pr*2.4);
+    grd.addColorStop(0,`hsla(${h},${s*100}%,${l*100}%,${al*.32})`);
+    grd.addColorStop(1,`hsla(${h},${s*100}%,${l*100}%,0)`);
+    ctx.beginPath();ctx.arc(c.x,c.y,pr*2.4,0,Math.PI*2);ctx.fillStyle=grd;ctx.fill();
+    const crd=ctx.createRadialGradient(c.x-pr*.3,c.y-pr*.3,0,c.x,c.y,pr);
+    crd.addColorStop(0,`hsla(${h},${s*100}%,${(l+.15)*100}%,${al})`);
+    crd.addColorStop(.6,`hsla(${h},${s*100}%,${l*100}%,${al*.8})`);
+    crd.addColorStop(1,`hsla(${h},${s*100}%,${(l-.1)*100}%,${al*.35})`);
+    ctx.beginPath();ctx.arc(c.x,c.y,pr,0,Math.PI*2);ctx.fillStyle=crd;ctx.fill();
+    ctx.beginPath();ctx.arc(c.x,c.y,pr,0,Math.PI*2);
+    ctx.strokeStyle=`hsla(${h},${s*100}%,${(l+.2)*100}%,${al*.45})`;ctx.lineWidth=1;ctx.stroke();
+  });
+  ctx.restore();t+=.011;requestAnimationFrame(drawCells);
+}
+drawCells();
+
+// ── RENDER ─────────────────────────────────────────────────────────
+function renderScore(){
+  const s=calcScore(),st=getStatus(s);
+  document.getElementById('orbScore').textContent=s;
+  document.getElementById('orbLabel').textContent=st.label.toUpperCase();
+  document.getElementById('orbLabel').style.color=st.color;
+  const subs=['','Early stage — high response potential','Developing — clear upside available','','Strong foundation — above average','','Elite optimization territory'];
+  document.getElementById('scoreSub').textContent=s>=80?subs[6]:s>=65?subs[4]:s>=50?subs[2]:subs[1];
+}
+function renderInsight(){const s=calcScore(),{pos,det}=getInsight(s);document.getElementById('insPos').textContent=pos;document.getElementById('insDet').textContent=det}
+function renderActions(){
+  const acts=getTopActions(),icons={diet:'🥗',move:'🏃',sleep:'🌙'};
+  const el=document.getElementById('actionsList');el.innerHTML='';
+  acts.forEach(a=>{
+    const d=document.createElement('div');d.className='action-item';
+    d.innerHTML=`<div class="action-icon">${icons[a.type]||'⚡'}</div><div class="action-text"><div class="action-main">${a.text}</div><div class="action-why">Addresses ${a.count} biomarker${a.count>1?'s':''}: ${a.markers.slice(0,3).join(', ')}${a.markers.length>3?'…':''}</div></div><div class="action-impact">${a.count}×</div>`;
+    el.appendChild(d);
+  });
+}
+
+let curTab='daily';
+function setGoalTab(tab,btn){curTab=tab;document.querySelectorAll('.goal-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderGoals()}
+function renderGoals(){
+  const el=document.getElementById('goalList');el.innerHTML='';
+  const done=JSON.parse(localStorage.getItem('grail_g_'+curTab)||'{}');
+  GOALS[curTab].forEach((g,i)=>{
+    const ok=done[i];
+    const d=document.createElement('div');d.className='goal-item';
+    d.innerHTML=`<div class="goal-check${ok?' done':''}" onclick="toggleGoal(${i},this)">${ok?'✓':''}</div><div class="goal-body"><div class="goal-text${ok?' done':''}">${g.text}</div><div class="goal-why">${g.why}</div></div><div class="goal-badge">${g.badge}</div>`;
+    el.appendChild(d);
+  });
+}
+function toggleGoal(i,el){const done=JSON.parse(localStorage.getItem('grail_g_'+curTab)||'{}');done[i]=!done[i];localStorage.setItem('grail_g_'+curTab,JSON.stringify(done));renderGoals()}
+
+// ── DOTS ───────────────────────────────────────────────────────────
+const tip=document.getElementById('btip');
+function makeDot(bm,svgEl,groupId){
+  const g=svgEl.getElementById(groupId);if(!g)return;
+  const st=getStatus(bm.pct);
+  const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  ring.setAttribute('cx',bm.x);ring.setAttribute('cy',bm.y);ring.setAttribute('r','7.5');
+  ring.setAttribute('fill','none');ring.setAttribute('stroke',st.color.replace('var(--green)','#3DBA7E').replace('var(--yellow)','#E8A838').replace('var(--red)','#E0556A'));
+  ring.setAttribute('stroke-width','1.2');ring.setAttribute('opacity','0.3');
+  g.appendChild(ring);
+  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  const col=st.color.replace('var(--green)','#3DBA7E').replace('var(--yellow)','#E8A838').replace('var(--red)','#E0556A');
+  c.setAttribute('cx',bm.x);c.setAttribute('cy',bm.y);c.setAttribute('r','4.5');
+  c.setAttribute('fill',col);c.setAttribute('cursor','pointer');c.setAttribute('opacity','0.92');
+  c.style.filter=`drop-shadow(0 0 5px ${col})`;
+  g.appendChild(c);
+  c.addEventListener('mouseenter',e=>{
+    tip.classList.add('on');
+    document.getElementById('btipLabel').textContent=bm.label;
+    document.getElementById('btipSys').textContent=bm.system+' · '+getStatus(bm.pct).label;
+    document.getElementById('btipFill').style.width=bm.pct+'%';
+    document.getElementById('btipFill').style.background=col;
+    moveTip(e);
+  });
+  c.addEventListener('mousemove',moveTip);
+  c.addEventListener('mouseleave',()=>tip.classList.remove('on'));
+  c.addEventListener('click',()=>openDetail(bm));
+}
+function moveTip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-8)+'px'}
+function renderDots(){
+  const fSvg=document.getElementById('svgFront'),bSvg=document.getElementById('svgBack');
+  BM.filter(b=>b.side==='front').forEach(b=>makeDot(b,fSvg,'dotsF'));
+  BM.filter(b=>b.side==='back').forEach(b=>makeDot(b,bSvg,'dotsB'));
+}
+
+function setView(v){
+  const f=document.getElementById('svgFront'),b=document.getElementById('svgBack');
+  const bf=document.getElementById('btnFront'),bb=document.getElementById('btnBack');
+  if(v==='front'){f.style.display='';b.style.display='none';bf.classList.add('active');bb.classList.remove('active')}
+  else{f.style.display='none';b.style.display='';bb.classList.add('active');bf.classList.remove('active')}
+}
+
+function openDetail(bm){
+  const st=getStatus(bm.pct),col=st.color.replace('var(--green)','#3DBA7E').replace('var(--yellow)','#E8A838').replace('var(--red)','#E0556A');
+  document.getElementById('dDot').style.background=col;
+  document.getElementById('dLabel').textContent=bm.label;
+  document.getElementById('dSys').textContent=bm.system+' · '+st.label.toUpperCase();
+  document.getElementById('dBar').style.width=bm.pct+'%';document.getElementById('dBar').style.background=col;
+  document.getElementById('dInsight').textContent=bm.insight;
+  const recsEl=document.getElementById('dRecs');recsEl.innerHTML='';
+  [['diet','Eat / Supplement'],['move','Move'],['sleep','Sleep']].forEach(([k,lbl])=>{
+    if(!bm.rec[k])return;
+    const d=document.createElement('div');d.className='d-rec-group';
+    d.innerHTML=`<div class="d-rec-type">${lbl}</div><div class="d-rec-text">${bm.rec[k]}</div>`;
+    recsEl.appendChild(d);
+  });
+  if(bm.pct>=68&&bm.rec.green){const d=document.createElement('div');d.className='d-rec-group';d.innerHTML=`<div class="d-rec-type" style="color:#3DBA7E">Status: Optimal</div><div class="d-rec-text" style="color:#3DBA7E;opacity:.7;font-style:italic">${bm.rec.green}</div>`;recsEl.appendChild(d)}
+  document.getElementById('detail').classList.add('open');
+}
+function closeDetail(){document.getElementById('detail').classList.remove('open')}
+
+renderScore();renderInsight();renderActions();renderDots();renderGoals();
+</script>
+</body>
+</html>
