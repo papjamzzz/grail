@@ -78,6 +78,31 @@ def biodata():
     with open(path, 'r', encoding='utf-8') as f:
         return f.read(), 200, {'Content-Type': 'text/html; charset=utf-8'}
 
+@app.route('/api/ask', methods=['POST'])
+def api_ask():
+    try:
+        import anthropic as ant
+    except ImportError:
+        return jsonify({'ok': False, 'error': 'anthropic not installed'}), 500
+    api_key = os.environ.get('ANTHROPIC_API_KEY', '').strip()
+    if not api_key:
+        return jsonify({'ok': False, 'error': 'ANTHROPIC_API_KEY not set'}), 400
+    body = request.get_json(force=True, silent=True) or {}
+    question = str(body.get('question', ''))[:600]
+    health = rjson(HEALTH_FILE, DEFAULT_HEALTH.copy())
+    vitals = {k: v for k, v in health.items() if v is not None}
+    system = f"""You are Grail, a precision biohacking AI. Help users understand their biomarkers and optimize longevity.
+Current biomarker data: {json.dumps(vitals)}
+Be concise and specific. Reference the user's actual data when relevant. 2-3 short paragraphs max. No bullet lists."""
+    client = ant.Anthropic(api_key=api_key)
+    msg = client.messages.create(
+        model='claude-haiku-4-5-20251001',
+        max_tokens=512,
+        system=system,
+        messages=[{'role': 'user', 'content': question}]
+    )
+    return jsonify({'ok': True, 'answer': msg.content[0].text})
+
 @app.route('/debug-files')
 def debug_files():
     files = os.listdir(BASE)

@@ -56,7 +56,7 @@ nav{
 
 /* ─── LAYOUT ────────────────────────────────────────────── */
 .dash{
-  display:grid;grid-template-columns:248px 1fr 288px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;
   gap:14px;padding:16px 20px;
   min-height:calc(100vh - 56px);max-width:1380px;margin:0 auto;
 }
@@ -119,8 +119,8 @@ nav{
   border-radius:14px;padding:14px 16px;margin-bottom:12px;
 }
 [data-theme="dark"] .icard{background:rgba(61,214,200,0.04);border-color:rgba(61,214,200,0.10)}
-.ihead{font-size:14px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:6px}
-.ibod{font-size:11px;font-weight:400;color:var(--dim);line-height:1.65}
+.ihead{font-size:16px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:6px}
+.ibod{font-size:13px;font-weight:400;color:var(--dim);line-height:1.65}
 
 /* ─── BIO AGE ───────────────────────────────────────────── */
 .bhr{width:100%;height:1px;background:var(--border);margin:14px 0;flex-shrink:0}
@@ -142,7 +142,51 @@ nav{
 .srow-pct{font-size:10px;font-weight:700;width:24px;text-align:right;flex-shrink:0}
 .sysdiv{height:1px;background:var(--border);margin:14px -20px;flex-shrink:0}
 
-.sectitle{font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);width:100%;margin-bottom:10px}
+.sectitle{font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);width:100%;margin-bottom:10px}
+
+/* ─── RIGHT PANEL TABS ──────────────────────────────────── */
+.rtabs{display:flex;margin:-20px -20px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.rtab{
+  flex:1;padding:13px 4px;background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--dim);font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+  cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;margin-bottom:-1px;
+}
+.rtab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.rtab-pane{display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden}
+.rtab-pane.active{display:flex}
+
+/* ─── ASK GRAIL ─────────────────────────────────────────── */
+.ag-header{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);text-align:center;padding-bottom:10px;flex-shrink:0}
+.ag-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;min-height:0;padding:2px 0}
+.ag-welcome{font-size:11px;font-weight:400;color:var(--dim);line-height:1.7;text-align:center;padding:14px 6px}
+.ag-msg{padding:10px 13px;border-radius:14px;font-size:11px;line-height:1.6;max-width:94%;word-wrap:break-word}
+.ag-msg.user{background:var(--cyan);color:#fff;align-self:flex-end;font-weight:500;border-radius:14px 14px 4px 14px}
+.ag-msg.grail{background:var(--bg);border:1px solid var(--border);color:var(--mid);align-self:flex-start;border-radius:14px 14px 14px 4px}
+.ag-msg.thinking{opacity:.5;font-style:italic}
+.ag-input-row{display:flex;gap:8px;align-items:center;padding-top:10px;border-top:1px solid var(--border);flex-shrink:0}
+.ag-input{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;
+  padding:9px 13px;font-size:12px;color:var(--text);font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s}
+.ag-input:focus{border-color:var(--cyan)}
+.ag-input::placeholder{color:var(--dim)}
+.ag-send{width:36px;height:36px;border-radius:50%;background:var(--cyan);border:none;
+  cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:opacity .2s;line-height:1}
+.ag-send:hover{opacity:.82}
+
+/* ─── BIO LOG ───────────────────────────────────────────── */
+.bl-feed{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;min-height:0}
+.bl-entry{
+  display:flex;gap:10px;padding:9px 11px;border-radius:11px;
+  background:var(--bg);border:1px solid var(--border);border-left-width:3px;
+  flex-shrink:0;animation:blIn .35s ease both;
+}
+@keyframes blIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.bl-ico{font-size:12px;flex-shrink:0;margin-top:1px;line-height:1.4}
+.bl-body{flex:1;min-width:0}
+.bl-lbl{font-size:8px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:2px}
+.bl-txt{font-size:11px;font-weight:400;color:var(--mid);line-height:1.5}
+.bl-ts{font-size:8px;color:var(--dim);margin-top:3px;opacity:.7}
 
 /* ─── ACTION CARDS ──────────────────────────────────────── */
 .acard{
@@ -154,8 +198,8 @@ nav{
 .atop{display:flex;align-items:center;gap:13px;padding:14px 15px}
 .aico{font-size:30px;flex-shrink:0;line-height:1;min-width:36px;text-align:center}
 .atxt{flex:1;min-width:0}
-.atitle{font-size:13px;font-weight:800;color:var(--text);margin-bottom:3px;line-height:1.3}
-.asub{font-size:10px;font-weight:500;color:var(--dim);line-height:1.4}
+.atitle{font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px;line-height:1.3}
+.asub{font-size:12px;font-weight:500;color:var(--dim);line-height:1.4}
 .abadge{
   flex-shrink:0;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
   color:var(--cyan);background:rgba(0,122,255,0.08);border-radius:6px;padding:3px 8px;align-self:flex-start;
@@ -456,18 +500,45 @@ nav{
   <div id="actionsList"></div>
 </div>
 
-<!-- ── RIGHT: GOALS ───────────────────────────────────────── -->
-<div class="panel">
-  <div class="ptitle">Systems</div>
-  <div class="sysblock" id="sysList"></div>
-  <div class="sysdiv"></div>
-  <div class="ptitle">Daily Protocol</div>
-  <div class="gtabs">
-    <button class="gtab active" onclick="switchTab('daily',this)">Daily</button>
-    <button class="gtab" onclick="switchTab('weekly',this)">Weekly</button>
-    <button class="gtab" onclick="switchTab('monthly',this)">Monthly</button>
+<!-- ── RIGHT PANEL ────────────────────────────────────────── -->
+<div class="panel" style="padding-top:0;overflow:hidden">
+  <div class="rtabs">
+    <button class="rtab active" onclick="switchRTab('protocol',this)">Protocol</button>
+    <button class="rtab" onclick="switchRTab('ask',this)">Ask Grail</button>
+    <button class="rtab" onclick="switchRTab('log',this)">Bio Log</button>
   </div>
-  <div class="glist" id="goalList"></div>
+
+  <!-- Protocol -->
+  <div class="rtab-pane active" id="rtab-protocol">
+    <div class="ptitle">Systems</div>
+    <div class="sysblock" id="sysList"></div>
+    <div class="sysdiv"></div>
+    <div class="ptitle">Daily Protocol</div>
+    <div class="gtabs">
+      <button class="gtab active" onclick="switchTab('daily',this)">Daily</button>
+      <button class="gtab" onclick="switchTab('weekly',this)">Weekly</button>
+      <button class="gtab" onclick="switchTab('monthly',this)">Monthly</button>
+    </div>
+    <div class="glist" id="goalList"></div>
+  </div>
+
+  <!-- Ask Grail -->
+  <div class="rtab-pane" id="rtab-ask">
+    <div class="ag-header">Claude Haiku · Your 40 biomarkers are in context</div>
+    <div class="ag-msgs" id="agMsgs">
+      <div class="ag-welcome">Ask anything about your biomarkers, longevity protocols, or how to read your scores.</div>
+    </div>
+    <div class="ag-input-row">
+      <input class="ag-input" id="agInput" placeholder="What should I prioritize this week?"
+             onkeydown="if(event.key==='Enter')askGrail()">
+      <button class="ag-send" onclick="askGrail()">↑</button>
+    </div>
+  </div>
+
+  <!-- Bio Log -->
+  <div class="rtab-pane" id="rtab-log">
+    <div class="bl-feed" id="blFeed"></div>
+  </div>
 </div>
 
 </div>
@@ -902,8 +973,86 @@ function renderSystems(){
   }));
 }
 
+// ── RIGHT PANEL TABS ──────────────────────────────────────────────────
+function switchRTab(tab,btn){
+  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.rtab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('rtab-'+tab).classList.add('active');
+}
+
+// ── ASK GRAIL ─────────────────────────────────────────────────────────
+async function askGrail(){
+  const inp=document.getElementById('agInput');
+  const q=inp.value.trim();if(!q)return;
+  inp.value='';inp.disabled=true;
+  const msgs=document.getElementById('agMsgs');
+  const welcome=msgs.querySelector('.ag-welcome');if(welcome)welcome.remove();
+  const um=document.createElement('div');um.className='ag-msg user';um.textContent=q;msgs.appendChild(um);
+  const tm=document.createElement('div');tm.className='ag-msg grail thinking';tm.textContent='Analyzing your biomarkers…';msgs.appendChild(tm);
+  msgs.scrollTop=msgs.scrollHeight;
+  try{
+    const r=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});
+    const d=await r.json();
+    tm.classList.remove('thinking');
+    tm.textContent=d.ok?d.answer:'Unable to connect — check your ANTHROPIC_API_KEY in settings.';
+  }catch(e){
+    tm.classList.remove('thinking');tm.textContent='Connection error. Make sure the Grail server is running.';
+  }
+  msgs.scrollTop=msgs.scrollHeight;inp.disabled=false;inp.focus();
+}
+
+// ── BIO LOG ───────────────────────────────────────────────────────────
+function buildBioLog(){
+  const feed=document.getElementById('blFeed');
+  const now=new Date();
+  const ts=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  const score=calcScore();
+  const alerts=BM.filter(b=>b.pct<42).sort((a,b)=>a.pct-b.pct);
+  const monitors=BM.filter(b=>b.pct>=42&&b.pct<68).sort((a,b)=>a.pct-b.pct);
+  const elites=BM.filter(b=>b.pct>=88).sort((a,b)=>b.pct-a.pct);
+  const entries=[];
+
+  entries.push({ico:'◈',lbl:'Baseline',col:'var(--cyan)',
+    txt:`BioBaseline ${score}/100 — ${score>=80?'elite optimization territory':score>=65?'strong foundation, clear upside available':'active improvement phase'}`});
+
+  alerts.slice(0,4).forEach(b=>entries.push({ico:'▲',lbl:'Act Now',col:'#E0556A',
+    txt:`${b.label} at ${b.pct}% — ${b.insight.split('.')[0]}.`}));
+
+  monitors.slice(0,3).forEach(b=>entries.push({ico:'◉',lbl:'Monitor',col:'#F5A623',
+    txt:`${b.label} at ${b.pct}% — in recovery range, trending toward optimal`}));
+
+  // Cross-marker correlations
+  const get=id=>BM.find(b=>b.id===id);
+  const hrv=get('hrv'),sleep=get('sleep'),crp=get('crp'),glucose=get('glucose'),testo=get('testosterone'),cortisol=get('cortisol');
+  if(hrv?.pct<68&&sleep?.pct<68) entries.push({ico:'⟳',lbl:'Correlation',col:'var(--cyan)',
+    txt:'HRV + Sleep both sub-optimal — autonomic stress pattern detected. Recovery is your #1 lever this week.'});
+  if(crp?.pct<68&&glucose?.pct<68) entries.push({ico:'⟳',lbl:'Correlation',col:'var(--cyan)',
+    txt:'CRP + Glucose both flagged — metabolic inflammation loop. Diet intervention is highest leverage.'});
+  if(cortisol?.pct<68&&testo?.pct<68) entries.push({ico:'⟳',lbl:'Correlation',col:'var(--cyan)',
+    txt:'Cortisol + Testosterone misaligned — classic adrenal stress pattern. Prioritize sleep + session length under 60 min.'});
+
+  elites.slice(0,2).forEach(b=>entries.push({ico:'●',lbl:'Optimal',col:'#2DC46A',
+    txt:`${b.label} at ${b.pct}% — elite range. Whatever you're doing here, keep it.`}));
+
+  entries.push({ico:'↗',lbl:'Focus',col:'var(--dim)',
+    txt:`${alerts.length} marker${alerts.length!==1?'s':''} need immediate action. Priority target: ${alerts.length?alerts[0].label:'maintenance protocol — hold the line'}.`});
+
+  entries.forEach((e,i)=>{
+    const el=document.createElement('div');el.className='bl-entry';
+    el.style.borderLeftColor=e.col;el.style.animationDelay=`${i*55}ms`;
+    el.innerHTML=`<div class="bl-ico" style="color:${e.col}">${e.ico}</div>
+      <div class="bl-body">
+        <div class="bl-lbl" style="color:${e.col}">${e.lbl}</div>
+        <div class="bl-txt">${e.txt}</div>
+        <div class="bl-ts">${ts} · from 40 biomarkers</div>
+      </div>`;
+    feed.appendChild(el);
+  });
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────
-renderScore();renderBioAge();renderInsight();renderActions();renderDots();renderGoals();renderSystems();
+renderScore();renderBioAge();renderInsight();renderActions();renderDots();renderGoals();renderSystems();buildBioLog();
 </script>
 <div style="position:fixed;bottom:16px;left:20px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);opacity:.45;pointer-events:none;z-index:10;">© Grail</div>
 </body>
