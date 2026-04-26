@@ -63,6 +63,10 @@ def cells():
 def body():
     return send_from_directory(BASE, 'body.html')
 
+@app.route('/body-classic')
+def body_classic():
+    return send_from_directory(BASE, 'body_classic.html')
+
 # Health ingest from Shortcuts / Health export parser
 @app.route('/ingest', methods=['POST'])
 def ingest():
