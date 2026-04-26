@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 import json, os, time, requests as req, base64, re
+# routes: / /cells /bodyfigure /console /body-classic
 
 # Load .env for local dev
 _env_path = os.path.join(os.path.dirname(__file__), '.env')
