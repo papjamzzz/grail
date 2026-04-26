@@ -40,11 +40,20 @@ def wjson(path, data):
     with open(path, 'w') as f:
         json.dump(data, f, indent=2)
 
+# ------- domain → page routing -------
+
+DOMAIN_MAP = {
+    'grailcells.creativekonsoles.com': 'cells.html',
+    'grailbody.creativekonsoles.com':  'body.html',
+}
+
 # ------- routes -------
 
 @app.route('/')
 def index():
-    return send_from_directory(BASE, 'index.html')
+    host = request.host.split(':')[0]
+    filename = DOMAIN_MAP.get(host, 'index.html')
+    return send_from_directory(BASE, filename)
 
 @app.route('/cells')
 def cells():
