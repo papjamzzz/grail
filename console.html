@@ -58,11 +58,12 @@ nav{
 .dash{
   display:grid;grid-template-columns:1fr 1fr 1fr;
   gap:14px;padding:16px 20px;
-  min-height:calc(100vh - 56px);max-width:1380px;margin:0 auto;
+  height:calc(100vh - 56px);max-width:1380px;margin:0 auto;
 }
 .panel{
   background:var(--card);border:1px solid var(--border);
   border-radius:20px;padding:20px;display:flex;flex-direction:column;box-shadow:var(--sh);
+  min-height:0;overflow:hidden;
 }
 .ptitle{font-size:9px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
 
@@ -102,7 +103,7 @@ nav{
 .btcard-act-txt{font-size:10px;font-weight:400;color:var(--mid);line-height:1.45}
 
 /* ─── CENTER ────────────────────────────────────────────── */
-.center-panel{align-items:center}
+.center-panel{align-items:center;overflow-y:auto}
 .bblabel{
   font-size:11px;font-weight:900;letter-spacing:.44em;text-transform:uppercase;
   color:var(--cyan);margin-bottom:8px;text-align:center;
@@ -145,7 +146,7 @@ nav{
 .sectitle{font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);width:100%;margin-bottom:10px}
 
 /* ─── RIGHT PANEL TABS ──────────────────────────────────── */
-.rtabs{display:flex;margin:-20px -20px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.rtabs{display:flex;margin:0 -20px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
 .rtab{
   flex:1;padding:13px 4px;background:none;border:none;border-bottom:2px solid transparent;
   color:var(--dim);font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
@@ -267,6 +268,62 @@ nav{
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.10);border-radius:2px}
 [data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.10)}
+
+/* ─── NAV PILLS ─────────────────────────────────────────── */
+.npill{
+  padding:6px 14px;border-radius:20px;font-size:10px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;font-family:'Outfit',sans-serif;
+  color:var(--cyan);border:1.5px solid var(--cyan);background:none;
+  cursor:pointer;text-decoration:none;transition:background .18s,color .18s;
+  display:inline-flex;align-items:center;
+}
+.npill:hover{background:var(--cyan);color:#fff}
+
+/* ─── PARTNERSHIPS MODAL ─────────────────────────────────── */
+.pmod-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(12px);
+  z-index:800;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .28s;
+}
+.pmod-overlay.open{opacity:1;pointer-events:all}
+.pmod{
+  background:var(--card);border:1px solid var(--border);border-radius:28px;
+  padding:36px 40px;width:min(860px,95vw);max-height:90vh;overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,0.28);
+  transform:translateY(18px);transition:transform .3s cubic-bezier(.2,.8,.2,1);
+}
+.pmod-overlay.open .pmod{transform:translateY(0)}
+.pmod-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px}
+.pmod-title{font-size:28px;font-weight:900;color:var(--text);letter-spacing:-0.5px;line-height:1.1}
+.pmod-sub{font-size:12px;font-weight:500;color:var(--dim);margin-top:5px;letter-spacing:.04em}
+.pmod-close{background:none;border:none;color:var(--dim);font-size:24px;cursor:pointer;
+  padding:2px 6px;border-radius:8px;transition:color .2s;line-height:1;flex-shrink:0;margin-top:2px}
+.pmod-close:hover{color:var(--text)}
+.pmod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.pcard{
+  background:var(--bg);border:1.5px solid var(--border);border-radius:18px;
+  padding:24px 20px;display:flex;flex-direction:column;gap:14px;
+  transition:all .22s;cursor:default;
+}
+.pcard:hover{border-color:var(--cyan);box-shadow:var(--sh2);transform:translateY(-2px)}
+.pcard-logo{width:52px;height:52px;border-radius:14px;overflow:hidden;
+  background:var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pcard-logo img{width:100%;height:100%;object-fit:contain;display:block}
+.pcard-logo-fb{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;
+  justify-content:center;font-size:20px;font-weight:900;color:#fff;letter-spacing:-1px;flex-shrink:0}
+.pcard-name{font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
+.pcard-desc{font-size:12px;font-weight:400;color:var(--dim);line-height:1.6;flex:1}
+.pcard-link{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:10px;background:var(--cyan);
+  color:#fff;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  text-decoration:none;transition:opacity .2s;align-self:flex-start;
+}
+.pcard-link:hover{opacity:.84}
+.pcard-tag{font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  padding:3px 9px;border-radius:6px;align-self:flex-start;
+  background:rgba(0,122,255,0.08);color:var(--cyan)}
+[data-theme="dark"] .pcard-tag{background:rgba(61,214,200,0.10)}
 </style>
 </head>
 <body>
@@ -274,10 +331,12 @@ nav{
 <nav>
   <div>
     <div class="nav-brand">GRAIL</div>
-    <div class="nav-tagline">Precision Longevity Intelligence</div>
+    <div class="nav-tagline">Bringing Longevity To Life</div>
   </div>
   <div class="nav-right">
-    <a href="/biodata" style="padding:6px 13px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;color:var(--cyan);border:1.5px solid var(--cyan);transition:all .2s;font-family:'Outfit',sans-serif;" onmouseover="this.style.background='var(--cyan)';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='var(--cyan)'">Link BioData</a>
+    <button onclick="openPartnerships()" class="npill">Partnerships</button>
+    <button onclick="openSupplies()" class="npill">Supplies</button>
+    <a href="/biodata" class="npill">Link BioData</a>
     <div class="theme-row">
       <span class="theme-lbl" id="themeLbl">Light</span>
       <button class="tog" id="themeBtn"><div class="tog-k"></div></button>
@@ -501,7 +560,7 @@ nav{
 </div>
 
 <!-- ── RIGHT PANEL ────────────────────────────────────────── -->
-<div class="panel" style="padding-top:0;overflow:hidden">
+<div class="panel" style="padding-top:8px;overflow:hidden">
   <div class="rtabs">
     <button class="rtab active" onclick="switchRTab('protocol',this)">Protocol</button>
     <button class="rtab" onclick="switchRTab('ask',this)">Ask Grail</button>
@@ -1054,6 +1113,189 @@ function buildBioLog(){
 // ── INIT ──────────────────────────────────────────────────────────────
 renderScore();renderBioAge();renderInsight();renderActions();renderDots();renderGoals();renderSystems();buildBioLog();
 </script>
+<!-- ── PARTNERSHIPS MODAL ─────────────────────────────────── -->
+<div class="pmod-overlay" id="pmodOverlay" onclick="if(event.target===this)closePartnerships()">
+  <div class="pmod">
+    <div class="pmod-hdr">
+      <div>
+        <div class="pmod-title">Partner Ecosystem</div>
+        <div class="pmod-sub">Best-in-class tools trusted by the Grail community</div>
+      </div>
+      <button class="pmod-close" onclick="closePartnerships()">✕</button>
+    </div>
+    <div class="pmod-grid">
+
+      <!-- Lifeforce -->
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#1a4f8a,#2d7dd2)">LF</div>
+        <div>
+          <div class="pcard-name">Lifeforce</div>
+          <div class="pcard-tag">Hormones &amp; Optimization</div>
+        </div>
+        <div class="pcard-desc">Comprehensive hormone optimization with physician-guided TRT, peptides, and longevity protocols — backed by continuous biomarker monitoring.</div>
+        <a class="pcard-link" href="https://mylifeforce.com" target="_blank" rel="noopener">Visit Partner ↗</a>
+      </div>
+
+      <!-- Sonar -->
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#0f4c75,#1b7fc4)">SN</div>
+        <div>
+          <div class="pcard-name">Sonar</div>
+          <div class="pcard-tag">Biomarker Tracking</div>
+        </div>
+        <div class="pcard-desc">Intelligent health analytics that connects wearable data, lab results, and lifestyle inputs into a unified longevity intelligence layer.</div>
+        <a class="pcard-link" href="https://sonar.health" target="_blank" rel="noopener">Visit Partner ↗</a>
+      </div>
+
+      <!-- SuperPower -->
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#4a1d8a,#7c3aed)">SP</div>
+        <div>
+          <div class="pcard-name">SuperPower</div>
+          <div class="pcard-tag">Advanced Diagnostics</div>
+        </div>
+        <div class="pcard-desc">The most comprehensive preventive health panel available — 100+ biomarkers, whole-body MRI, and a personal health advisor in one annual membership.</div>
+        <a class="pcard-link" href="https://www.superpower.com" target="_blank" rel="noopener">Visit Partner ↗</a>
+      </div>
+
+      <!-- My Life Works -->
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#145a32,#27ae60)">MLW</div>
+        <div>
+          <div class="pcard-name">My Life Works</div>
+          <div class="pcard-tag">Wellbeing &amp; Coaching</div>
+        </div>
+        <div class="pcard-desc">Personalized wellbeing programs combining mental performance coaching, stress resilience tools, and evidence-based lifestyle interventions.</div>
+        <a class="pcard-link" href="https://www.mylifeworks.com" target="_blank" rel="noopener">Visit Partner ↗</a>
+      </div>
+
+      <!-- Whoop -->
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#1a1a1a,#333)">WP</div>
+        <div>
+          <div class="pcard-name">Whoop</div>
+          <div class="pcard-tag">Recovery Wearable</div>
+        </div>
+        <div class="pcard-desc">24/7 HRV, sleep staging, strain, and recovery scoring. The gold-standard wearable for serious biohackers who track every variable.</div>
+        <a class="pcard-link" href="https://www.whoop.com" target="_blank" rel="noopener">Visit Partner ↗</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── SUPPLIES MODAL ──────────────────────────────────────── -->
+<div class="pmod-overlay" id="smodOverlay" onclick="if(event.target===this)closeSupplies()">
+  <div class="pmod">
+    <div class="pmod-hdr">
+      <div>
+        <div class="pmod-title">Longevity Supplies</div>
+        <div class="pmod-sub">Bulk-priced supplements curated for precision biohacking</div>
+      </div>
+      <button class="pmod-close" onclick="closeSupplies()">✕</button>
+    </div>
+    <div class="pmod-grid">
+
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#b7791f,#d69e2e)">NMN</div>
+        <div>
+          <div class="pcard-name">NMN 500mg</div>
+          <div class="pcard-tag">NAD+ Precursor</div>
+        </div>
+        <div class="pcard-desc">Raises NAD+ levels to support mitochondrial energy, DNA repair, and cellular longevity. The most direct lever for biological age reversal.</div>
+        <div style="font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.5px">$79 <span style="font-size:11px;font-weight:500;color:var(--dim)">/100ct · bulk rate</span></div>
+        <a class="pcard-link" href="#" target="_blank" rel="noopener">Order Bulk ↗</a>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#6b21a8,#9333ea)">RES</div>
+        <div>
+          <div class="pcard-name">Resveratrol 500mg</div>
+          <div class="pcard-tag">Sirtuin Activator</div>
+        </div>
+        <div class="pcard-desc">Activates SIRT1 longevity pathways and amplifies NMN efficacy. Works synergistically with NAD+ precursors for maximum cellular benefit.</div>
+        <div style="font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.5px">$44 <span style="font-size:11px;font-weight:500;color:var(--dim)">/100ct · bulk rate</span></div>
+        <a class="pcard-link" href="#" target="_blank" rel="noopener">Order Bulk ↗</a>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#065f46,#059669)">BRB</div>
+        <div>
+          <div class="pcard-name">Berberine 500mg</div>
+          <div class="pcard-tag">Metabolic Health</div>
+        </div>
+        <div class="pcard-desc">Clinically shown to lower fasting glucose, improve insulin sensitivity, and reduce ApoB — sometimes called "nature's metformin."</div>
+        <div style="font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.5px">$32 <span style="font-size:11px;font-weight:500;color:var(--dim)">/100ct · bulk rate</span></div>
+        <a class="pcard-link" href="#" target="_blank" rel="noopener">Order Bulk ↗</a>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#1e3a8a,#3b82f6)">MG</div>
+        <div>
+          <div class="pcard-name">Magnesium Glycinate 400mg</div>
+          <div class="pcard-tag">Sleep &amp; HRV</div>
+        </div>
+        <div class="pcard-desc">The most bioavailable magnesium form. Directly improves deep sleep, lowers resting HR, and raises HRV within days of consistent use.</div>
+        <div style="font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.5px">$26 <span style="font-size:11px;font-weight:500;color:var(--dim)">/90ct · bulk rate</span></div>
+        <a class="pcard-link" href="#" target="_blank" rel="noopener">Order Bulk ↗</a>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#92400e,#f59e0b)">D3K2</div>
+        <div>
+          <div class="pcard-name">Vitamin D3+K2 5000IU</div>
+          <div class="pcard-tag">Immunity &amp; Bone</div>
+        </div>
+        <div class="pcard-desc">D3 regulates 200+ genes and drives immunity. K2 directs calcium to bones not arteries. Combined, they're the highest-value pair in longevity stacking.</div>
+        <div style="font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.5px">$22 <span style="font-size:11px;font-weight:500;color:var(--dim)">/90ct · bulk rate</span></div>
+        <a class="pcard-link" href="#" target="_blank" rel="noopener">Order Bulk ↗</a>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#0c4a6e,#0284c7)">ω3</div>
+        <div>
+          <div class="pcard-name">Omega-3 EPA+DHA 2g</div>
+          <div class="pcard-tag">Inflammation &amp; Heart</div>
+        </div>
+        <div class="pcard-desc">Raises Omega-3 Index above 8%, directly reducing CRP, improving HRV, and lowering ApoB. One of the most validated longevity supplements in existence.</div>
+        <div style="font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.5px">$52 <span style="font-size:11px;font-weight:500;color:var(--dim)">/90ct · bulk rate</span></div>
+        <a class="pcard-link" href="#" target="_blank" rel="noopener">Order Bulk ↗</a>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#4c1d95,#7c3aed)">ASH</div>
+        <div>
+          <div class="pcard-name">Ashwagandha KSM-66 600mg</div>
+          <div class="pcard-tag">Cortisol &amp; Stress</div>
+        </div>
+        <div class="pcard-desc">KSM-66 extract measurably lowers cortisol, raises testosterone in men, and improves HRV under stress. One of the most clinically studied adaptogens.</div>
+        <div style="font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.5px">$30 <span style="font-size:11px;font-weight:500;color:var(--dim)">/90ct · bulk rate</span></div>
+        <a class="pcard-link" href="#" target="_blank" rel="noopener">Order Bulk ↗</a>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-logo-fb" style="background:linear-gradient(135deg,#7f1d1d,#dc2626)">CoQ</div>
+        <div>
+          <div class="pcard-name">CoQ10 Ubiquinol 200mg</div>
+          <div class="pcard-tag">Mitochondrial Energy</div>
+        </div>
+        <div class="pcard-desc">Ubiquinol is the active, reduced form — 2× more bioavailable than ubiquinone. Fuels mitochondrial ATP production and protects against oxidative stress.</div>
+        <div style="font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.5px">$62 <span style="font-size:11px;font-weight:500;color:var(--dim)">/60ct · bulk rate</span></div>
+        <a class="pcard-link" href="#" target="_blank" rel="noopener">Order Bulk ↗</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function openPartnerships(){document.getElementById('pmodOverlay').classList.add('open')}
+function closePartnerships(){document.getElementById('pmodOverlay').classList.remove('open')}
+function openSupplies(){document.getElementById('smodOverlay').classList.add('open')}
+function closeSupplies(){document.getElementById('smodOverlay').classList.remove('open')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePartnerships();closeSupplies()}})
+</script>
+
 <div style="position:fixed;bottom:16px;left:20px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);opacity:.45;pointer-events:none;z-index:10;">© Grail</div>
 </body>
 </html>
