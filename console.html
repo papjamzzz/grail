@@ -278,6 +278,35 @@ nav{
   display:inline-flex;align-items:center;
 }
 .npill:hover{background:var(--cyan);color:#fff}
+.npill-team{color:var(--amber);border-color:var(--amber)}
+.npill-team:hover{background:var(--amber);color:#fff}
+
+/* ─── TEAM MODAL ─────────────────────────────────────────── */
+.tcard{
+  background:var(--bg);border:1.5px solid var(--border);border-radius:18px;
+  padding:22px 20px;display:flex;flex-direction:column;gap:12px;
+  transition:all .22s;cursor:default;
+}
+.tcard:hover{border-color:var(--amber);box-shadow:var(--sh2);transform:translateY(-2px)}
+.tcard-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;
+  justify-content:center;font-size:22px;flex-shrink:0}
+.tcard-name{font-size:16px;font-weight:800;color:var(--text);line-height:1.2}
+.tcard-tag{font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  padding:3px 9px;border-radius:6px;align-self:flex-start;
+  background:rgba(255,159,10,0.1);color:var(--amber)}
+[data-theme="dark"] .tcard-tag{background:rgba(201,169,110,0.12)}
+.tcard-desc{font-size:12px;font-weight:400;color:var(--dim);line-height:1.6;flex:1}
+.tcard-invite{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:10px;border:1.5px solid var(--amber);
+  color:var(--amber);background:none;font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+  font-family:'Outfit',sans-serif;transition:all .2s;align-self:flex-start;
+}
+.tcard-invite:hover{background:var(--amber);color:#fff}
+.tmod-note{font-size:11px;color:var(--dim);line-height:1.65;
+  padding:14px 18px;background:rgba(255,159,10,0.05);
+  border:1px solid rgba(255,159,10,0.15);border-radius:12px;margin-bottom:24px}
 
 /* ─── PARTNERSHIPS MODAL ─────────────────────────────────── */
 .pmod-overlay{
@@ -336,6 +365,7 @@ nav{
   <div class="nav-right">
     <button onclick="openPartnerships()" class="npill">Partnerships</button>
     <button onclick="openSupplies()" class="npill">Supplies</button>
+    <button onclick="openTeam()" class="npill npill-team">Share With My Team</button>
     <a href="/biodata" class="npill">Link BioData</a>
     <div class="theme-row">
       <span class="theme-lbl" id="themeLbl">Light</span>
@@ -1288,12 +1318,142 @@ renderScore();renderBioAge();renderInsight();renderActions();renderDots();render
   </div>
 </div>
 
+<div class="pmod-overlay" id="tmodOverlay" onclick="if(event.target===this)closeTeam()">
+  <div class="pmod">
+    <div class="pmod-hdr">
+      <div>
+        <div class="pmod-title">Share With My Team</div>
+        <div class="pmod-sub">Private, read-only access — you control what each person sees</div>
+      </div>
+      <button class="pmod-close" onclick="closeTeam()">✕</button>
+    </div>
+    <div class="tmod-note">Each team member receives a private link showing only the metrics you choose to share. Access can be revoked at any time. Nothing is shared until you send an invite.</div>
+    <div class="pmod-grid">
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(255,159,10,0.12)">🏋️</div>
+        <div class="tcard-name">Personal Trainer</div>
+        <div class="tcard-tag">Performance</div>
+        <div class="tcard-desc">VO₂ max, grip strength, lactate threshold, muscle mass, recovery index, and daily HRV trends.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(0,122,255,0.1)">🩺</div>
+        <div class="tcard-name">Primary Care Physician</div>
+        <div class="tcard-tag">Clinical</div>
+        <div class="tcard-desc">Full biomarker panel — blood pressure, glucose, CRP, ferritin, liver enzymes, thyroid, and ApoB.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(52,199,89,0.1)">🌿</div>
+        <div class="tcard-name">Functional Medicine Doctor</div>
+        <div class="tcard-tag">Root Cause</div>
+        <div class="tcard-desc">Hormones, nutrient markers, gut indicators, inflammation, mitochondrial markers, and cortisol patterns.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(255,149,0,0.1)">🥗</div>
+        <div class="tcard-name">Nutritionist / Dietitian</div>
+        <div class="tcard-tag">Nutrition</div>
+        <div class="tcard-desc">Omega-3 index, glucose, uric acid, B12, zinc, magnesium, body fat, and meal log patterns.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(175,82,222,0.1)">🧠</div>
+        <div class="tcard-name">Therapist / Mental Health</div>
+        <div class="tcard-tag">Mind</div>
+        <div class="tcard-desc">Cortisol, HRV, sleep quality, wrist temp variability, and mood-correlated biomarker trends.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(0,199,190,0.1)">😴</div>
+        <div class="tcard-name">Sleep Specialist</div>
+        <div class="tcard-tag">Recovery</div>
+        <div class="tcard-desc">Sleep duration, deep sleep %, REM %, respiratory rate, SpO₂, resting HR, and wrist temperature.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(255,59,48,0.1)">❤️</div>
+        <div class="tcard-name">Cardiologist</div>
+        <div class="tcard-tag">Cardiovascular</div>
+        <div class="tcard-desc">Resting HR, HRV, systolic BP, ApoB, homocysteine, fibrinogen, CRP, and VO₂ max.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(255,214,10,0.12)">⚗️</div>
+        <div class="tcard-name">Endocrinologist</div>
+        <div class="tcard-tag">Hormones</div>
+        <div class="tcard-desc">Testosterone, free testosterone, DHEA-S, IGF-1, cortisol, TSH/thyroid, insulin sensitivity, and glucose.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(0,122,255,0.08)">🦴</div>
+        <div class="tcard-name">Physical Therapist</div>
+        <div class="tcard-tag">Movement</div>
+        <div class="tcard-desc">Grip strength, muscle mass, VO₂ max, lactate threshold, recovery index, and mobility patterns.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(52,199,89,0.12)">🌱</div>
+        <div class="tcard-name">Naturopathic Doctor</div>
+        <div class="tcard-tag">Integrative</div>
+        <div class="tcard-desc">Full nutrient and mineral panel, inflammation markers, gut-adjacent metrics, and NAD+ levels.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(255,159,10,0.1)">🧘</div>
+        <div class="tcard-name">Yoga / Movement Coach</div>
+        <div class="tcard-tag">Mobility</div>
+        <div class="tcard-desc">HRV, cortisol, wrist temp, respiratory rate, sleep quality, and recovery index over time.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(175,82,222,0.08)">🎯</div>
+        <div class="tcard-name">Performance Coach</div>
+        <div class="tcard-tag">Optimization</div>
+        <div class="tcard-desc">Full performance suite — VO₂ max, HRV, sleep, recovery index, lactate threshold, and daily readiness.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(255,59,48,0.08)">⚡</div>
+        <div class="tcard-name">Sports Medicine</div>
+        <div class="tcard-tag">Athletic Health</div>
+        <div class="tcard-desc">Ferritin, muscle mass, lactate threshold, grip strength, recovery index, inflammation markers.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+      <div class="tcard">
+        <div class="tcard-icon" style="background:rgba(0,199,190,0.08)">💊</div>
+        <div class="tcard-name">Pharmacist / Supplement Advisor</div>
+        <div class="tcard-tag">Supplements</div>
+        <div class="tcard-desc">Vitamin D, B12, zinc, magnesium, omega-3 index, NAD+, and any nutrient gaps relative to targets.</div>
+        <button class="tcard-invite">+ Invite</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
 function openPartnerships(){document.getElementById('pmodOverlay').classList.add('open')}
 function closePartnerships(){document.getElementById('pmodOverlay').classList.remove('open')}
 function openSupplies(){document.getElementById('smodOverlay').classList.add('open')}
 function closeSupplies(){document.getElementById('smodOverlay').classList.remove('open')}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePartnerships();closeSupplies()}})
+function openTeam(){document.getElementById('tmodOverlay').classList.add('open')}
+function closeTeam(){document.getElementById('tmodOverlay').classList.remove('open')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePartnerships();closeSupplies();closeTeam()}})
 </script>
 
 <div style="position:fixed;bottom:16px;left:20px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);opacity:.45;pointer-events:none;z-index:10;">© Grail</div>
