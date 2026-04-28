@@ -534,7 +534,7 @@ nav{
 
 <nav>
   <div style="display:flex;flex-direction:column;gap:3px;">
-    <a href="/" class="nav-brand">grail</a>
+    <a href="/" class="nav-brand">ailiv</a>
     <span style="font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.22em;color:rgba(90,58,22,0.42);font-style:italic;">know it. own it. optimize it.</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
@@ -1458,7 +1458,7 @@ function gsbExport(){
   const data={exported:new Date().toISOString(),score:Math.round(ALL.reduce((s,m)=>s+m.pct,0)/ALL.length),markers:ALL.map(m=>({id:m.id,label:m.label,system:m.sysName,pct:Math.round(m.pct),status:status(m.pct)}))};
   const a=document.createElement('a');
   a.href='data:application/json,'+encodeURIComponent(JSON.stringify(data,null,2));
-  a.download='grail-body-export.json';
+  a.download="ailiv-body-export.json";;
   a.click();
 }
 </script>
