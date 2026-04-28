@@ -1,8 +1,8 @@
-# Grail — Luxury Biohacking Dashboard
+# AILIV — Luxury Biohacking Dashboard
 
 **40 live biomarker orbs. 4 orbital rings. AI health synthesis.**
 
-Grail is not a traditional health dashboard. It's a living visual system — a dark canvas with a central amber orb surrounded by 40 glowing biomarker nodes orbiting in real time. Each node represents a health marker. The whole thing breathes.
+AILIV is not a traditional health dashboard. It's a living visual system — a dark canvas with a central amber orb surrounded by 40 glowing biomarker nodes orbiting in real time. Each node represents a health marker. The whole thing breathes.
 
 **Live:** [grailorbital.creativekonsoles.com](https://grailorbital.creativekonsoles.com)
 
