@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grail</title>
+<title>AILIV</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=UnifrakturMaguntia&family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -361,7 +361,7 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
 .log-close:hover { color: rgba(201,169,110,0.85); }
 .log-confirm { font-size: 11px; letter-spacing: 2px; color: rgba(126,200,160,0.7); text-align: center; margin-top: 12px; height: 16px; font-style: italic; }
 
-/* Ask Grail response panel */
+/* Ask AILIV response panel */
 
 
 /* Labs import zone */
@@ -462,7 +462,7 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
 </div>
 
 <div id="grail-word">grail</div>
-<div id="credit">© Grail</div>
+<div id="credit">© AILIV</div>
 <div id="vitality">
   <div class="score-rule"></div>
   <div class="score" id="vitality-score">—</div>
@@ -474,11 +474,11 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
 
 <!-- Guide panel -->
 <div class="panel" id="guide-panel">
-  <div class="gd-title">The Grail Guide</div>
+  <div class="gd-title">The AILIV Guide</div>
 
   <span class="gd-eyebrow">What this is</span>
   <div class="gd-heading">Your body, made visible.</div>
-  <div class="gd-body">Grail is a living interface for your biology. It pulls data from your wearables, your labs, and what you tell it — and turns all of it into a single breathing picture of where you are right now.</div>
+  <div class="gd-body">AILIV is a living interface for your biology. It pulls data from your wearables, your labs, and what you tell it — and turns all of it into a single breathing picture of where you are right now.</div>
   <hr class="gd-rule">
 
   <span class="gd-eyebrow">The circles</span>
@@ -487,23 +487,23 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
   <hr class="gd-rule">
 
   <span class="gd-eyebrow">The core</span>
-  <div class="gd-heading">The number is your Grail Guide score.</div>
+  <div class="gd-heading">The number is your AILIV Guide score.</div>
   <div class="gd-body">A weighted composite of all active biomarkers. It updates slowly and randomly — because your body doesn't change by the second. Watch it over days, not minutes. A score above 80 means your systems are aligned. Below 60 means something needs attention.</div>
   <hr class="gd-rule">
 
   <span class="gd-eyebrow">Logging</span>
   <div class="gd-heading">Feed it what you know.</div>
-  <div class="gd-body">Log meals and symptoms at the bottom. The more context you give Grail, the sharper the guidance it returns. Even rough entries — "felt foggy, skipped lunch" — are valuable signals when patterns emerge over weeks.</div>
+  <div class="gd-body">Log meals and symptoms at the bottom. The more context you give AILIV, the sharper the guidance it returns. Even rough entries — "felt foggy, skipped lunch" — are valuable signals when patterns emerge over weeks.</div>
   <hr class="gd-rule">
 
-  <span class="gd-eyebrow">Ask Grail</span>
+  <span class="gd-eyebrow">Ask AILIV</span>
   <div class="gd-heading">This is where it gets interesting.</div>
-  <div class="gd-body">Hit Ask Grail and your entire biological profile — every biomarker, every logged symptom, every meal — gets routed through five AI models simultaneously. They disagree. They debate. A synthesis verdict comes back: a precise 7-day protocol for diet, sleep, and recovery. Built for you. Right now.</div>
+  <div class="gd-body">Hit Ask AILIV and your entire biological profile — every biomarker, every logged symptom, every meal — gets routed through five AI models simultaneously. They disagree. They debate. A synthesis verdict comes back: a precise 7-day protocol for diet, sleep, and recovery. Built for you. Right now.</div>
   <hr class="gd-rule">
 
   <span class="gd-eyebrow">Connecting data</span>
   <div class="gd-heading">Make the simulation real.</div>
-  <div class="gd-body">Export your Apple Health data and drop it into Grail. Every node that has real data stops simulating and starts reporting. Use Connect in the top bar to set up live data bridges from your devices.</div>
+  <div class="gd-body">Export your Apple Health data and drop it into AILIV. Every node that has real data stops simulating and starts reporting. Use Connect in the top bar to set up live data bridges from your devices.</div>
 
   <span class="gd-close" id="guide-close">Close</span>
 </div>
@@ -565,7 +565,7 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
 
 <!-- Scoring panel -->
 <div class="panel" id="scoring-panel">
-  <div class="sc-eyebrow">Grail Score</div>
+  <div class="sc-eyebrow">AILIV Score</div>
   <div class="sc-score-num" id="sc-score-num">—</div>
   <div class="sc-verdict" id="sc-verdict"></div>
   <div class="sc-narrative" id="sc-narrative"></div>
@@ -2038,7 +2038,7 @@ document.getElementById('tb-export').addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(d,null,2)], {type:'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'grail-export.json';
+    a.download = 'ailiv-export.json';
     a.click();
   });
 });

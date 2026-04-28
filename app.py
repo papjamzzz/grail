@@ -91,7 +91,7 @@ def api_ask():
     question = str(body.get('question', ''))[:600]
     health = rjson(HEALTH_FILE, DEFAULT_HEALTH.copy())
     vitals = {k: v for k, v in health.items() if v is not None}
-    system = f"""You are Grail, a precision biohacking AI. Help users understand their biomarkers and optimize longevity.
+    system = f"""You are AILIV, a precision biohacking AI. Help users understand their biomarkers and optimize longevity.
 Current biomarker data: {json.dumps(vitals)}
 Be concise and specific. Reference the user's actual data when relevant. 2-3 short paragraphs max. No bullet lists."""
     client = ant.Anthropic(api_key=api_key)
@@ -123,7 +123,7 @@ def ingest():
                 pass
     data['last_updated'] = time.strftime('%H:%M')
     wjson(HEALTH_FILE, data)
-    print(f"[Grail] Ingest: {body}")
+    print(f"[AILIV] Ingest: {body}")
     return jsonify({"ok": True, "data": data})
 
 @app.route('/api/data')
@@ -272,7 +272,7 @@ def api_labs():
     wjson(HEALTH_FILE, data)
     return jsonify(data)
 
-# Grail Guide — full synthesis via 5i
+# AILIV Guide — full synthesis via 5i
 @app.route('/api/grail-guide', methods=['POST'])
 def grail_guide():
     health   = rjson(HEALTH_FILE, DEFAULT_HEALTH.copy())
@@ -288,7 +288,7 @@ def grail_guide():
         if v is None: return "not recorded"
         return f"{round(v, dec) if dec else int(round(v))}{unit}"
 
-    prompt = f"""You are a precision health advisor reviewing a biohacker's complete profile. Current Grail Guide Score: {score}/100.
+    prompt = f"""You are a precision health advisor reviewing a biohacker's complete profile. Current AILIV Guide Score: {score}/100.
 
 BIOMETRICS:
 - Resting Heart Rate: {fmt(health['resting_hr'], ' bpm')}
@@ -309,7 +309,7 @@ RECENT SYMPTOMS:
 MEAL LOG (last 14 entries):
 {meal_lines}
 
-Based on this complete profile, provide a precise 7-day dietary and lifestyle protocol to improve the Grail Guide Score. Be specific — name foods, timing, quantities where relevant. Identify the 2-3 highest-leverage interventions."""
+Based on this complete profile, provide a precise 7-day dietary and lifestyle protocol to improve the AILIV Guide Score. Be specific — name foods, timing, quantities where relevant. Identify the 2-3 highest-leverage interventions."""
 
     try:
         resp = req.post(FI_URL, json={

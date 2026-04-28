@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Grail — BioBaseline</title>
+<title>AILIV — BioBaseline</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 /* ─── THEME ─────────────────────────────────────────────── */
@@ -593,7 +593,7 @@ nav{
 <div class="panel" style="padding-top:8px;overflow:hidden">
   <div class="rtabs">
     <button class="rtab active" onclick="switchRTab('protocol',this)">Protocol</button>
-    <button class="rtab" onclick="switchRTab('ask',this)">Ask Grail</button>
+    <button class="rtab" onclick="switchRTab('ask',this)">Ask AILIV</button>
     <button class="rtab" onclick="switchRTab('log',this)">Bio Log</button>
   </div>
 
@@ -611,7 +611,7 @@ nav{
     <div class="glist" id="goalList"></div>
   </div>
 
-  <!-- Ask Grail -->
+  <!-- Ask AILIV -->
   <div class="rtab-pane" id="rtab-ask">
     <div class="ag-header">Claude Haiku · Your 40 biomarkers are in context</div>
     <div class="ag-msgs" id="agMsgs">
@@ -619,8 +619,8 @@ nav{
     </div>
     <div class="ag-input-row">
       <input class="ag-input" id="agInput" placeholder="What should I prioritize this week?"
-             onkeydown="if(event.key==='Enter')askGrail()">
-      <button class="ag-send" onclick="askGrail()">↑</button>
+             onkeydown="if(event.key==='Enter')askAiliv()">
+      <button class="ag-send" onclick="askAiliv()">↑</button>
     </div>
   </div>
 
@@ -1071,7 +1071,7 @@ function switchRTab(tab,btn){
 }
 
 // ── ASK GRAIL ─────────────────────────────────────────────────────────
-async function askGrail(){
+async function askAiliv(){
   const inp=document.getElementById('agInput');
   const q=inp.value.trim();if(!q)return;
   inp.value='';inp.disabled=true;
@@ -1086,7 +1086,7 @@ async function askGrail(){
     tm.classList.remove('thinking');
     tm.textContent=d.ok?d.answer:'Unable to connect — check your ANTHROPIC_API_KEY in settings.';
   }catch(e){
-    tm.classList.remove('thinking');tm.textContent='Connection error. Make sure the Grail server is running.';
+    tm.classList.remove('thinking');tm.textContent='Connection error. Make sure the AILIV server is running.';
   }
   msgs.scrollTop=msgs.scrollHeight;inp.disabled=false;inp.focus();
 }
@@ -1149,7 +1149,7 @@ renderScore();renderBioAge();renderInsight();renderActions();renderDots();render
     <div class="pmod-hdr">
       <div>
         <div class="pmod-title">Partner Ecosystem</div>
-        <div class="pmod-sub">Best-in-class tools trusted by the Grail community</div>
+        <div class="pmod-sub">Best-in-class tools trusted by the AILIV community</div>
       </div>
       <button class="pmod-close" onclick="closePartnerships()">✕</button>
     </div>
@@ -1456,6 +1456,6 @@ function closeTeam(){document.getElementById('tmodOverlay').classList.remove('op
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePartnerships();closeSupplies();closeTeam()}})
 </script>
 
-<div style="position:fixed;bottom:16px;left:20px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);opacity:.45;pointer-events:none;z-index:10;">© Grail</div>
+<div style="position:fixed;bottom:16px;left:20px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);opacity:.45;pointer-events:none;z-index:10;">© AILIV</div>
 </body>
 </html>
