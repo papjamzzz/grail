@@ -133,6 +133,19 @@ Shows: status dot (green/orange/red) + label → system name → value → unit 
 
 ---
 
+## Files
+| File | Purpose |
+|------|---------|
+| `whoop_token.json` | WHOOP OAuth token (auto-created on connect) |
+
+## WHOOP Integration
+- OAuth 2.0 flow: `/whoop/connect` → WHOOP → `/whoop/callback`
+- Syncs: resting HR, HRV, SpO2, respiratory rate, sleep hours, recovery score, skin temp, strain
+- Routes: `GET /whoop/status`, `POST /whoop/sync`, `POST /whoop/disconnect`
+- Settings panel shows Connect/Sync/Disconnect buttons + last sync time
+- Requires `.env`: `WHOOP_CLIENT_ID`, `WHOOP_CLIENT_SECRET`, `WHOOP_REDIRECT_URI`
+- Register app at: https://developer-dashboard.whoop.com (redirect URI: http://127.0.0.1:5566/whoop/callback)
+
 ## What's Done
 - [x] 40 biomarker orbs, 4 rings, all orbiting at different speeds
 - [x] Organic blob shapes (summed sine waves)

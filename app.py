@@ -1,6 +1,6 @@
-from flask import Flask, request, jsonify, send_from_directory
-import json, os, time, requests as req, base64, re
-# routes: / /cells /bodyfigure /console
+from flask import Flask, request, jsonify, send_from_directory, redirect
+import json, os, time, requests as req, base64, re, urllib.parse, secrets
+# routes: / /cells /bodyfigure /console /whoop/*
 
 # Load .env for local dev
 _env_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -20,6 +20,13 @@ SYMPTOM_FILE = os.path.join(BASE, 'symptoms.json')
 MEAL_FILE    = os.path.join(BASE, 'meals.json')
 
 FI_URL = 'http://127.0.0.1:5562/ask'
+
+WHOOP_TOKEN_FILE  = os.path.join(os.path.dirname(__file__), 'whoop_token.json')
+WHOOP_AUTH_URL    = 'https://api.prod.whoop.com/oauth/oauth2/auth'
+WHOOP_TOKEN_URL   = 'https://api.prod.whoop.com/oauth/oauth2/token'
+WHOOP_BASE        = 'https://api.prod.whoop.com/developer/v1'
+WHOOP_SCOPES      = 'read:recovery read:sleep read:workout read:body_measurement offline'
+WHOOP_REDIRECT    = os.environ.get('WHOOP_REDIRECT_URI', 'http://127.0.0.1:5566/whoop/callback')
 
 DEFAULT_HEALTH = {
     "heart_rate": None, "hrv": None, "spo2": None,
@@ -46,6 +53,8 @@ def wjson(path, data):
 DOMAIN_MAP = {
     'grailcells.creativekonsoles.com': 'cells.html',
     'grailbody.creativekonsoles.com':  'body.html',
+    'ailiv.health':                    'ailiv-landing.html',
+    'www.ailiv.health':                'ailiv-landing.html',
 }
 
 # ------- routes -------
@@ -55,6 +64,10 @@ def index():
     host = request.host.split(':')[0]
     filename = DOMAIN_MAP.get(host, 'index.html')
     return send_from_directory(BASE, filename)
+
+@app.route('/ailiv')
+def ailiv_landing():
+    return send_from_directory(BASE, 'ailiv-landing.html')
 
 @app.route('/cells')
 def cells():
@@ -326,6 +339,172 @@ Based on this complete profile, provide a precise 7-day dietary and lifestyle pr
         })
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
+
+# -------- WHOOP helpers --------
+
+def whoop_token():
+    if os.path.exists(WHOOP_TOKEN_FILE):
+        with open(WHOOP_TOKEN_FILE) as f:
+            return json.load(f)
+    return None
+
+def whoop_save_token(data):
+    data['saved_at'] = time.time()
+    with open(WHOOP_TOKEN_FILE, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def whoop_refresh(token):
+    client_id     = os.environ.get('WHOOP_CLIENT_ID', '')
+    client_secret = os.environ.get('WHOOP_CLIENT_SECRET', '')
+    r = req.post(WHOOP_TOKEN_URL, data={
+        'grant_type':    'refresh_token',
+        'refresh_token': token['refresh_token'],
+        'client_id':     client_id,
+        'client_secret': client_secret,
+    }, timeout=15)
+    r.raise_for_status()
+    new_token = r.json()
+    if 'refresh_token' not in new_token:
+        new_token['refresh_token'] = token['refresh_token']
+    whoop_save_token(new_token)
+    return new_token
+
+def whoop_get(path, token):
+    headers = {'Authorization': f"Bearer {token['access_token']}"}
+    r = req.get(f"{WHOOP_BASE}{path}", headers=headers, timeout=15)
+    if r.status_code == 401:
+        token = whoop_refresh(token)
+        headers = {'Authorization': f"Bearer {token['access_token']}"}
+        r = req.get(f"{WHOOP_BASE}{path}", headers=headers, timeout=15)
+    r.raise_for_status()
+    return r.json(), token
+
+# -------- WHOOP routes --------
+
+@app.route('/whoop/connect')
+def whoop_connect():
+    client_id = os.environ.get('WHOOP_CLIENT_ID', '')
+    if not client_id:
+        return 'WHOOP_CLIENT_ID not set in .env', 400
+    state = secrets.token_urlsafe(16)
+    params = urllib.parse.urlencode({
+        'client_id':     client_id,
+        'redirect_uri':  WHOOP_REDIRECT,
+        'response_type': 'code',
+        'scope':         WHOOP_SCOPES,
+        'state':         state,
+    })
+    return redirect(f"{WHOOP_AUTH_URL}?{params}")
+
+@app.route('/whoop/callback')
+def whoop_callback():
+    code  = request.args.get('code')
+    error = request.args.get('error')
+    if error or not code:
+        return redirect('/?whoop=error')
+    client_id     = os.environ.get('WHOOP_CLIENT_ID', '')
+    client_secret = os.environ.get('WHOOP_CLIENT_SECRET', '')
+    r = req.post(WHOOP_TOKEN_URL, data={
+        'grant_type':    'authorization_code',
+        'code':          code,
+        'redirect_uri':  WHOOP_REDIRECT,
+        'client_id':     client_id,
+        'client_secret': client_secret,
+    }, timeout=15)
+    if not r.ok:
+        print(f'[WHOOP] Token exchange failed: {r.text}')
+        return redirect('/?whoop=error')
+    whoop_save_token(r.json())
+    return redirect('/?whoop=connected')
+
+@app.route('/whoop/status')
+def whoop_status():
+    token = whoop_token()
+    if not token:
+        return jsonify({'connected': False})
+    return jsonify({
+        'connected':    True,
+        'last_sync':    token.get('last_sync'),
+        'saved_at':     token.get('saved_at'),
+    })
+
+@app.route('/whoop/sync', methods=['POST'])
+def whoop_sync():
+    token = whoop_token()
+    if not token:
+        return jsonify({'ok': False, 'error': 'Not connected'}), 401
+
+    synced = {}
+    errors = []
+
+    try:
+        resp, token = whoop_get('/recovery?limit=1', token)
+        records = resp.get('records', [])
+        if records:
+            score = records[0].get('score', {})
+            if score.get('recovery_score') is not None:
+                synced['recovery_score'] = score['recovery_score']
+            if score.get('resting_heart_rate') is not None:
+                synced['resting_hr'] = score['resting_heart_rate']
+            if score.get('hrv_rmssd_milli') is not None:
+                synced['hrv'] = score['hrv_rmssd_milli']
+            if score.get('respiratory_rate') is not None:
+                synced['respiratory_rate'] = score['respiratory_rate']
+            if score.get('spo2_percentage') is not None:
+                synced['spo2'] = score['spo2_percentage']
+            if score.get('skin_temp_celsius') is not None:
+                synced['temperature'] = round(score['skin_temp_celsius'] * 9/5 + 32, 1)
+    except Exception as e:
+        errors.append(f'recovery: {e}')
+
+    try:
+        resp, token = whoop_get('/activity/sleep?limit=1', token)
+        records = resp.get('records', [])
+        if records:
+            score = records[0].get('score', {})
+            summary = score.get('stage_summary', {})
+            total_ms = (
+                summary.get('total_slow_wave_sleep_time_milli', 0) +
+                summary.get('total_rem_sleep_time_milli', 0) +
+                summary.get('total_light_sleep_time_milli', 0)
+            )
+            if total_ms:
+                synced['sleep_hours'] = round(total_ms / 3600000, 2)
+            if score.get('respiratory_rate') is not None and 'respiratory_rate' not in synced:
+                synced['respiratory_rate'] = score['respiratory_rate']
+    except Exception as e:
+        errors.append(f'sleep: {e}')
+
+    try:
+        resp, token = whoop_get('/cycle?limit=1', token)
+        records = resp.get('records', [])
+        if records:
+            score = records[0].get('score', {})
+            if score.get('strain') is not None:
+                synced['whoop_strain'] = round(score['strain'], 2)
+    except Exception as e:
+        errors.append(f'cycle: {e}')
+
+    data = rjson(HEALTH_FILE, DEFAULT_HEALTH.copy())
+    for k, v in synced.items():
+        if k != 'whoop_strain':
+            data[k] = v
+    data['whoop_strain']  = synced.get('whoop_strain')
+    data['whoop_recovery'] = synced.get('recovery_score')
+    data['last_updated']  = time.strftime('%Y-%m-%dT%H:%M:%S')
+    wjson(HEALTH_FILE, data)
+
+    token['last_sync'] = time.strftime('%Y-%m-%dT%H:%M:%S')
+    whoop_save_token(token)
+
+    return jsonify({'ok': True, 'synced': synced, 'errors': errors})
+
+@app.route('/whoop/disconnect', methods=['POST'])
+def whoop_disconnect():
+    if os.path.exists(WHOOP_TOKEN_FILE):
+        os.remove(WHOOP_TOKEN_FILE)
+    return jsonify({'ok': True})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5566, debug=True)

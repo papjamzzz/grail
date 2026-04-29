@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AILIV</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #F7F4EF; }
+  canvas { display: block; position: fixed; inset: 0; }
+
+
+  #copyright {
+    position: fixed;
+    bottom: 24px; left: 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #7B4FBF;
+    z-index: 10;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0;
+  }
+  #contact {
+    position: fixed;
+    bottom: 24px; right: 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: lowercase;
+    color: #7B4FBF;
+    z-index: 10;
+    user-select: none;
+    opacity: 0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  #contact:hover { color: #5B2F9F; }
+
+  #tooltip {
+    position: fixed;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.22s ease;
+    text-align: center;
+    transform: translate(-50%, 0);
+  }
+  #tooltip.visible { opacity: 1; }
+  #tooltip-name {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    display: block;
+    line-height: 1.7;
+  }
+  #tooltip-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    display: block;
+    line-height: 1;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="copyright">© AILIV</div>
+<a id="contact" href="mailto:contact@ailiv.health">contact@ailiv.health</a>
+<div id="tooltip">
+  <span id="tooltip-name"></span>
+  <span id="tooltip-score"></span>
+</div>
+
+<script>
+const canvas    = document.getElementById('c');
+const ctx       = canvas.getContext('2d');
+const copyEl    = document.getElementById('copyright');
+const contactEl = document.getElementById('contact');
+const tipEl     = document.getElementById('tooltip');
+const tipName   = document.getElementById('tooltip-name');
+const tipScore  = document.getElementById('tooltip-score');
+
+const BG = '247,244,239';
+
+const COLORS = {
+  green : [74,  183, 112],
+  yellow: [235, 158, 52 ],
+  red   : [210, 72,  72 ],
+};
+
+const BIOMARKERS = [
+  { name: 'HRV',              score: 72, status: 'green'  },
+  { name: 'Recovery',         score: 68, status: 'green'  },
+  { name: 'VO₂ Max',          score: 55, status: 'yellow' },
+  { name: 'Deep Sleep',       score: 45, status: 'yellow' },
+  { name: 'Strain',           score: 81, status: 'green'  },
+  { name: 'Glucose',          score: 77, status: 'green'  },
+  { name: 'Cortisol',         score: 62, status: 'yellow' },
+  { name: 'SpO₂',             score: 94, status: 'green'  },
+  { name: 'Testosterone',     score: 58, status: 'yellow' },
+  { name: 'Vitamin D',        score: 42, status: 'yellow' },
+  { name: 'CRP',              score: 34, status: 'red'    },
+  { name: 'REM Sleep',        score: 71, status: 'green'  },
+  { name: 'Respiratory Rate', score: 88, status: 'green'  },
+  { name: 'Resting HR',       score: 65, status: 'yellow' },
+  { name: 'NAD+',             score: 38, status: 'red'    },
+  { name: 'Magnesium',        score: 52, status: 'yellow' },
+  { name: 'Ferritin',         score: 44, status: 'yellow' },
+  { name: 'IGF-1',            score: 61, status: 'yellow' },
+  { name: 'DHEA-S',           score: 55, status: 'yellow' },
+  { name: 'ApoB',             score: 36, status: 'red'    },
+  { name: 'Zinc',             score: 67, status: 'yellow' },
+  { name: 'Omega-3',          score: 48, status: 'yellow' },
+  { name: 'Homocysteine',     score: 41, status: 'yellow' },
+  { name: 'Albumin',          score: 79, status: 'green'  },
+  { name: 'TSH',              score: 72, status: 'green'  },
+];
+
+// ── timing ──
+const T_GLIMPSE     = 0.6;   // spin imminent
+const T_SPINUP      = 4.6;   // spin-up complete
+const T_PEAK_END    = 8.2;   // braking begins
+const T_STOPPED     = 13.0;  // fully stopped
+const T_SETTLE_END  = 15.2;  // orbs at final positions
+const T_FOOTER_IN   = 13.8;  // footer fades in
+const SETTLE_DUR    = T_SETTLE_END - T_STOPPED;
+const MAX_SPEED     = 4.2;
+
+function centrifugeNorm(e) {
+  if (e < T_GLIMPSE) return 0;
+  if (e < T_SPINUP) {
+    const t = (e - T_GLIMPSE) / (T_SPINUP - T_GLIMPSE);
+    if (t < 0.08) return t * 0.4;
+    return 0.032 + Math.pow((t - 0.08) / 0.92, 2.6) * 0.968;
+  }
+  if (e < T_PEAK_END) return 1.0;
+  if (e < T_STOPPED) {
+    const t = (e - T_PEAK_END) / (T_STOPPED - T_PEAK_END);
+    return Math.pow(1 - t, 0.55);
+  }
+  return 0;
+}
+
+function easeOutQuint(t) { return 1 - Math.pow(1 - Math.min(t, 1), 5); }
+function clamp01(v)      { return Math.max(0, Math.min(1, v)); }
+
+// ── fabric texture ──
+function buildFabricPattern() {
+  const fc = document.createElement('canvas');
+  fc.width = fc.height = 64;
+  const fx = fc.getContext('2d');
+  fx.fillStyle = '#fff';
+  fx.fillRect(0, 0, 64, 64);
+  fx.strokeStyle = 'rgba(0,0,0,0.13)';
+  fx.lineWidth = 0.7;
+  for (let i = -64; i < 128; i += 3.5) {
+    fx.beginPath(); fx.moveTo(i, 0); fx.lineTo(i + 64, 64); fx.stroke();
+  }
+  fx.strokeStyle = 'rgba(0,0,0,0.055)';
+  fx.lineWidth = 0.5;
+  for (let i = -64; i < 128; i += 7) {
+    fx.beginPath(); fx.moveTo(i + 64, 0); fx.lineTo(i, 64); fx.stroke();
+  }
+  fx.strokeStyle = 'rgba(0,0,0,0.03)';
+  fx.lineWidth = 0.4;
+  for (let i = 0; i < 64; i += 5) {
+    fx.beginPath(); fx.moveTo(0, i); fx.lineTo(64, i); fx.stroke();
+  }
+  const id = fx.getImageData(0, 0, 64, 64);
+  for (let i = 0; i < id.data.length; i += 4) {
+    const n = (Math.random() - 0.5) * 22;
+    id.data[i]   = Math.max(0, Math.min(255, id.data[i]   + n));
+    id.data[i+1] = Math.max(0, Math.min(255, id.data[i+1] + n));
+    id.data[i+2] = Math.max(0, Math.min(255, id.data[i+2] + n));
+  }
+  fx.putImageData(id, 0, 0);
+  return ctx.createPattern(fc, 'repeat');
+}
+
+let fabricPattern = null;
+let W, H, cx, cy, mX = -999, mY = -999;
+
+const N = BIOMARKERS.length;
+const orbs = [];
+
+for (let i = 0; i < N; i++) {
+  const bm = BIOMARKERS[i];
+  orbs.push({
+    name    : bm.name,
+    score   : bm.score,
+    rgb     : COLORS[bm.status],
+    size    : 8 + Math.random() * 10,
+    phase   : Math.random() * Math.PI * 2,
+    pulseSpd: 0.8 + Math.random() * 0.7,
+    hbTimer : Math.random() * 12,
+    hbFlash : 0,
+    finalX: 0, finalY: 0,
+    orbR: 0, spinAngle: 0, restAngle: 0,
+    stopX: 0, stopY: 0,
+    x: 0, y: 0,
+  });
+}
+
+function buildFinalPositions() {
+  const minDim  = Math.min(W, H);
+  const deadZone = minDim * 0.20;
+  const placed   = [];
+  orbs.forEach((o, i) => {
+    let fx, fy, att = 0;
+    do {
+      const base  = (i / N) * Math.PI * 2;
+      const angle = base + (Math.random() - 0.5) * (Math.PI * 2 / N) * 1.2;
+      const r     = minDim * (0.22 + Math.random() * 0.34);
+      fx = cx + Math.cos(angle) * r;
+      fy = cy + Math.sin(angle) * r;
+      att++;
+      const close = placed.some(p => Math.hypot(p.x - fx, p.y - fy) < o.size * 4.5);
+      if (!close && Math.hypot(fx - cx, fy - cy) > deadZone) break;
+    } while (att < 30);
+    fx = Math.max(o.size * 4, Math.min(W - o.size * 4, fx));
+    fy = Math.max(o.size * 4, Math.min(H - o.size * 4, fy));
+    o.finalX    = fx; o.finalY = fy;
+    o.orbR      = Math.hypot(fx - cx, fy - cy);
+    o.restAngle = Math.atan2(fy - cy, fx - cx);
+    o.spinAngle = o.restAngle;
+    placed.push({ x: fx, y: fy });
+  });
+}
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  cx = W / 2; cy = H / 2;
+  buildFinalPositions();
+  if (ctx) fabricPattern = buildFabricPattern();
+}
+resize();
+window.addEventListener('resize', resize);
+
+function drawOrb(x, y, r, alive, pulse, hbFlash, rgb, withTexture) {
+  const [cr, cg, cb] = rgb;
+  const hb = hbFlash * 1.5;
+  const na = alive + hb;
+  const nb = r + pulse * r * 0.36;
+
+  const gStr = (0.055 + pulse * 0.08) * na;
+  const glow = ctx.createRadialGradient(x, y, nb * 0.2, x, y, nb * 3.8);
+  glow.addColorStop(0, `rgba(${cr},${cg},${cb},${gStr})`);
+  glow.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(x, y, nb * 3.8, 0, Math.PI * 2); ctx.fill();
+
+  const cStr = (0.70 + pulse * 0.18) * na;
+  const core = ctx.createRadialGradient(x, y, 0, x, y, nb);
+  core.addColorStop(0,    `rgba(${cr},${cg},${cb},${Math.min(cStr * 1.12, 1)})`);
+  core.addColorStop(0.55, `rgba(${cr},${cg},${cb},${cStr})`);
+  core.addColorStop(1,    `rgba(${cr},${cg},${cb},0.06)`);
+  ctx.fillStyle = core;
+  ctx.beginPath(); ctx.arc(x, y, nb, 0, Math.PI * 2); ctx.fill();
+
+  if (withTexture && fabricPattern) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, nb * 0.92, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.globalCompositeOperation = 'soft-light';
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = fabricPattern;
+    ctx.fillRect(x - nb, y - nb, nb * 2, nb * 2);
+    ctx.restore();
+  }
+
+  const rA = (0.20 + pulse * 0.26) * na;
+  ctx.strokeStyle = `rgba(${cr},${cg},${cb},${rA})`;
+  ctx.lineWidth   = 0.7;
+  ctx.beginPath(); ctx.arc(x, y, nb * 1.06, 0, Math.PI * 2); ctx.stroke();
+}
+
+let startTime    = null;
+let lastTime     = null;
+let stopRecorded = false;
+
+function frame(ts) {
+  requestAnimationFrame(frame);
+  if (!startTime) { startTime = ts; lastTime = ts; }
+  const elapsed    = (ts - startTime) / 1000;
+  const dt         = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+
+  const speedNorm  = centrifugeNorm(elapsed);
+  const speed      = speedNorm * MAX_SPEED;
+  const deltaAngle = speed * dt;
+  const spinning   = speedNorm > 0.005;
+  const settling   = !spinning && elapsed < T_SETTLE_END;
+  const atRest     = !spinning && !settling;
+
+  if (!spinning && !stopRecorded) {
+    stopRecorded = true;
+    orbs.forEach(o => { o.stopX = o.x; o.stopY = o.y; });
+  }
+
+  // orb global alpha: fade in as intro text fades out
+  const orbAlpha = elapsed < T_GLIMPSE
+    ? clamp01((elapsed - (T_GLIMPSE - 0.8)) / 0.8)
+    : 1;
+
+  // clear / trail
+  if (spinning) {
+    const trailAlpha = 0.07 + (1 - speedNorm) * 0.86;
+    ctx.fillStyle = `rgba(${BG},${trailAlpha})`;
+    ctx.fillRect(0, 0, W, H);
+  } else {
+    ctx.fillStyle = `rgb(${BG})`;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // vignette
+  const vig = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.72);
+  vig.addColorStop(0,   'rgba(247,244,239,0)');
+  vig.addColorStop(0.7, 'rgba(247,244,239,0)');
+  vig.addColorStop(1,   'rgba(247,244,239,0.5)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+
+  const t = elapsed;
+  let hoveredOrb = null, minDist = Infinity;
+
+  ctx.globalAlpha = orbAlpha;
+  orbs.forEach(o => {
+    let x, y;
+
+    if (spinning) {
+      o.spinAngle += deltaAngle;
+      o.hbFlash = 0;
+      let vib = 0;
+      if (elapsed > T_GLIMPSE && elapsed < T_SPINUP) {
+        const sn = (elapsed - T_GLIMPSE) / (T_SPINUP - T_GLIMPSE);
+        vib = Math.sin(elapsed * 22 + o.phase * 3) * (o.orbR * 0.04) * Math.sin(sn * Math.PI);
+      }
+      x = cx + Math.cos(o.spinAngle) * (o.orbR + vib);
+      y = cy + Math.sin(o.spinAngle) * (o.orbR + vib);
+    } else if (settling) {
+      const ease = easeOutQuint((elapsed - T_STOPPED) / SETTLE_DUR);
+      x = o.stopX + (o.finalX - o.stopX) * ease;
+      y = o.stopY + (o.finalY - o.stopY) * ease;
+      o.hbFlash = 0;
+    } else {
+      x = o.finalX; y = o.finalY;
+      o.hbTimer -= dt;
+      if (o.hbTimer <= 0) { o.hbFlash = 1.0; o.hbTimer = 5 + Math.random() * 15; }
+      if (o.hbFlash > 0) o.hbFlash = Math.max(0, o.hbFlash - 0.05);
+    }
+
+    o.x = x; o.y = y;
+
+    const pulse      = Math.sin(t * o.pulseSpd + o.phase) * 0.5 + 0.5;
+    const brightness = spinning ? 0.55 + speedNorm * 0.35 : 0.85;
+    drawOrb(x, y, o.size, brightness, pulse, o.hbFlash, o.rgb, atRest);
+
+    if (atRest) {
+      const d = Math.hypot(x - mX, y - mY);
+      if (d < minDist && d < o.size * 9) { minDist = d; hoveredOrb = o; }
+    }
+  });
+  ctx.globalAlpha = 1;
+
+  // tooltip
+  if (hoveredOrb && atRest) {
+    const [cr, cg, cb] = hoveredOrb.rgb;
+    const color = `rgb(${cr},${cg},${cb})`;
+    tipName.textContent  = hoveredOrb.name;
+    tipScore.textContent = hoveredOrb.score;
+    tipName.style.color  = color;
+    tipScore.style.color = color;
+    tipEl.style.left = hoveredOrb.x + 'px';
+    tipEl.style.top  = (hoveredOrb.y - hoveredOrb.size * 5) + 'px';
+    tipEl.classList.add('visible');
+  } else {
+    tipEl.classList.remove('visible');
+  }
+
+
+  // footer — fades in after orbs settle, stays forever
+  const footerAlpha = elapsed > T_FOOTER_IN
+    ? clamp01((elapsed - T_FOOTER_IN) / 1.8) * 0.75
+    : 0;
+  copyEl.style.opacity    = footerAlpha;
+  contactEl.style.opacity = footerAlpha;
+}
+
+window.addEventListener('mousemove', e => { mX = e.clientX; mY = e.clientY; });
+window.addEventListener('touchmove', e => {
+  mX = e.touches[0].clientX; mY = e.touches[0].clientY;
+}, { passive: true });
+window.addEventListener('touchend', () => { mX = -999; mY = -999; });
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

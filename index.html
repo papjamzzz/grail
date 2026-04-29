@@ -117,6 +117,21 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 .st-close { margin-top: 32px; font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.45); cursor: pointer; transition: color 0.3s; display: block; text-align: center; }
 .st-close:hover { color: rgba(201,169,110,0.8); }
 
+/* WHOOP integration UI */
+.st-divider { height: 1px; background: rgba(201,169,110,0.12); margin: 12px 0; }
+.st-section-label { font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: rgba(201,169,110,0.4); margin-bottom: 4px; }
+.whoop-status-wrap { display: flex; align-items: center; gap: 8px; }
+.whoop-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(201,169,110,0.25); flex-shrink: 0; }
+.whoop-dot.connected { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.6); }
+.whoop-dot.disconnected { background: rgba(201,169,110,0.25); }
+.whoop-status-text { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(201,169,110,0.55); }
+.whoop-btn-row { justify-content: flex-end; gap: 10px; border-bottom: none; }
+.whoop-btn { background: none; border: 1px solid rgba(201,169,110,0.3); color: rgba(201,169,110,0.75); font-family: 'Cormorant Garamond', serif; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; padding: 7px 14px; cursor: pointer; transition: all 0.25s; border-radius: 2px; }
+.whoop-btn:hover { border-color: rgba(201,169,110,0.7); color: rgba(201,169,110,1); }
+.whoop-btn-sync { border-color: rgba(201,169,110,0.5); color: rgba(201,169,110,0.85); }
+.whoop-btn-dis { border-color: rgba(255,80,80,0.25); color: rgba(255,120,120,0.55); }
+.whoop-btn-dis:hover { border-color: rgba(255,80,80,0.6); color: rgba(255,120,120,0.9); }
+
 /* Toggle switch */
 .st-toggle { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
 .st-toggle input { opacity: 0; width: 0; height: 0; }
@@ -461,7 +476,7 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
   </button>
 </div>
 
-<div id="grail-word">ailiv</div>
+<div id="grail-word">AILIV</div>
 <div id="credit">© AILIV</div>
 <div id="vitality">
   <div class="score-rule"></div>
@@ -522,6 +537,24 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
       <input type="checkbox" id="st-lightmode">
       <span class="st-toggle-track"></span>
     </label>
+  </div>
+  <div class="st-divider"></div>
+  <div class="st-section-label">Integrations</div>
+  <div class="st-row whoop-row">
+    <span class="st-label">WHOOP</span>
+    <div class="whoop-status-wrap">
+      <span class="whoop-dot" id="whoop-dot"></span>
+      <span class="whoop-status-text" id="whoop-status-text">Checking...</span>
+    </div>
+  </div>
+  <div class="st-row" id="whoop-sync-row" style="display:none">
+    <span class="st-label">Last Sync</span>
+    <span class="st-val" id="whoop-last-sync">—</span>
+  </div>
+  <div class="st-row whoop-btn-row">
+    <button class="whoop-btn" id="whoop-connect-btn" style="display:none" onclick="whoopConnect()">Connect WHOOP</button>
+    <button class="whoop-btn whoop-btn-sync" id="whoop-sync-btn" style="display:none" onclick="whoopSync()">Sync Now</button>
+    <button class="whoop-btn whoop-btn-dis" id="whoop-disconnect-btn" style="display:none" onclick="whoopDisconnect()">Disconnect</button>
   </div>
   <span class="st-close" id="settings-close">Close</span>
 </div>
@@ -2266,6 +2299,86 @@ function closeAll(resetOverlay=true) {
 }
 document.getElementById('overlay').addEventListener('click', closeAll);
 window.addEventListener('resize', resize);
+
+// ── WHOOP integration ──
+function whoopCheckStatus() {
+  fetch('/whoop/status')
+    .then(r => r.json())
+    .then(d => {
+      const dot  = document.getElementById('whoop-dot');
+      const txt  = document.getElementById('whoop-status-text');
+      const conn = document.getElementById('whoop-connect-btn');
+      const sync = document.getElementById('whoop-sync-btn');
+      const dis  = document.getElementById('whoop-disconnect-btn');
+      const syncRow = document.getElementById('whoop-sync-row');
+      const lastSync = document.getElementById('whoop-last-sync');
+      if (d.connected) {
+        dot.className = 'whoop-dot connected';
+        txt.textContent = 'Connected';
+        conn.style.display = 'none';
+        sync.style.display = 'inline-block';
+        dis.style.display  = 'inline-block';
+        syncRow.style.display = 'flex';
+        lastSync.textContent = d.last_sync ? d.last_sync.replace('T',' ') : 'Not yet';
+      } else {
+        dot.className = 'whoop-dot disconnected';
+        txt.textContent = 'Not Connected';
+        conn.style.display  = 'inline-block';
+        sync.style.display  = 'none';
+        dis.style.display   = 'none';
+        syncRow.style.display = 'none';
+      }
+    })
+    .catch(() => {
+      document.getElementById('whoop-status-text').textContent = 'Unavailable';
+    });
+}
+
+function whoopConnect() {
+  window.location.href = '/whoop/connect';
+}
+
+function whoopSync() {
+  const btn = document.getElementById('whoop-sync-btn');
+  btn.textContent = 'Syncing…';
+  btn.disabled = true;
+  fetch('/whoop/sync', { method: 'POST' })
+    .then(r => r.json())
+    .then(d => {
+      btn.textContent = 'Sync Now';
+      btn.disabled = false;
+      if (d.ok) {
+        whoopCheckStatus();
+        const fields = Object.keys(d.synced || {});
+        document.getElementById('whoop-last-sync').textContent = new Date().toLocaleTimeString();
+        console.log('[WHOOP] Synced:', fields.join(', '));
+      } else {
+        alert('WHOOP sync failed: ' + (d.error || 'unknown error'));
+      }
+    })
+    .catch(e => {
+      btn.textContent = 'Sync Now';
+      btn.disabled = false;
+      alert('WHOOP sync error: ' + e.message);
+    });
+}
+
+function whoopDisconnect() {
+  if (!confirm('Disconnect WHOOP?')) return;
+  fetch('/whoop/disconnect', { method: 'POST' })
+    .then(() => whoopCheckStatus());
+}
+
+// Check WHOOP status on page load + after OAuth redirect
+whoopCheckStatus();
+const _urlP = new URLSearchParams(window.location.search);
+if (_urlP.get('whoop') === 'connected') {
+  history.replaceState({}, '', '/');
+  whoopSync();
+} else if (_urlP.get('whoop') === 'error') {
+  history.replaceState({}, '', '/');
+  alert('WHOOP connection failed. Check your Client ID and Secret in .env');
+}
 </script>
 </body>
 </html>
