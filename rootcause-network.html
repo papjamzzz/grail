@@ -9,17 +9,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Pirata+One&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
 
 :root {
-  --bg: #f8f8f4;
+  --bg: #ffffff;
   --surface: #ffffff;
-  --border: #e0e0d8;
-  --text: #1a1a22;
-  --muted: #8a8a96;
-  --layer-lab:  #e03030;
-  --layer-root: #d07020;
-  --layer-rx:   #5a9010;
-  --accent: #5a9010;
-  --zone-line: #e8e8e2;
-  --link-inactive: #c8c8c0;
+  --border: #cacac0;
+  --text: #080810;
+  --muted: #48485a;
+  --layer-lab:  #cc1a1a;
+  --layer-root: #cc6810;
+  --layer-rx:   #c8a040;
+  --accent: #c8a040;
+  --zone-line: #e0e0d8;
+  --link-inactive: #b0b0a8;
   --node-bg: #ffffff;
 }
 
@@ -67,11 +67,13 @@ header {
   font-size: 2rem;
   letter-spacing: 0.04em;
   color: var(--text);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.9), 0 2px 6px rgba(0,0,0,0.12);
 }
 
 .header-title em {
-  font-style: italic;
+  font-style: normal;
   color: var(--layer-lab);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(204,26,26,0.25);
 }
 
 .header-right {
@@ -488,7 +490,7 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 .guide-action-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.55; }
 </style>
 </head>
-<body class="dark">
+<body>
 
 <div class="tooltip" id="tooltip"></div>
 
