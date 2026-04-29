@@ -59,10 +59,17 @@ DOMAIN_MAP = {
 
 # ------- routes -------
 
+@app.route('/debug-host')
+def debug_host():
+    return jsonify({'host': request.host, 'headers': dict(request.headers)})
+
 @app.route('/')
 def index():
-    host = request.host.split(':')[0]
+    host = request.host.split(':')[0].lower()
     filename = DOMAIN_MAP.get(host, 'index.html')
+    # fallback: if host contains 'ailiv', serve landing
+    if filename == 'index.html' and 'ailiv' in host:
+        filename = 'ailiv-landing.html'
     return send_from_directory(BASE, filename)
 
 @app.route('/ailiv')
