@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AILIV — Biobaseline</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #080810;
+  --surface: #11111a;
+  --border: #1e1e2a;
+  --text: #e8e8f0;
+  --muted: #5a5a70;
+  --c-metabolic: #f0a060;
+  --c-hormonal: #a060f0;
+  --c-inflammatory: #f06060;
+  --c-cardiovascular: #60c8f0;
+  --c-cognitive: #c8f060;
+  --c-longevity: #f060a0;
+  --accent: #c8f060;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 2.4rem 3rem 1.6rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-left h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+
+.header-left p {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+  letter-spacing: 0.08em;
+}
+
+.score-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.score-badge .num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 3.2rem;
+  line-height: 1;
+  color: var(--accent);
+  letter-spacing: -0.03em;
+}
+
+.score-badge .label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── CONTROLS ── */
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1.2rem 3rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+
+.ctrl-all {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.ctrl-all.active, .ctrl-all:hover {
+  background: rgba(200, 240, 96, 0.12);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ctrl-sys {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+}
+
+.ctrl-sys:hover { opacity: 0.85; }
+.ctrl-sys.active { box-shadow: 0 0 12px currentColor; }
+
+.sep { width: 1px; height: 20px; background: var(--border); margin: 0 0.3rem; }
+
+.view-toggle {
+  margin-left: auto;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.view-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-btn.active { border-color: var(--accent); color: var(--accent); }
+
+/* ── MAIN ── */
+.main {
+  display: flex;
+  height: calc(100vh - 160px);
+  min-height: 600px;
+}
+
+.system-labels {
+  width: 140px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 0 2rem;
+  justify-content: space-around;
+  padding-top: 20px;
+  padding-bottom: 40px;
+}
+
+.sys-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.sys-label:hover { background: rgba(255,255,255,0.03); }
+
+.sys-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sys-name {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+}
+
+.chart-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+#mainSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── TOOLTIP ── */
+.tooltip {
+  position: fixed;
+  background: #0e0e18;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 1000;
+  min-width: 200px;
+  max-width: 260px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+
+.tooltip.visible { opacity: 1; }
+
+.tip-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.tip-system {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+  opacity: 0.6;
+}
+
+.tip-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid var(--border);
+  color: #a0a0b8;
+}
+
+.tip-row:last-child { border-bottom: none; }
+.tip-row .val { color: var(--text); font-weight: 500; }
+
+.tip-score-bar {
+  margin-top: 0.8rem;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.tip-score-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.tip-trend {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  margin-top: 0.5rem;
+  opacity: 0.7;
+}
+
+/* ── LEGEND STRIP ── */
+.legend-strip {
+  padding: 0.8rem 3rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.legend-strip .item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.legend-strip .swatch {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+
+.bubble-size-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-left: auto;
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.bubble-size-legend svg { display: inline-block; vertical-align: middle; }
+
+/* ── STATUS INDICATOR ── */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 20px;
+  letter-spacing: 0.06em;
+}
+
+.status-optimal  { background: rgba(200,240,96,0.1);  color: #c8f060; border: 1px solid rgba(200,240,96,0.2); }
+.status-borderline{ background: rgba(240,160,96,0.1); color: #f0a060; border: 1px solid rgba(240,160,96,0.2); }
+.status-flagged  { background: rgba(240,96,96,0.1);   color: #f06060; border: 1px solid rgba(240,96,96,0.2); }
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip"></div>
+
+<header>
+  <div class="header-left">
+    <h1>Biobaseline</h1>
+    <p>// 40 biomarkers · 6 systems · drag to explore · click to isolate</p>
+  </div>
+  <div class="score-badge">
+    <span class="num" id="overallScore">72</span>
+    <span class="label">overall longevity score</span>
+  </div>
+</header>
+
+<div class="controls" id="controls">
+  <button class="ctrl-all active" onclick="filterSystem('ALL', this)">ALL</button>
+  <div class="sep"></div>
+</div>
+
+<div class="main">
+  <div class="system-labels" id="sysLabels"></div>
+  <div class="chart-area">
+    <svg id="mainSvg"></svg>
+  </div>
+</div>
+
+<div class="legend-strip">
+  <div class="item"><div class="swatch" style="background:#c8f060;box-shadow:0 0 6px #c8f060"></div>optimal</div>
+  <div class="item"><div class="swatch" style="background:#f0a060;box-shadow:0 0 6px #f0a060"></div>borderline</div>
+  <div class="item"><div class="swatch" style="background:#f06060;box-shadow:0 0 6px #f06060"></div>flagged</div>
+  <div class="item">
+    <svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="none" stroke="#5a5a70" stroke-width="1.2" stroke-dasharray="3,2"/></svg>
+    ring = severity tier
+  </div>
+  <div class="bubble-size-legend">
+    size = deviation from optimal &nbsp;
+    <svg width="50" height="16">
+      <circle cx="6" cy="8" r="5" fill="none" stroke="#3a3a50" stroke-width="1"/>
+      <circle cx="22" cy="8" r="7" fill="none" stroke="#3a3a50" stroke-width="1"/>
+      <circle cx="42" cy="8" r="9" fill="none" stroke="#3a3a50" stroke-width="1"/>
+    </svg>
+    low → high
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+// DATA — 40 BIOMARKERS
+// ════════════════════════════════════════════════════
+const SYSTEMS = {
+  metabolic:      { label: 'Metabolic',      color: '#f0a060', band: 0 },
+  hormonal:       { label: 'Hormonal',       color: '#a060f0', band: 1 },
+  inflammatory:   { label: 'Inflammatory',   color: '#f06060', band: 2 },
+  cardiovascular: { label: 'Cardiovascular', color: '#60c8f0', band: 3 },
+  cognitive:      { label: 'Cognitive',      color: '#c8f060', band: 4 },
+  longevity:      { label: 'Longevity',      color: '#f060a0', band: 5 },
+};
+
+const MARKERS = [
+  // ── METABOLIC ──
+  { id:'glucose',   name:'Fasting Glucose',  system:'metabolic', score:72, value:'94',  unit:'mg/dL',  optimal:'70–90',  status:'borderline', trend:'stable',    severity:1, note:'Slightly elevated — consider TRE window shift' },
+  { id:'hba1c',     name:'HbA1c',            system:'metabolic', score:88, value:'5.2', unit:'%',      optimal:'<5.3',   status:'optimal',    trend:'improving', severity:1, note:'Excellent glycemic control' },
+  { id:'insulin',   name:'Fasting Insulin',  system:'metabolic', score:55, value:'11',  unit:'µIU/mL', optimal:'2–7',    status:'flagged',    trend:'worsening', severity:3, note:'Insulin resistance pattern — flag for intervention' },
+  { id:'homa',      name:'HOMA-IR',          system:'metabolic', score:50, value:'2.56',unit:'ratio',  optimal:'<1.5',   status:'flagged',    trend:'worsening', severity:3, note:'Confirms insulin resistance signal' },
+  { id:'trig',      name:'Triglycerides',    system:'metabolic', score:78, value:'105', unit:'mg/dL',  optimal:'<100',   status:'borderline', trend:'improving', severity:1, note:'Near optimal — reduce refined carbs' },
+  { id:'apob',      name:'ApoB',             system:'metabolic', score:65, value:'92',  unit:'mg/dL',  optimal:'<80',    status:'borderline', trend:'stable',    severity:2, note:'Soft atherogenic risk — monitor particle count' },
+  { id:'cholesterol',name:'Total Cholesterol',system:'metabolic',score:82, value:'188', unit:'mg/dL',  optimal:'160–200',status:'optimal',    trend:'stable',    severity:1, note:'In healthy range' },
+
+  // ── HORMONAL ──
+  { id:'testo_t',   name:'Testosterone Total',system:'hormonal', score:62, value:'498', unit:'ng/dL',  optimal:'600–900',status:'borderline', trend:'worsening', severity:2, note:'Below prime range — assess sleep + zinc + exercise load' },
+  { id:'testo_f',   name:'Testosterone Free', system:'hormonal', score:58, value:'11',  unit:'pg/mL',  optimal:'15–25',  status:'flagged',    trend:'worsening', severity:3, note:'Low free T — SHBG may be elevated' },
+  { id:'dhea',      name:'DHEA-S',           system:'hormonal', score:44, value:'142',  unit:'µg/dL',  optimal:'250–450',status:'flagged',    trend:'worsening', severity:3, note:'Significant adrenal reserve decline' },
+  { id:'cortisol',  name:'Cortisol AM',      system:'hormonal', score:40, value:'24',   unit:'µg/dL',  optimal:'10–18',  status:'flagged',    trend:'worsening', severity:3, note:'Elevated — HPA axis dysregulation suspected' },
+  { id:'estradiol', name:'Estradiol (E2)',    system:'hormonal', score:77, value:'28',   unit:'pg/mL',  optimal:'20–40',  status:'optimal',    trend:'stable',    severity:1, note:'Within target range' },
+  { id:'igf1',      name:'IGF-1',            system:'hormonal', score:68, value:'158',  unit:'ng/mL',  optimal:'175–220',status:'borderline', trend:'stable',    severity:2, note:'Low-normal — consider peptide support' },
+  { id:'tsh',       name:'TSH',              system:'hormonal', score:84, value:'1.9',  unit:'mIU/L',  optimal:'1.0–2.5',status:'optimal',    trend:'stable',    severity:1, note:'Thyroid function optimal' },
+  { id:'t3',        name:'Free T3',          system:'hormonal', score:76, value:'3.1',  unit:'pg/mL',  optimal:'3.0–4.2',status:'optimal',    trend:'stable',    severity:1, note:'Low end of optimal — reassess in 90 days' },
+
+  // ── INFLAMMATORY ──
+  { id:'hscrp',     name:'hsCRP',            system:'inflammatory',score:38, value:'2.8',unit:'mg/L',  optimal:'<1.0',   status:'flagged',    trend:'worsening', severity:3, note:'Chronic low-grade inflammation — priority intervention' },
+  { id:'il6',       name:'IL-6',             system:'inflammatory',score:52, value:'3.4',unit:'pg/mL', optimal:'<2.0',   status:'flagged',    trend:'stable',    severity:2, note:'Elevated cytokine — assess gut + sleep quality' },
+  { id:'homocys',   name:'Homocysteine',     system:'inflammatory',score:48, value:'12.8',unit:'µmol/L',optimal:'<9',    status:'flagged',    trend:'stable',    severity:3, note:'Methylation pathway impaired — B12 + folate + B6' },
+  { id:'fibrinogen',name:'Fibrinogen',       system:'inflammatory',score:70, value:'310',unit:'mg/dL', optimal:'200–300',status:'borderline', trend:'stable',    severity:2, note:'Borderline — resolves with inflammation reduction' },
+  { id:'ferritin',  name:'Ferritin',         system:'inflammatory',score:73, value:'88', unit:'ng/mL', optimal:'50–150', status:'optimal',    trend:'stable',    severity:1, note:'Iron stores healthy' },
+  { id:'esr',       name:'ESR',              system:'inflammatory',score:65, value:'14', unit:'mm/hr', optimal:'<15',    status:'optimal',    trend:'improving', severity:1, note:'Erythrocyte sedimentation healthy' },
+
+  // ── CARDIOVASCULAR ──
+  { id:'hdl',       name:'HDL Cholesterol',  system:'cardiovascular',score:82, value:'62',unit:'mg/dL', optimal:'>60',    status:'optimal',    trend:'improving', severity:1, note:'Strong cardioprotective HDL' },
+  { id:'ldlp',      name:'LDL-P',            system:'cardiovascular',score:60, value:'1250',unit:'nmol/L',optimal:'<1000',status:'flagged',   trend:'stable',    severity:2, note:'Particle count elevated — ApoB confirms risk' },
+  { id:'lpa',       name:'Lp(a)',            system:'cardiovascular',score:55, value:'42',unit:'mg/dL', optimal:'<30',    status:'flagged',    trend:'stable',    severity:3, note:'Genetic risk factor — dietary + pharmacologic options' },
+  { id:'vldl',      name:'VLDL',             system:'cardiovascular',score:78, value:'21',unit:'mg/dL', optimal:'<30',    status:'optimal',    trend:'stable',    severity:1, note:'Within optimal range' },
+  { id:'rhr',       name:'Resting HR',       system:'cardiovascular',score:88, value:'52',unit:'bpm',   optimal:'45–65',  status:'optimal',    trend:'improving', severity:1, note:'Excellent cardiovascular fitness marker' },
+  { id:'sbp',       name:'Systolic BP',      system:'cardiovascular',score:86, value:'118',unit:'mmHg', optimal:'100–120',status:'optimal',    trend:'stable',    severity:1, note:'Healthy pressure — maintain with training + magnesium' },
+
+  // ── COGNITIVE ──
+  { id:'vitd',      name:'Vitamin D (25-OH)',system:'cognitive', score:46, value:'32',  unit:'ng/mL',  optimal:'50–80',  status:'flagged',    trend:'worsening', severity:3, note:'Deficient — 5000 IU/day + K2 protocol required' },
+  { id:'omega3',    name:'Omega-3 Index',    system:'cognitive', score:50, value:'5.2', unit:'%',      optimal:'8–12',   status:'flagged',    trend:'stable',    severity:2, note:'Below optimal — 3g EPA+DHA target daily' },
+  { id:'b12',       name:'Vitamin B12',      system:'cognitive', score:72, value:'480', unit:'pg/mL',  optimal:'400–800',status:'optimal',    trend:'stable',    severity:1, note:'Adequate — consider methylcobalamin form' },
+  { id:'folate',    name:'Folate',           system:'cognitive', score:68, value:'11',  unit:'ng/mL',  optimal:'12–20',  status:'borderline', trend:'stable',    severity:2, note:'Low-normal — methylated form preferred' },
+  { id:'magnesium', name:'Magnesium (RBC)',  system:'cognitive', score:55, value:'4.8', unit:'mg/dL',  optimal:'5.5–7.5',status:'flagged',    trend:'stable',    severity:2, note:'RBC Mg low — most deficient mineral in biohackers' },
+  { id:'zinc',      name:'Zinc (serum)',     system:'cognitive', score:74, value:'88',  unit:'µg/dL',  optimal:'80–120', status:'optimal',    trend:'stable',    severity:1, note:'Healthy range — support testosterone synthesis' },
+  { id:'bdnf',      name:'BDNF',            system:'cognitive', score:62, value:'21',  unit:'ng/mL',  optimal:'25–35',  status:'borderline', trend:'improving', severity:2, note:'Below peak — respond to aerobic exercise + sleep' },
+
+  // ── LONGEVITY ──
+  { id:'nad',       name:'NAD+',            system:'longevity', score:35, value:'22',  unit:'µM',     optimal:'40–60',  status:'flagged',    trend:'worsening', severity:3, note:'Critical decline — NMN/NR + niacin protocol urgent' },
+  { id:'telomere',  name:'Telomere Length', system:'longevity', score:68, value:'7.1', unit:'kb',     optimal:'>7.5',   status:'borderline', trend:'stable',    severity:2, note:'Slightly below age-matched optimal' },
+  { id:'vo2',       name:'VO2 Max',         system:'longevity', score:74, value:'44',  unit:'mL/kg/min',optimal:'45–55',status:'borderline', trend:'improving', severity:1, note:'Zone 2 cardio protocol working — push to 50+' },
+  { id:'glut',      name:'Glutathione',     system:'longevity', score:42, value:'4.8', unit:'µmol/L', optimal:'8–12',   status:'flagged',    trend:'worsening', severity:3, note:'Master antioxidant depleted — NAC + glycine + ALA' },
+  { id:'uric',      name:'Uric Acid',       system:'longevity', score:65, value:'5.8', unit:'mg/dL',  optimal:'3.5–5.5',status:'borderline', trend:'stable',    severity:1, note:'Marginally elevated — reduce fructose' },
+  { id:'grimage',   name:'GrimAge Delta',   system:'longevity', score:58, value:'+2.4',unit:'yrs',    optimal:'<0',     status:'flagged',    trend:'stable',    severity:2, note:'Biological age 2.4 years ahead of chronological' },
+];
+
+// ════════════════════════════════════════════════════
+// SETUP
+// ════════════════════════════════════════════════════
+const systemKeys = Object.keys(SYSTEMS);
+const systemCount = systemKeys.length;
+
+const tooltip   = document.getElementById('tooltip');
+const ctrlArea  = document.getElementById('controls');
+const sysLabels = document.getElementById('sysLabels');
+
+let activeSystem = 'ALL';
+let nodes = MARKERS.map(m => ({ ...m }));
+
+// System filter buttons
+systemKeys.forEach(key => {
+  const sys = SYSTEMS[key];
+  const btn = document.createElement('button');
+  btn.className = 'ctrl-sys';
+  btn.textContent = sys.label;
+  btn.style.color = sys.color;
+  btn.style.borderColor = sys.color + '44';
+  btn.style.setProperty('--c', sys.color);
+  btn.onclick = () => filterSystem(key, btn);
+  ctrlArea.appendChild(btn);
+
+  // Side labels
+  const lbl = document.createElement('div');
+  lbl.className = 'sys-label';
+  lbl.innerHTML = `
+    <div class="sys-dot" style="background:${sys.color}; box-shadow:0 0 6px ${sys.color}55"></div>
+    <span class="sys-name">${sys.label}</span>`;
+  lbl.onclick = () => {
+    filterSystem(key, btn);
+    btn.classList.toggle('active');
+  };
+  sysLabels.appendChild(lbl);
+});
+
+function filterSystem(key, el) {
+  activeSystem = key;
+  document.querySelectorAll('.ctrl-all,.ctrl-sys').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  updateVisibility();
+}
+
+function filterAll(el) {
+  activeSystem = 'ALL';
+  document.querySelectorAll('.ctrl-all,.ctrl-sys').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  updateVisibility();
+}
+
+document.querySelector('.ctrl-all').onclick = function() { filterAll(this); };
+
+// ════════════════════════════════════════════════════
+// SVG + DEFS
+// ════════════════════════════════════════════════════
+const container = document.querySelector('.chart-area');
+const W = container.offsetWidth || 900;
+const H = container.offsetHeight || 580;
+
+const svg = d3.select('#mainSvg')
+  .attr('viewBox', `0 0 ${W} ${H}`)
+  .attr('preserveAspectRatio', 'xMidYMid meet');
+
+// ── Defs: glow filters + gradients ──
+const defs = svg.append('defs');
+
+// Glow filters per system + status
+['metabolic','hormonal','inflammatory','cardiovascular','cognitive','longevity'].forEach(sys => {
+  const color = SYSTEMS[sys].color;
+  const filt = defs.append('filter').attr('id', `glow-${sys}`).attr('x', '-50%').attr('y', '-50%').attr('width', '200%').attr('height', '200%');
+  filt.append('feGaussianBlur').attr('stdDeviation', '4').attr('result', 'blur');
+  const merge = filt.append('feMerge');
+  merge.append('feMergeNode').attr('in', 'blur');
+  merge.append('feMergeNode').attr('in', 'SourceGraphic');
+});
+
+// Bright glow for flagged
+const brightGlow = defs.append('filter').attr('id', 'glow-flag').attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%');
+brightGlow.append('feGaussianBlur').attr('stdDeviation', '8').attr('result', 'blur');
+const bm = brightGlow.append('feMerge');
+bm.append('feMergeNode').attr('in', 'blur');
+bm.append('feMergeNode').attr('in', 'SourceGraphic');
+
+// Radial gradient for 3D depth effect (per system color)
+systemKeys.forEach(key => {
+  const color = SYSTEMS[key].color;
+  const hex = color;
+  const grad = defs.append('radialGradient')
+    .attr('id', `grad-${key}`)
+    .attr('cx', '35%').attr('cy', '30%')
+    .attr('r', '65%');
+  grad.append('stop').attr('offset', '0%').attr('stop-color', '#ffffff').attr('stop-opacity', 0.18);
+  grad.append('stop').attr('offset', '40%').attr('stop-color', hex).attr('stop-opacity', 0.7);
+  grad.append('stop').attr('offset', '100%').attr('stop-color', hex).attr('stop-opacity', 0.15);
+});
+
+// ── Background grid ──
+const gridG = svg.append('g').attr('class', 'grid');
+svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#080810');
+
+// Horizontal band separators
+const bandH = H / systemCount;
+systemKeys.forEach((key, i) => {
+  if (i > 0) {
+    gridG.append('line')
+      .attr('x1', 0).attr('y1', i * bandH)
+      .attr('x2', W).attr('y2', i * bandH)
+      .attr('stroke', '#1a1a26').attr('stroke-width', 1);
+  }
+  // Band background — alternating
+  if (i % 2 === 0) {
+    gridG.append('rect')
+      .attr('x', 0).attr('y', i * bandH)
+      .attr('width', W).attr('height', bandH)
+      .attr('fill', '#0c0c16').attr('opacity', 0.5);
+  }
+});
+
+// Score axis lines (0, 25, 50, 75, 100)
+[25, 50, 75].forEach(tick => {
+  const x = (tick / 100) * W;
+  gridG.append('line')
+    .attr('x1', x).attr('y1', 0)
+    .attr('x2', x).attr('y2', H)
+    .attr('stroke', '#1e1e2a').attr('stroke-width', 1).attr('stroke-dasharray', '3,4');
+  gridG.append('text')
+    .attr('x', x).attr('y', H - 6)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', '9px').attr('fill', '#2a2a3a')
+    .attr('font-family', 'IBM Plex Mono')
+    .text(tick);
+});
+// 100 label
+gridG.append('text').attr('x', W - 4).attr('y', H - 6).attr('text-anchor', 'end')
+  .attr('font-size', '9px').attr('fill', '#2a2a3a').attr('font-family', 'IBM Plex Mono').text('100 → optimal');
+
+// ════════════════════════════════════════════════════
+// FORCE SIMULATION
+// ════════════════════════════════════════════════════
+nodes.forEach(n => {
+  const sys = SYSTEMS[n.system];
+  // Target Y: center of that system's band
+  n.targetY = (sys.band + 0.5) * bandH;
+  // Initial X: score-based position
+  n.x = (n.score / 100) * W * 0.9 + W * 0.05;
+  n.y = n.targetY + (Math.random() - 0.5) * 20;
+  // Radius for force collision
+  const dev = 100 - n.score;
+  n.r = 10 + Math.sqrt(dev) * 2.8;
+});
+
+const simulation = d3.forceSimulation(nodes)
+  .force('collision', d3.forceCollide(d => d.r + 4).strength(0.85))
+  .force('x', d3.forceX(d => (d.score / 100) * W * 0.88 + W * 0.06).strength(0.4))
+  .force('y', d3.forceY(d => d.targetY).strength(0.7))
+  .alphaDecay(0.02)
+  .velocityDecay(0.35);
+
+// ════════════════════════════════════════════════════
+// NODE RENDERING
+// ════════════════════════════════════════════════════
+const nodeG = svg.append('g').attr('class', 'nodes');
+
+const nodeGroups = nodeG.selectAll('g.node')
+  .data(nodes)
+  .enter()
+  .append('g')
+  .attr('class', 'node')
+  .style('cursor', 'grab')
+  .call(d3.drag()
+    .on('start', dragStart)
+    .on('drag', dragging)
+    .on('end', dragEnd)
+  );
+
+// ── Severity rings (outermost decorative rings) ──
+nodeGroups.each(function(d) {
+  const g = d3.select(this);
+  const color = SYSTEMS[d.system].color;
+  for (let ring = 0; ring < d.severity; ring++) {
+    g.append('circle')
+      .attr('r', d.r + 5 + ring * 7)
+      .attr('fill', 'none')
+      .attr('stroke', color)
+      .attr('stroke-width', 0.7)
+      .attr('stroke-dasharray', ring === 0 ? 'none' : `${4 - ring},${2 + ring}`)
+      .attr('opacity', 0.18 - ring * 0.04);
+  }
+});
+
+// ── Pulse ring for flagged markers ──
+nodeGroups.filter(d => d.status === 'flagged')
+  .append('circle')
+  .attr('class', 'pulse-ring')
+  .attr('r', d => d.r + 2)
+  .attr('fill', 'none')
+  .attr('stroke', d => SYSTEMS[d.system].color)
+  .attr('stroke-width', 1.5)
+  .attr('opacity', 0.5)
+  .each(function(d) {
+    const el = d3.select(this);
+    function pulse() {
+      el.attr('r', d.r + 2).attr('opacity', 0.6)
+        .transition().duration(1800)
+        .attr('r', d.r + 18).attr('opacity', 0)
+        .on('end', pulse);
+    }
+    pulse();
+  });
+
+// ── Main bubble (3D gradient fill) ──
+nodeGroups.append('circle')
+  .attr('class', 'main-circle')
+  .attr('r', d => d.r)
+  .attr('fill', d => `url(#grad-${d.system})`)
+  .attr('stroke', d => SYSTEMS[d.system].color)
+  .attr('stroke-width', d => d.status === 'flagged' ? 1.8 : 1.2)
+  .attr('filter', d => d.status === 'flagged' ? `url(#glow-flag)` : `url(#glow-${d.system})`)
+  .attr('opacity', 0.9);
+
+// ── Status dot (center) ──
+nodeGroups.append('circle')
+  .attr('r', 3)
+  .attr('fill', d => {
+    if (d.status === 'optimal') return '#c8f060';
+    if (d.status === 'borderline') return '#f0a060';
+    return '#f06060';
+  })
+  .attr('opacity', 0.9);
+
+// ── Label (short name for bigger bubbles) ──
+nodeGroups.filter(d => d.r > 20)
+  .append('text')
+  .attr('text-anchor', 'middle')
+  .attr('dy', d => d.r > 26 ? '-0.8em' : '2.2em')
+  .attr('font-size', '9px')
+  .attr('fill', '#c0c0d0')
+  .attr('font-family', 'IBM Plex Mono')
+  .attr('pointer-events', 'none')
+  .text(d => d.name.length > 14 ? d.name.slice(0, 13) + '…' : d.name);
+
+// ── Entrance animation ──
+nodeGroups.select('.main-circle')
+  .attr('r', 0)
+  .transition().duration(800).delay((_, i) => i * 30)
+  .ease(d3.easeBackOut.overshoot(1.2))
+  .attr('r', d => d.r);
+
+// ════════════════════════════════════════════════════
+// TOOLTIP
+// ════════════════════════════════════════════════════
+nodeGroups
+  .on('mousemove', (event, d) => {
+    const color = SYSTEMS[d.system].color;
+    const trendIcon = d.trend === 'improving' ? '↑ improving' : d.trend === 'worsening' ? '↓ worsening' : '→ stable';
+    const trendColor = d.trend === 'improving' ? '#c8f060' : d.trend === 'worsening' ? '#f06060' : '#6b6b7a';
+    tooltip.innerHTML = `
+      <div class="tip-name" style="color:${color}">${d.name}</div>
+      <div class="tip-system">${SYSTEMS[d.system].label}</div>
+      <div class="tip-row"><span>Current</span><span class="val">${d.value} ${d.unit}</span></div>
+      <div class="tip-row"><span>Optimal</span><span class="val">${d.optimal}</span></div>
+      <div class="tip-row"><span>Score</span><span class="val">${d.score}/100</span></div>
+      <div class="tip-row"><span>Status</span><span class="status-pill status-${d.status}">${d.status}</span></div>
+      <div class="tip-score-bar"><div class="tip-score-fill" style="width:${d.score}%;background:${color}"></div></div>
+      <div class="tip-trend" style="color:${trendColor}">${trendIcon}</div>
+      <div style="font-size:0.72rem;margin-top:0.6rem;color:#6b6b7a;line-height:1.5">${d.note}</div>
+    `;
+    tooltip.classList.add('visible');
+    tooltip.style.left = (event.clientX + 16) + 'px';
+    tooltip.style.top  = (event.clientY - 20) + 'px';
+  })
+  .on('mouseleave', () => tooltip.classList.remove('visible'));
+
+// ════════════════════════════════════════════════════
+// SIMULATION TICK
+// ════════════════════════════════════════════════════
+simulation.on('tick', () => {
+  nodes.forEach(d => {
+    d.x = Math.max(d.r + 4, Math.min(W - d.r - 4, d.x));
+    d.y = Math.max(d.targetY - bandH * 0.42, Math.min(d.targetY + bandH * 0.42, d.y));
+  });
+  nodeGroups.attr('transform', d => `translate(${d.x},${d.y})`);
+});
+
+// ════════════════════════════════════════════════════
+// DRAG
+// ════════════════════════════════════════════════════
+function dragStart(event, d) {
+  d3.select(this).style('cursor', 'grabbing');
+  if (!event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x; d.fy = d.y;
+}
+
+function dragging(event, d) {
+  d.fx = event.x; d.fy = event.y;
+}
+
+function dragEnd(event, d) {
+  d3.select(this).style('cursor', 'grab');
+  if (!event.active) simulation.alphaTarget(0);
+  d.fx = null; d.fy = null;
+}
+
+// ════════════════════════════════════════════════════
+// FILTER VISIBILITY
+// ════════════════════════════════════════════════════
+function updateVisibility() {
+  nodeGroups.transition().duration(350)
+    .attr('opacity', d => activeSystem === 'ALL' || d.system === activeSystem ? 1 : 0.06)
+    .attr('pointer-events', d => activeSystem === 'ALL' || d.system === activeSystem ? 'all' : 'none');
+
+  if (activeSystem !== 'ALL') simulation.alpha(0.3).restart();
+}
+
+// ════════════════════════════════════════════════════
+// RESIZE
+// ════════════════════════════════════════════════════
+window.addEventListener('resize', () => {
+  const nW = container.offsetWidth;
+  const nH = container.offsetHeight;
+  svg.attr('viewBox', `0 0 ${nW} ${nH}`);
+});
+
+// ════════════════════════════════════════════════════
+// OVERALL SCORE ANIMATION
+// ════════════════════════════════════════════════════
+const avgScore = Math.round(MARKERS.reduce((s, m) => s + m.score, 0) / MARKERS.length);
+let current = 0;
+const scoreEl = document.getElementById('overallScore');
+const step = () => {
+  if (current < avgScore) {
+    current++;
+    scoreEl.textContent = current;
+    requestAnimationFrame(step);
+  }
+};
+setTimeout(step, 300);
+</script>
+</body>
+</html>

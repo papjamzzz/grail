@@ -80,6 +80,14 @@ def ailiv_landing():
 def cells():
     return send_from_directory(BASE, 'cells.html')
 
+@app.route('/biobaseline')
+def biobaseline():
+    return send_from_directory(BASE, 'biobaseline-chart.html')
+
+@app.route('/rootcause')
+def rootcause():
+    return send_from_directory(BASE, 'rootcause-network.html')
+
 @app.route('/bodyfigure')
 def bodyfigure():
     path = os.path.join(BASE, 'bodyfigure.html')

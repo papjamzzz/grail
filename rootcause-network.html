@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloody Roots</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #f8f8f4;
+  --surface: #ffffff;
+  --border: #e0e0d8;
+  --text: #1a1a22;
+  --muted: #8a8a96;
+  --layer-lab:  #e03030;
+  --layer-root: #d07020;
+  --layer-rx:   #5a9010;
+  --accent: #5a9010;
+  --zone-line: #e8e8e2;
+  --link-inactive: #c8c8c0;
+  --node-bg: #ffffff;
+}
+
+body.dark {
+  --bg: #080810;
+  --surface: #11111a;
+  --border: #1e1e2a;
+  --text: #e8e8f0;
+  --muted: #5a5a70;
+  --layer-lab:  #f06060;
+  --layer-root: #f0a060;
+  --layer-rx:   #c8f060;
+  --accent: #c8f060;
+  --zone-line: #1a1a26;
+  --link-inactive: #1e1e2e;
+  --node-bg: #11111a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background 0.35s, color 0.35s;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 1.4rem 2.8rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 1rem;
+}
+
+.header-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.header-title em {
+  font-style: italic;
+  color: var(--layer-lab);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+/* ── QUESTION MARK BUTTON ── */
+.help-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: none;
+  color: var(--muted);
+  font-family: 'DM Serif Display', serif;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.help-btn:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+/* ── DARK TOGGLE ── */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.66rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  user-select: none;
+}
+.toggle-track {
+  width: 34px; height: 18px;
+  background: var(--border);
+  border-radius: 9px;
+  position: relative;
+  transition: background 0.25s;
+}
+body.dark .toggle-track { background: #2a2a3a; }
+.toggle-thumb {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 13px; height: 13px;
+  background: var(--muted);
+  border-radius: 50%;
+  transition: transform 0.25s, background 0.25s;
+}
+body.dark .toggle-thumb { transform: translateX(16px); background: var(--accent); }
+
+/* ── LAYER BAR ── */
+.layer-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.layer-zone {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-right: 1px solid var(--border);
+  opacity: 0.65;
+}
+.layer-zone:last-child { border-right: none; }
+.layer-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── CANVAS ── */
+.canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+#netSvg { width: 100%; height: 100%; display: block; }
+
+/* ── SIDE PANEL ── */
+.side-panel {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  width: 240px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem;
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  transform: translateX(16px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+}
+.side-panel.visible { opacity: 1; transform: translateX(0); pointer-events: all; }
+.panel-node-name { font-family: 'DM Serif Display', serif; font-size: 1.1rem; margin-bottom: 0.25rem; }
+.panel-layer-tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.45; margin-bottom: 0.75rem; }
+.panel-section-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0.65rem 0 0.3rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+.panel-chip { display: inline-flex; align-items: center; font-family: 'IBM Plex Mono', monospace; font-size: 0.64rem; padding: 0.18rem 0.5rem; border-radius: 10px; margin: 0.15rem; border: 1px solid currentColor; opacity: 0.8; cursor: pointer; transition: opacity 0.15s; }
+.panel-chip:hover { opacity: 1; }
+.panel-chips { display: flex; flex-wrap: wrap; }
+.panel-note { font-size: 0.72rem; color: var(--muted); line-height: 1.6; margin-top: 0.5rem; }
+.close-btn { position: absolute; top: 0.65rem; right: 0.65rem; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.95rem; line-height: 1; transition: color 0.2s; }
+.close-btn:hover { color: var(--text); }
+
+/* ── TOOLTIP ── */
+.tooltip {
+  position: fixed;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0.6rem 0.9rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+  z-index: 500;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  max-width: 190px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+}
+.tooltip.visible { opacity: 1; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 0.6rem 2.8rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 1.4rem;
+  align-items: center;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.63rem; color: var(--muted); }
+.dot-lg { width: 11px; height: 11px; border-radius: 50%; }
+.reset-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.66rem;
+  padding: 0.28rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+}
+.reset-btn:hover { border-color: var(--text); color: var(--text); }
+
+/* ══════════════════════════════════════════
+   INTRO OVERLAY
+══════════════════════════════════════════ */
+#introOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,16,0.92);
+  backdrop-filter: blur(18px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.6s ease;
+}
+#introOverlay.fade-out { opacity: 0; pointer-events: none; }
+
+.intro-card {
+  max-width: 520px;
+  width: 90%;
+  text-align: center;
+  color: #e8e8f0;
+}
+
+.intro-step { display: none; }
+.intro-step.active { display: block; }
+
+.intro-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #4a4a5a;
+  margin-bottom: 2rem;
+}
+
+.intro-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.6rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  color: #e8e8f0;
+}
+
+.intro-title em {
+  font-style: italic;
+  color: #f06060;
+}
+
+.intro-body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: #8a8a9a;
+  line-height: 1.7;
+  max-width: 380px;
+  margin: 0 auto 2.4rem;
+}
+
+/* Diagram for step 2 */
+.intro-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 auto 2rem;
+  width: fit-content;
+}
+.intro-layer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.intro-orb {
+  width: 14px; height: 14px; border-radius: 50%;
+  box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+}
+.intro-layer-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  width: 120px;
+  text-align: left;
+}
+.intro-connector {
+  width: 1px;
+  height: 18px;
+  background: linear-gradient(to bottom, #3a3a4a, #2a2a3a);
+  margin: 0 auto;
+}
+
+.intro-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+}
+.intro-dots {
+  display: flex;
+  gap: 0.4rem;
+}
+.intro-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #2a2a3a;
+  transition: background 0.2s;
+}
+.intro-dot.active { background: #e8e8f0; }
+
+.intro-btn {
+  background: none;
+  border: 1px solid #3a3a4a;
+  color: #8a8a9a;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  padding: 0.45rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: all 0.2s;
+}
+.intro-btn:hover { border-color: #e8e8f0; color: #e8e8f0; }
+
+.intro-btn-primary {
+  background: #e8e8f0;
+  border-color: #e8e8f0;
+  color: #080810;
+  font-weight: 600;
+}
+.intro-btn-primary:hover { background: #ffffff; border-color: #ffffff; color: #080810; }
+
+/* ══════════════════════════════════════════
+   GUIDE MODAL
+══════════════════════════════════════════ */
+#guideOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  z-index: 900;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+#guideOverlay.open { display: flex; }
+
+.guide-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: min(700px, 92vw);
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 3rem 3.2rem;
+  position: relative;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.2);
+}
+
+.guide-panel::-webkit-scrollbar { width: 3px; }
+.guide-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.guide-close {
+  position: absolute;
+  top: 1.4rem; right: 1.6rem;
+  background: none; border: none;
+  color: var(--muted); cursor: pointer;
+  font-size: 1.1rem; line-height: 1;
+  transition: color 0.2s;
+}
+.guide-close:hover { color: var(--text); }
+
+.guide-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.6rem;
+}
+
+.guide-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.guide-title em { font-style: italic; color: var(--layer-lab); }
+
+.guide-subtitle {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-bottom: 2.8rem;
+  line-height: 1.6;
+}
+
+.guide-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 2rem 0;
+}
+
+.guide-section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15rem;
+  margin-bottom: 0.7rem;
+  color: var(--text);
+}
+
+.guide-body {
+  font-size: 0.87rem;
+  color: var(--muted);
+  line-height: 1.75;
+  margin-bottom: 0.5rem;
+}
+
+.guide-layer-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  margin: 0.7rem 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.guide-orb {
+  width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; margin-top: 2px;
+}
+.guide-layer-info {}
+.guide-layer-name { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.2rem; }
+.guide-layer-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.55; }
+
+.guide-action-row {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  margin: 0.55rem 0;
+}
+.guide-action-key {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.64rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.2rem 0.55rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--text);
+}
+.guide-action-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.55; }
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip"></div>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="header-title"><em>Bloody</em> Roots</div>
+  <div class="header-right">
+    <button class="help-btn" onclick="openGuide()" title="User guide">?</button>
+    <div class="theme-toggle" onclick="toggleTheme()">
+      DARK
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ LAYER BAR ══ -->
+<div class="layer-bar">
+  <div class="layer-zone">
+    <div class="layer-dot" style="background:var(--layer-rx);box-shadow:0 0 5px var(--layer-rx)"></div>
+    <span style="color:var(--layer-rx)">Interventions</span>
+  </div>
+  <div class="layer-zone">
+    <div class="layer-dot" style="background:var(--layer-root);box-shadow:0 0 5px var(--layer-root)"></div>
+    <span style="color:var(--layer-root)">Root Causes</span>
+  </div>
+  <div class="layer-zone">
+    <div class="layer-dot" style="background:var(--layer-lab);box-shadow:0 0 5px var(--layer-lab)"></div>
+    <span style="color:var(--layer-lab)">Flagged Labs</span>
+  </div>
+</div>
+
+<!-- ══ CANVAS ══ -->
+<div class="canvas-wrap" id="canvasWrap">
+  <svg id="netSvg"></svg>
+
+  <div class="side-panel" id="sidePanel">
+    <button class="close-btn" onclick="closePanel()">✕</button>
+    <div class="panel-node-name" id="panelName">—</div>
+    <div class="panel-layer-tag" id="panelLayer">—</div>
+    <div class="panel-section-title" id="panelLinksTitle">Connected nodes</div>
+    <div class="panel-chips" id="panelChips"></div>
+    <div class="panel-note" id="panelNote"></div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="item"><div class="dot-lg" style="background:var(--layer-rx)"></div>intervention</div>
+  <div class="item"><div class="dot-lg" style="background:var(--layer-root)"></div>root cause</div>
+  <div class="item"><div class="dot-lg" style="background:var(--layer-lab)"></div>flagged lab</div>
+  <button class="reset-btn" onclick="resetHighlight()">↺ reset</button>
+</footer>
+
+<!-- ══ FIRST-TIME INTRO ══ -->
+<div id="introOverlay">
+  <div class="intro-card">
+
+    <!-- Step 1 -->
+    <div class="intro-step active" id="step-1">
+      <div class="intro-eyebrow">Bloody Roots · AILIV</div>
+      <div class="intro-title">Know your<br><em>roots.</em></div>
+      <div class="intro-body">A map of what's flagged in your biology, what drives it, and exactly what to do about it.</div>
+      <div class="intro-nav">
+        <div class="intro-dots">
+          <div class="intro-dot active"></div>
+          <div class="intro-dot"></div>
+          <div class="intro-dot"></div>
+        </div>
+        <button class="intro-btn" onclick="introNext()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="intro-step" id="step-2">
+      <div class="intro-eyebrow">Three Layers</div>
+      <div class="intro-title">Root to remedy.</div>
+      <div class="intro-diagram">
+        <div class="intro-layer-row">
+          <div class="intro-orb" style="background:#c8f060;color:#c8f060"></div>
+          <div class="intro-layer-label" style="color:#c8f060">Interventions</div>
+        </div>
+        <div class="intro-connector"></div>
+        <div class="intro-layer-row">
+          <div class="intro-orb" style="background:#f0a060;color:#f0a060"></div>
+          <div class="intro-layer-label" style="color:#f0a060">Root Causes</div>
+        </div>
+        <div class="intro-connector"></div>
+        <div class="intro-layer-row">
+          <div class="intro-orb" style="background:#f06060;color:#f06060"></div>
+          <div class="intro-layer-label" style="color:#f06060">Flagged Labs</div>
+        </div>
+      </div>
+      <div class="intro-body">Your flagged biomarkers connect upward to the root causes driving them — which connect to the specific protocols that resolve each one.</div>
+      <div class="intro-nav">
+        <div class="intro-dots">
+          <div class="intro-dot"></div>
+          <div class="intro-dot active"></div>
+          <div class="intro-dot"></div>
+        </div>
+        <button class="intro-btn" onclick="introBack()">← Back</button>
+        <button class="intro-btn" onclick="introNext()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="intro-step" id="step-3">
+      <div class="intro-eyebrow">How to Use It</div>
+      <div class="intro-title">Explore<br>freely.</div>
+      <div class="intro-body">Click any node to illuminate its full chain. Drag nodes to rearrange. Scroll to zoom. Click the background to reset. Hit <strong style="color:#e8e8f0">?</strong> anytime for the full guide.</div>
+      <div class="intro-nav">
+        <div class="intro-dots">
+          <div class="intro-dot"></div>
+          <div class="intro-dot"></div>
+          <div class="intro-dot active"></div>
+        </div>
+        <button class="intro-btn" onclick="introBack()">← Back</button>
+        <button class="intro-btn intro-btn-primary" onclick="dismissIntro()">Begin</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ GUIDE MODAL ══ -->
+<div id="guideOverlay" onclick="closeGuideIfBg(event)">
+  <div class="guide-panel">
+    <button class="guide-close" onclick="closeGuide()">✕</button>
+
+    <div class="guide-eyebrow">User Guide · Bloody Roots</div>
+    <div class="guide-title"><em>Bloody</em> Roots</div>
+    <div class="guide-subtitle">A living map of your biological risk chains — from flagged labs to root drivers to targeted interventions.</div>
+
+    <div class="guide-divider"></div>
+
+    <div class="guide-section-title">The Three Layers</div>
+    <div class="guide-body">Every node belongs to one of three layers, arranged vertically from bottom to top.</div>
+
+    <div class="guide-layer-row">
+      <div class="guide-orb" style="background:#f06060;box-shadow:0 0 12px #f06060aa"></div>
+      <div class="guide-layer-info">
+        <div class="guide-layer-name" style="color:#f06060">Flagged Labs</div>
+        <div class="guide-layer-desc">Biomarkers currently outside their optimal range. The starting point of every chain. Each orb shows your current value and what's driving it.</div>
+      </div>
+    </div>
+
+    <div class="guide-layer-row">
+      <div class="guide-orb" style="background:#f0a060;box-shadow:0 0 12px #f0a060aa"></div>
+      <div class="guide-layer-info">
+        <div class="guide-layer-name" style="color:#f0a060">Root Causes</div>
+        <div class="guide-layer-desc">The upstream physiological mechanisms driving your flagged markers — HPA dysregulation, mitochondrial stress, chronic inflammation, and more.</div>
+      </div>
+    </div>
+
+    <div class="guide-layer-row">
+      <div class="guide-orb" style="background:#c8f060;box-shadow:0 0 12px #c8f060aa"></div>
+      <div class="guide-layer-info">
+        <div class="guide-layer-name" style="color:#c8f060">Interventions</div>
+        <div class="guide-layer-desc">Evidence-based protocols that target the root causes — with specific dosing, timing, and clinical rationale. Red badge = high urgency.</div>
+      </div>
+    </div>
+
+    <div class="guide-divider"></div>
+
+    <div class="guide-section-title">Interacting</div>
+
+    <div class="guide-action-row">
+      <div class="guide-action-key">click node</div>
+      <div class="guide-action-desc">Illuminates the full chain — all connected nodes highlight in green, everything else fades. A detail panel slides in on the right.</div>
+    </div>
+    <div class="guide-action-row">
+      <div class="guide-action-key">click background</div>
+      <div class="guide-action-desc">Resets all highlights and closes the detail panel.</div>
+    </div>
+    <div class="guide-action-row">
+      <div class="guide-action-key">drag node</div>
+      <div class="guide-action-desc">Repositions any node. Physics simulation keeps the network coherent. Release to let it settle.</div>
+    </div>
+    <div class="guide-action-row">
+      <div class="guide-action-key">scroll</div>
+      <div class="guide-action-desc">Zooms the canvas in and out. Pinch to zoom on trackpad.</div>
+    </div>
+    <div class="guide-action-row">
+      <div class="guide-action-key">hover node</div>
+      <div class="guide-action-desc">Shows a quick tooltip with the node name, type, and current lab value (for flagged labs).</div>
+    </div>
+
+    <div class="guide-divider"></div>
+
+    <div class="guide-section-title">The Detail Panel</div>
+    <div class="guide-body">When you click a node, the panel on the right shows all connected nodes as chips — click any chip to jump to that node's chain. The note below explains the clinical significance, dosing, or mechanism in plain language.</div>
+
+    <div class="guide-divider"></div>
+
+    <div class="guide-section-title">Dark Mode</div>
+    <div class="guide-body">Toggle between light and dark using the switch in the top-right corner. The network adapts fully — all SVG elements recolor on switch.</div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+// THEME HELPERS
+// ════════════════════════════════════════════════════
+function getVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+// ════════════════════════════════════════════════════
+// INTRO LOGIC
+// ════════════════════════════════════════════════════
+let introCurrentStep = 1;
+const INTRO_KEY = 'roots_intro_seen_v1';
+
+function showStep(n) {
+  document.querySelectorAll('.intro-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  introCurrentStep = n;
+}
+
+function introNext() { if (introCurrentStep < 3) showStep(introCurrentStep + 1); }
+function introBack() { if (introCurrentStep > 1) showStep(introCurrentStep - 1); }
+
+function dismissIntro() {
+  const overlay = document.getElementById('introOverlay');
+  overlay.classList.add('fade-out');
+  setTimeout(() => overlay.remove(), 700);
+  localStorage.setItem(INTRO_KEY, '1');
+}
+
+// Check if first time
+if (localStorage.getItem(INTRO_KEY)) {
+  document.getElementById('introOverlay').remove();
+}
+
+// ════════════════════════════════════════════════════
+// GUIDE MODAL
+// ════════════════════════════════════════════════════
+function openGuide() {
+  document.getElementById('guideOverlay').classList.add('open');
+}
+function closeGuide() {
+  document.getElementById('guideOverlay').classList.remove('open');
+}
+function closeGuideIfBg(e) {
+  if (e.target === document.getElementById('guideOverlay')) closeGuide();
+}
+
+// ════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════
+const INTERVENTIONS = [
+  { id:'trE',   name:'Time-Restricted Eating', layer:'intervention', color:'#c8f060',
+    note:'16:8 or 18:6 window. Targets insulin sensitivity, autophagy, and metabolic reset. Most impactful single lifestyle lever.',
+    urgency: 3 },
+  { id:'sauna', name:'Sauna (4×/week)',         layer:'intervention', color:'#c8f060',
+    note:'Heat shock proteins + HSP70 elevation. Reduces hsCRP 28–40% with consistent 4× weekly protocol (20 min, 185°F).',
+    urgency: 2 },
+  { id:'ashwa', name:'Ashwagandha',             layer:'intervention', color:'#c8f060',
+    note:'KSM-66 or Sensoril. 600mg/day. Reduces cortisol 25–30%, supports DHEA restoration, improves free testosterone.',
+    urgency: 3 },
+  { id:'cold',  name:'Cold Plunge',             layer:'intervention', color:'#c8f060',
+    note:'3–5 min at 50–55°F, 4×/week. Norepinephrine spike 300%. Anti-inflammatory, HRV improvement, brown fat activation.',
+    urgency: 2 },
+  { id:'sleep', name:'Sleep Optimization',      layer:'intervention', color:'#c8f060',
+    note:'9pm wind-down, 10pm target. Fixes cortisol rhythm, testosterone production (70% made during deep sleep), NAD+ synthesis.',
+    urgency: 3 },
+  { id:'lift',  name:'Strength Training',       layer:'intervention', color:'#c8f060',
+    note:'3–4× compound lifts weekly. Improves insulin sensitivity 40–60%, testosterone, BDNF, muscle glucose uptake.',
+    urgency: 3 },
+  { id:'nmn',   name:'NMN / NR',               layer:'intervention', color:'#c8f060',
+    note:'500–1000mg NMN or 500mg NR daily. Directly elevates NAD+ 40–60% in 60 days. Critical for sirtuin activation.',
+    urgency: 3 },
+  { id:'omega', name:'Omega-3 (high dose)',     layer:'intervention', color:'#c8f060',
+    note:'3–4g EPA+DHA daily. Reduces IL-6, hsCRP. Improves Omega-3 Index from 5.2% → 8%+ target in 90 days.',
+    urgency: 3 },
+  { id:'vitdk', name:'Vitamin D3 + K2',         layer:'intervention', color:'#c8f060',
+    note:'5000 IU D3 + 200mcg MK-7 K2 daily. Brings 25-OH-D from 32 → 60–80 ng/mL target. K2 prevents arterial calcification.',
+    urgency: 3 },
+  { id:'methyl',name:'Methylation Protocol',    layer:'intervention', color:'#c8f060',
+    note:'Methylfolate 400mcg + Methylcobalamin 1000mcg + P5P 25mg. Directly reduces homocysteine. DNA repair & detox.',
+    urgency: 3 },
+  { id:'nac',   name:'NAC + Glycine + ALA',     layer:'intervention', color:'#c8f060',
+    note:'NAC 600mg + Glycine 10g + Alpha-lipoic acid 300mg. Restores glutathione to optimal. Master antioxidant rebuild.',
+    urgency: 3 },
+  { id:'zone2', name:'Zone 2 Cardio',           layer:'intervention', color:'#c8f060',
+    note:'3–4× per week, 45–60 min at ~65–70% HRmax. VO2max + 8–12% over 16 weeks. Mitochondrial biogenesis.',
+    urgency: 2 },
+];
+
+const ROOT_CAUSES = [
+  { id:'r_inflam',  name:'Chronic Inflammation',    layer:'root', color:'#f0a060',
+    note:'Driven by visceral fat, poor sleep, dysbiosis, and oxidative stress. Master upstream cause of cardiovascular, cognitive, and metabolic decline.' },
+  { id:'r_hpa',     name:'HPA Dysregulation',       layer:'root', color:'#f0a060',
+    note:'Hypothalamic-pituitary-adrenal axis overactivation. Chronically elevated cortisol suppresses testosterone, DHEA, and immune function.' },
+  { id:'r_meta',    name:'Metabolic Dysfunction',   layer:'root', color:'#f0a060',
+    note:'Insulin resistance pattern from chronically elevated fasting insulin and HOMA-IR. Gateway to diabetes, cardiovascular disease, and cognitive decline.' },
+  { id:'r_mito',    name:'Mitochondrial Stress',    layer:'root', color:'#f0a060',
+    note:'NAD+ depletion impairs ATP synthesis and sirtuin signaling. Glutathione deficit amplifies oxidative damage across all systems.' },
+  { id:'r_nutr',    name:'Nutritional Deficits',    layer:'root', color:'#f0a060',
+    note:'Vitamin D, Omega-3, Magnesium, and B-vitamins all deficient. These regulate hundreds of enzymatic pathways and hormone receptors.' },
+  { id:'r_horm',    name:'Hormonal Cascade',        layer:'root', color:'#f0a060',
+    note:'HPA-driven cortisol elevation directly suppresses testosterone, IGF-1, and DHEA. Interconnected cascade accelerating biological aging.' },
+];
+
+const FLAGGED_LABS = [
+  { id:'l_hscrp',   name:'hsCRP ↑',             layer:'lab', color:'#f06060', value:'2.8 mg/L',    flag:'Chronic inflammation marker' },
+  { id:'l_cortisol',name:'Cortisol AM ↑',       layer:'lab', color:'#f06060', value:'24 µg/dL',    flag:'HPA axis overactivation' },
+  { id:'l_dhea',    name:'DHEA-S ↓',            layer:'lab', color:'#f06060', value:'142 µg/dL',   flag:'Adrenal reserve decline' },
+  { id:'l_tF',      name:'Free Testosterone ↓', layer:'lab', color:'#f06060', value:'11 pg/mL',    flag:'Below prime range' },
+  { id:'l_homocys', name:'Homocysteine ↑',      layer:'lab', color:'#f06060', value:'12.8 µmol/L', flag:'Methylation impairment' },
+  { id:'l_vitd',    name:'Vitamin D ↓',         layer:'lab', color:'#f06060', value:'32 ng/mL',    flag:'Deficiency — immune + hormonal' },
+  { id:'l_insulin', name:'Fasting Insulin ↑',   layer:'lab', color:'#f06060', value:'11 µIU/mL',   flag:'Insulin resistance pattern' },
+  { id:'l_nad',     name:'NAD+ ↓',              layer:'lab', color:'#f06060', value:'22 µM',       flag:'Critical depletion' },
+  { id:'l_glut',    name:'Glutathione ↓',       layer:'lab', color:'#f06060', value:'4.8 µmol/L',  flag:'Master antioxidant depleted' },
+  { id:'l_omega3',  name:'Omega-3 Index ↓',     layer:'lab', color:'#f06060', value:'5.2%',        flag:'Below protective threshold' },
+];
+
+const LINKS = [
+  { s:'l_hscrp',   t:'r_inflam' }, { s:'l_hscrp',   t:'r_mito'   },
+  { s:'l_cortisol',t:'r_hpa'   }, { s:'l_cortisol',t:'r_inflam' },
+  { s:'l_dhea',    t:'r_hpa'   }, { s:'l_dhea',    t:'r_horm'   },
+  { s:'l_tF',      t:'r_horm'  }, { s:'l_tF',      t:'r_hpa'    },
+  { s:'l_homocys', t:'r_nutr'  }, { s:'l_homocys', t:'r_inflam' },
+  { s:'l_vitd',    t:'r_nutr'  }, { s:'l_vitd',    t:'r_inflam' }, { s:'l_vitd',  t:'r_horm'  },
+  { s:'l_insulin', t:'r_meta'  }, { s:'l_insulin', t:'r_inflam' },
+  { s:'l_nad',     t:'r_mito'  }, { s:'l_nad',     t:'r_hpa'    },
+  { s:'l_glut',    t:'r_mito'  }, { s:'l_glut',    t:'r_inflam' },
+  { s:'l_omega3',  t:'r_inflam'}, { s:'l_omega3',  t:'r_nutr'   },
+  { s:'r_inflam',  t:'sauna'   }, { s:'r_inflam',  t:'omega'    }, { s:'r_inflam',t:'cold'    }, { s:'r_inflam',t:'trE'     }, { s:'r_inflam',t:'vitdk'   },
+  { s:'r_hpa',     t:'ashwa'   }, { s:'r_hpa',     t:'sleep'    }, { s:'r_hpa',  t:'cold'    }, { s:'r_hpa',   t:'nmn'     },
+  { s:'r_meta',    t:'trE'     }, { s:'r_meta',    t:'lift'     }, { s:'r_meta', t:'zone2'   },
+  { s:'r_mito',    t:'nmn'     }, { s:'r_mito',    t:'nac'      }, { s:'r_mito', t:'zone2'   },
+  { s:'r_nutr',    t:'vitdk'   }, { s:'r_nutr',    t:'omega'    }, { s:'r_nutr', t:'methyl'  },
+  { s:'r_horm',    t:'lift'    }, { s:'r_horm',    t:'sleep'    }, { s:'r_horm', t:'ashwa'   },
+];
+
+// ════════════════════════════════════════════════════
+// SETUP
+// ════════════════════════════════════════════════════
+const ALL_NODES = [...INTERVENTIONS, ...ROOT_CAUSES, ...FLAGGED_LABS];
+const nodeMap   = {};
+ALL_NODES.forEach(n => nodeMap[n.id] = n);
+
+const tooltip   = document.getElementById('tooltip');
+const sidePanel = document.getElementById('sidePanel');
+let selectedId  = null;
+
+const wrap = document.getElementById('canvasWrap');
+const W = wrap.offsetWidth  || 1200;
+const H = wrap.offsetHeight || 560;
+
+const LAYER_Y = { intervention: H * 0.14, root: H * 0.50, lab: H * 0.85 };
+
+const svg = d3.select('#netSvg')
+  .attr('viewBox', `0 0 ${W} ${H}`)
+  .attr('preserveAspectRatio', 'xMidYMid meet');
+
+const zoomG = svg.append('g').attr('class', 'zoom-root');
+svg.call(d3.zoom().scaleExtent([0.35, 3]).on('zoom', e => {
+  zoomG.attr('transform', e.transform);
+  tooltip.classList.remove('visible');
+}));
+svg.on('click', e => {
+  if (e.target.tagName === 'svg' || e.target.classList.contains('bg-rect')) resetHighlight();
+});
+
+// ── Defs ──
+const defs = svg.append('defs');
+
+// Enhanced glow filters — double-layer for extra brightness
+const glowDefs = [
+  { id:'glow-rx',   color:'#c8f060', std1: 6, std2: 14 },
+  { id:'glow-root', color:'#f0a060', std1: 6, std2: 14 },
+  { id:'glow-lab',  color:'#f06060', std1: 8, std2: 18 },
+  { id:'glow-sel',  color:'#ffffff', std1:12, std2: 24 },
+];
+
+glowDefs.forEach(({ id, color, std1, std2 }) => {
+  const f = defs.append('filter').attr('id', id)
+    .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%');
+  // Layer 1 — tight glow
+  f.append('feGaussianBlur').attr('in', 'SourceGraphic').attr('stdDeviation', std1).attr('result', 'blur1');
+  // Layer 2 — wide bloom
+  f.append('feGaussianBlur').attr('in', 'SourceGraphic').attr('stdDeviation', std2).attr('result', 'blur2');
+  // Boost layer 2
+  f.append('feComponentTransfer').attr('in', 'blur2').attr('result', 'bloom')
+    .append('feFuncA').attr('type', 'linear').attr('slope', 0.6);
+  // Merge: bloom + tight glow + source
+  const merge = f.append('feMerge');
+  merge.append('feMergeNode').attr('in', 'bloom');
+  merge.append('feMergeNode').attr('in', 'blur1');
+  merge.append('feMergeNode').attr('in', 'SourceGraphic');
+});
+
+// 3D radial gradients
+[{ key:'intervention', c:'#c8f060' }, { key:'root', c:'#f0a060' }, { key:'lab', c:'#f06060' }].forEach(({ key, c }) => {
+  const g = defs.append('radialGradient').attr('id', `rg-${key}`).attr('cx','32%').attr('cy','28%').attr('r','68%');
+  g.append('stop').attr('offset','0%').attr('stop-color','#ffffff').attr('stop-opacity', 0.45);
+  g.append('stop').attr('offset','35%').attr('stop-color', c).attr('stop-opacity', 0.90);
+  g.append('stop').attr('offset','75%').attr('stop-color', c).attr('stop-opacity', 0.70);
+  g.append('stop').attr('offset','100%').attr('stop-color', c).attr('stop-opacity', 0.15);
+});
+
+// ── Background ──
+const bgRect = zoomG.append('rect').attr('class','bg-rect')
+  .attr('width', W).attr('height', H).attr('fill', getVar('--bg'));
+
+// ── Zone bands ──
+const zoneData = [
+  { label:'INTERVENTIONS', y: 0,        h: H * 0.30, colorVar:'--layer-rx'   },
+  { label:'ROOT CAUSES',   y: H * 0.30, h: H * 0.40, colorVar:'--layer-root' },
+  { label:'FLAGGED LABS',  y: H * 0.70, h: H * 0.30, colorVar:'--layer-lab'  },
+];
+const zoneRects = [], zoneLines = [], zoneLabels = [];
+zoneData.forEach(z => {
+  zoneRects.push(zoomG.append('rect')
+    .attr('x',0).attr('y',z.y).attr('width',W).attr('height',z.h)
+    .attr('fill', getVar(z.colorVar)).attr('opacity', 0.05));
+  zoneLines.push(zoomG.append('line')
+    .attr('x1',0).attr('y1',z.y+z.h).attr('x2',W).attr('y2',z.y+z.h)
+    .attr('stroke', getVar('--zone-line')).attr('stroke-width',1));
+  zoneLabels.push(zoomG.append('text')
+    .attr('x',12).attr('y',z.y+18)
+    .attr('font-family','IBM Plex Mono, monospace').attr('font-size','9px')
+    .attr('fill', getVar(z.colorVar)).attr('opacity',0.45).attr('letter-spacing','0.12em')
+    .text(z.label));
+});
+
+// ── Node initial positions ──
+const layerCounts = { intervention:0, root:0, lab:0 };
+ALL_NODES.forEach(n => layerCounts[n.layer]++);
+const layerIdx = { intervention:0, root:0, lab:0 };
+ALL_NODES.forEach(n => {
+  const count = layerCounts[n.layer];
+  const idx   = layerIdx[n.layer]++;
+  n.x = ((idx + 1) / (count + 1)) * W;
+  n.y = LAYER_Y[n.layer] + (Math.random() - 0.5) * 10;
+  n.targetY = LAYER_Y[n.layer];
+  n.r = n.layer === 'root' ? 40 : n.layer === 'intervention' ? 33 : 29;
+});
+
+// ── Force simulation ──
+const linkData = LINKS.map(l => ({ ...l, source: l.s, target: l.t }));
+const sim = d3.forceSimulation(ALL_NODES)
+  .force('link', d3.forceLink(linkData).id(d => d.id).distance(85).strength(0.08))
+  .force('collide', d3.forceCollide(d => d.r + 20).strength(0.88))
+  .force('x', d3.forceX(d => d.x).strength(0.07))
+  .force('y', d3.forceY(d => d.targetY).strength(0.92))
+  .alphaDecay(0.014)
+  .velocityDecay(0.38);
+
+// ════════════════════════════════════════════════════
+// LINKS
+// ════════════════════════════════════════════════════
+const linkG   = zoomG.append('g').attr('class','links');
+const linkSel = linkG.selectAll('g.link').data(linkData).enter().append('g').attr('class','link');
+
+linkSel.append('path').attr('class','link-glow').attr('fill','none')
+  .attr('stroke', getVar('--layer-rx')).attr('stroke-width',7).attr('opacity',0).attr('stroke-linecap','round');
+linkSel.append('path').attr('class','link-main').attr('fill','none')
+  .attr('stroke', getVar('--link-inactive')).attr('stroke-width',1.5).attr('opacity',0.8).attr('stroke-linecap','round');
+linkSel.append('path').attr('class','link-flow').attr('fill','none')
+  .attr('stroke','#ffffff').attr('stroke-width',1.5).attr('stroke-dasharray','7,11').attr('opacity',0).attr('stroke-linecap','round');
+
+function pathD(s, t) {
+  const curve = (t.y - s.y) * 0.38;
+  return `M${s.x},${s.y} C${s.x},${s.y+curve} ${t.x},${t.y-curve} ${t.x},${t.y}`;
+}
+
+// ════════════════════════════════════════════════════
+// NODES
+// ════════════════════════════════════════════════════
+const nodeWrap  = zoomG.append('g').attr('class','nodes');
+const nodeGroups = nodeWrap.selectAll('g.node').data(ALL_NODES).enter()
+  .append('g').attr('class','node').style('cursor','grab')
+  .call(d3.drag()
+    .on('start', (e,d) => { d3.select(e.currentTarget).style('cursor','grabbing'); if (!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+    .on('drag',  (e,d) => { d.fx=e.x; d.fy=e.y; })
+    .on('end',   (e,d) => { d3.select(e.currentTarget).style('cursor','grab'); if (!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
+  );
+
+// Wide bloom halo (outermost, very soft)
+nodeGroups.append('circle')
+  .attr('class','bloom-halo')
+  .attr('r', d => d.r + 22)
+  .attr('fill', d => d.color)
+  .attr('opacity', 0.12)
+  .attr('filter', d => d.layer==='intervention' ? 'url(#glow-rx)' : d.layer==='root' ? 'url(#glow-root)' : 'url(#glow-lab)');
+
+// Pulse ring for flagged labs
+nodeGroups.filter(d => d.layer === 'lab').append('circle').attr('class','pulse-ring')
+  .attr('r', d => d.r + 3).attr('fill','none').attr('stroke','#f06060').attr('stroke-width',1.5).attr('opacity',0.55)
+  .each(function(d) {
+    const el = d3.select(this);
+    (function pulse() {
+      el.attr('r', d.r+3).attr('opacity',0.6)
+        .transition().duration(2000).attr('r', d.r+22).attr('opacity',0).on('end', pulse);
+    })();
+  });
+
+// Orbit rings for root causes
+nodeGroups.filter(d => d.layer === 'root').append('circle')
+  .attr('r', d => d.r+12).attr('fill','none').attr('stroke','#f0a060').attr('stroke-width',0.8).attr('stroke-dasharray','4,5').attr('opacity',0.28);
+nodeGroups.filter(d => d.layer === 'root').append('circle')
+  .attr('r', d => d.r+24).attr('fill','none').attr('stroke','#f0a060').attr('stroke-width',0.5).attr('stroke-dasharray','2,8').attr('opacity',0.12);
+
+// Main bubble
+nodeGroups.append('circle').attr('class','main-bubble')
+  .attr('r', d => d.r)
+  .attr('fill', d => `url(#rg-${d.layer})`)
+  .attr('stroke', d => d.color)
+  .attr('stroke-width', 2.5)
+  .attr('filter', d => d.layer==='intervention' ? 'url(#glow-rx)' : d.layer==='root' ? 'url(#glow-root)' : 'url(#glow-lab)')
+  .attr('opacity', 1.0);
+
+// Center dot
+nodeGroups.append('circle').attr('r', 3.5).attr('fill', d => d.color).attr('opacity', 1);
+
+// Label
+nodeGroups.append('text').attr('text-anchor','middle').attr('dy','-0.2em')
+  .attr('font-family','DM Sans, sans-serif')
+  .attr('font-size', d => d.layer==='root' ? '9.5px' : '8.5px')
+  .attr('fill', getVar('--text')).attr('pointer-events','none')
+  .each(function(d) {
+    const words = d.name.split(' ');
+    const mid   = Math.ceil(words.length / 2);
+    const el    = d3.select(this);
+    el.append('tspan').attr('x',0).attr('dy', words.length>2 ? '-0.5em' : '0.35em').text(words.slice(0,mid).join(' '));
+    const l2 = words.slice(mid).join(' ');
+    if (l2) el.append('tspan').attr('x',0).attr('dy','1.2em').text(l2);
+  });
+
+// Urgency badge
+nodeGroups.filter(d => d.layer==='intervention' && d.urgency===3).append('circle')
+  .attr('cx', d => d.r - 5).attr('cy', d => -(d.r - 5)).attr('r', 5)
+  .attr('fill','#f06060').attr('stroke','var(--bg)').attr('stroke-width',1.5);
+
+// Entrance animation
+nodeGroups.select('.main-bubble').attr('r',0)
+  .transition().duration(900).delay((_,i) => i*32).ease(d3.easeBackOut.overshoot(1.15))
+  .attr('r', d => d.r);
+nodeGroups.select('.bloom-halo').attr('r',0)
+  .transition().duration(900).delay((_,i) => i*32 + 200).ease(d3.easeBackOut)
+  .attr('r', d => d.r + 22);
+
+// ════════════════════════════════════════════════════
+// INTERACTIONS
+// ════════════════════════════════════════════════════
+nodeGroups
+  .on('click', function(event, d) {
+    event.stopPropagation();
+    selectedId = d.id;
+    highlight(d.id);
+    openPanel(d);
+  })
+  .on('mousemove', (event, d) => {
+    if (selectedId) return;
+    const layerLabel = d.layer==='intervention' ? 'Intervention' : d.layer==='root' ? 'Root Cause' : 'Flagged Lab';
+    const valStr = d.value ? `<br/><span style="color:${d.color}">${d.value}</span>` : '';
+    tooltip.innerHTML = `<strong style="color:${d.color}">${d.name}</strong>${valStr}<br/><span style="opacity:0.5;font-size:0.65rem">${layerLabel}</span>`;
+    tooltip.classList.add('visible');
+    tooltip.style.left = (event.clientX + 14) + 'px';
+    tooltip.style.top  = (event.clientY - 14) + 'px';
+  })
+  .on('mouseleave', () => { if (!selectedId) tooltip.classList.remove('visible'); });
+
+// ════════════════════════════════════════════════════
+// HIGHLIGHT
+// ════════════════════════════════════════════════════
+function getConnected(nodeId) {
+  const connected = new Set([nodeId]);
+  const connLinks = new Set();
+  LINKS.forEach((l, i) => {
+    if (l.s === nodeId || l.t === nodeId) {
+      connected.add(l.s); connected.add(l.t); connLinks.add(i);
+      LINKS.forEach((l2, j) => {
+        if ((l2.s===l.s||l2.t===l.s||l2.s===l.t||l2.t===l.t) && l2.s!==nodeId && l2.t!==nodeId) {
+          if (l2.s===l.s||l2.s===l.t||l2.t===l.s||l2.t===l.t) {
+            connected.add(l2.s); connected.add(l2.t); connLinks.add(j);
+          }
+        }
+      });
+    }
+  });
+  return { connected, connLinks };
+}
+
+function highlight(nodeId) {
+  const { connected, connLinks } = getConnected(nodeId);
+  const activeColor = getVar('--layer-rx');
+  linkSel.each(function(d, i) {
+    const active = connLinks.has(i);
+    const g = d3.select(this);
+    g.select('.link-main').transition().duration(280)
+      .attr('stroke', active ? activeColor : getVar('--link-inactive'))
+      .attr('stroke-width', active ? 2.8 : 1).attr('opacity', active ? 0.95 : 0.06);
+    g.select('.link-glow').transition().duration(280).attr('opacity', active ? 0.22 : 0);
+    g.select('.link-flow').attr('opacity', active ? 0.55 : 0);
+    if (active) animateFlow(g.select('.link-flow').node());
+  });
+  nodeGroups.each(function(d) {
+    const active   = connected.has(d.id) || d.id === nodeId;
+    const isSel    = d.id === nodeId;
+    d3.select(this).select('.main-bubble').transition().duration(280)
+      .attr('opacity', active ? 1 : 0.06)
+      .attr('stroke-width', isSel ? 3.5 : active ? 2.5 : 1.2)
+      .attr('filter', isSel ? 'url(#glow-sel)' : active ? (d.layer==='intervention'?'url(#glow-rx)':d.layer==='root'?'url(#glow-root)':'url(#glow-lab)') : 'none');
+    d3.select(this).select('.bloom-halo').transition().duration(280).attr('opacity', active ? 0.18 : 0);
+    d3.select(this).selectAll('text').transition().duration(280).attr('opacity', active ? 1 : 0.05);
+  });
+}
+
+function animateFlow(pathEl) {
+  if (!pathEl) return;
+  const len = pathEl.getTotalLength ? pathEl.getTotalLength() : 200;
+  d3.select(pathEl).attr('stroke-dashoffset', 0)
+    .transition().duration(1600).ease(d3.easeLinear)
+    .attr('stroke-dashoffset', -len)
+    .on('end', function() { if (selectedId) animateFlow(this); });
+}
+
+function resetHighlight() {
+  selectedId = null;
+  linkSel.each(function() {
+    const g = d3.select(this);
+    g.select('.link-main').transition().duration(280).attr('stroke', getVar('--link-inactive')).attr('stroke-width',1.5).attr('opacity',0.8);
+    g.select('.link-glow').transition().duration(280).attr('opacity',0);
+    g.select('.link-flow').transition().duration(200).attr('opacity',0);
+  });
+  nodeGroups.select('.main-bubble').transition().duration(280).attr('opacity',1).attr('stroke-width',2.5)
+    .attr('filter', d => d.layer==='intervention'?'url(#glow-rx)':d.layer==='root'?'url(#glow-root)':'url(#glow-lab)');
+  nodeGroups.select('.bloom-halo').transition().duration(280).attr('opacity',0.12);
+  nodeGroups.selectAll('text').transition().duration(280).attr('opacity',1);
+  closePanel();
+  tooltip.classList.remove('visible');
+}
+
+// ════════════════════════════════════════════════════
+// SIDE PANEL
+// ════════════════════════════════════════════════════
+function openPanel(d) {
+  tooltip.classList.remove('visible');
+  const layerLabel = d.layer==='intervention' ? 'Intervention · Protocol' : d.layer==='root' ? 'Root Cause' : 'Flagged Biomarker';
+  document.getElementById('panelName').textContent = d.name;
+  document.getElementById('panelName').style.color = d.color;
+  document.getElementById('panelLayer').textContent = layerLabel;
+
+  const { connected } = getConnected(d.id);
+  const chips = document.getElementById('panelChips');
+  chips.innerHTML = '';
+  [...connected].filter(id => id !== d.id).forEach(id => {
+    const nd = nodeMap[id]; if (!nd) return;
+    const chip = document.createElement('div');
+    chip.className = 'panel-chip';
+    chip.style.color = nd.color; chip.style.borderColor = nd.color + '55';
+    chip.textContent = nd.name; chip.onclick = () => { selectedId=nd.id; highlight(nd.id); openPanel(nd); };
+    chips.appendChild(chip);
+  });
+
+  const noteEl = document.getElementById('panelNote');
+  const valStr = d.value ? `<div style="font-family:IBM Plex Mono,monospace;font-size:0.7rem;color:${d.color};margin-bottom:0.45rem">${d.value} · ${d.flag||''}</div>` : '';
+  noteEl.innerHTML = valStr + (d.note || '');
+  sidePanel.classList.add('visible');
+}
+
+function closePanel() { sidePanel.classList.remove('visible'); }
+
+// ════════════════════════════════════════════════════
+// TICK
+// ════════════════════════════════════════════════════
+sim.on('tick', () => {
+  ALL_NODES.forEach(d => {
+    d.x = Math.max(d.r+8, Math.min(W-d.r-8, d.x));
+    const spread = H * 0.13;
+    d.y = Math.max(d.targetY - spread, Math.min(d.targetY + spread, d.y));
+  });
+  linkSel.each(function(d) {
+    const s = typeof d.source==='object' ? d.source : nodeMap[d.s];
+    const t = typeof d.target==='object' ? d.target : nodeMap[d.t];
+    if (!s||!t) return;
+    const pd = pathD(s,t);
+    d3.select(this).select('.link-main').attr('d',pd);
+    d3.select(this).select('.link-glow').attr('d',pd);
+    d3.select(this).select('.link-flow').attr('d',pd);
+  });
+  nodeGroups.attr('transform', d => `translate(${d.x},${d.y})`);
+});
+
+// ════════════════════════════════════════════════════
+// THEME
+// ════════════════════════════════════════════════════
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+  applyThemeToSvg();
+}
+
+function applyThemeToSvg() {
+  bgRect.attr('fill', getVar('--bg'));
+  zoneRects.forEach((r,i) => r.attr('fill', getVar(zoneData[i].colorVar)));
+  zoneLines.forEach(l => l.attr('stroke', getVar('--zone-line')));
+  zoneLabels.forEach((lbl,i) => lbl.attr('fill', getVar(zoneData[i].colorVar)));
+  linkSel.select('.link-main').attr('stroke', getVar('--link-inactive'));
+  linkSel.select('.link-glow').attr('stroke', getVar('--layer-rx'));
+  nodeWrap.selectAll('text').attr('fill', getVar('--text'));
+}
+</script>
+</body>
+</html>
