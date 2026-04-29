@@ -97,31 +97,138 @@ const COLORS = {
 };
 
 const BIOMARKERS = [
+  // cardiovascular
   { name: 'HRV',              score: 72, status: 'green'  },
-  { name: 'Recovery',         score: 68, status: 'green'  },
-  { name: 'VO₂ Max',          score: 55, status: 'yellow' },
-  { name: 'Deep Sleep',       score: 45, status: 'yellow' },
-  { name: 'Strain',           score: 81, status: 'green'  },
-  { name: 'Glucose',          score: 77, status: 'green'  },
-  { name: 'Cortisol',         score: 62, status: 'yellow' },
-  { name: 'SpO₂',             score: 94, status: 'green'  },
-  { name: 'Testosterone',     score: 58, status: 'yellow' },
-  { name: 'Vitamin D',        score: 42, status: 'yellow' },
-  { name: 'CRP',              score: 34, status: 'red'    },
-  { name: 'REM Sleep',        score: 71, status: 'green'  },
-  { name: 'Respiratory Rate', score: 88, status: 'green'  },
   { name: 'Resting HR',       score: 65, status: 'yellow' },
-  { name: 'NAD+',             score: 38, status: 'red'    },
-  { name: 'Magnesium',        score: 52, status: 'yellow' },
-  { name: 'Ferritin',         score: 44, status: 'yellow' },
-  { name: 'IGF-1',            score: 61, status: 'yellow' },
-  { name: 'DHEA-S',           score: 55, status: 'yellow' },
+  { name: 'Blood Pressure',   score: 69, status: 'green'  },
+  { name: 'LDL',              score: 58, status: 'yellow' },
+  { name: 'HDL',              score: 71, status: 'green'  },
+  { name: 'Triglycerides',    score: 64, status: 'yellow' },
+  { name: 'Total Cholesterol',score: 66, status: 'yellow' },
+  { name: 'Lp(a)',            score: 32, status: 'red'    },
   { name: 'ApoB',             score: 36, status: 'red'    },
-  { name: 'Zinc',             score: 67, status: 'yellow' },
-  { name: 'Omega-3',          score: 48, status: 'yellow' },
-  { name: 'Homocysteine',     score: 41, status: 'yellow' },
+  { name: 'ApoA1',            score: 68, status: 'green'  },
+  { name: 'Fibrinogen',       score: 55, status: 'yellow' },
+  { name: 'D-Dimer',          score: 74, status: 'green'  },
+  { name: 'BNP',              score: 78, status: 'green'  },
+  // metabolic
+  { name: 'Glucose',          score: 77, status: 'green'  },
+  { name: 'HbA1c',            score: 68, status: 'green'  },
+  { name: 'Fasting Insulin',  score: 54, status: 'yellow' },
+  { name: 'HOMA-IR',          score: 48, status: 'yellow' },
+  { name: 'Uric Acid',        score: 57, status: 'yellow' },
+  { name: 'eGFR',             score: 82, status: 'green'  },
+  { name: 'Creatinine',       score: 75, status: 'green'  },
+  { name: 'BUN',              score: 71, status: 'green'  },
+  { name: 'Cystatin C',       score: 64, status: 'yellow' },
+  // liver
+  { name: 'ALT',              score: 66, status: 'yellow' },
+  { name: 'AST',              score: 69, status: 'green'  },
+  { name: 'GGT',              score: 58, status: 'yellow' },
+  { name: 'Bilirubin',        score: 77, status: 'green'  },
+  { name: 'ALP',              score: 71, status: 'green'  },
   { name: 'Albumin',          score: 79, status: 'green'  },
+  // hormonal
+  { name: 'Testosterone',     score: 58, status: 'yellow' },
+  { name: 'Free Testosterone',score: 52, status: 'yellow' },
+  { name: 'SHBG',             score: 55, status: 'yellow' },
+  { name: 'DHEA-S',           score: 55, status: 'yellow' },
+  { name: 'Estradiol',        score: 65, status: 'yellow' },
+  { name: 'Progesterone',     score: 48, status: 'yellow' },
+  { name: 'Cortisol',         score: 62, status: 'yellow' },
+  { name: 'Cortisol AM',      score: 58, status: 'yellow' },
+  { name: 'Prolactin',        score: 74, status: 'green'  },
+  { name: 'LH',               score: 61, status: 'yellow' },
+  { name: 'FSH',              score: 63, status: 'yellow' },
   { name: 'TSH',              score: 72, status: 'green'  },
+  { name: 'Free T3',          score: 68, status: 'green'  },
+  { name: 'Free T4',          score: 72, status: 'green'  },
+  { name: 'Reverse T3',       score: 45, status: 'yellow' },
+  { name: 'Pregnenolone',     score: 41, status: 'yellow' },
+  { name: 'IGF-1',            score: 61, status: 'yellow' },
+  { name: 'Growth Hormone',   score: 44, status: 'yellow' },
+  { name: 'Melatonin',        score: 38, status: 'red'    },
+  { name: 'Aldosterone',      score: 63, status: 'yellow' },
+  // inflammatory
+  { name: 'CRP',              score: 34, status: 'red'    },
+  { name: 'hsCRP',            score: 38, status: 'red'    },
+  { name: 'IL-6',             score: 35, status: 'red'    },
+  { name: 'TNF-α',            score: 39, status: 'red'    },
+  { name: 'ESR',              score: 61, status: 'yellow' },
+  { name: 'Homocysteine',     score: 41, status: 'yellow' },
+  // sleep & recovery
+  { name: 'Recovery',         score: 68, status: 'green'  },
+  { name: 'Deep Sleep',       score: 45, status: 'yellow' },
+  { name: 'REM Sleep',        score: 71, status: 'green'  },
+  { name: 'Sleep Duration',   score: 62, status: 'yellow' },
+  { name: 'Sleep Efficiency', score: 74, status: 'green'  },
+  { name: 'Strain',           score: 81, status: 'green'  },
+  // respiratory & fitness
+  { name: 'VO₂ Max',          score: 55, status: 'yellow' },
+  { name: 'SpO₂',             score: 88, status: 'green'  },
+  { name: 'Respiratory Rate', score: 78, status: 'green'  },
+  { name: 'Grip Strength',    score: 61, status: 'yellow' },
+  { name: 'Muscle Mass',      score: 58, status: 'yellow' },
+  { name: 'Body Fat %',       score: 55, status: 'yellow' },
+  { name: 'Bone Density',     score: 55, status: 'yellow' },
+  // nutritional
+  { name: 'Vitamin D',        score: 42, status: 'yellow' },
+  { name: 'Vitamin B12',      score: 65, status: 'yellow' },
+  { name: 'Vitamin B6',       score: 58, status: 'yellow' },
+  { name: 'Vitamin B1',       score: 63, status: 'yellow' },
+  { name: 'Vitamin A',        score: 67, status: 'yellow' },
+  { name: 'Vitamin C',        score: 74, status: 'green'  },
+  { name: 'Vitamin E',        score: 62, status: 'yellow' },
+  { name: 'Vitamin K2',       score: 41, status: 'yellow' },
+  { name: 'Magnesium',        score: 52, status: 'yellow' },
+  { name: 'Zinc',             score: 67, status: 'yellow' },
+  { name: 'Selenium',         score: 48, status: 'yellow' },
+  { name: 'Iodine',           score: 44, status: 'yellow' },
+  { name: 'Iron',             score: 58, status: 'yellow' },
+  { name: 'Ferritin',         score: 44, status: 'yellow' },
+  { name: 'Copper',           score: 71, status: 'green'  },
+  { name: 'Omega-3',          score: 48, status: 'yellow' },
+  { name: 'Folate',           score: 69, status: 'green'  },
+  { name: 'CoQ10',            score: 42, status: 'yellow' },
+  { name: 'NAD+',             score: 38, status: 'red'    },
+  // blood
+  { name: 'Hemoglobin',       score: 77, status: 'green'  },
+  { name: 'Hematocrit',       score: 74, status: 'green'  },
+  { name: 'RBC',              score: 72, status: 'green'  },
+  { name: 'WBC',              score: 74, status: 'green'  },
+  { name: 'Platelets',        score: 78, status: 'green'  },
+  { name: 'Neutrophils',      score: 71, status: 'green'  },
+  { name: 'Lymphocytes',      score: 68, status: 'green'  },
+  { name: 'MCV',              score: 71, status: 'green'  },
+  // bone & mineral
+  { name: 'Calcium',          score: 76, status: 'green'  },
+  { name: 'Phosphorus',       score: 68, status: 'green'  },
+  { name: 'PTH',              score: 62, status: 'yellow' },
+  { name: 'Osteocalcin',      score: 48, status: 'yellow' },
+  { name: 'CTX',              score: 52, status: 'yellow' },
+  // cognitive & neuro
+  { name: 'BDNF',             score: 41, status: 'yellow' },
+  { name: 'Serotonin',        score: 44, status: 'yellow' },
+  { name: 'Dopamine',         score: 47, status: 'yellow' },
+  // immune
+  { name: 'IgG',              score: 74, status: 'green'  },
+  { name: 'IgA',              score: 68, status: 'green'  },
+  { name: 'NK Cells',         score: 52, status: 'yellow' },
+  { name: 'CD4/CD8',          score: 67, status: 'yellow' },
+  // oxidative stress
+  { name: 'Glutathione',      score: 38, status: 'red'    },
+  { name: 'SOD',              score: 43, status: 'yellow' },
+  { name: '8-OHdG',           score: 35, status: 'red'    },
+  // gut
+  { name: 'Zonulin',          score: 42, status: 'yellow' },
+  { name: 'Calprotectin',     score: 39, status: 'red'    },
+  { name: 'LPS',              score: 36, status: 'red'    },
+  // longevity
+  { name: 'Telomere Length',  score: 52, status: 'yellow' },
+  { name: 'Biological Age',   score: 61, status: 'yellow' },
+  { name: 'GrimAge',          score: 58, status: 'yellow' },
+  { name: 'Klotho',           score: 48, status: 'yellow' },
+  { name: 'Sirtuins',         score: 44, status: 'yellow' },
 ];
 
 // ── timing ──
@@ -197,7 +304,7 @@ for (let i = 0; i < N; i++) {
     name    : bm.name,
     score   : bm.score,
     rgb     : COLORS[bm.status],
-    size    : 8 + Math.random() * 10,
+    size    : 4 + Math.random() * 8,
     phase   : Math.random() * Math.PI * 2,
     pulseSpd: 0.8 + Math.random() * 0.7,
     hbTimer : Math.random() * 12,
@@ -218,15 +325,15 @@ function buildFinalPositions() {
     do {
       const base  = (i / N) * Math.PI * 2;
       const angle = base + (Math.random() - 0.5) * (Math.PI * 2 / N) * 1.2;
-      const r     = minDim * (0.22 + Math.random() * 0.34);
+      const r     = minDim * (0.10 + Math.random() * 0.44);
       fx = cx + Math.cos(angle) * r;
       fy = cy + Math.sin(angle) * r;
       att++;
-      const close = placed.some(p => Math.hypot(p.x - fx, p.y - fy) < o.size * 4.5);
+      const close = placed.some(p => Math.hypot(p.x - fx, p.y - fy) < o.size * 3.0);
       if (!close && Math.hypot(fx - cx, fy - cy) > deadZone) break;
-    } while (att < 30);
-    fx = Math.max(o.size * 4, Math.min(W - o.size * 4, fx));
-    fy = Math.max(o.size * 4, Math.min(H - o.size * 4, fy));
+    } while (att < 60);
+    fx = Math.max(o.size * 3, Math.min(W - o.size * 3, fx));
+    fy = Math.max(o.size * 3, Math.min(H - o.size * 3, fy));
     o.finalX    = fx; o.finalY = fy;
     o.orbR      = Math.hypot(fx - cx, fy - cy);
     o.restAngle = Math.atan2(fy - cy, fx - cx);
