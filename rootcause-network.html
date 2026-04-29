@@ -19,7 +19,7 @@
   --layer-rx:   #c8a040;
   --accent: #c8a040;
   --zone-line: #e0e0d8;
-  --link-inactive: #b0b0a8;
+  --link-inactive: #5a5a52;
   --node-bg: #ffffff;
 }
 
@@ -884,13 +884,12 @@ glowDefs.forEach(({ id, color, std1, std2 }) => {
   merge.append('feMergeNode').attr('in', 'SourceGraphic');
 });
 
-// 3D radial gradients
+// Matte radial gradients — no specular highlight
 [{ key:'intervention', c:'#c8a040' }, { key:'root', c:'#f0a060' }, { key:'lab', c:'#f06060' }].forEach(({ key, c }) => {
-  const g = defs.append('radialGradient').attr('id', `rg-${key}`).attr('cx','32%').attr('cy','28%').attr('r','68%');
-  g.append('stop').attr('offset','0%').attr('stop-color','#ffffff').attr('stop-opacity', 0.45);
-  g.append('stop').attr('offset','35%').attr('stop-color', c).attr('stop-opacity', 0.90);
-  g.append('stop').attr('offset','75%').attr('stop-color', c).attr('stop-opacity', 0.70);
-  g.append('stop').attr('offset','100%').attr('stop-color', c).attr('stop-opacity', 0.15);
+  const g = defs.append('radialGradient').attr('id', `rg-${key}`).attr('cx','50%').attr('cy','50%').attr('r','75%');
+  g.append('stop').attr('offset','0%').attr('stop-color', c).attr('stop-opacity', 1.0);
+  g.append('stop').attr('offset','60%').attr('stop-color', c).attr('stop-opacity', 0.88);
+  g.append('stop').attr('offset','100%').attr('stop-color', c).attr('stop-opacity', 0.55);
 });
 
 // ── Background ──
@@ -950,7 +949,7 @@ const linkSel = linkG.selectAll('g.link').data(linkData).enter().append('g').att
 linkSel.append('path').attr('class','link-glow').attr('fill','none')
   .attr('stroke', getVar('--layer-rx')).attr('stroke-width',7).attr('opacity',0).attr('stroke-linecap','round');
 linkSel.append('path').attr('class','link-main').attr('fill','none')
-  .attr('stroke', getVar('--link-inactive')).attr('stroke-width',1.5).attr('opacity',0.8).attr('stroke-linecap','round');
+  .attr('stroke', getVar('--link-inactive')).attr('stroke-width',2).attr('opacity',1.0).attr('stroke-linecap','round');
 linkSel.append('path').attr('class','link-flow').attr('fill','none')
   .attr('stroke','#ffffff').attr('stroke-width',1.5).attr('stroke-dasharray','7,11').attr('opacity',0).attr('stroke-linecap','round');
 
@@ -971,13 +970,12 @@ const nodeGroups = nodeWrap.selectAll('g.node').data(ALL_NODES).enter()
     .on('end',   (e,d) => { d3.select(e.currentTarget).style('cursor','grab'); if (!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
   );
 
-// Wide bloom halo (outermost, very soft)
+// Subtle halo — matte, no bloom
 nodeGroups.append('circle')
   .attr('class','bloom-halo')
-  .attr('r', d => d.r + 22)
+  .attr('r', d => d.r + 10)
   .attr('fill', d => d.color)
-  .attr('opacity', 0.12)
-  .attr('filter', d => d.layer==='intervention' ? 'url(#glow-rx)' : d.layer==='root' ? 'url(#glow-root)' : 'url(#glow-lab)');
+  .attr('opacity', 0.06);
 
 // Pulse ring for flagged labs
 nodeGroups.filter(d => d.layer === 'lab').append('circle').attr('class','pulse-ring')
@@ -996,13 +994,12 @@ nodeGroups.filter(d => d.layer === 'root').append('circle')
 nodeGroups.filter(d => d.layer === 'root').append('circle')
   .attr('r', d => d.r+24).attr('fill','none').attr('stroke','#f0a060').attr('stroke-width',0.5).attr('stroke-dasharray','2,8').attr('opacity',0.12);
 
-// Main bubble
+// Main bubble — matte, no glow filter
 nodeGroups.append('circle').attr('class','main-bubble')
   .attr('r', d => d.r)
   .attr('fill', d => `url(#rg-${d.layer})`)
   .attr('stroke', d => d.color)
-  .attr('stroke-width', 2.5)
-  .attr('filter', d => d.layer==='intervention' ? 'url(#glow-rx)' : d.layer==='root' ? 'url(#glow-root)' : 'url(#glow-lab)')
+  .attr('stroke-width', 2)
   .attr('opacity', 1.0);
 
 // Center dot
