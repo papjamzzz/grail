@@ -6,7 +6,7 @@
 <title>Bloody Roots</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pirata+One&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
 
 :root {
   --bg: #f8f8f4;
@@ -24,18 +24,18 @@
 }
 
 body.dark {
-  --bg: #080810;
-  --surface: #11111a;
-  --border: #1e1e2a;
-  --text: #e8e8f0;
-  --muted: #5a5a70;
-  --layer-lab:  #f06060;
-  --layer-root: #f0a060;
-  --layer-rx:   #c8f060;
-  --accent: #c8f060;
-  --zone-line: #1a1a26;
-  --link-inactive: #1e1e2e;
-  --node-bg: #11111a;
+  --bg: #06040a;
+  --surface: #0e0b14;
+  --border: #2a1a2e;
+  --text: #e8d8c0;
+  --muted: #5a4a5a;
+  --layer-lab:  #c84040;
+  --layer-root: #c8782a;
+  --layer-rx:   #c8a040;
+  --accent: #c8a040;
+  --zone-line: #160e1c;
+  --link-inactive: #1e1228;
+  --node-bg: #0e0b14;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -63,9 +63,9 @@ header {
 }
 
 .header-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.75rem;
-  letter-spacing: -0.02em;
+  font-family: 'Pirata One', serif;
+  font-size: 2rem;
+  letter-spacing: 0.04em;
   color: var(--text);
 }
 
@@ -178,7 +178,7 @@ body.dark .toggle-thumb { transform: translateX(16px); background: var(--accent)
   box-shadow: 0 4px 32px rgba(0,0,0,0.08);
 }
 .side-panel.visible { opacity: 1; transform: translateX(0); pointer-events: all; }
-.panel-node-name { font-family: 'DM Serif Display', serif; font-size: 1.1rem; margin-bottom: 0.25rem; }
+.panel-node-name { font-family: 'Pirata One', serif; font-size: 1.2rem; margin-bottom: 0.25rem; }
 .panel-layer-tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.45; margin-bottom: 0.75rem; }
 .panel-section-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0.65rem 0 0.3rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
 .panel-chip { display: inline-flex; align-items: center; font-family: 'IBM Plex Mono', monospace; font-size: 0.64rem; padding: 0.18rem 0.5rem; border-radius: 10px; margin: 0.15rem; border: 1px solid currentColor; opacity: 0.8; cursor: pointer; transition: opacity 0.15s; }
@@ -271,12 +271,12 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 }
 
 .intro-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 2.6rem;
-  letter-spacing: -0.02em;
+  font-family: 'Pirata One', serif;
+  font-size: 2.8rem;
+  letter-spacing: 0.04em;
   line-height: 1.1;
   margin-bottom: 1rem;
-  color: #e8e8f0;
+  color: #e8d8c0;
 }
 
 .intro-title em {
@@ -416,9 +416,9 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 }
 
 .guide-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 2rem;
-  letter-spacing: -0.02em;
+  font-family: 'Pirata One', serif;
+  font-size: 2.2rem;
+  letter-spacing: 0.04em;
   margin-bottom: 0.4rem;
 }
 
@@ -488,7 +488,7 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 .guide-action-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.55; }
 </style>
 </head>
-<body>
+<body class="dark">
 
 <div class="tooltip" id="tooltip"></div>
 
@@ -567,8 +567,8 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
       <div class="intro-title">Root to remedy.</div>
       <div class="intro-diagram">
         <div class="intro-layer-row">
-          <div class="intro-orb" style="background:#c8f060;color:#c8f060"></div>
-          <div class="intro-layer-label" style="color:#c8f060">Interventions</div>
+          <div class="intro-orb" style="background:#c8a040;color:#c8a040"></div>
+          <div class="intro-layer-label" style="color:#c8a040">Interventions</div>
         </div>
         <div class="intro-connector"></div>
         <div class="intro-layer-row">
@@ -643,9 +643,9 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
     </div>
 
     <div class="guide-layer-row">
-      <div class="guide-orb" style="background:#c8f060;box-shadow:0 0 12px #c8f060aa"></div>
+      <div class="guide-orb" style="background:#c8a040;box-shadow:0 0 12px #c8a040aa"></div>
       <div class="guide-layer-info">
-        <div class="guide-layer-name" style="color:#c8f060">Interventions</div>
+        <div class="guide-layer-name" style="color:#c8a040">Interventions</div>
         <div class="guide-layer-desc">Evidence-based protocols that target the root causes — with specific dosing, timing, and clinical rationale. Red badge = high urgency.</div>
       </div>
     </div>
@@ -692,7 +692,7 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 // THEME HELPERS
 // ════════════════════════════════════════════════════
 function getVar(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
 
 // ════════════════════════════════════════════════════
@@ -739,40 +739,40 @@ function closeGuideIfBg(e) {
 // DATA
 // ════════════════════════════════════════════════════
 const INTERVENTIONS = [
-  { id:'trE',   name:'Time-Restricted Eating', layer:'intervention', color:'#c8f060',
+  { id:'trE',   name:'Time-Restricted Eating', layer:'intervention', color:'#c8a040',
     note:'16:8 or 18:6 window. Targets insulin sensitivity, autophagy, and metabolic reset. Most impactful single lifestyle lever.',
     urgency: 3 },
-  { id:'sauna', name:'Sauna (4×/week)',         layer:'intervention', color:'#c8f060',
+  { id:'sauna', name:'Sauna (4×/week)',         layer:'intervention', color:'#c8a040',
     note:'Heat shock proteins + HSP70 elevation. Reduces hsCRP 28–40% with consistent 4× weekly protocol (20 min, 185°F).',
     urgency: 2 },
-  { id:'ashwa', name:'Ashwagandha',             layer:'intervention', color:'#c8f060',
+  { id:'ashwa', name:'Ashwagandha',             layer:'intervention', color:'#c8a040',
     note:'KSM-66 or Sensoril. 600mg/day. Reduces cortisol 25–30%, supports DHEA restoration, improves free testosterone.',
     urgency: 3 },
-  { id:'cold',  name:'Cold Plunge',             layer:'intervention', color:'#c8f060',
+  { id:'cold',  name:'Cold Plunge',             layer:'intervention', color:'#c8a040',
     note:'3–5 min at 50–55°F, 4×/week. Norepinephrine spike 300%. Anti-inflammatory, HRV improvement, brown fat activation.',
     urgency: 2 },
-  { id:'sleep', name:'Sleep Optimization',      layer:'intervention', color:'#c8f060',
+  { id:'sleep', name:'Sleep Optimization',      layer:'intervention', color:'#c8a040',
     note:'9pm wind-down, 10pm target. Fixes cortisol rhythm, testosterone production (70% made during deep sleep), NAD+ synthesis.',
     urgency: 3 },
-  { id:'lift',  name:'Strength Training',       layer:'intervention', color:'#c8f060',
+  { id:'lift',  name:'Strength Training',       layer:'intervention', color:'#c8a040',
     note:'3–4× compound lifts weekly. Improves insulin sensitivity 40–60%, testosterone, BDNF, muscle glucose uptake.',
     urgency: 3 },
-  { id:'nmn',   name:'NMN / NR',               layer:'intervention', color:'#c8f060',
+  { id:'nmn',   name:'NMN / NR',               layer:'intervention', color:'#c8a040',
     note:'500–1000mg NMN or 500mg NR daily. Directly elevates NAD+ 40–60% in 60 days. Critical for sirtuin activation.',
     urgency: 3 },
-  { id:'omega', name:'Omega-3 (high dose)',     layer:'intervention', color:'#c8f060',
+  { id:'omega', name:'Omega-3 (high dose)',     layer:'intervention', color:'#c8a040',
     note:'3–4g EPA+DHA daily. Reduces IL-6, hsCRP. Improves Omega-3 Index from 5.2% → 8%+ target in 90 days.',
     urgency: 3 },
-  { id:'vitdk', name:'Vitamin D3 + K2',         layer:'intervention', color:'#c8f060',
+  { id:'vitdk', name:'Vitamin D3 + K2',         layer:'intervention', color:'#c8a040',
     note:'5000 IU D3 + 200mcg MK-7 K2 daily. Brings 25-OH-D from 32 → 60–80 ng/mL target. K2 prevents arterial calcification.',
     urgency: 3 },
-  { id:'methyl',name:'Methylation Protocol',    layer:'intervention', color:'#c8f060',
+  { id:'methyl',name:'Methylation Protocol',    layer:'intervention', color:'#c8a040',
     note:'Methylfolate 400mcg + Methylcobalamin 1000mcg + P5P 25mg. Directly reduces homocysteine. DNA repair & detox.',
     urgency: 3 },
-  { id:'nac',   name:'NAC + Glycine + ALA',     layer:'intervention', color:'#c8f060',
+  { id:'nac',   name:'NAC + Glycine + ALA',     layer:'intervention', color:'#c8a040',
     note:'NAC 600mg + Glycine 10g + Alpha-lipoic acid 300mg. Restores glutathione to optimal. Master antioxidant rebuild.',
     urgency: 3 },
-  { id:'zone2', name:'Zone 2 Cardio',           layer:'intervention', color:'#c8f060',
+  { id:'zone2', name:'Zone 2 Cardio',           layer:'intervention', color:'#c8a040',
     note:'3–4× per week, 45–60 min at ~65–70% HRmax. VO2max + 8–12% over 16 weeks. Mitochondrial biogenesis.',
     urgency: 2 },
 ];
@@ -859,7 +859,7 @@ const defs = svg.append('defs');
 
 // Enhanced glow filters — double-layer for extra brightness
 const glowDefs = [
-  { id:'glow-rx',   color:'#c8f060', std1: 6, std2: 14 },
+  { id:'glow-rx',   color:'#c8a040', std1: 6, std2: 14 },
   { id:'glow-root', color:'#f0a060', std1: 6, std2: 14 },
   { id:'glow-lab',  color:'#f06060', std1: 8, std2: 18 },
   { id:'glow-sel',  color:'#ffffff', std1:12, std2: 24 },
@@ -883,7 +883,7 @@ glowDefs.forEach(({ id, color, std1, std2 }) => {
 });
 
 // 3D radial gradients
-[{ key:'intervention', c:'#c8f060' }, { key:'root', c:'#f0a060' }, { key:'lab', c:'#f06060' }].forEach(({ key, c }) => {
+[{ key:'intervention', c:'#c8a040' }, { key:'root', c:'#f0a060' }, { key:'lab', c:'#f06060' }].forEach(({ key, c }) => {
   const g = defs.append('radialGradient').attr('id', `rg-${key}`).attr('cx','32%').attr('cy','28%').attr('r','68%');
   g.append('stop').attr('offset','0%').attr('stop-color','#ffffff').attr('stop-opacity', 0.45);
   g.append('stop').attr('offset','35%').attr('stop-color', c).attr('stop-opacity', 0.90);
