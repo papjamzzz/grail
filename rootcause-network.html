@@ -64,6 +64,22 @@ header {
 }
 
 
+@keyframes cowboyboot {
+  /* boot kicks */
+  0%   { transform: rotate(0deg)   translateY(0px);   }
+  5%   { transform: rotate(-11deg) translateY(-14px); }
+  10%  { transform: rotate(6deg)   translateY(5px);   }
+  15%  { transform: rotate(-10deg) translateY(-12px); }
+  20%  { transform: rotate(5deg)   translateY(4px);   }
+  25%  { transform: rotate(-8deg)  translateY(-10px); }
+  29%  { transform: rotate(3deg)   translateY(2px);   }
+  33%  { transform: rotate(0deg)   translateY(0px);   }
+  /* spin 20x — 33% to 94% = 61% of 5.5s = ~3.4s for 20 rotations */
+  94%  { transform: rotate(7200deg) translateY(0px);  }
+  /* dead stop */
+  100% { transform: rotate(7200deg) translateY(0px);  }
+}
+
 .header-title {
   font-family: 'Rye', serif;
   font-size: 3.2rem;
@@ -72,6 +88,9 @@ header {
   opacity: 1;
   text-shadow: none;
   line-height: 1;
+  display: inline-block;
+  transform-origin: center center;
+  animation: cowboyboot 5.5s ease-in-out 1 forwards;
 }
 
 .header-title em {
