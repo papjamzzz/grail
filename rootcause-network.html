@@ -250,7 +250,7 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 #introOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(8,8,16,0.92);
+  background: rgba(244,239,230,0.97);
   backdrop-filter: blur(18px);
   z-index: 1000;
   display: flex;
@@ -259,13 +259,14 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
   opacity: 1;
   transition: opacity 0.6s ease;
 }
+body.dark #introOverlay { background: rgba(8,8,16,0.95); }
 #introOverlay.fade-out { opacity: 0; pointer-events: none; }
 
 .intro-card {
   max-width: 520px;
   width: 90%;
   text-align: center;
-  color: #e8e8f0;
+  color: var(--text);
 }
 
 .intro-step { display: none; }
@@ -276,7 +277,7 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #4a4a5a;
+  color: var(--muted);
   margin-bottom: 2rem;
 }
 
@@ -286,18 +287,18 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
   letter-spacing: 0.04em;
   line-height: 1.1;
   margin-bottom: 1rem;
-  color: #e8d8c0;
+  color: var(--text);
 }
 
 .intro-title em {
   font-style: italic;
-  color: #f06060;
+  color: var(--layer-lab);
 }
 
 .intro-body {
   font-family: 'DM Sans', sans-serif;
   font-size: 1rem;
-  color: #8a8a9a;
+  color: var(--muted);
   line-height: 1.7;
   max-width: 380px;
   margin: 0 auto 2.4rem;
@@ -332,7 +333,7 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 .intro-connector {
   width: 1px;
   height: 18px;
-  background: linear-gradient(to bottom, #3a3a4a, #2a2a3a);
+  background: var(--border);
   margin: 0 auto;
 }
 
@@ -349,15 +350,15 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 .intro-dot {
   width: 5px; height: 5px;
   border-radius: 50%;
-  background: #2a2a3a;
+  background: var(--border);
   transition: background 0.2s;
 }
-.intro-dot.active { background: #e8e8f0; }
+.intro-dot.active { background: var(--text); }
 
 .intro-btn {
   background: none;
-  border: 1px solid #3a3a4a;
-  color: #8a8a9a;
+  border: 1px solid var(--border);
+  color: var(--muted);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.7rem;
   padding: 0.45rem 1.2rem;
@@ -366,15 +367,15 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
   letter-spacing: 0.06em;
   transition: all 0.2s;
 }
-.intro-btn:hover { border-color: #e8e8f0; color: #e8e8f0; }
+.intro-btn:hover { border-color: var(--text); color: var(--text); }
 
 .intro-btn-primary {
-  background: #e8e8f0;
-  border-color: #e8e8f0;
-  color: #080810;
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
   font-weight: 600;
 }
-.intro-btn-primary:hover { background: #ffffff; border-color: #ffffff; color: #080810; }
+.intro-btn-primary:hover { opacity: 0.85; }
 
 /* ══════════════════════════════════════════
    GUIDE MODAL
@@ -382,13 +383,14 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 #guideOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(180,168,152,0.45);
   backdrop-filter: blur(8px);
   z-index: 900;
   display: none;
   align-items: center;
   justify-content: center;
 }
+body.dark #guideOverlay { background: rgba(0,0,0,0.55); }
 #guideOverlay.open { display: flex; }
 
 .guide-panel {
