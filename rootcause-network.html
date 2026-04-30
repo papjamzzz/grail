@@ -54,32 +54,28 @@ body {
 /* ── HEADER (hidden — controls moved to corners) ── */
 header { display: none; }
 
-/* ── ROOTS CTA ── */
+/* ── ROOTS BANNER ── */
 #roots-cta {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  width: 100%;
+  text-align: center;
   font-family: 'Rye', serif;
-  font-size: clamp(5rem, 12vw, 10rem);
-  letter-spacing: 0.08em;
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  letter-spacing: 0.12em;
   color: var(--text);
   line-height: 1;
-  z-index: 20;
+  padding: 1.1rem 0 1rem;
+  border-bottom: 1px solid var(--border);
   cursor: pointer;
   user-select: none;
-  pointer-events: all;
-  transition: opacity 0.2s, transform 0.2s;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
 }
-#roots-cta:hover {
-  opacity: 0.75;
-  transform: translate(-50%, -50%) scale(1.03);
-}
+#roots-cta:hover { opacity: 0.7; }
 
 /* ── CORNER CONTROLS ── */
 #corner-controls {
   position: fixed;
-  top: 1.2rem;
+  top: 1rem;
   right: 1.6rem;
   display: flex;
   align-items: center;
