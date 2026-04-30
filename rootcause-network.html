@@ -51,36 +51,40 @@ body {
   transition: background 0.35s, color 0.35s;
 }
 
-/* ── HEADER ── */
-header {
-  padding: 1.4rem 2.8rem 1.1rem;
-  border-bottom: 1px solid var(--border);
+/* ── HEADER (hidden — controls moved to corners) ── */
+header { display: none; }
+
+/* ── ROOTS CTA ── */
+#roots-cta {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Rye', serif;
+  font-size: clamp(5rem, 12vw, 10rem);
+  letter-spacing: 0.08em;
+  color: var(--text);
+  line-height: 1;
+  z-index: 20;
+  cursor: pointer;
+  user-select: none;
+  pointer-events: all;
+  transition: opacity 0.2s, transform 0.2s;
+}
+#roots-cta:hover {
+  opacity: 0.75;
+  transform: translate(-50%, -50%) scale(1.03);
+}
+
+/* ── CORNER CONTROLS ── */
+#corner-controls {
+  position: fixed;
+  top: 1.2rem;
+  right: 1.6rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
   gap: 1rem;
-  min-height: 5rem;
-}
-
-
-@keyframes roots-appear-fade {
-  0%   { opacity: 1; transform: translateX(0) rotate(0deg); }
-  85%  { opacity: 1; transform: translateX(0) rotate(0deg); }
-  100% { opacity: 0; transform: translateX(0) rotate(0deg); }
-}
-
-.header-title {
-  font-family: 'Rye', serif;
-  font-size: 3.2rem;
-  letter-spacing: 0.06em;
-  color: #0a0a0a;
-  opacity: 0;
-  text-shadow: none;
-  line-height: 1;
-  display: inline-block;
-  transform-origin: left center;
-  animation: roots-appear-fade 10s ease-in-out 1 forwards;
+  z-index: 30;
 }
 
 #ailiv-credit {
@@ -96,17 +100,7 @@ header {
   user-select: none;
 }
 
-.header-title em {
-  font-style: normal;
-  color: var(--layer-lab);
-  text-shadow: 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(204,26,26,0.25);
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-}
+.header-right { display: none; }
 
 /* ── QUESTION MARK BUTTON ── */
 .help-btn {
@@ -511,17 +505,17 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 
 <div class="tooltip" id="tooltip"></div>
 
-<!-- ══ HEADER ══ -->
-<header>
-  <div class="header-title">ROOTS</div>
-  <div class="header-right">
-    <button class="help-btn" onclick="openGuide()" title="User guide">?</button>
-    <div class="theme-toggle" onclick="toggleTheme()">
-      DARK
-      <div class="toggle-track"><div class="toggle-thumb"></div></div>
-    </div>
+<!-- ══ ROOTS CTA ══ -->
+<div id="roots-cta" onclick="window.location.href='/'">ROOTS</div>
+
+<!-- ══ CORNER CONTROLS ══ -->
+<div id="corner-controls">
+  <button class="help-btn" onclick="openGuide()" title="User guide">?</button>
+  <div class="theme-toggle" onclick="toggleTheme()">
+    DARK
+    <div class="toggle-track"><div class="toggle-thumb"></div></div>
   </div>
-</header>
+</div>
 
 <!-- ══ LAYER BAR ══ -->
 <div class="layer-bar">
