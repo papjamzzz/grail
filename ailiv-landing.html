@@ -531,8 +531,14 @@ function frame(ts) {
     tipEl.style.left = hoveredOrb.x + 'px';
     tipEl.style.top  = (hoveredOrb.y - hoveredOrb.size * 5) + 'px';
     tipEl.classList.add('visible');
+    if (tipFadeTimer) { clearTimeout(tipFadeTimer); tipFadeTimer = null; }
   } else {
-    tipEl.classList.remove('visible');
+    if (!tipFadeTimer) {
+      tipFadeTimer = setTimeout(() => {
+        tipEl.classList.remove('visible');
+        tipFadeTimer = null;
+      }, 2000);
+    }
   }
 
 
@@ -546,7 +552,10 @@ function frame(ts) {
   if (footerAlpha > 0) taglineEl.classList.add('clickable');
 }
 
+let tipFadeTimer = null;
+
 window.addEventListener('mousemove', e => { mX = e.clientX; mY = e.clientY; });
+window.addEventListener('mouseleave', () => { mX = -999; mY = -999; });
 window.addEventListener('touchmove', e => {
   mX = e.touches[0].clientX; mY = e.touches[0].clientY;
 }, { passive: true });

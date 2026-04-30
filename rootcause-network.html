@@ -6,11 +6,11 @@
 <title>Bloody Roots</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Rye&family=Pirata+One&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rye&family=Pirata+One&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
 
 :root {
-  --bg: #ffffff;
-  --surface: #ffffff;
+  --bg: #F5F3EA;
+  --surface: #F5F3EA;
   --border: #cacac0;
   --text: #080810;
   --muted: #48485a;
@@ -19,7 +19,7 @@
   --layer-rx:   #c8a040;
   --accent: #c8a040;
   --zone-line: #e0e0d8;
-  --link-inactive: #5a5a52;
+  --link-inactive: #b0a898;
   --node-bg: #ffffff;
 }
 
@@ -57,19 +57,19 @@ header { display: none; }
 /* ── ROOTS BANNER ── */
 #roots-cta {
   width: 100%;
-  text-align: center;
-  font-family: 'Rye', serif;
-  font-size: clamp(2.8rem, 6vw, 5.5rem);
-  letter-spacing: 0.12em;
-  color: var(--text);
+  text-align: left;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3.8rem, 7.5vw, 7rem);
+  letter-spacing: 0.06em;
+  color: #7B4FBF;
   line-height: 1;
-  padding: 1.1rem 0 1rem;
+  padding: 0.5rem 0 0.3rem 1.4rem;
   cursor: pointer;
   user-select: none;
   flex-shrink: 0;
   transition: opacity 0.2s;
 }
-#roots-cta:hover { opacity: 0.7; }
+#roots-cta:hover { opacity: 0.75; }
 
 /* ── CORNER CONTROLS ── */
 #corner-controls {
@@ -99,13 +99,13 @@ header { display: none; }
 
 /* ── QUESTION MARK BUTTON ── */
 .help-btn {
-  width: 28px; height: 28px;
+  width: 44px; height: 44px;
   border-radius: 50%;
   border: 1px solid rgba(128,128,128,0.18);
   background: none;
   color: var(--muted);
   font-family: 'DM Serif Display', serif;
-  font-size: 1rem;
+  font-size: 1.5rem;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.2s;
@@ -855,7 +855,7 @@ const svg = d3.select('#netSvg')
 
 const zoomG = svg.append('g').attr('class', 'zoom-root');
 // Zoom only — no pan. Always zooms toward screen center.
-const INIT_SCALE = 0.78;
+const INIT_SCALE = 0.92;
 let currentScale = INIT_SCALE;
 
 function centeredTransform(s) {
@@ -883,10 +883,10 @@ const defs = svg.append('defs');
 
 // Enhanced glow filters — double-layer for extra brightness
 const glowDefs = [
-  { id:'glow-rx',   color:'#c8a040', std1: 6, std2: 14 },
-  { id:'glow-root', color:'#f0a060', std1: 6, std2: 14 },
-  { id:'glow-lab',  color:'#f06060', std1: 8, std2: 18 },
-  { id:'glow-sel',  color:'#ffffff', std1:12, std2: 24 },
+  { id:'glow-rx',   color:'#c8a040', std1: 9, std2: 20 },
+  { id:'glow-root', color:'#f0a060', std1: 9, std2: 20 },
+  { id:'glow-lab',  color:'#f06060', std1:11, std2: 24 },
+  { id:'glow-sel',  color:'#ffffff', std1:16, std2: 32 },
 ];
 
 glowDefs.forEach(({ id, color, std1, std2 }) => {
@@ -906,12 +906,17 @@ glowDefs.forEach(({ id, color, std1, std2 }) => {
   merge.append('feMergeNode').attr('in', 'SourceGraphic');
 });
 
-// Matte radial gradients — no specular highlight
-[{ key:'intervention', c:'#c8a040' }, { key:'root', c:'#f0a060' }, { key:'lab', c:'#f06060' }].forEach(({ key, c }) => {
-  const g = defs.append('radialGradient').attr('id', `rg-${key}`).attr('cx','50%').attr('cy','50%').attr('r','75%');
-  g.append('stop').attr('offset','0%').attr('stop-color', c).attr('stop-opacity', 1.0);
-  g.append('stop').attr('offset','60%').attr('stop-color', c).attr('stop-opacity', 0.88);
-  g.append('stop').attr('offset','100%').attr('stop-color', c).attr('stop-opacity', 0.55);
+// 3D radial gradients — offset focal point + specular highlight
+[{ key:'intervention', c:'#c8a040', hi:'#f0d888' },
+ { key:'root',         c:'#f0a060', hi:'#ffd4a8' },
+ { key:'lab',          c:'#f06060', hi:'#ffa0a0' }].forEach(({ key, c, hi }) => {
+  const g = defs.append('radialGradient').attr('id', `rg-${key}`)
+    .attr('cx','35%').attr('cy','28%').attr('r','75%')
+    .attr('fx','30%').attr('fy','24%');
+  g.append('stop').attr('offset','0%').attr('stop-color', hi).attr('stop-opacity', 1.0);
+  g.append('stop').attr('offset','35%').attr('stop-color', c).attr('stop-opacity', 1.0);
+  g.append('stop').attr('offset','75%').attr('stop-color', c).attr('stop-opacity', 0.90);
+  g.append('stop').attr('offset','100%').attr('stop-color', c).attr('stop-opacity', 0.58);
 });
 
 // ── Background ──
@@ -928,7 +933,7 @@ const zoneRects = [], zoneLines = [], zoneLabels = [];
 zoneData.forEach(z => {
   zoneRects.push(zoomG.append('rect')
     .attr('x',0).attr('y',z.y).attr('width',W).attr('height',z.h)
-    .attr('fill', getVar(z.colorVar)).attr('opacity', 0.03));
+    .attr('fill', getVar(z.colorVar)).attr('opacity', 0.07));
   zoneLines.push(zoomG.append('line')
     .attr('x1',0).attr('y1',z.y+z.h).attr('x2',W).attr('y2',z.y+z.h)
     .attr('stroke', 'transparent').attr('stroke-width',0));
@@ -949,7 +954,7 @@ ALL_NODES.forEach(n => {
   n.x = ((idx + 1) / (count + 1)) * W;
   n.y = LAYER_Y[n.layer] + (Math.random() - 0.5) * 10;
   n.targetY = LAYER_Y[n.layer];
-  n.r = n.layer === 'root' ? 40 : n.layer === 'intervention' ? 33 : 29;
+  n.r = n.layer === 'root' ? 46 : n.layer === 'intervention' ? 38 : 33;
 });
 
 // ── Force simulation ──
@@ -992,12 +997,12 @@ const linkSel = linkG.selectAll('g.link').data(linkData).enter().append('g').att
 linkSel.append('path').attr('class','link-glow').attr('fill','none')
   .attr('stroke', getVar('--layer-rx')).attr('stroke-width',7).attr('opacity',0).attr('stroke-linecap','round');
 linkSel.append('path').attr('class','link-main').attr('fill','none')
-  .attr('stroke', getVar('--link-inactive')).attr('stroke-width',2).attr('opacity',1.0).attr('stroke-linecap','round');
+  .attr('stroke', getVar('--link-inactive')).attr('stroke-width',2.8).attr('opacity',0.88).attr('stroke-linecap','round');
 linkSel.append('path').attr('class','link-flow').attr('fill','none')
   .attr('stroke','#ffffff').attr('stroke-width',1.5).attr('stroke-dasharray','7,11').attr('opacity',0).attr('stroke-linecap','round');
 
 function pathD(s, t) {
-  const curve = (t.y - s.y) * 0.38;
+  const curve = (t.y - s.y) * 0.65;
   return `M${s.x},${s.y} C${s.x},${s.y+curve} ${t.x},${t.y-curve} ${t.x},${t.y}`;
 }
 
@@ -1013,12 +1018,12 @@ const nodeGroups = nodeWrap.selectAll('g.node').data(ALL_NODES).enter()
     .on('end',   (e,d) => { d3.select(e.currentTarget).style('cursor','grab'); if (!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
   );
 
-// Subtle halo — matte, no bloom
+// Halo
 nodeGroups.append('circle')
   .attr('class','bloom-halo')
-  .attr('r', d => d.r + 10)
+  .attr('r', d => d.r + 14)
   .attr('fill', d => d.color)
-  .attr('opacity', 0.06);
+  .attr('opacity', 0.14);
 
 // Pulse ring for flagged labs
 nodeGroups.filter(d => d.layer === 'lab').append('circle').attr('class','pulse-ring')
@@ -1037,13 +1042,24 @@ nodeGroups.filter(d => d.layer === 'root').append('circle')
 nodeGroups.filter(d => d.layer === 'root').append('circle')
   .attr('r', d => d.r+24).attr('fill','none').attr('stroke','#f0a060').attr('stroke-width',0.5).attr('stroke-dasharray','2,8').attr('opacity',0.12);
 
-// Main bubble — matte, no glow filter
+// Main bubble
 nodeGroups.append('circle').attr('class','main-bubble')
   .attr('r', d => d.r)
   .attr('fill', d => `url(#rg-${d.layer})`)
   .attr('stroke', d => d.color)
-  .attr('stroke-width', 2)
-  .attr('opacity', 1.0);
+  .attr('stroke-width', 2.5)
+  .attr('opacity', 1.0)
+  .attr('filter', d => d.layer==='intervention'?'url(#glow-rx)':d.layer==='root'?'url(#glow-root)':'url(#glow-lab)');
+
+// Specular highlight — top-left bright spot for 3D depth
+nodeGroups.append('ellipse')
+  .attr('class','specular-hi')
+  .attr('rx', d => d.r * 0.26)
+  .attr('ry', d => d.r * 0.16)
+  .attr('cx', d => -d.r * 0.20)
+  .attr('cy', d => -d.r * 0.30)
+  .attr('fill', 'rgba(255,255,255,0.62)')
+  .attr('pointer-events', 'none');
 
 // Center dot
 nodeGroups.append('circle').attr('r', 3.5).attr('fill', d => d.color).attr('opacity', 1);
@@ -1079,7 +1095,7 @@ nodeGroups.select('.main-bubble').attr('r',0)
   .attr('r', d => d.r);
 nodeGroups.select('.bloom-halo').attr('r',0)
   .transition().duration(900).delay((_,i) => i*32 + 200).ease(d3.easeBackOut)
-  .attr('r', d => d.r + 22);
+  .attr('r', d => d.r + 30);
 
 // ════════════════════════════════════════════════════
 // INTERACTIONS
@@ -1161,7 +1177,7 @@ function resetHighlight() {
   selectedId = null;
   linkSel.each(function() {
     const g = d3.select(this);
-    g.select('.link-main').transition().duration(280).attr('stroke', getVar('--link-inactive')).attr('stroke-width',1.5).attr('opacity',0.8);
+    g.select('.link-main').transition().duration(280).attr('stroke', getVar('--link-inactive')).attr('stroke-width',2.8).attr('opacity',0.88);
     g.select('.link-glow').transition().duration(280).attr('opacity',0);
     g.select('.link-flow').transition().duration(200).attr('opacity',0);
   });
@@ -1262,6 +1278,33 @@ function applyThemeToSvg() {
   linkSel.select('.link-glow').attr('stroke', getVar('--layer-rx'));
   nodeWrap.selectAll('text').attr('fill', getVar('--text'));
 }
+
+// ── Paper grain texture overlay ───────────────────────────────────────────────
+(function() {
+  const ns = 'http://www.w3.org/2000/svg';
+  const g = document.createElementNS(ns, 'svg');
+  g.setAttribute('width', '100%'); g.setAttribute('height', '100%');
+  g.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2;';
+  const df = document.createElementNS(ns, 'defs');
+  const fl = document.createElementNS(ns, 'filter');
+  fl.setAttribute('id', 'pg');
+  const tb = document.createElementNS(ns, 'feTurbulence');
+  tb.setAttribute('type', 'fractalNoise');
+  tb.setAttribute('baseFrequency', '0.80 0.42');
+  tb.setAttribute('numOctaves', '4');
+  tb.setAttribute('stitchTiles', 'stitch');
+  tb.setAttribute('result', 'noise');
+  const cm = document.createElementNS(ns, 'feColorMatrix');
+  cm.setAttribute('type', 'matrix');
+  cm.setAttribute('values', '0 0 0 0 0.28  0 0 0 0 0.22  0 0 0 0 0.12  0 0 0 0.10 0');
+  cm.setAttribute('in', 'noise');
+  fl.appendChild(tb); fl.appendChild(cm); df.appendChild(fl);
+  const rc = document.createElementNS(ns, 'rect');
+  rc.setAttribute('width', '100%'); rc.setAttribute('height', '100%');
+  rc.setAttribute('filter', 'url(#pg)');
+  g.appendChild(df); g.appendChild(rc);
+  document.body.appendChild(g);
+})();
 
 </script>
 <div id="ailiv-credit">© Roots</div>
