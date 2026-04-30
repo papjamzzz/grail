@@ -173,8 +173,9 @@ body.dark .toggle-thumb { transform: translateX(16px); background: var(--accent)
   position: fixed;
   inset: 0;
   overflow: hidden;
+  background: var(--bg);
 }
-#netSvg { width: 100%; height: 100%; display: block; }
+#netSvg { width: 100%; height: 100%; display: block; background: var(--bg); }
 
 /* ── SIDE PANEL ── */
 .side-panel {
@@ -852,7 +853,11 @@ const LAYER_Y = { intervention: H * 0.14, root: H * 0.50, lab: H * 0.85 };
 
 const svg = d3.select('#netSvg')
   .attr('viewBox', `0 0 ${W} ${H}`)
-  .attr('preserveAspectRatio', 'xMidYMid meet');
+  .attr('preserveAspectRatio', 'none');
+
+// Background rect sits outside zoomG so it's never affected by zoom/pan transforms
+const bgRect = svg.append('rect').attr('class','bg-rect')
+  .attr('width', '100%').attr('height', '100%').attr('fill', getVar('--bg'));
 
 const zoomG = svg.append('g').attr('class', 'zoom-root');
 // Zoom only — no pan. Always zooms toward screen center.
@@ -915,9 +920,7 @@ glowDefs.forEach(({ id, color, std1, std2 }) => {
   g.append('stop').attr('offset','100%').attr('stop-color', c).attr('stop-opacity', 0.55);
 });
 
-// ── Background ──
-const bgRect = zoomG.append('rect').attr('class','bg-rect')
-  .attr('width', W).attr('height', H).attr('fill', getVar('--bg'));
+// ── Background handled by bgRect above zoomG ──
 
 // ── Zone bands ──
 const zoneData = [
