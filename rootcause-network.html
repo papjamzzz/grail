@@ -498,7 +498,7 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 .guide-action-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.55; }
 </style>
 </head>
-<body>
+<body class="dark">
 
 <div class="tooltip" id="tooltip"></div>
 
@@ -852,8 +852,7 @@ const H = wrap.offsetHeight || 560;
 const LAYER_Y = { intervention: H * 0.14, root: H * 0.50, lab: H * 0.85 };
 
 const svg = d3.select('#netSvg')
-  .attr('viewBox', `0 0 ${W} ${H}`)
-  .attr('preserveAspectRatio', 'none');
+  .attr('width', W).attr('height', H);
 
 // Background rect sits outside zoomG so it's never affected by zoom/pan transforms
 const bgRect = svg.append('rect').attr('class','bg-rect')
@@ -861,7 +860,7 @@ const bgRect = svg.append('rect').attr('class','bg-rect')
 
 const zoomG = svg.append('g').attr('class', 'zoom-root');
 // Zoom only — no pan. Always zooms toward screen center.
-const INIT_SCALE = 0.78;
+const INIT_SCALE = 1.0;
 let currentScale = INIT_SCALE;
 
 function centeredTransform(s) {
