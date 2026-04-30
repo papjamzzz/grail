@@ -854,14 +854,26 @@ const svg = d3.select('#netSvg')
   .attr('preserveAspectRatio', 'xMidYMid meet');
 
 const zoomG = svg.append('g').attr('class', 'zoom-root');
-const zoomBehavior = d3.zoom().scaleExtent([0.25, 3]).on('zoom', e => {
-  zoomG.attr('transform', e.transform);
-  tooltip.classList.remove('visible');
-});
+// Zoom only — no pan. Always zooms toward screen center.
+const INIT_SCALE = 0.78;
+let currentScale = INIT_SCALE;
+
+function centeredTransform(s) {
+  return `translate(${W / 2 * (1 - s)},${H / 2 * (1 - s)}) scale(${s})`;
+}
+
+const zoomBehavior = d3.zoom()
+  .scaleExtent([0.25, 2.5])
+  .filter(e => e.type === 'wheel' || e.type === 'touchstart' || e.type === 'touchmove' || e.type === 'touchend')
+  .on('zoom', e => {
+    currentScale = e.transform.k;
+    zoomG.attr('transform', centeredTransform(currentScale));
+    tooltip.classList.remove('visible');
+  });
+
 svg.call(zoomBehavior);
-// Initial view: 70% scale, anchored upper-left
-const initT = d3.zoomIdentity.translate(W * -0.08, H * -0.12).scale(0.70);
-svg.call(zoomBehavior.transform, initT);
+zoomG.attr('transform', centeredTransform(INIT_SCALE));
+svg.call(zoomBehavior.transform, d3.zoomIdentity.scale(INIT_SCALE));
 svg.on('click', e => {
   if (e.target.tagName === 'svg' || e.target.classList.contains('bg-rect')) resetHighlight();
 });
