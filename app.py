@@ -29,10 +29,21 @@ WHOOP_SCOPES      = 'read:recovery read:sleep read:workout read:body_measurement
 WHOOP_REDIRECT    = os.environ.get('WHOOP_REDIRECT_URI', 'http://127.0.0.1:5566/whoop/callback')
 
 DEFAULT_HEALTH = {
-    "heart_rate": None, "hrv": None, "spo2": None,
-    "sleep_hours": None, "respiratory_rate": None,
-    "vo2_max": None, "resting_hr": None, "temperature": None,
+    # Heart & circulation
+    "heart_rate": None, "resting_hr": None, "hrv": None,
+    "spo2": None, "respiratory_rate": None,
+    # Fitness
+    "vo2_max": None, "daily_steps": None, "active_calories": None,
+    "exercise_minutes": None, "stand_hours": None,
+    # Body
+    "temperature": None, "body_fat": None, "weight": None,
+    "lean_mass": None,
+    # Sleep
+    "sleep_hours": None, "deep_sleep_min": None, "rem_sleep_min": None,
+    "sleep_efficiency": None,
+    # Labs (manual entry)
     "glucose": None, "testosterone": None, "crp": None,
+    "vitamin_d": None, "ferritin": None, "cortisol": None,
     "last_updated": None
 }
 
