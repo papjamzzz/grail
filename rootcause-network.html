@@ -60,36 +60,37 @@ header {
   justify-content: space-between;
   flex-shrink: 0;
   gap: 1rem;
+  min-height: 5rem;
 }
 
 @keyframes rootssequence {
-  /* Loop 1 — 0% to 21.25% */
-  0%     { transform: translateY(0px)   rotate(0deg)  scale(1); }
-  5%     { transform: translateY(-10px) rotate(-2deg) scale(1); }
-  11%    { transform: translateY(4px)   rotate(2deg)  scale(1); }
-  16%    { transform: translateY(-10px) rotate(-2deg) scale(1); }
-  21%    { transform: translateY(0px)   rotate(0deg)  scale(1); }
-  /* Loop 2 — 21.25% to 42.5% */
-  26%    { transform: translateY(-10px) rotate(-2deg) scale(1); }
-  32%    { transform: translateY(4px)   rotate(2deg)  scale(1); }
-  37%    { transform: translateY(-10px) rotate(-2deg) scale(1); }
-  43%    { transform: translateY(0px)   rotate(0deg)  scale(1); }
-  /* Loop 3 — 42.5% to 63.75% */
-  48%    { transform: translateY(-10px) rotate(-2deg) scale(1); }
-  53%    { transform: translateY(4px)   rotate(2deg)  scale(1); }
-  59%    { transform: translateY(-10px) rotate(-2deg) scale(1); }
-  64%    { transform: translateY(0px)   rotate(0deg)  scale(1); }
-  /* Loop 4 — 63.75% to 85% */
-  69%    { transform: translateY(-10px) rotate(-2deg) scale(1); }
-  74%    { transform: translateY(4px)   rotate(2deg)  scale(1); }
-  80%    { transform: translateY(-10px) rotate(-2deg) scale(1); }
-  85%    { transform: translateY(0px)   rotate(0deg)  scale(1); }
-  /* Zoom way out — fly at viewer */
-  91%    { transform: translateY(-10px) rotate(0deg)  scale(8); }
-  /* Hold at peak */
-  93%    { transform: translateY(-10px) rotate(0deg)  scale(8); }
-  /* Zoom back and lock */
-  100%   { transform: translateY(0px)   rotate(0deg)  scale(1); }
+  /* Loop 1 */
+  0%   { transform: translate(0, 0px)    rotate(0deg)     scale(1); }
+  5%   { transform: translate(0, -10px)  rotate(-2deg)    scale(1); }
+  11%  { transform: translate(0,  4px)   rotate(2deg)     scale(1); }
+  16%  { transform: translate(0, -10px)  rotate(-2deg)    scale(1); }
+  21%  { transform: translate(0,  0px)   rotate(0deg)     scale(1); }
+  /* Loop 2 */
+  26%  { transform: translate(0, -10px)  rotate(-2deg)    scale(1); }
+  32%  { transform: translate(0,  4px)   rotate(2deg)     scale(1); }
+  37%  { transform: translate(0, -10px)  rotate(-2deg)    scale(1); }
+  43%  { transform: translate(0,  0px)   rotate(0deg)     scale(1); }
+  /* Loop 3 */
+  48%  { transform: translate(0, -10px)  rotate(-2deg)    scale(1); }
+  53%  { transform: translate(0,  4px)   rotate(2deg)     scale(1); }
+  59%  { transform: translate(0, -10px)  rotate(-2deg)    scale(1); }
+  64%  { transform: translate(0,  0px)   rotate(0deg)     scale(1); }
+  /* Loop 4 */
+  69%  { transform: translate(0, -10px)  rotate(-2deg)    scale(1); }
+  74%  { transform: translate(0,  4px)   rotate(2deg)     scale(1); }
+  80%  { transform: translate(0, -10px)  rotate(-2deg)    scale(1); }
+  85%  { transform: translate(0,  0px)   rotate(0deg)     scale(1); }
+  /* Fly to viewport center + fast spin (85–96%: ~2.2s) */
+  96%  { transform: translate(calc(44vw - 2.8rem), calc(44vh - 1.4rem)) rotate(1080deg) scale(3.5); }
+  /* Hold one beat */
+  97%  { transform: translate(calc(44vw - 2.8rem), calc(44vh - 1.4rem)) rotate(1080deg) scale(3.5); }
+  /* Snap everything back at once */
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
 }
 
 .header-title {
@@ -100,9 +101,12 @@ header {
   opacity: 1;
   text-shadow: none;
   line-height: 1;
-  display: inline-block;
-  animation: rootssequence 20s ease-in-out 1 forwards;
-  transform-origin: center center;
+  position: fixed;
+  top: 1.4rem;
+  left: 2.8rem;
+  z-index: 9999;
+  animation: rootssequence 22s ease-in-out 1 forwards;
+  transform-origin: left top;
 }
 
 .header-title em {
@@ -1227,6 +1231,18 @@ function applyThemeToSvg() {
   linkSel.select('.link-glow').attr('stroke', getVar('--layer-rx'));
   nodeWrap.selectAll('text').attr('fill', getVar('--text'));
 }
+
+// Allow .header-title to overflow during its animation, then lock back
+(function() {
+  const title = document.querySelector('.header-title');
+  const ANIM_MS = 22000;
+  document.body.style.overflow = 'visible';
+  title.addEventListener('animationend', () => {
+    document.body.style.overflow = 'hidden';
+  });
+  // failsafe
+  setTimeout(() => { document.body.style.overflow = 'hidden'; }, ANIM_MS + 500);
+})();
 </script>
 </body>
 </html>
