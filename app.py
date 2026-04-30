@@ -29,19 +29,25 @@ WHOOP_SCOPES      = 'read:recovery read:sleep read:workout read:body_measurement
 WHOOP_REDIRECT    = os.environ.get('WHOOP_REDIRECT_URI', 'http://127.0.0.1:5566/whoop/callback')
 
 DEFAULT_HEALTH = {
-    # Heart & circulation
-    "heart_rate": None, "resting_hr": None, "hrv": None,
-    "spo2": None, "respiratory_rate": None,
-    # Fitness
-    "vo2_max": None, "daily_steps": None, "active_calories": None,
-    "exercise_minutes": None, "stand_hours": None,
-    # Body
-    "temperature": None, "body_fat": None, "weight": None,
-    "lean_mass": None,
-    # Sleep
+    # Heart & circulation (Watch auto)
+    "heart_rate": None, "resting_hr": None, "walking_hr": None,
+    "hrv": None, "spo2": None, "respiratory_rate": None,
+    # Body temp (Watch auto)
+    "temperature": None,
+    # Activity (Watch auto)
+    "daily_steps": None, "walk_run_km": None, "flights_climbed": None,
+    "active_calories": None, "resting_calories": None,
+    "exercise_minutes": None, "stand_minutes": None,
+    # Fitness (Watch auto)
+    "vo2_max": None, "cardio_recovery": None, "walking_speed": None,
+    # Wellness (Watch auto)
+    "daylight_minutes": None, "mindful_minutes": None,
+    # Sleep (Watch auto)
     "sleep_hours": None, "deep_sleep_min": None, "rem_sleep_min": None,
-    "sleep_efficiency": None,
-    # Labs (manual entry)
+    # Body metrics (manual)
+    "weight": None, "body_fat": None, "lean_mass": None,
+    "systolic_bp": None, "diastolic_bp": None, "waist_cm": None,
+    # Labs (manual)
     "glucose": None, "testosterone": None, "crp": None,
     "vitamin_d": None, "ferritin": None, "cortisol": None,
     "last_updated": None
