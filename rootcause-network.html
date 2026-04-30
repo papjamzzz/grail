@@ -64,7 +64,6 @@ header { display: none; }
   color: var(--text);
   line-height: 1;
   padding: 1.1rem 0 1rem;
-  border-bottom: 1px solid var(--border);
   cursor: pointer;
   user-select: none;
   flex-shrink: 0;
@@ -102,7 +101,7 @@ header { display: none; }
 .help-btn {
   width: 28px; height: 28px;
   border-radius: 50%;
-  border: 1.5px solid var(--border);
+  border: 1px solid rgba(128,128,128,0.18);
   background: none;
   color: var(--muted);
   font-family: 'DM Serif Display', serif;
@@ -113,7 +112,7 @@ header { display: none; }
   flex-shrink: 0;
 }
 .help-btn:hover {
-  border-color: var(--text);
+  border-color: rgba(128,128,128,0.45);
   color: var(--text);
 }
 
@@ -231,7 +230,7 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 .reset-btn {
   margin-left: auto;
   background: none;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(128,128,128,0.18);
   color: var(--muted);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.66rem;
@@ -241,7 +240,7 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
   transition: all 0.2s;
   letter-spacing: 0.04em;
 }
-.reset-btn:hover { border-color: var(--text); color: var(--text); }
+.reset-btn:hover { border-color: rgba(128,128,128,0.45); color: var(--text); }
 
 /* ══════════════════════════════════════════
    INTRO OVERLAY
@@ -917,14 +916,14 @@ const zoneRects = [], zoneLines = [], zoneLabels = [];
 zoneData.forEach(z => {
   zoneRects.push(zoomG.append('rect')
     .attr('x',0).attr('y',z.y).attr('width',W).attr('height',z.h)
-    .attr('fill', getVar(z.colorVar)).attr('opacity', 0.05));
+    .attr('fill', getVar(z.colorVar)).attr('opacity', 0.03));
   zoneLines.push(zoomG.append('line')
     .attr('x1',0).attr('y1',z.y+z.h).attr('x2',W).attr('y2',z.y+z.h)
-    .attr('stroke', getVar('--zone-line')).attr('stroke-width',1));
+    .attr('stroke', 'transparent').attr('stroke-width',0));
   zoneLabels.push(zoomG.append('text')
     .attr('x',14).attr('y',z.y+22)
-    .attr('font-family','Rye, serif').attr('font-size','13px')
-    .attr('fill', getVar(z.colorVar)).attr('opacity',0.85).attr('letter-spacing','0.08em')
+    .attr('font-family','IBM Plex Mono, monospace').attr('font-size','9px')
+    .attr('fill', getVar(z.colorVar)).attr('opacity',0.25).attr('letter-spacing','0.12em')
     .text(z.label));
 });
 
