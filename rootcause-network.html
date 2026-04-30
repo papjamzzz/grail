@@ -940,7 +940,7 @@ zoneData.forEach(z => {
   zoneLabels.push(zoomG.append('text')
     .attr('x',14).attr('y',z.y+22)
     .attr('font-family','IBM Plex Mono, monospace').attr('font-size','9px')
-    .attr('fill', getVar(z.colorVar)).attr('opacity',0.25).attr('letter-spacing','0.12em')
+    .attr('fill', getVar(z.colorVar)).attr('opacity',0).attr('letter-spacing','0.12em')
     .text(z.label));
 });
 
@@ -1270,6 +1270,6 @@ function applyThemeToSvg() {
 }
 
 </script>
-<div id="ailiv-credit">© Roots</div>
+<div id="ailiv-credit">© AILIV</div>
 </body>
 </html>
