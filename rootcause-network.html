@@ -1188,9 +1188,15 @@ function openPanel(d) {
   sidePanel.style.top  = screenY + 'px';
 
   sidePanel.classList.add('visible');
+
+  clearTimeout(sidePanel._autoClose);
+  sidePanel._autoClose = setTimeout(() => sidePanel.classList.remove('visible'), 3500);
 }
 
-function closePanel() { sidePanel.classList.remove('visible'); }
+function closePanel() {
+  clearTimeout(sidePanel._autoClose);
+  sidePanel.classList.remove('visible');
+}
 
 // ════════════════════════════════════════════════════
 // TICK
