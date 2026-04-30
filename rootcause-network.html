@@ -9,18 +9,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rye&family=Pirata+One&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
 
 :root {
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --border: #cacac0;
-  --text: #080810;
-  --muted: #48485a;
-  --layer-lab:  #cc1a1a;
-  --layer-root: #cc6810;
-  --layer-rx:   #c8a040;
-  --accent: #c8a040;
-  --zone-line: #e0e0d8;
-  --link-inactive: #5a5a52;
-  --node-bg: #ffffff;
+  --bg: #f4efe6;
+  --surface: #ece7dc;
+  --border: #ccc3b4;
+  --text: #1a1410;
+  --muted: #7a6a52;
+  --layer-lab:  #c42020;
+  --layer-root: #bc5e18;
+  --layer-rx:   #a07c1c;
+  --accent: #a07c1c;
+  --zone-line: #ddd4c4;
+  --link-inactive: #9c8c78;
+  --node-bg: #f4efe6;
 }
 
 body.dark {
@@ -498,7 +498,7 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 .guide-action-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.55; }
 </style>
 </head>
-<body class="dark">
+<body>
 
 <div class="tooltip" id="tooltip"></div>
 
@@ -509,7 +509,7 @@ footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'I
 <div id="corner-controls">
   <button class="help-btn" onclick="openGuide()" title="User guide">?</button>
   <div class="theme-toggle" onclick="toggleTheme()">
-    DARK
+    <span id="themeLabel">DARK</span>
     <div class="toggle-track"><div class="toggle-thumb"></div></div>
   </div>
 </div>
@@ -1057,8 +1057,8 @@ nodeGroups.append('text').attr('text-anchor','middle').attr('dy','-0.2em')
   .attr('font-weight', '700')
   .attr('font-size', d => d.layer==='root' ? '11px' : '10px')
   .attr('fill', '#ffffff')
-  .attr('stroke', 'rgba(0,0,0,0.45)')
-  .attr('stroke-width', '1.8px')
+  .attr('stroke', 'rgba(0,0,0,0.72)')
+  .attr('stroke-width', '2.8px')
   .attr('stroke-linejoin', 'round')
   .attr('paint-order', 'stroke fill')
   .attr('pointer-events','none')
@@ -1252,7 +1252,8 @@ sim.on('tick', () => {
 // THEME
 // ════════════════════════════════════════════════════
 function toggleTheme() {
-  document.body.classList.toggle('dark');
+  const isDark = document.body.classList.toggle('dark');
+  document.getElementById('themeLabel').textContent = isDark ? 'LIGHT' : 'DARK';
   applyThemeToSvg();
 }
 
@@ -1263,7 +1264,7 @@ function applyThemeToSvg() {
   zoneLabels.forEach((lbl,i) => lbl.attr('fill', getVar(zoneData[i].colorVar)));
   linkSel.select('.link-main').attr('stroke', getVar('--link-inactive'));
   linkSel.select('.link-glow').attr('stroke', getVar('--layer-rx'));
-  nodeWrap.selectAll('text').attr('fill', getVar('--text'));
+  // keep orb text white in both themes — dark stroke provides contrast on colored orbs
 }
 
 </script>
