@@ -137,9 +137,7 @@ body.dark .toggle-thumb { transform: translateX(16px); background: var(--accent)
 
 /* ── LAYER BAR ── */
 .layer-bar {
-  display: flex;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
+  display: none;
 }
 .layer-zone {
   flex: 1;
@@ -168,8 +166,7 @@ body.dark .toggle-thumb { transform: translateX(16px); background: var(--accent)
 
 /* ── SIDE PANEL ── */
 .side-panel {
-  position: absolute;
-  top: 1rem; right: 1rem;
+  position: fixed;
   width: 240px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -177,13 +174,13 @@ body.dark .toggle-thumb { transform: translateX(16px); background: var(--accent)
   padding: 1.1rem;
   backdrop-filter: blur(16px);
   opacity: 0;
-  transform: translateX(16px);
-  transition: all 0.3s ease;
+  transition: opacity 0.22s ease;
   pointer-events: none;
-  z-index: 100;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+  z-index: 200;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.12);
+  transform: translateY(-50%);
 }
-.side-panel.visible { opacity: 1; transform: translateX(0); pointer-events: all; }
+.side-panel.visible { opacity: 1; pointer-events: all; }
 .panel-node-name { font-family: 'Pirata One', serif; font-size: 1.2rem; margin-bottom: 0.25rem; }
 .panel-layer-tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.45; margin-bottom: 0.75rem; }
 .panel-section-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0.65rem 0 0.3rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
@@ -215,13 +212,7 @@ body.dark .toggle-thumb { transform: translateX(16px); background: var(--accent)
 
 /* ── FOOTER ── */
 footer {
-  padding: 0.6rem 2.8rem;
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 1.4rem;
-  align-items: center;
-  flex-shrink: 0;
-  flex-wrap: wrap;
+  display: none;
 }
 footer .item { display: flex; align-items: center; gap: 0.35rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.63rem; color: var(--muted); }
 .dot-lg { width: 11px; height: 11px; border-radius: 50%; }
@@ -902,9 +893,9 @@ const bgRect = zoomG.append('rect').attr('class','bg-rect')
 
 // ── Zone bands ──
 const zoneData = [
-  { label:'INTERVENTIONS', y: 0,        h: H * 0.30, colorVar:'--layer-rx'   },
-  { label:'ROOT CAUSES',   y: H * 0.30, h: H * 0.40, colorVar:'--layer-root' },
-  { label:'FLAGGED LABS',  y: H * 0.70, h: H * 0.30, colorVar:'--layer-lab'  },
+  { label:'PROTOCOLS',   y: 0,        h: H * 0.30, colorVar:'--layer-rx'   },
+  { label:'ROOT CAUSES', y: H * 0.30, h: H * 0.40, colorVar:'--layer-root' },
+  { label:'FLAGGED',     y: H * 0.70, h: H * 0.30, colorVar:'--layer-lab'  },
 ];
 const zoneRects = [], zoneLines = [], zoneLabels = [];
 zoneData.forEach(z => {
@@ -915,9 +906,9 @@ zoneData.forEach(z => {
     .attr('x1',0).attr('y1',z.y+z.h).attr('x2',W).attr('y2',z.y+z.h)
     .attr('stroke', getVar('--zone-line')).attr('stroke-width',1));
   zoneLabels.push(zoomG.append('text')
-    .attr('x',12).attr('y',z.y+18)
-    .attr('font-family','IBM Plex Mono, monospace').attr('font-size','9px')
-    .attr('fill', getVar(z.colorVar)).attr('opacity',0.45).attr('letter-spacing','0.12em')
+    .attr('x',14).attr('y',z.y+22)
+    .attr('font-family','Rye, serif').attr('font-size','13px')
+    .attr('fill', getVar(z.colorVar)).attr('opacity',0.85).attr('letter-spacing','0.08em')
     .text(z.label));
 });
 
@@ -1012,15 +1003,21 @@ nodeGroups.append('circle').attr('r', 3.5).attr('fill', d => d.color).attr('opac
 // Label
 nodeGroups.append('text').attr('text-anchor','middle').attr('dy','-0.2em')
   .attr('font-family','DM Sans, sans-serif')
-  .attr('font-size', d => d.layer==='root' ? '9.5px' : '8.5px')
-  .attr('fill', getVar('--text')).attr('pointer-events','none')
+  .attr('font-weight', '700')
+  .attr('font-size', d => d.layer==='root' ? '11px' : '10px')
+  .attr('fill', '#ffffff')
+  .attr('stroke', 'rgba(0,0,0,0.45)')
+  .attr('stroke-width', '1.8px')
+  .attr('stroke-linejoin', 'round')
+  .attr('paint-order', 'stroke fill')
+  .attr('pointer-events','none')
   .each(function(d) {
     const words = d.name.split(' ');
     const mid   = Math.ceil(words.length / 2);
     const el    = d3.select(this);
     el.append('tspan').attr('x',0).attr('dy', words.length>2 ? '-0.5em' : '0.35em').text(words.slice(0,mid).join(' '));
     const l2 = words.slice(mid).join(' ');
-    if (l2) el.append('tspan').attr('x',0).attr('dy','1.2em').text(l2);
+    if (l2) el.append('tspan').attr('x',0).attr('dy','1.3em').text(l2);
   });
 
 // Urgency badge
@@ -1153,6 +1150,21 @@ function openPanel(d) {
   const noteEl = document.getElementById('panelNote');
   const valStr = d.value ? `<div style="font-family:IBM Plex Mono,monospace;font-size:0.7rem;color:${d.color};margin-bottom:0.45rem">${d.value} · ${d.flag||''}</div>` : '';
   noteEl.innerHTML = valStr + (d.note || '');
+
+  // Position panel to the right of the orb
+  const svgEl = document.getElementById('netSvg');
+  const svgRect = svgEl.getBoundingClientRect();
+  const t = d3.zoomTransform(svgEl);
+  const screenX = svgRect.left + t.x + d.x * t.k;
+  const screenY = svgRect.top  + t.y + d.y * t.k;
+  const orbR    = d.r * t.k;
+  const panelW  = 248;
+  let left = screenX + orbR + 14;
+  // flip left if it would overflow right edge
+  if (left + panelW > window.innerWidth - 8) left = screenX - orbR - panelW - 14;
+  sidePanel.style.left = left + 'px';
+  sidePanel.style.top  = screenY + 'px';
+
   sidePanel.classList.add('visible');
 }
 
