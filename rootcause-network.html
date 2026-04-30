@@ -855,10 +855,14 @@ const svg = d3.select('#netSvg')
   .attr('preserveAspectRatio', 'xMidYMid meet');
 
 const zoomG = svg.append('g').attr('class', 'zoom-root');
-svg.call(d3.zoom().scaleExtent([0.35, 3]).on('zoom', e => {
+const zoomBehavior = d3.zoom().scaleExtent([0.25, 3]).on('zoom', e => {
   zoomG.attr('transform', e.transform);
   tooltip.classList.remove('visible');
-}));
+});
+svg.call(zoomBehavior);
+// Initial view: 70% scale, anchored upper-left
+const initT = d3.zoomIdentity.translate(W * -0.08, H * -0.12).scale(0.70);
+svg.call(zoomBehavior.transform, initT);
 svg.on('click', e => {
   if (e.target.tagName === 'svg' || e.target.classList.contains('bg-rect')) resetHighlight();
 });
