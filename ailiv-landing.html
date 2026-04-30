@@ -42,6 +42,42 @@
   }
   #contact:hover { color: #5B2F9F; }
 
+  #tagline-wrap {
+    position: fixed;
+    bottom: 68px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+  }
+  #tagline-wrap.clickable { pointer-events: auto; }
+  #tagline-text {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #7B4FBF;
+    display: block;
+    margin-bottom: 10px;
+    user-select: none;
+  }
+  #request-access {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(123,79,191,0.55);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(123,79,191,0.25);
+    padding-bottom: 2px;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+  #request-access:hover { color: #7B4FBF; border-color: rgba(123,79,191,0.6); }
+
   #tooltip {
     position: fixed;
     z-index: 20;
@@ -74,6 +110,10 @@
 <canvas id="c"></canvas>
 <div id="copyright">© AILIV</div>
 <a id="contact" href="mailto:contact@ailiv.health">contact@ailiv.health</a>
+<div id="tagline-wrap">
+  <span id="tagline-text">Your biology, made visible.</span>
+  <a id="request-access" href="mailto:contact@ailiv.health">Request Access</a>
+</div>
 <div id="tooltip">
   <span id="tooltip-name"></span>
   <span id="tooltip-score"></span>
@@ -84,6 +124,7 @@ const canvas    = document.getElementById('c');
 const ctx       = canvas.getContext('2d');
 const copyEl    = document.getElementById('copyright');
 const contactEl = document.getElementById('contact');
+const taglineEl = document.getElementById('tagline-wrap');
 const tipEl     = document.getElementById('tooltip');
 const tipName   = document.getElementById('tooltip-name');
 const tipScore  = document.getElementById('tooltip-score');
@@ -501,6 +542,8 @@ function frame(ts) {
     : 0;
   copyEl.style.opacity    = footerAlpha;
   contactEl.style.opacity = footerAlpha;
+  taglineEl.style.opacity = footerAlpha;
+  if (footerAlpha > 0) taglineEl.classList.add('clickable');
 }
 
 window.addEventListener('mousemove', e => { mX = e.clientX; mY = e.clientY; });
