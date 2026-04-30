@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory, redirect
+from flask import Flask, request, jsonify, send_from_directory, redirect, make_response
 import json, os, time, requests as req, base64, re, urllib.parse, secrets
 # routes: / /cells /bodyfigure /console /whoop/*
 
@@ -103,7 +103,11 @@ def biobaseline():
 
 @app.route('/rootcause')
 def rootcause():
-    return send_from_directory(BASE, 'rootcause-network.html')
+    resp = make_response(send_from_directory(BASE, 'rootcause-network.html'))
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
 
 @app.route('/bodyfigure')
 def bodyfigure():
