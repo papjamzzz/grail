@@ -498,6 +498,37 @@ body.dark #guideOverlay { background: rgba(0,0,0,0.55); }
   color: var(--text);
 }
 .guide-action-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.55; }
+
+/* ── LIVE INDICATOR ── */
+#live-indicator {
+  position: fixed;
+  bottom: 18px; right: 22px;
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  z-index: 30;
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+#live-indicator.active { opacity: 1; }
+#live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #4caf50;
+  box-shadow: 0 0 6px #4caf50;
+  animation: livePulse 2s ease-in-out infinite;
+}
+#live-indicator.stale #live-dot {
+  background: var(--muted);
+  box-shadow: none;
+  animation: none;
+}
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
 </style>
 </head>
 <body>
@@ -696,6 +727,11 @@ body.dark #guideOverlay { background: rgba(0,0,0,0.55); }
 
     <div class="guide-section-title">Dark Mode</div>
     <div class="guide-body">Toggle between light and dark using the switch in the top-right corner. The network adapts fully — all SVG elements recolor on switch.</div>
+
+    <div class="guide-divider"></div>
+
+    <div class="guide-section-title">Live Wearable Data</div>
+    <div class="guide-body">When a wearable or data source is connected and sending to <span style="font-family:'IBM Plex Mono',monospace;font-size:0.78rem">/ingest</span>, Roots updates automatically every 30 seconds. A green pulsing dot appears in the bottom-right corner when live data is active — showing the last sync time. Flagged lab nodes update their displayed value and status flag in real time. Fields mapped: CRP, Cortisol, Testosterone, Vitamin D, Glucose, SpO₂, and HRV.</div>
   </div>
 </div>
 
@@ -1276,7 +1312,98 @@ function applyThemeToSvg() {
   // keep orb text white in both themes — dark stroke provides contrast on colored orbs
 }
 
+// ════════════════════════════════════════════════════
+// LIVE DATA
+// ════════════════════════════════════════════════════
+const LIVE_MAPPINGS = [
+  {
+    field: 'crp', nodeId: 'l_hscrp',
+    fmt: v => v.toFixed(2) + ' mg/L',
+    flag: v => v < 1.0 ? 'Within optimal range' : v < 3.0 ? 'Mildly elevated — monitor' : 'High — active inflammation marker',
+  },
+  {
+    field: 'cortisol', nodeId: 'l_cortisol',
+    fmt: v => v.toFixed(1) + ' µg/dL',
+    flag: v => v < 18 ? 'Within normal AM range' : v < 22 ? 'Elevated — monitor HPA' : 'High — HPA axis overactivation',
+  },
+  {
+    field: 'testosterone', nodeId: 'l_tF',
+    fmt: v => v.toFixed(0) + ' ng/dL',
+    flag: v => v >= 500 ? 'Total T in healthy range' : v >= 300 ? 'Low-normal — watch trend' : 'Below optimal threshold',
+  },
+  {
+    field: 'vitamin_d', nodeId: 'l_vitd',
+    fmt: v => v.toFixed(1) + ' ng/mL',
+    flag: v => v >= 50 ? 'Optimal range' : v >= 30 ? 'Insufficient — supplement needed' : 'Deficiency — immune + hormonal impact',
+  },
+  {
+    field: 'glucose', nodeId: 'l_insulin',
+    fmt: v => v.toFixed(0) + ' mg/dL (glucose)',
+    flag: v => v < 100 ? 'Normal fasting glucose' : v < 126 ? 'Prediabetes range — insulin rising' : 'Elevated — insulin resistance pattern',
+  },
+  {
+    field: 'spo2', nodeId: 'l_glut',
+    fmt: v => v.toFixed(1) + '% SpO₂',
+    flag: v => v >= 98 ? 'Good oxygenation' : v >= 95 ? 'Slightly reduced — oxidative load up' : 'Low SpO₂ — glutathione demand elevated',
+  },
+  {
+    field: 'hrv', nodeId: 'l_nad',
+    fmt: v => v.toFixed(0) + ' ms HRV',
+    flag: v => v >= 60 ? 'Strong recovery — NAD+ adequate' : v >= 35 ? 'Moderate HRV — NAD+ may be limiting' : 'Low HRV — mitochondrial + NAD+ depletion',
+  },
+];
+
+const liveIndicator = document.getElementById('live-indicator');
+const liveDot       = document.getElementById('live-dot');
+const liveTime      = document.getElementById('live-time');
+
+function applyLiveData(data) {
+  let updated = 0;
+  LIVE_MAPPINGS.forEach(({ field, nodeId, fmt, flag }) => {
+    const val = data[field];
+    if (val === null || val === undefined) return;
+    const node = nodeMap[nodeId];
+    if (!node) return;
+    node.value = fmt(val);
+    node.flag  = flag(val);
+    node._live = true;
+    updated++;
+
+    // Flash the pulse ring to signal fresh data
+    nodeGroups.filter(d => d.id === nodeId)
+      .select('.main-bubble')
+      .transition().duration(300).attr('opacity', 0.5)
+      .transition().duration(500).attr('opacity', 1.0);
+  });
+
+  if (updated > 0) {
+    liveIndicator.classList.add('active');
+    liveIndicator.classList.remove('stale');
+    liveTime.textContent = data.last_updated ? '· ' + data.last_updated : '';
+  }
+}
+
+function pollLiveData() {
+  fetch('/api/data')
+    .then(r => r.json())
+    .then(data => {
+      applyLiveData(data);
+    })
+    .catch(() => {
+      // No server — mark stale but don't crash
+      liveIndicator.classList.add('stale');
+    });
+}
+
+pollLiveData();
+setInterval(pollLiveData, 30000);
+
 </script>
 <div id="ailiv-credit">© AILIV</div>
+<div id="live-indicator" title="Live wearable data connected">
+  <span id="live-dot"></span>
+  <span id="live-text">LIVE</span>
+  <span id="live-time"></span>
+</div>
 </body>
 </html>
