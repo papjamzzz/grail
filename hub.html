@@ -3,26 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AILIV — Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>AILIV — Product Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #05040A;
-  --surface: #0d0b14;
-  --border: #1e1830;
-  --border-hover: #3a2f5c;
-  --text: #e8dfc8;
-  --muted: #6a5f80;
-  --gold: #c9a96e;
-  --gold-dim: rgba(201,169,110,0.12);
-  --gold-glow: rgba(201,169,110,0.08);
-  --live: #4caf50;
-  --tag-tool: rgba(201,169,110,0.15);
-  --tag-doc: rgba(100,140,220,0.15);
-  --tag-tool-text: #c9a96e;
-  --tag-doc-text: #88aaee;
+  --bg: #faf8f4;
+  --bg2: #f3f0ea;
+  --surface: #ffffff;
+  --border: #e4dfd4;
+  --border-hover: #c8bfae;
+  --text: #1a1610;
+  --muted: #8a7f6e;
+  --accent: #1a1610;
+  --gold: #9a7c3c;
+  --live: #2d7a4f;
+  --live-bg: rgba(45,122,79,0.08);
+  --blue: #2a5fa8;
+  --blue-bg: rgba(42,95,168,0.07);
+  --red: #943030;
 }
 
 html, body {
@@ -32,131 +32,144 @@ html, body {
   font-family: 'DM Sans', sans-serif;
 }
 
-/* Ambient background */
-body::before {
+/* Subtle grain */
+body::after {
   content: '';
   position: fixed; inset: 0;
-  background:
-    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(201,169,110,0.04) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(100,80,160,0.05) 0%, transparent 70%);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events: none;
-  z-index: 0;
+  z-index: 1000;
 }
 
-/* Header */
+/* ── HEADER ── */
 header {
-  position: relative;
-  z-index: 10;
-  padding: 52px 60px 0;
+  padding: 56px 64px 0;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
+  gap: 24px;
 }
 
-.brand {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.brand { display: flex; flex-direction: column; gap: 8px; }
 
-.brand-word {
+.brand-name {
   font-family: 'DM Serif Display', serif;
   font-style: italic;
-  font-size: clamp(2.2rem, 4vw, 3.4rem);
-  color: var(--gold);
-  letter-spacing: 0.01em;
+  font-size: clamp(2.6rem, 5vw, 4rem);
+  color: var(--text);
   line-height: 1;
+  letter-spacing: -0.01em;
 }
 
 .brand-sub {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
   color: var(--muted);
   text-transform: uppercase;
 }
 
-.header-right {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  color: var(--muted);
+.header-stat {
   text-align: right;
-  line-height: 1.7;
 }
 
-/* Divider */
-.divider {
-  height: 1px;
-  background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
-  margin: 36px 60px 0;
-  position: relative;
-  z-index: 10;
+.stat-number {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  color: var(--text);
+  line-height: 1;
 }
 
-/* Section label */
+.stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+/* ── HERO STRIP ── */
+.hero-strip {
+  margin: 40px 64px 0;
+  padding: 28px 36px;
+  background: var(--text);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.hero-text {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  color: #f4efe6;
+  line-height: 1.4;
+  max-width: 600px;
+}
+
+.hero-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.hero-pill {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(244,239,230,0.2);
+  color: rgba(244,239,230,0.6);
+  white-space: nowrap;
+}
+
+/* ── SECTION ── */
 .section-label {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 9px;
   font-weight: 500;
-  letter-spacing: 0.26em;
+  letter-spacing: 0.28em;
   color: var(--muted);
   text-transform: uppercase;
-  padding: 40px 60px 20px;
-  position: relative;
-  z-index: 10;
+  padding: 48px 64px 20px;
 }
 
-/* Card grid */
+/* ── GRID ── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-  padding: 0 60px;
-  position: relative;
-  z-index: 10;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 14px;
+  padding: 0 64px;
 }
 
-/* Card */
+/* ── CARD ── */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 28px 28px 24px;
-  cursor: pointer;
   text-decoration: none;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  transition: border-color 0.22s ease, background 0.22s ease, transform 0.18s ease, box-shadow 0.22s ease;
+  gap: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.18s;
   position: relative;
   overflow: hidden;
 }
 
-.card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--gold-glow), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
 .card:hover {
   border-color: var(--border-hover);
-  background: #110f1c;
+  box-shadow: 0 6px 32px rgba(26,22,16,0.09), 0 1px 4px rgba(26,22,16,0.06);
   transform: translateY(-2px);
-  box-shadow: 0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,169,110,0.08);
 }
 
-.card:hover::before { opacity: 1; }
-
-.card.doc-card::before {
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(100,140,220,0.06), transparent 70%);
-}
-
-/* Card top row */
 .card-top {
   display: flex;
   align-items: flex-start;
@@ -165,107 +178,112 @@ header {
 }
 
 .card-icon {
-  width: 40px;
-  height: 40px;
+  width: 42px; height: 42px;
   border-radius: 8px;
+  border: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 19px;
   flex-shrink: 0;
-  border: 1px solid var(--border);
+  background: var(--bg2);
 }
 
-.card-badges {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
+.badges { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
 
 .badge {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 8px;
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   padding: 3px 8px;
   border-radius: 3px;
 }
 
-.badge-tool  { background: var(--tag-tool); color: var(--tag-tool-text); }
-.badge-doc   { background: var(--tag-doc);  color: var(--tag-doc-text); }
-.badge-live  { background: rgba(76,175,80,0.15); color: var(--live); }
-.badge-soon  { background: rgba(255,255,255,0.05); color: var(--muted); }
+.badge-live { background: var(--live-bg); color: var(--live); }
+.badge-doc  { background: var(--blue-bg); color: var(--blue); }
+.badge-soon { background: var(--bg2); color: var(--muted); }
 
-/* Live dot */
 .live-dot {
   display: inline-block;
   width: 5px; height: 5px;
   border-radius: 50%;
   background: var(--live);
   margin-right: 4px;
-  animation: livePulse 2s ease-in-out infinite;
   vertical-align: middle;
+  animation: pulse 2.2s ease-in-out infinite;
 }
-@keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
-/* Card body */
 .card-name {
   font-family: 'DM Serif Display', serif;
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   color: var(--text);
-  line-height: 1.2;
-  letter-spacing: 0.01em;
+  line-height: 1.15;
 }
 
 .card-desc {
   font-size: 0.8rem;
   color: var(--muted);
-  line-height: 1.6;
+  line-height: 1.65;
   flex: 1;
 }
 
-/* Card footer */
 .card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
   margin-top: 4px;
 }
 
 .card-url {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 9px;
-  letter-spacing: 0.1em;
-  color: rgba(201,169,110,0.4);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  opacity: 0.7;
 }
 
 .card-arrow {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--muted);
-  transition: color 0.2s, transform 0.2s;
+  transition: color 0.18s, transform 0.18s;
 }
+.card:hover .card-arrow { color: var(--text); transform: translateX(3px); }
+.doc-card:hover .card-arrow { transform: translateY(3px) !important; }
 
-.card:hover .card-arrow {
-  color: var(--gold);
-  transform: translateX(3px);
-}
-
-.doc-card .card-arrow { color: var(--tag-doc-text); opacity: 0.5; }
-.doc-card:hover .card-arrow { color: var(--tag-doc-text); opacity: 1; transform: translateY(3px); }
-
-/* Footer */
-footer {
-  padding: 60px 60px 40px;
+/* ── STATS ROW ── */
+.stats-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  z-index: 10;
+  gap: 0;
+  margin: 48px 64px 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface);
 }
 
-.footer-brand {
+.stat-cell {
+  flex: 1;
+  padding: 24px 28px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-cell:last-child { border-right: none; }
+
+.stat-cell-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.9rem;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-cell-label {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.18em;
@@ -273,9 +291,38 @@ footer {
   text-transform: uppercase;
 }
 
+/* ── FOOTER ── */
+footer {
+  padding: 56px 64px 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.footer-brand {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.footer-copy {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
 .footer-links {
   display: flex;
-  gap: 24px;
+  gap: 20px;
 }
 
 .footer-links a {
@@ -285,15 +332,22 @@ footer {
   color: var(--muted);
   text-decoration: none;
   text-transform: uppercase;
-  transition: color 0.2s;
+  transition: color 0.18s;
 }
-.footer-links a:hover { color: var(--gold); }
+.footer-links a:hover { color: var(--text); }
 
-@media (max-width: 640px) {
-  header, .section-label, .grid, footer { padding-left: 24px; padding-right: 24px; }
-  .divider { margin-left: 24px; margin-right: 24px; }
-  header { padding-top: 36px; flex-direction: column; align-items: flex-start; gap: 16px; }
+@media (max-width: 680px) {
+  header, .hero-strip, .section-label, .grid, .stats-row, footer {
+    padding-left: 24px; padding-right: 24px;
+  }
+  .hero-strip { flex-direction: column; align-items: flex-start; }
+  .hero-meta { align-items: flex-start; }
+  header { flex-direction: column; align-items: flex-start; padding-top: 36px; }
+  .stats-row { flex-direction: column; }
+  .stat-cell { border-right: none; border-bottom: 1px solid var(--border); }
+  .stat-cell:last-child { border-bottom: none; }
   .grid { grid-template-columns: 1fr; }
+  footer { flex-direction: column; align-items: flex-start; gap: 20px; }
 }
 </style>
 </head>
@@ -301,31 +355,56 @@ footer {
 
 <header>
   <div class="brand">
-    <div class="brand-word">AILIV</div>
+    <div class="brand-name">AILIV</div>
     <div class="brand-sub">Biohacking Intelligence Platform</div>
   </div>
-  <div class="header-right">
-    ailive.health<br>
-    <span style="color:rgba(106,95,128,0.6)">All assets · Internal</span>
+  <div class="header-stat">
+    <div class="stat-number">5</div>
+    <div class="stat-label">Live Products</div>
   </div>
 </header>
 
-<div class="divider"></div>
+<div class="hero-strip">
+  <div class="hero-text">A full biohacking intelligence suite — live, deployed, and growing. Built without a funding round.</div>
+  <div class="hero-meta">
+    <div class="hero-pill">ailive.health</div>
+    <div class="hero-pill">May 2026</div>
+  </div>
+</div>
 
-<!-- ── LIVE TOOLS ── -->
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-cell">
+    <div class="stat-cell-num">40</div>
+    <div class="stat-cell-label">Biomarkers Tracked</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-cell-num">5</div>
+    <div class="stat-cell-label">AI Models Integrated</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-cell-num">2</div>
+    <div class="stat-cell-label">Wearables Connected</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-cell-num">$0</div>
+    <div class="stat-cell-label">External Funding</div>
+  </div>
+</div>
+
+<!-- Live Tools -->
 <div class="section-label">Live Tools</div>
 <div class="grid">
 
   <a class="card" href="/" target="_blank">
     <div class="card-top">
-      <div class="card-icon" style="background:rgba(201,169,110,0.08);border-color:rgba(201,169,110,0.2)">🔮</div>
-      <div class="card-badges">
-        <span class="badge badge-tool">Tool</span>
+      <div class="card-icon">🔮</div>
+      <div class="badges">
         <span class="badge badge-live"><span class="live-dot"></span>Live</span>
       </div>
     </div>
-    <div class="card-name">Grail Dashboard</div>
-    <div class="card-desc">40 biomarker orbs across 4 orbital rings. Real-time health scoring, 5i AI synthesis, WHOOP integration.</div>
+    <div class="card-name">Dashboard</div>
+    <div class="card-desc">40 biomarker orbs across 4 orbital rings. Real-time health scoring, AI synthesis via 5 models simultaneously, Apple Health and WHOOP integration.</div>
     <div class="card-footer">
       <span class="card-url">ailive.health/</span>
       <span class="card-arrow">→</span>
@@ -334,14 +413,13 @@ footer {
 
   <a class="card" href="/rootcause" target="_blank">
     <div class="card-top">
-      <div class="card-icon" style="background:rgba(196,40,32,0.08);border-color:rgba(196,40,32,0.2)">🩸</div>
-      <div class="card-badges">
-        <span class="badge badge-tool">Tool</span>
+      <div class="card-icon">🩸</div>
+      <div class="badges">
         <span class="badge badge-live"><span class="live-dot"></span>Live</span>
       </div>
     </div>
     <div class="card-name">Roots</div>
-    <div class="card-desc">Force-directed biological risk chain map. Flagged labs → root causes → targeted interventions. Updates from wearable data.</div>
+    <div class="card-desc">Force-directed biological risk chain map. Flagged labs link to root causes, which link to targeted protocols. Updates live from wearable data.</div>
     <div class="card-footer">
       <span class="card-url">ailive.health/rootcause</span>
       <span class="card-arrow">→</span>
@@ -350,14 +428,13 @@ footer {
 
   <a class="card" href="/cells" target="_blank">
     <div class="card-top">
-      <div class="card-icon" style="background:rgba(80,160,120,0.08);border-color:rgba(80,160,120,0.2)">⬡</div>
-      <div class="card-badges">
-        <span class="badge badge-tool">Tool</span>
+      <div class="card-icon">⬡</div>
+      <div class="badges">
         <span class="badge badge-live"><span class="live-dot"></span>Live</span>
       </div>
     </div>
-    <div class="card-name">Grail Cells</div>
-    <div class="card-desc">Cellular-level biometric visualization. Organic cell topology with dynamic health state rendering.</div>
+    <div class="card-name">Cells</div>
+    <div class="card-desc">Cellular-level biometric visualization. Organic topology rendering that responds to real-time health state — unlike anything in the market.</div>
     <div class="card-footer">
       <span class="card-url">ailive.health/cells</span>
       <span class="card-arrow">→</span>
@@ -366,14 +443,13 @@ footer {
 
   <a class="card" href="/ailiv" target="_blank">
     <div class="card-top">
-      <div class="card-icon" style="background:rgba(123,79,191,0.08);border-color:rgba(123,79,191,0.2)">◎</div>
-      <div class="card-badges">
-        <span class="badge badge-tool">Tool</span>
+      <div class="card-icon">◎</div>
+      <div class="badges">
         <span class="badge badge-live"><span class="live-dot"></span>Live</span>
       </div>
     </div>
-    <div class="card-name">Grail Orbital</div>
-    <div class="card-desc">Ambient biometric canvas — the orbital visualization without dashboard UI. Built for display and presentation.</div>
+    <div class="card-name">Orbital</div>
+    <div class="card-desc">Ambient biometric canvas built for display. The visualization without the dashboard — designed for screens, demos, and boardrooms.</div>
     <div class="card-footer">
       <span class="card-url">ailive.health/ailiv</span>
       <span class="card-arrow">→</span>
@@ -382,14 +458,13 @@ footer {
 
   <a class="card" href="/signal-bridge" target="_blank">
     <div class="card-top">
-      <div class="card-icon" style="background:rgba(46,125,209,0.08);border-color:rgba(46,125,209,0.2)">⟁</div>
-      <div class="card-badges">
-        <span class="badge badge-tool">Tool</span>
+      <div class="card-icon">⟁</div>
+      <div class="badges">
         <span class="badge badge-live"><span class="live-dot"></span>Live</span>
       </div>
     </div>
     <div class="card-name">Signal Bridge</div>
-    <div class="card-desc">Apple Health × WHOOP biometric correlation chord diagram. 4 time states. Acquisition-grade data visualization.</div>
+    <div class="card-desc">First-of-kind Apple Health × WHOOP biometric correlation engine. Cross-platform signal intelligence across 4 physiological time states.</div>
     <div class="card-footer">
       <span class="card-url">ailive.health/signal-bridge</span>
       <span class="card-arrow">→</span>
@@ -398,34 +473,34 @@ footer {
 
 </div>
 
-<!-- ── DOCUMENTS ── -->
-<div class="section-label" style="padding-top:48px">Documents</div>
+<!-- Documents -->
+<div class="section-label" style="padding-top:52px">Documents</div>
 <div class="grid">
 
   <a class="card doc-card" href="/static/ailiv-pitch-deck.pdf" target="_blank">
     <div class="card-top">
-      <div class="card-icon" style="background:rgba(100,140,220,0.08);border-color:rgba(100,140,220,0.2)">📄</div>
-      <div class="card-badges">
-        <span class="badge badge-doc">PDF</span>
+      <div class="card-icon">📄</div>
+      <div class="badges">
+        <span class="badge badge-doc">PDF · May 2026</span>
       </div>
     </div>
     <div class="card-name">Pitch Deck</div>
-    <div class="card-desc">AILIV investor presentation. May 2026. For external sharing use Docsend for tracking.</div>
+    <div class="card-desc">Investor presentation. Full product vision, market opportunity, technical differentiation, and roadmap. Internal use — share via Docsend for external meetings.</div>
     <div class="card-footer">
       <span class="card-url">ailiv-pitch-deck.pdf</span>
       <span class="card-arrow" style="transform:rotate(90deg)">→</span>
     </div>
   </a>
 
-  <div class="card doc-card" style="opacity:0.45;cursor:default;pointer-events:none">
+  <div class="card" style="opacity:0.4;cursor:default;pointer-events:none">
     <div class="card-top">
-      <div class="card-icon" style="background:rgba(100,140,220,0.05);border-color:rgba(100,140,220,0.15)">📄</div>
-      <div class="card-badges">
-        <span class="badge badge-soon">Coming</span>
+      <div class="card-icon">📄</div>
+      <div class="badges">
+        <span class="badge badge-soon">Pending</span>
       </div>
     </div>
-    <div class="card-name">Wearable Deck</div>
-    <div class="card-desc">Wearable integration overview and partnership deck. Add to /grail/static/ to activate.</div>
+    <div class="card-name">Wearables Deck</div>
+    <div class="card-desc">Wearable integration overview and partnership presentation. Drop into /grail/static/ to activate.</div>
     <div class="card-footer">
       <span class="card-url">wearable-deck.pdf</span>
       <span class="card-arrow">→</span>
@@ -435,7 +510,10 @@ footer {
 </div>
 
 <footer>
-  <div class="footer-brand">© AILIV · ailive.health</div>
+  <div class="footer-left">
+    <div class="footer-brand">AILIV</div>
+    <div class="footer-copy">© 2026 · ailive.health · All rights reserved</div>
+  </div>
   <div class="footer-links">
     <a href="mailto:jeremiahstephensmith@gmail.com">Contact</a>
     <a href="https://github.com/papjamzzz" target="_blank">GitHub</a>
