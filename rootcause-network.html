@@ -671,8 +671,8 @@ body.dark #guideOverlay { background: rgba(0,0,0,0.55); }
       <div class="guide-action-desc">Illuminates the full chain — all connected nodes highlight in green, everything else fades. A detail panel slides in on the right.</div>
     </div>
     <div class="guide-action-row">
-      <div class="guide-action-key">click background</div>
-      <div class="guide-action-desc">Resets all highlights and closes the detail panel.</div>
+      <div class="guide-action-key">click anywhere outside</div>
+      <div class="guide-action-desc">Clicking anywhere outside the graph — empty canvas, zone bands, or outside the visualization entirely — resets all highlights and closes the detail panel.</div>
     </div>
     <div class="guide-action-row">
       <div class="guide-action-key">drag node</div>
@@ -882,7 +882,14 @@ svg.call(zoomBehavior);
 zoomG.attr('transform', centeredTransform(INIT_SCALE));
 svg.call(zoomBehavior.transform, d3.zoomIdentity.scale(INIT_SCALE));
 svg.on('click', e => {
-  if (e.target.tagName === 'svg' || e.target.classList.contains('bg-rect')) resetHighlight();
+  // Reset on any click that didn't originate from a node (nodes call stopPropagation)
+  resetHighlight();
+});
+
+// Also reset when clicking anywhere outside the SVG entirely
+document.addEventListener('click', e => {
+  const svgEl = document.getElementById('netSvg');
+  if (svgEl && !svgEl.contains(e.target)) resetHighlight();
 });
 
 // ── Defs ──
