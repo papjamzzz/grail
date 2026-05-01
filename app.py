@@ -109,6 +109,20 @@ def rootcause():
     resp.headers['Expires'] = '0'
     return resp
 
+@app.route('/hub')
+def hub():
+    resp = make_response(send_from_directory(BASE, 'hub.html'))
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return resp
+
+@app.route('/signal-bridge')
+def signal_bridge():
+    return send_from_directory(BASE, 'signal-bridge.html')
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory(os.path.join(BASE, 'static'), filename)
+
 @app.route('/bodyfigure')
 def bodyfigure():
     path = os.path.join(BASE, 'bodyfigure.html')

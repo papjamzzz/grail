@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signal Bridge — Apple × WHOOP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f4f0e8;
+    --surface: #ede8de;
+    --border: #c8c0b0;
+    --text: #1a1410;
+    --muted: #7a6a52;
+    --apple-1: #2e7dd1;
+    --apple-2: #1a6abf;
+    --apple-3: #3d8fe0;
+    --apple-4: #5aa0e8;
+    --apple-5: #70b0ec;
+    --apple-6: #88bff0;
+    --whoop-1: #c42820;
+    --whoop-2: #d63428;
+    --whoop-3: #c85820;
+    --whoop-4: #d47030;
+    --whoop-5: #e08840;
+    --whoop-6: #c8a040;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  /* Paper grain overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.55;
+  }
+
+  /* Top bar */
+  #topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px;
+    background: rgba(244,240,232,0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+  }
+
+  #brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+  #brand span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    margin-left: 10px;
+    vertical-align: middle;
+    text-transform: uppercase;
+  }
+
+  #state-tabs {
+    display: flex; gap: 4px;
+  }
+
+  .state-tab {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.22s ease;
+  }
+  .state-tab:hover {
+    border-color: var(--text);
+    color: var(--text);
+  }
+  .state-tab.active {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--bg);
+  }
+
+  #meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* Main canvas area */
+  #stage {
+    position: fixed;
+    inset: 54px 0 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1400px;
+  }
+
+  #chart-wrap {
+    position: relative;
+    transform: rotateX(5deg);
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  #chart-wrap:hover {
+    transform: rotateX(2deg);
+  }
+
+  #chart-svg {
+    display: block;
+    filter: drop-shadow(0 12px 48px rgba(26,20,10,0.10)) drop-shadow(0 2px 8px rgba(26,20,10,0.07));
+  }
+
+  /* Legend */
+  #legend {
+    position: fixed;
+    bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 32px; align-items: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    z-index: 50;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Tooltip */
+  #tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: rgba(244,240,232,0.96);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+    box-shadow: 0 4px 24px rgba(26,20,10,0.12);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 200;
+    max-width: 220px;
+    line-height: 1.6;
+  }
+  #tooltip.visible { opacity: 1; }
+  #tooltip .tt-title {
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  #tooltip .tt-strength {
+    color: var(--muted);
+  }
+
+  /* Correlation strength badge */
+  #strength-ring {
+    position: fixed;
+    top: 72px; right: 32px;
+    width: 68px; height: 68px;
+    z-index: 50;
+  }
+
+  /* Credit */
+  #credit {
+    position: fixed;
+    bottom: 12px; right: 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--border);
+    text-transform: uppercase;
+    z-index: 50;
+  }
+
+  /* Pulse ring animation */
+  @keyframes pulseRing {
+    0%   { opacity: 0.6; r: 4; }
+    100% { opacity: 0; r: 14; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div id="brand">
+    Signal Bridge
+    <span>Apple × WHOOP Biometric Correlations</span>
+  </div>
+  <div id="state-tabs">
+    <button class="state-tab active" data-state="morning">Morning</button>
+    <button class="state-tab" data-state="afternoon">Afternoon</button>
+    <button class="state-tab" data-state="evening">Evening</button>
+    <button class="state-tab" data-state="sleep">Sleep</button>
+  </div>
+  <div id="meta">
+    <span id="state-label">06:00 – 12:00</span>
+  </div>
+</div>
+
+<div id="stage">
+  <div id="chart-wrap">
+    <svg id="chart-svg"></svg>
+  </div>
+</div>
+
+<div id="legend">
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#2e7dd1"></div>
+    Apple Health
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#c42820"></div>
+    WHOOP
+  </div>
+  <div class="legend-item" style="gap:10px">
+    <svg width="28" height="8" viewBox="0 0 28 8">
+      <path d="M0,4 C8,4 20,4 28,4" stroke="#1a1410" stroke-width="1.5" fill="none" opacity="0.3"/>
+    </svg>
+    Correlation strength
+  </div>
+</div>
+
+<div id="tooltip">
+  <div class="tt-title" id="tt-title"></div>
+  <div class="tt-strength" id="tt-body"></div>
+</div>
+
+<div id="credit">© AILIV</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+// ─── Data ────────────────────────────────────────────────────────────────────
+
+const APPLE = [
+  { id:'rhr',      label:'Resting HR',    color:'#2e7dd1', unit:'bpm' },
+  { id:'hrv',      label:'HRV',           color:'#1a6abf', unit:'ms'  },
+  { id:'spo2',     label:'Blood O₂',      color:'#3d8fe0', unit:'%'   },
+  { id:'vo2',      label:'VO₂ Max',       color:'#5aa0e8', unit:'ml/kg/min' },
+  { id:'deepsleep',label:'Deep Sleep',    color:'#70b0ec', unit:'hrs' },
+  { id:'activecal',label:'Active Cal.',   color:'#88bff0', unit:'kcal' },
+];
+
+const WHOOP = [
+  { id:'recovery', label:'Recovery',      color:'#c42820', unit:'%'   },
+  { id:'whrvs',    label:'HRV Score',     color:'#d63428', unit:'ms'  },
+  { id:'strain',   label:'Strain',        color:'#c85820', unit:'AU'  },
+  { id:'sleepperf',label:'Sleep Perf.',   color:'#d47030', unit:'%'   },
+  { id:'resprate', label:'Resp. Rate',    color:'#e08840', unit:'brpm'},
+  { id:'skintemp', label:'Skin Temp.',    color:'#c8a040', unit:'°F'  },
+];
+
+// [appleIndex, whoopIndex, strength 0–1]
+const STATES = {
+  morning: {
+    label: '06:00 – 12:00',
+    desc: 'Cortisol peak, HRV recovery window',
+    chords: [
+      [0, 0, 0.82],  // Resting HR ↔ Recovery
+      [1, 1, 0.91],  // HRV ↔ HRV Score
+      [1, 0, 0.74],  // HRV ↔ Recovery
+      [0, 2, 0.63],  // Resting HR ↔ Strain
+      [4, 3, 0.78],  // Deep Sleep ↔ Sleep Perf.
+      [4, 4, 0.55],  // Deep Sleep ↔ Resp. Rate
+      [2, 4, 0.49],  // Blood O₂ ↔ Resp. Rate
+      [5, 2, 0.41],  // Active Cal. ↔ Strain
+    ]
+  },
+  afternoon: {
+    label: '12:00 – 18:00',
+    desc: 'Peak exertion, cardiovascular load',
+    chords: [
+      [3, 2, 0.88],  // VO₂ Max ↔ Strain
+      [5, 2, 0.83],  // Active Cal. ↔ Strain
+      [0, 0, 0.66],  // Resting HR ↔ Recovery
+      [1, 1, 0.72],  // HRV ↔ HRV Score
+      [3, 0, 0.59],  // VO₂ Max ↔ Recovery
+      [2, 4, 0.44],  // Blood O₂ ↔ Resp. Rate
+      [5, 3, 0.52],  // Active Cal. ↔ Sleep Perf.
+      [0, 5, 0.38],  // Resting HR ↔ Skin Temp.
+    ]
+  },
+  evening: {
+    label: '18:00 – 23:00',
+    desc: 'Recovery onset, parasympathetic ramp',
+    chords: [
+      [1, 0, 0.87],  // HRV ↔ Recovery
+      [0, 0, 0.79],  // Resting HR ↔ Recovery
+      [4, 3, 0.71],  // Deep Sleep ↔ Sleep Perf.
+      [2, 4, 0.68],  // Blood O₂ ↔ Resp. Rate
+      [1, 3, 0.61],  // HRV ↔ Sleep Perf.
+      [0, 5, 0.54],  // Resting HR ↔ Skin Temp.
+      [5, 2, 0.40],  // Active Cal. ↔ Strain
+      [3, 1, 0.47],  // VO₂ Max ↔ HRV Score
+    ]
+  },
+  sleep: {
+    label: '23:00 – 06:00',
+    desc: 'Autonomic repair, thermal regulation',
+    chords: [
+      [4, 3, 0.95],  // Deep Sleep ↔ Sleep Perf.
+      [1, 1, 0.92],  // HRV ↔ HRV Score
+      [2, 4, 0.86],  // Blood O₂ ↔ Resp. Rate
+      [0, 5, 0.80],  // Resting HR ↔ Skin Temp.
+      [1, 0, 0.77],  // HRV ↔ Recovery
+      [4, 4, 0.70],  // Deep Sleep ↔ Resp. Rate
+      [2, 5, 0.62],  // Blood O₂ ↔ Skin Temp.
+      [0, 0, 0.58],  // Resting HR ↔ Recovery
+    ]
+  },
+};
+
+// ─── Chart Setup ──────────────────────────────────────────────────────────────
+
+const W = Math.min(window.innerWidth, window.innerHeight - 54) * 0.88;
+const H = W;
+const CX = W / 2;
+const CY = H / 2;
+
+const R_OUTER = W * 0.42;
+const R_INNER = R_OUTER - W * 0.055;
+const R_LABEL = R_OUTER + W * 0.045;
+const R_TICK  = R_OUTER + W * 0.012;
+
+const svg = d3.select('#chart-svg')
+  .attr('width', W)
+  .attr('height', H)
+  .attr('viewBox', `0 0 ${W} ${H}`);
+
+// Defs
+const defs = svg.append('defs');
+
+// Paper grain filter
+const filt = defs.append('filter').attr('id','grain').attr('x','-20%').attr('y','-20%').attr('width','140%').attr('height','140%');
+filt.append('feTurbulence')
+  .attr('type','fractalNoise').attr('baseFrequency','0.68').attr('numOctaves','3').attr('stitchTiles','stitch').attr('result','noise');
+filt.append('feColorMatrix').attr('type','saturate').attr('values','0').attr('result','gray');
+filt.append('feBlend').attr('in','SourceGraphic').attr('in2','gray').attr('mode','multiply');
+
+// Glow filter
+const glow = defs.append('filter').attr('id','glow').attr('x','-50%').attr('y','-50%').attr('width','200%').attr('height','200%');
+glow.append('feGaussianBlur').attr('in','SourceGraphic').attr('stdDeviation','3').attr('result','blur');
+glow.append('feMerge').selectAll('feMergeNode').data(['blur','SourceGraphic']).enter()
+  .append('feMergeNode').attr('in', d => d);
+
+// Chord glow
+const chordGlow = defs.append('filter').attr('id','chord-glow').attr('x','-60%').attr('y','-60%').attr('width','220%').attr('height','220%');
+chordGlow.append('feGaussianBlur').attr('in','SourceGraphic').attr('stdDeviation','5').attr('result','b');
+chordGlow.append('feMerge').selectAll('n').data(['b','SourceGraphic']).enter().append('feMergeNode').attr('in',d=>d);
+
+// Arc segment gradients — one per node
+function makeGrad(id, colorA, colorB) {
+  const g = defs.append('radialGradient')
+    .attr('id', id)
+    .attr('cx','50%').attr('cy','50%').attr('r','50%')
+    .attr('gradientUnits','objectBoundingBox');
+  g.append('stop').attr('offset','0%').attr('stop-color',colorB).attr('stop-opacity',0.9);
+  g.append('stop').attr('offset','100%').attr('stop-color',colorA).attr('stop-opacity',1);
+}
+
+// Background disc
+defs.append('radialGradient').attr('id','bg-disc').attr('cx','50%').attr('cy','50%').attr('r','50%')
+  .selectAll('stop').data([
+    {o:'0%', c:'rgba(255,253,248,0.9)'},
+    {o:'55%',c:'rgba(240,235,225,0.6)'},
+    {o:'100%',c:'rgba(220,212,198,0.2)'},
+  ]).enter().append('stop').attr('offset',d=>d.o).attr('stop-color',d=>d.c);
+
+// Main group
+const g = svg.append('g').attr('transform',`translate(${CX},${CY})`);
+
+// Background disc
+g.append('circle')
+  .attr('r', R_OUTER * 1.12)
+  .attr('fill','url(#bg-disc)')
+  .attr('filter','url(#grain)');
+
+// Subtle grid rings
+[0.35, 0.6, 0.85].forEach(f => {
+  g.append('circle').attr('r', R_OUTER * f)
+    .attr('fill','none').attr('stroke','rgba(26,20,10,0.045)').attr('stroke-width','0.8')
+    .attr('stroke-dasharray','3 8');
+});
+
+// ─── Arc Layout ───────────────────────────────────────────────────────────────
+
+// Apple: left semicircle (π*1.05 to π*1.95)
+// WHOOP: right semicircle (π*0.05 to π*0.95)
+const GAP = 0.12; // radians gap between segments
+
+function buildArcs(nodes, startAngle, endAngle, side) {
+  const n = nodes.length;
+  const totalArc = endAngle - startAngle;
+  const totalGap = GAP * (n - 1);
+  const segArc = (totalArc - totalGap) / n;
+  return nodes.map((node, i) => {
+    const a0 = startAngle + i * (segArc + GAP);
+    const a1 = a0 + segArc;
+    const aMid = (a0 + a1) / 2;
+    return { ...node, a0, a1, aMid, side };
+  });
+}
+
+const appleArcs = buildArcs(APPLE, Math.PI * 1.08, Math.PI * 1.92, 'apple');
+const whoopArcs = buildArcs(WHOOP, Math.PI * 0.08, Math.PI * 0.92, 'whoop');
+const allArcs = [...appleArcs, ...whoopArcs];
+
+// ─── Draw Arc Segments ────────────────────────────────────────────────────────
+
+const arcGen = d3.arc().innerRadius(R_INNER).outerRadius(R_OUTER).cornerRadius(3);
+
+allArcs.forEach((arc, i) => {
+  const gradId = `arc-grad-${i}`;
+  const lighter = d3.color(arc.color).brighter(0.5).toString();
+  makeGrad(gradId, arc.color, lighter);
+
+  const arcGroup = g.append('g').attr('class','arc-seg').datum(arc);
+
+  // Main arc
+  arcGroup.append('path')
+    .attr('d', arcGen({ startAngle: arc.a0, endAngle: arc.a1 }))
+    .attr('fill', `url(#${gradId})`)
+    .attr('stroke', 'rgba(255,255,255,0.35)')
+    .attr('stroke-width', 1)
+    .style('cursor','default');
+
+  // Micro tick line
+  const tx = Math.cos(arc.aMid - Math.PI/2) * R_TICK;
+  const ty = Math.sin(arc.aMid - Math.PI/2) * R_TICK;
+  const tx2 = Math.cos(arc.aMid - Math.PI/2) * (R_OUTER + W*0.005);
+  const ty2 = Math.sin(arc.aMid - Math.PI/2) * (R_OUTER + W*0.005);
+
+  arcGroup.append('line')
+    .attr('x1', tx2).attr('y1', ty2)
+    .attr('x2', tx).attr('y2', ty)
+    .attr('stroke', arc.color).attr('stroke-width', 1.5).attr('opacity', 0.6);
+
+  // Label
+  const lx = Math.cos(arc.aMid - Math.PI/2) * R_LABEL;
+  const ly = Math.sin(arc.aMid - Math.PI/2) * R_LABEL;
+  const angle = (arc.aMid * 180 / Math.PI) - 90;
+  const flip = (arc.aMid > Math.PI * 0.5 && arc.aMid < Math.PI * 1.5);
+
+  const labelG = arcGroup.append('g')
+    .attr('transform', `translate(${lx},${ly}) rotate(${flip ? angle + 180 : angle})`);
+
+  labelG.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'middle')
+    .attr('font-family', 'IBM Plex Mono, monospace')
+    .attr('font-size', W * 0.019)
+    .attr('font-weight', '500')
+    .attr('letter-spacing', '0.06em')
+    .attr('fill', arc.color)
+    .attr('opacity', 0.9)
+    .text(arc.label.toUpperCase());
+
+  labelG.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'middle')
+    .attr('dy', W * 0.024)
+    .attr('font-family', 'IBM Plex Mono, monospace')
+    .attr('font-size', W * 0.013)
+    .attr('fill', 'rgba(26,20,10,0.4)')
+    .text(arc.unit);
+});
+
+// ─── Chord Paths ─────────────────────────────────────────────────────────────
+
+const chordGroup = g.append('g').attr('class','chords');
+
+function getArcPoint(arc, t = 0.5) {
+  const a = arc.a0 + (arc.a1 - arc.a0) * t;
+  const r = (R_INNER + R_OUTER) / 2;
+  return [
+    Math.cos(a - Math.PI/2) * r,
+    Math.sin(a - Math.PI/2) * r
+  ];
+}
+
+function getEdgePoint(arc) {
+  const a = arc.aMid;
+  return [
+    Math.cos(a - Math.PI/2) * R_INNER,
+    Math.sin(a - Math.PI/2) * R_INNER
+  ];
+}
+
+function chordPath(p1, p2, strength) {
+  // Cubic bezier with control points pulled toward center
+  const pull = 0.12 + strength * 0.1;
+  const cp1 = [p1[0] * pull, p1[1] * pull];
+  const cp2 = [p2[0] * pull, p2[1] * pull];
+  return `M ${p1[0]},${p1[1]} C ${cp1[0]},${cp1[1]} ${cp2[0]},${cp2[1]} ${p2[0]},${p2[1]}`;
+}
+
+// Color interpolation for chords
+function chordColor(appleArc, whoopArc, strength) {
+  const c1 = d3.color(appleArc.color);
+  const c2 = d3.color(whoopArc.color);
+  return d3.interpolateRgb(c1, c2)(0.5);
+}
+
+let currentChords = [];
+let hoveredChord = null;
+
+function renderChords(stateKey, animate = true) {
+  const state = STATES[stateKey];
+  const chordData = state.chords.map(([ai, wi, str]) => ({
+    appleArc: appleArcs[ai],
+    whoopArc: whoopArcs[wi],
+    strength: str,
+    label: `${appleArcs[ai].label} ↔ ${whoopArcs[wi].label}`,
+    strengthPct: Math.round(str * 100),
+  }));
+
+  // Update state label
+  document.getElementById('state-label').textContent = state.label;
+
+  // Bind data
+  const paths = chordGroup.selectAll('.chord-path')
+    .data(chordData, d => `${d.appleArc.id}-${d.whoopArc.id}`);
+
+  // Exit
+  paths.exit()
+    .transition().duration(300).attr('opacity', 0).remove();
+
+  // Enter
+  const enter = paths.enter().append('path')
+    .attr('class', 'chord-path')
+    .attr('fill', 'none')
+    .attr('opacity', 0);
+
+  // Update + Enter
+  const merged = enter.merge(paths);
+
+  merged
+    .attr('d', d => {
+      const p1 = getEdgePoint(d.appleArc);
+      const p2 = getEdgePoint(d.whoopArc);
+      return chordPath(p1, p2, d.strength);
+    })
+    .attr('stroke', d => chordColor(d.appleArc, d.whoopArc, d.strength))
+    .attr('stroke-width', d => 1.2 + d.strength * 3.8)
+    .attr('stroke-linecap', 'round')
+    .style('cursor', 'pointer')
+    .on('mouseenter', function(event, d) {
+      hoveredChord = d;
+      showTooltip(event, d);
+      d3.select(this)
+        .raise()
+        .attr('filter', 'url(#chord-glow)')
+        .attr('stroke-width', 2 + d.strength * 5);
+    })
+    .on('mousemove', function(event, d) {
+      moveTooltip(event);
+    })
+    .on('mouseleave', function(event, d) {
+      hoveredChord = null;
+      hideTooltip();
+      d3.select(this)
+        .attr('filter', null)
+        .attr('stroke-width', 1.2 + d.strength * 3.8);
+    });
+
+  if (animate) {
+    merged.transition().duration(450).ease(d3.easeCubicOut)
+      .attr('opacity', d => 0.15 + d.strength * 0.70);
+  } else {
+    merged.attr('opacity', d => 0.15 + d.strength * 0.70);
+  }
+
+  currentChords = chordData;
+}
+
+// ─── Center Label ─────────────────────────────────────────────────────────────
+
+const centerG = g.append('g').attr('class','center-label');
+
+centerG.append('text')
+  .attr('id','center-title')
+  .attr('text-anchor','middle')
+  .attr('dominant-baseline','middle')
+  .attr('dy', -W*0.032)
+  .attr('font-family','DM Serif Display, serif')
+  .attr('font-style','italic')
+  .attr('font-size', W * 0.038)
+  .attr('fill','rgba(26,20,10,0.75)')
+  .text('Signal');
+
+centerG.append('text')
+  .attr('id','center-sub')
+  .attr('text-anchor','middle')
+  .attr('dominant-baseline','middle')
+  .attr('dy', W*0.018)
+  .attr('font-family','DM Serif Display, serif')
+  .attr('font-style','italic')
+  .attr('font-size', W * 0.038)
+  .attr('fill','rgba(26,20,10,0.75)')
+  .text('Bridge');
+
+centerG.append('text')
+  .attr('id','center-desc')
+  .attr('text-anchor','middle')
+  .attr('dominant-baseline','middle')
+  .attr('dy', W*0.072)
+  .attr('font-family','IBM Plex Mono, monospace')
+  .attr('font-size', W * 0.013)
+  .attr('letter-spacing','0.1em')
+  .attr('fill','rgba(26,20,10,0.35)')
+  .text('MORNING');
+
+// ─── Breathing Animation ──────────────────────────────────────────────────────
+
+let t = 0;
+let animFrameId;
+
+function breathe() {
+  t += 0.012;
+  const pulse = Math.sin(t) * 0.5 + 0.5; // 0–1
+
+  chordGroup.selectAll('.chord-path').each(function(d) {
+    if (this === hoveredChord) return;
+    const base = 0.15 + d.strength * 0.70;
+    const breatheAmt = 0.08 * pulse * d.strength;
+    d3.select(this).attr('opacity', base + breatheAmt - 0.04);
+  });
+
+  // Subtle arc pulse
+  g.selectAll('.arc-seg path').each(function(d) {
+    if (!d) return;
+    const pv = Math.sin(t * 0.6 + (d.aMid || 0) * 0.8) * 0.5 + 0.5;
+    d3.select(this).attr('opacity', 0.82 + pv * 0.18);
+  });
+
+  animFrameId = requestAnimationFrame(breathe);
+}
+
+// ─── Platform Labels ──────────────────────────────────────────────────────────
+
+// Apple label (left)
+g.append('text')
+  .attr('x', -R_OUTER * 0.72)
+  .attr('y', -R_OUTER * 1.05)
+  .attr('text-anchor','middle')
+  .attr('font-family','DM Serif Display, serif')
+  .attr('font-size', W * 0.024)
+  .attr('fill','rgba(46,125,209,0.55)')
+  .attr('letter-spacing','0.04em')
+  .text('Apple Health');
+
+// WHOOP label (right)
+g.append('text')
+  .attr('x', R_OUTER * 0.72)
+  .attr('y', -R_OUTER * 1.05)
+  .attr('text-anchor','middle')
+  .attr('font-family','DM Serif Display, serif')
+  .attr('font-size', W * 0.024)
+  .attr('fill','rgba(196,40,32,0.55)')
+  .attr('letter-spacing','0.04em')
+  .text('WHOOP');
+
+// Subtle divider line
+g.append('line')
+  .attr('x1',0).attr('y1',-R_OUTER*0.98)
+  .attr('x2',0).attr('y2',R_OUTER*0.98)
+  .attr('stroke','rgba(26,20,10,0.07)')
+  .attr('stroke-width',1)
+  .attr('stroke-dasharray','4 10');
+
+// ─── Tooltip ─────────────────────────────────────────────────────────────────
+
+const tooltip = document.getElementById('tooltip');
+const ttTitle = document.getElementById('tt-title');
+const ttBody  = document.getElementById('tt-body');
+
+function showTooltip(event, d) {
+  ttTitle.textContent = d.label;
+  ttBody.innerHTML = `Correlation strength: <strong>${d.strengthPct}%</strong><br>
+    ${d.appleArc.label}: ${d.appleArc.unit}<br>
+    ${d.whoopArc.label}: ${d.whoopArc.unit}`;
+  tooltip.classList.add('visible');
+  moveTooltip(event);
+}
+function moveTooltip(event) {
+  const x = event.clientX + 14;
+  const y = event.clientY - 14;
+  tooltip.style.left = Math.min(x, window.innerWidth - 240) + 'px';
+  tooltip.style.top  = Math.max(y, 10) + 'px';
+}
+function hideTooltip() {
+  tooltip.classList.remove('visible');
+}
+
+// ─── State Switcher ──────────────────────────────────────────────────────────
+
+let currentState = 'morning';
+const STATE_DESC_LABELS = {
+  morning:   'MORNING',
+  afternoon: 'AFTERNOON',
+  evening:   'EVENING',
+  sleep:     'SLEEP',
+};
+
+document.querySelectorAll('.state-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentState = tab.dataset.state;
+
+    // Update center desc
+    centerG.select('#center-desc')
+      .transition().duration(200).attr('opacity', 0)
+      .transition().duration(200).attr('opacity', 1)
+      .text(STATE_DESC_LABELS[currentState]);
+
+    renderChords(currentState, true);
+  });
+});
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
+renderChords('morning', false);
+// Fade in chords on load
+chordGroup.selectAll('.chord-path')
+  .attr('opacity', 0)
+  .transition().duration(900).ease(d3.easeCubicOut)
+  .attr('opacity', d => 0.15 + d.strength * 0.70);
+
+breathe();
+
+</script>
+</body>
+</html>
