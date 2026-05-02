@@ -222,10 +222,10 @@
 
   <div class="img-cards">
     <div class="img-card">
-      <img src="/static/spongebob.jpg" alt="SpongeBob" onerror="this.parentElement.style.display='none'">
+      <img src="/static/spongebob.png" alt="SpongeBob">
     </div>
     <div class="img-card">
-      <img src="/static/squidward.jpg" alt="Squidward" onerror="this.parentElement.style.display='none'">
+      <img src="/static/squidward.png" alt="Squidward">
     </div>
   </div>
 
@@ -313,6 +313,62 @@ function draw(t) {
   requestAnimationFrame(draw);
 }
 resize(); window.addEventListener('resize',resize); requestAnimationFrame(draw);
+
+// ── CONFETTI ──
+const confettiCanvas = document.createElement('canvas');
+confettiCanvas.style.cssText = 'position:fixed;inset:0;z-index:999;pointer-events:none;';
+document.body.appendChild(confettiCanvas);
+const cCtx = confettiCanvas.getContext('2d');
+confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight;
+window.addEventListener('resize', () => { confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; });
+
+const CONFETTI_COLORS = ['#c9963c','#e8b84b','#f0c855','#fff8e1','#ffd54f','#ffecb3','#f9a825','#ffe082'];
+let pieces = [];
+
+function spawnConfetti(x, y, count = 60) {
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 4 + Math.random() * 8;
+    pieces.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 6,
+      rot: Math.random() * 360,
+      rotV: (Math.random() - 0.5) * 12,
+      w: 6 + Math.random() * 8,
+      h: 4 + Math.random() * 5,
+      color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+      life: 1.0,
+      decay: 0.012 + Math.random() * 0.01
+    });
+  }
+}
+
+function drawConfetti() {
+  cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  pieces = pieces.filter(p => p.life > 0);
+  for (const p of pieces) {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.35;
+    p.vx *= 0.98; p.rot += p.rotV; p.life -= p.decay;
+    cCtx.save();
+    cCtx.globalAlpha = Math.max(0, p.life);
+    cCtx.translate(p.x, p.y);
+    cCtx.rotate(p.rot * Math.PI / 180);
+    cCtx.fillStyle = p.color;
+    cCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    cCtx.restore();
+  }
+  requestAnimationFrame(drawConfetti);
+}
+drawConfetti();
+
+document.addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  spawnConfetti(t.clientX, t.clientY, 70);
+}, { passive: true });
+document.addEventListener('click', e => {
+  spawnConfetti(e.clientX, e.clientY, 70);
+});
 
 // Boombox
 const audio = document.getElementById('music');

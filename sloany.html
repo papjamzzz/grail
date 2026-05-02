@@ -213,9 +213,6 @@
     <div id="card-text">
       <em>WOWZA</em> — 7 nights went by in like 12 hours.<br>
       That was an awesome visit.<br><br>
-      You're one of a kind.<br>
-      Technically, one of two — but still.<br>
-      <em>Yeah. You know what I mean.</em><br><br>
       I told your sister she was one of a kind.<br>
       Then I told you the same thing.<br>
       <em>One of you is lying.</em><br><br>
@@ -225,10 +222,10 @@
 
   <div class="img-cards">
     <div class="img-card">
-      <img src="/static/spongebob.jpg" alt="SpongeBob" onerror="this.parentElement.style.display='none'">
+      <img src="/static/spongebob.png" alt="SpongeBob">
     </div>
     <div class="img-card">
-      <img src="/static/squidward.jpg" alt="Squidward" onerror="this.parentElement.style.display='none'">
+      <img src="/static/squidward.png" alt="Squidward">
     </div>
   </div>
 
@@ -320,6 +317,82 @@ function draw(t) {
   requestAnimationFrame(draw);
 }
 resize(); window.addEventListener('resize',resize); requestAnimationFrame(draw);
+
+// ── FIREWORKS ──
+const fwCanvas = document.createElement('canvas');
+fwCanvas.style.cssText = 'position:fixed;inset:0;z-index:999;pointer-events:none;';
+document.body.appendChild(fwCanvas);
+const fwCtx = fwCanvas.getContext('2d');
+fwCanvas.width = innerWidth; fwCanvas.height = innerHeight;
+window.addEventListener('resize', () => { fwCanvas.width = innerWidth; fwCanvas.height = innerHeight; });
+
+const FW_COLORS = ['#a050ff','#00b4dc','#ff6fff','#7b2fff','#20c4e8','#e040fb','#00e5ff','#d500f9'];
+let rockets = [], sparks = [];
+
+function launchRocket(tx, ty) {
+  // trail of sparks bursting from touch point upward then exploding
+  const startY = fwCanvas.height;
+  const startX = tx + (Math.random() - 0.5) * 60;
+  rockets.push({ x: startX, y: startY, tx, ty: ty - 20, color: FW_COLORS[Math.floor(Math.random() * FW_COLORS.length)], exploded: false });
+}
+
+function explode(x, y, color) {
+  const count = 80 + Math.floor(Math.random() * 40);
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2;
+    const speed = 2 + Math.random() * 6;
+    sparks.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      life: 1.0,
+      decay: 0.014 + Math.random() * 0.014,
+      r: 2 + Math.random() * 2,
+      color,
+      tail: []
+    });
+  }
+}
+
+function drawFireworks() {
+  fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+
+  // Rockets
+  rockets = rockets.filter(r => !r.exploded || r._cleanup);
+  for (const r of rockets) {
+    if (r.exploded) continue;
+    const dx = r.tx - r.x, dy = r.ty - r.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < 8) { r.exploded = true; explode(r.x, r.y, r.color); continue; }
+    const speed = 12;
+    r.x += (dx / dist) * speed;
+    r.y += (dy / dist) * speed;
+    // draw rocket dot
+    fwCtx.beginPath(); fwCtx.arc(r.x, r.y, 3, 0, Math.PI*2);
+    fwCtx.fillStyle = r.color; fwCtx.globalAlpha = 0.9; fwCtx.fill();
+    fwCtx.globalAlpha = 1;
+  }
+
+  // Sparks
+  sparks = sparks.filter(s => s.life > 0);
+  for (const s of sparks) {
+    s.x += s.vx; s.y += s.vy; s.vy += 0.12; s.vx *= 0.97;
+    s.life -= s.decay;
+    fwCtx.beginPath(); fwCtx.arc(s.x, s.y, s.r * s.life, 0, Math.PI*2);
+    fwCtx.fillStyle = s.color; fwCtx.globalAlpha = Math.max(0, s.life);
+    fwCtx.fill(); fwCtx.globalAlpha = 1;
+  }
+  requestAnimationFrame(drawFireworks);
+}
+drawFireworks();
+
+document.addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  for (let i = 0; i < 3; i++) setTimeout(() => launchRocket(t.clientX, t.clientY), i * 120);
+}, { passive: true });
+document.addEventListener('click', e => {
+  for (let i = 0; i < 3; i++) setTimeout(() => launchRocket(e.clientX, e.clientY), i * 120);
+});
 
 // Boombox
 const audio = document.getElementById('music');
