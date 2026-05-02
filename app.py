@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory, redirect, make_response
 import json, os, time, requests as req, base64, re, urllib.parse, secrets
-# routes: / /cells /bodyfigure /console /whoop/*
+# routes: / /cells /bodyfigure /console /whoop/* /lumi /sloany
+DEPLOY_VERSION = "2026-05-02-v4"
 
 # Load .env for local dev
 _env_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -185,7 +186,7 @@ Be concise and specific. Reference the user's actual data when relevant. 2-3 sho
 @app.route('/debug-files')
 def debug_files():
     files = os.listdir(BASE)
-    return jsonify({'base': BASE, 'files': sorted(files)})
+    return jsonify({'version': DEPLOY_VERSION, 'base': BASE, 'files': sorted(files)})
 
 # Health ingest from Shortcuts / Health export parser
 @app.route('/ingest', methods=['POST'])
