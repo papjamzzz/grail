@@ -4,296 +4,348 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>For Sloany</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Inter:wght@200;300&display=swap');
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: #000;
+    background: #020008;
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-family: 'Space Grotesk', sans-serif;
     color: #fff;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
-    font-family: 'Inter', sans-serif;
   }
 
-  /* Star field */
-  #stars { position: fixed; inset: 0; z-index: 0; }
-
-  /* Main content */
-  #content {
+  /* ── CANVAS (stars + nebula) ── */
+  #starfield {
     position: fixed;
     inset: 0;
+    z-index: 0;
+  }
+
+  /* ── NEBULA LAYERS ── */
+  .nebula {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 1;
+    animation: drift ease-in-out infinite;
+  }
+  .neb-1 {
+    width: 500px; height: 500px;
+    top: -100px; left: -100px;
+    background: radial-gradient(circle, rgba(90,30,160,0.35) 0%, transparent 70%);
+    animation-duration: 18s;
+  }
+  .neb-2 {
+    width: 600px; height: 600px;
+    bottom: -150px; right: -150px;
+    background: radial-gradient(circle, rgba(0,150,180,0.28) 0%, transparent 70%);
+    animation-duration: 24s;
+    animation-delay: -8s;
+  }
+  .neb-3 {
+    width: 400px; height: 400px;
+    top: 40%; left: 30%;
+    background: radial-gradient(circle, rgba(180,60,200,0.18) 0%, transparent 70%);
+    animation-duration: 30s;
+    animation-delay: -4s;
+  }
+
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(30px, -20px) scale(1.06); }
+    66%       { transform: translate(-20px, 15px) scale(0.96); }
+  }
+
+  /* ── WORMHOLE RING ── */
+  #wormhole {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 2;
+    pointer-events: none;
+  }
+
+  .wring {
+    position: absolute;
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid transparent;
+  }
+
+  .wring-1 {
+    width: 280px; height: 280px;
+    border-color: rgba(160,80,255,0.5);
+    box-shadow: 0 0 30px rgba(160,80,255,0.15), inset 0 0 30px rgba(160,80,255,0.08);
+    animation: wspin 18s linear infinite;
+  }
+  .wring-2 {
+    width: 380px; height: 380px;
+    border-color: rgba(0,180,220,0.35);
+    box-shadow: 0 0 50px rgba(0,180,220,0.10);
+    animation: wspin 28s linear infinite reverse;
+  }
+  .wring-3 {
+    width: 500px; height: 500px;
+    border-color: rgba(160,80,255,0.18);
+    animation: wspin 42s linear infinite;
+  }
+  .wring-4 {
+    width: 640px; height: 640px;
+    border-color: rgba(0,160,200,0.09);
+    animation: wspin 58s linear infinite reverse;
+  }
+
+  @keyframes wspin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  /* ── FOOTPRINT GHOST (inside rings) ── */
+  #feet-ghost {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  #feet-ghost img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(1) brightness(0.6) contrast(1.4) hue-rotate(260deg) saturate(2);
+    opacity: 0.28;
+    animation: ghost-pulse 9s ease-in-out infinite;
+  }
+
+  @keyframes ghost-pulse {
+    0%, 100% { opacity: 0.28; }
+    50%       { opacity: 0.48; }
+  }
+
+  /* Wormhole center glow */
+  #worm-glow {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(120,50,220,0.08) 0%, transparent 70%);
+    box-shadow: 0 0 100px rgba(120,50,220,0.15);
+    animation: wbreathe 7s ease-in-out infinite;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  @keyframes wbreathe {
+    0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+    50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.2); }
+  }
+
+  /* ── CONTENT ── */
+  #content {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0;
+    padding: 60px 24px 80px;
+  }
+
+  /* ── PHOTO FRAME ── */
+  #photo-wrap {
+    margin-bottom: 48px;
     opacity: 0;
-    transition: opacity 1.2s ease;
+    animation: fade-up 1s ease 0.4s forwards;
   }
 
-  #content.visible { opacity: 1; }
-
-  /* Scan line effect on image */
-  #footprint-wrap {
-    position: relative;
-    width: min(280px, 72vw);
-    height: min(280px, 72vw);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 32px;
+  #photo-frame {
+    width: min(200px, 52vw);
+    height: min(200px, 52vw);
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid rgba(160,80,255,0.45);
+    box-shadow:
+      0 0 0 8px rgba(160,80,255,0.06),
+      0 0 0 16px rgba(0,180,220,0.03),
+      0 0 60px rgba(120,50,220,0.25),
+      0 0 100px rgba(0,150,200,0.12);
   }
 
-  #footprint-img {
+  #photo-frame img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    border-radius: 50%;
-    filter: drop-shadow(0 0 24px rgba(0,220,220,0.4)) drop-shadow(0 0 60px rgba(0,200,220,0.2));
-    clip-path: inset(100% 0 0 0);
-    transition: clip-path 1.8s cubic-bezier(0.16, 1, 0.3, 1);
-    mix-blend-mode: screen;
-    background: #000;
+    object-fit: cover;
+    display: block;
   }
 
-  #footprint-img.revealed { clip-path: inset(0% 0 0 0); }
-
-  /* Scan line */
-  #scan-line {
-    position: absolute;
-    left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(to right, transparent, rgba(0,220,255,0.8), transparent);
-    top: 0;
-    opacity: 0;
-    box-shadow: 0 0 12px rgba(0,220,255,0.6);
-  }
-
-  /* Glow ring */
-  #glow-ring {
-    position: absolute;
-    inset: -12px;
-    border-radius: 50%;
-    border: 1px solid rgba(0,200,220,0.15);
-    box-shadow: 0 0 30px rgba(0,200,220,0.08), inset 0 0 30px rgba(0,200,220,0.04);
-    opacity: 0;
-    transition: opacity 1s ease 1.5s;
-  }
-
-  #glow-ring.visible { opacity: 1; }
-
-  /* Corner brackets */
-  .bracket {
-    position: absolute;
-    width: 18px; height: 18px;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-  .bracket.tl { top: 0; left: 0; border-top: 1px solid rgba(0,220,255,0.5); border-left: 1px solid rgba(0,220,255,0.5); }
-  .bracket.tr { top: 0; right: 0; border-top: 1px solid rgba(0,220,255,0.5); border-right: 1px solid rgba(0,220,255,0.5); }
-  .bracket.bl { bottom: 0; left: 0; border-bottom: 1px solid rgba(0,220,255,0.5); border-left: 1px solid rgba(0,220,255,0.5); }
-  .bracket.br { bottom: 0; right: 0; border-bottom: 1px solid rgba(0,220,255,0.5); border-right: 1px solid rgba(0,220,255,0.5); }
-  .bracket.visible { opacity: 1; }
-
-  /* Name */
+  /* ── NAME ── */
   #name {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
+    font-size: clamp(3rem, 16vw, 6rem);
     font-weight: 300;
-    font-size: clamp(3.5rem, 14vw, 6rem);
-    letter-spacing: 0.18em;
-    color: #fff;
-    text-shadow: 0 0 40px rgba(0,220,255,0.3), 0 0 80px rgba(0,200,220,0.15);
-    opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.9s ease, transform 0.9s ease;
-    margin-bottom: 20px;
-    line-height: 1;
-  }
-
-  #name.visible { opacity: 1; transform: translateY(0); }
-
-  /* Message */
-  #message {
-    font-family: 'Inter', sans-serif;
-    font-weight: 200;
-    font-size: clamp(0.75rem, 3.2vw, 1rem);
-    letter-spacing: 0.04em;
-    color: rgba(255,255,255,0.55);
-    text-align: center;
-    max-width: min(340px, 88vw);
-    line-height: 1.8;
-    opacity: 0;
-    transition: opacity 1.2s ease;
-    padding: 0 20px;
-  }
-
-  #message.visible { opacity: 1; }
-
-  /* From */
-  #from {
-    margin-top: 28px;
-    font-family: 'Inter', sans-serif;
-    font-weight: 200;
-    font-size: 10px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: rgba(0,220,255,0.35);
+    color: #fff;
+    text-shadow:
+      0 0 40px rgba(160,80,255,0.6),
+      0 0 80px rgba(0,180,220,0.25),
+      0 0 120px rgba(120,50,220,0.15);
+    margin-bottom: 40px;
     opacity: 0;
-    transition: opacity 1s ease;
+    animation: fade-up 1s ease 1.0s forwards;
   }
 
-  #from.visible { opacity: 1; }
+  /* ── MESSAGE CARD ── */
+  #card {
+    max-width: 360px;
+    width: 100%;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(160,80,255,0.2);
+    border-radius: 4px;
+    padding: 28px 28px 24px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(160,80,255,0.08);
+    opacity: 0;
+    animation: fade-up 1s ease 1.6s forwards;
+    margin-bottom: 36px;
+  }
 
-  /* Floating particles */
-  .fp {
-    position: fixed;
-    width: 2px; height: 2px;
-    border-radius: 50%;
-    background: rgba(0,200,220,0.6);
-    pointer-events: none;
-    z-index: 1;
+  #card-label {
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(160,80,255,0.55);
+    margin-bottom: 16px;
+  }
+
+  #card-text {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(1.1rem, 4.5vw, 1.35rem);
+    color: rgba(255,255,255,0.85);
+    line-height: 1.75;
+  }
+
+  #card-text em {
+    color: rgba(160,80,255,0.95);
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  /* ── PAPITO ── */
+  #papito {
+    font-size: clamp(0.75rem, 3.2vw, 0.9rem);
+    font-weight: 300;
+    letter-spacing: 0.18em;
+    color: rgba(120,80,200,0.55);
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fade-up 1s ease 2.3s forwards;
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
+<canvas id="starfield"></canvas>
+
+<div class="nebula neb-1"></div>
+<div class="nebula neb-2"></div>
+<div class="nebula neb-3"></div>
+
+<div id="worm-glow"></div>
+<div id="wormhole">
+  <div id="feet-ghost">
+    <img src="/static/footprints.jpg" alt="">
+  </div>
+  <div class="wring wring-1"></div>
+  <div class="wring wring-2"></div>
+  <div class="wring wring-3"></div>
+  <div class="wring wring-4"></div>
+</div>
 
 <div id="content">
-  <div id="footprint-wrap">
-    <div id="glow-ring"></div>
-    <img id="footprint-img" src="/static/footprints.jpg" alt="your footprints">
-    <div id="scan-line"></div>
-    <div class="bracket tl"></div>
-    <div class="bracket tr"></div>
-    <div class="bracket bl"></div>
-    <div class="bracket br"></div>
-  </div>
-
   <div id="name">Sloany</div>
 
-  <div id="message">You're one of a kind.<br>Technically, one of two,<br>but still — yeah, you know what I mean.</div>
+  <div id="card">
+    <div id="card-label">lunchbox note</div>
+    <div id="card-text">
+      <em>WOWZA</em> — 7 nights went by in like 12 hours.<br>
+      That was an awesome visit.<br><br>
+      You're one of a kind.<br>
+      Technically, one of two — but still.<br>
+      <em>Yeah. You know what I mean.</em><br><br>
+      I told your sister she was one of a kind.<br>
+      Then I told you the same thing.<br>
+      <em>One of you is lying.</em><br><br>
+      💜💜
+    </div>
+  </div>
 
-  <div id="from">you are magico to me — papito</div>
+  <div id="papito">you are magico to me — papito</div>
 </div>
 
 <script>
-// ── STAR FIELD ──────────────────────────────────────────────
-const canvas = document.getElementById('stars');
-const ctx    = canvas.getContext('2d');
-let stars    = [];
+const canvas = document.getElementById('starfield');
+const ctx = canvas.getContext('2d');
+let stars = [];
 
-function initStars() {
-  canvas.width  = innerWidth;
-  canvas.height = innerHeight;
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
   stars = [];
-  const count = Math.floor((innerWidth * innerHeight) / 3000);
-  for (let i = 0; i < count; i++) {
+  const n = Math.floor(canvas.width * canvas.height / 1600);
+  for (let i = 0; i < n; i++) {
+    // occasional colored stars for nebula feel
+    const tint = Math.random();
+    let r, g, b;
+    if (tint < 0.15) { r = 200; g = 150; b = 255; }      // violet
+    else if (tint < 0.25) { r = 100; g = 220; b = 255; } // cyan
+    else { r = 255; g = 245; b = 255; }                   // white
     stars.push({
-      x: Math.random() * innerWidth,
-      y: Math.random() * innerHeight,
-      r: Math.random() * 1.2,
-      a: Math.random(),
-      speed: 0.003 + Math.random() * 0.006,
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.3,
+      a: 0.2 + Math.random() * 0.8,
+      speed: 0.002 + Math.random() * 0.005,
       phase: Math.random() * Math.PI * 2,
+      cr: r, cg: g, cb: b,
     });
   }
 }
 
-function drawStars(t) {
+function draw(t) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (const s of stars) {
-    const alpha = s.a * (0.4 + 0.6 * Math.abs(Math.sin(t * s.speed + s.phase)));
+    const alpha = s.a * (0.3 + 0.7 * Math.abs(Math.sin(t * s.speed + s.phase)));
     ctx.beginPath();
     ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(180,230,255,${alpha})`;
+    ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha})`;
     ctx.fill();
   }
+  requestAnimationFrame(draw);
 }
 
-// ── FLOATING PARTICLES ──────────────────────────────────────
-function spawnParticles() {
-  for (let i = 0; i < 18; i++) {
-    const p = document.createElement('div');
-    p.className = 'fp';
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.top  = (70 + Math.random() * 30) + 'vh';
-    document.body.appendChild(p);
-    animateParticle(p);
-  }
-}
-
-function animateParticle(p) {
-  const duration = 8000 + Math.random() * 12000;
-  const x = (Math.random() - 0.5) * 120;
-  const y = -(200 + Math.random() * 300);
-  p.animate([
-    { transform: 'translate(0,0)', opacity: 0 },
-    { opacity: 0.7, offset: 0.1 },
-    { opacity: 0.3, offset: 0.8 },
-    { transform: `translate(${x}px,${y}px)`, opacity: 0 }
-  ], { duration, easing: 'ease-out' }).onfinish = () => {
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.top  = (70 + Math.random() * 30) + 'vh';
-    animateParticle(p);
-  };
-}
-
-// ── SCAN LINE ───────────────────────────────────────────────
-function runScanLine() {
-  const line = document.getElementById('scan-line');
-  const wrap = document.getElementById('footprint-wrap');
-  const h    = wrap.offsetHeight;
-  line.style.opacity = '1';
-  line.style.transition = `top ${1.8}s cubic-bezier(0.16,1,0.3,1)`;
-  setTimeout(() => { line.style.top = h + 'px'; }, 50);
-  setTimeout(() => { line.style.opacity = '0'; }, 2000);
-}
-
-// ── SEQUENCE ────────────────────────────────────────────────
-let rafId;
-function loop(t) {
-  drawStars(t);
-  rafId = requestAnimationFrame(loop);
-}
-
-initStars();
-requestAnimationFrame(loop);
-spawnParticles();
-
-// Reveal sequence
-setTimeout(() => {
-  document.getElementById('content').classList.add('visible');
-}, 300);
-
-setTimeout(() => {
-  document.getElementById('footprint-img').classList.add('revealed');
-  document.querySelectorAll('.bracket').forEach(b => b.classList.add('visible'));
-  runScanLine();
-}, 600);
-
-setTimeout(() => {
-  document.getElementById('glow-ring').classList.add('visible');
-}, 1800);
-
-setTimeout(() => {
-  document.getElementById('name').classList.add('visible');
-}, 2200);
-
-setTimeout(() => {
-  document.getElementById('message').classList.add('visible');
-}, 3200);
-
-setTimeout(() => {
-  document.getElementById('from').classList.add('visible');
-}, 4000);
-
-window.addEventListener('resize', () => { initStars(); canvas.width = innerWidth; canvas.height = innerHeight; });
+resize();
+window.addEventListener('resize', resize);
+requestAnimationFrame(draw);
 </script>
 </body>
 </html>
