@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AILIV — BioSurface</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: rgba(201,169,110,1);
+    --gold-dim: rgba(201,169,110,0.5);
+    --bg: #04040A;
+    --panel: rgba(8,8,18,0.88);
+    --border: rgba(201,169,110,0.18);
+    --text: rgba(220,210,190,0.9);
+    --text-dim: rgba(180,165,140,0.5);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  #canvas-container {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  #canvas-container canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* ─── HEADER ─── */
+  #header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(4,4,10,0.95) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  #header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+  }
+
+  #header .subtitle {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ─── CONDITION READOUT ─── */
+  #condition-panel {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 10;
+    width: 200px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    backdrop-filter: blur(12px);
+  }
+
+  #condition-panel .label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  #condition-score {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--gold);
+  }
+
+  #condition-text {
+    font-size: 10px;
+    font-style: italic;
+    color: var(--text-dim);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .score-bar-wrap {
+    margin-top: 10px;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  #score-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease, background 0.6s ease;
+  }
+
+  .mini-stats {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .mini-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+  }
+
+  .mini-stat .name { color: var(--text-dim); }
+  .mini-stat .val { color: var(--text); }
+  .mini-stat .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    margin-right: 5px;
+    flex-shrink: 0;
+  }
+
+  /* ─── TRIGGER PANEL ─── */
+  #trigger-panel {
+    position: fixed;
+    top: 70px;
+    left: 20px;
+    z-index: 10;
+    width: 210px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    backdrop-filter: blur(12px);
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+  }
+
+  #trigger-panel::-webkit-scrollbar { width: 3px; }
+  #trigger-panel::-webkit-scrollbar-track { background: transparent; }
+  #trigger-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  #trigger-panel .panel-title {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .trigger-row {
+    margin-bottom: 12px;
+  }
+
+  .trigger-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .trigger-name {
+    font-size: 10px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .trigger-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .trigger-val {
+    font-size: 10px;
+    color: var(--text-dim);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  .trigger-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 1px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .trigger-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: none;
+  }
+
+  /* ─── LEGEND ─── */
+  #legend {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 16px;
+    backdrop-filter: blur(12px);
+  }
+
+  .legend-gradient {
+    width: 180px;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right,
+      #6b21a8, #dc2626, #f97316, #eab308, #22c55e, #06b6d4);
+    margin: 0 10px;
+  }
+
+  .legend-label {
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  /* ─── TOOLTIP ─── */
+  #tooltip {
+    position: fixed;
+    z-index: 20;
+    background: rgba(8,8,18,0.95);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 12px;
+    pointer-events: none;
+    display: none;
+    font-size: 11px;
+    min-width: 120px;
+    backdrop-filter: blur(8px);
+  }
+
+  #tooltip .t-label { font-weight: 500; color: var(--gold); margin-bottom: 2px; }
+  #tooltip .t-val { color: var(--text-dim); font-size: 10px; }
+
+  /* ─── BACK LINK ─── */
+  #back {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  #back:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- THREE.JS CANVAS -->
+<div id="canvas-container"></div>
+
+<!-- HEADER -->
+<div id="header">
+  <div>
+    <h1>AILIV</h1>
+    <div class="subtitle">BioSurface — Biological State Terrain</div>
+  </div>
+</div>
+
+<!-- CONDITION READOUT -->
+<div id="condition-panel">
+  <div class="label">Current Condition</div>
+  <div id="condition-score">72</div>
+  <div id="condition-text">strained but stable</div>
+  <div class="score-bar-wrap">
+    <div id="score-bar" style="width:72%; background: #eab308;"></div>
+  </div>
+  <div class="mini-stats" id="mini-stats"></div>
+</div>
+
+<!-- TRIGGER PANEL -->
+<div id="trigger-panel">
+  <div class="panel-title">Biomarker Triggers</div>
+  <div id="triggers-list"></div>
+</div>
+
+<!-- LEGEND -->
+<div id="legend">
+  <span class="legend-label">Stressed</span>
+  <div class="legend-gradient"></div>
+  <span class="legend-label">Optimal</span>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip">
+  <div class="t-label" id="tooltip-label"></div>
+  <div class="t-val" id="tooltip-val"></div>
+</div>
+
+<!-- BACK -->
+<a href="/" id="back">← Dashboard</a>
+
+<!-- THREE.JS -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script>
+// ============================================================
+// MOCK BIO STATE
+// Swap this object's values with real wearable/lab data later.
+// Each trigger has: id, label, value (0-100), weight (influence
+// on surface deformation), status, and x/y position on surface.
+// ============================================================
+const mockBioState = {
+  overallScore: 72,
+  condition: "strained but stable",
+  triggers: [
+    { id: "sleep_debt",      label: "Sleep Debt",        value: 68, weight: 0.90, status: "caution",  x: -0.55, y:  0.30 },
+    { id: "hrv_drop",        label: "HRV Drop",          value: 82, weight: 1.00, status: "risk",     x:  0.25, y: -0.45 },
+    { id: "glucose",         label: "Glucose Variability",value: 45, weight: 0.60, status: "stable",   x:  0.50, y:  0.50 },
+    { id: "inflammation",    label: "Inflammation",      value: 70, weight: 0.85, status: "caution",  x: -0.30, y: -0.55 },
+    { id: "stress_load",     label: "Stress Load",       value: 75, weight: 0.80, status: "caution",  x:  0.10, y:  0.20 },
+    { id: "recovery",        label: "Recovery Score",    value: 55, weight: 0.70, status: "caution",  x: -0.20, y:  0.60 },
+    { id: "strain",          label: "Strain / Exertion", value: 40, weight: 0.50, status: "stable",   x:  0.60, y: -0.20 },
+    { id: "hydration",       label: "Hydration",         value: 30, weight: 0.40, status: "risk",     x: -0.60, y: -0.20 },
+    { id: "rhr_increase",    label: "Resting HR",        value: 60, weight: 0.65, status: "caution",  x:  0.00, y: -0.70 },
+    { id: "symptom_severity",label: "Symptom Severity",  value: 50, weight: 0.55, status: "caution",  x: -0.45, y:  0.05 },
+  ]
+};
+
+// Live state — sliders modify this
+let bioState = JSON.parse(JSON.stringify(mockBioState));
+
+// ============================================================
+// MATH UTILITIES
+// ============================================================
+
+// Clamp a value between min and max
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+// Gaussian/radial falloff — how much trigger at (tx,ty) affects
+// a surface point at (gx,gy). sigma controls spread radius.
+function gaussian(gx, gy, tx, ty, sigma) {
+  const dx = gx - tx, dy = gy - ty;
+  return Math.exp(-(dx*dx + dy*dy) / (2*sigma*sigma));
+}
+
+// Map a normalized t [0,1] through a multi-stop color gradient.
+// Stops: [t, [r,g,b]] where r/g/b are 0-1.
+const COLOR_STOPS = [
+  [0.00, [0.42, 0.13, 0.66]],  // purple — uncertainty/recovery drag
+  [0.18, [0.86, 0.15, 0.15]],  // red    — stressed/urgent
+  [0.36, [0.95, 0.48, 0.05]],  // orange — elevated
+  [0.54, [0.92, 0.84, 0.05]],  // yellow — caution
+  [0.72, [0.13, 0.76, 0.26]],  // green  — good/stable
+  [1.00, [0.02, 0.71, 0.84]],  // cyan   — optimal
+];
+
+function mapColor(t) {
+  t = clamp(t, 0, 1);
+  for (let i = 0; i < COLOR_STOPS.length - 1; i++) {
+    const [t0, c0] = COLOR_STOPS[i];
+    const [t1, c1] = COLOR_STOPS[i+1];
+    if (t >= t0 && t <= t1) {
+      const f = (t - t0) / (t1 - t0);
+      return [
+        c0[0] + (c1[0]-c0[0])*f,
+        c0[1] + (c1[1]-c0[1])*f,
+        c0[2] + (c1[2]-c0[2])*f,
+      ];
+    }
+  }
+  return COLOR_STOPS[COLOR_STOPS.length-1][1];
+}
+
+// Compute surface z at normalized grid point (gx,gy) at time t.
+// Returns { z, colorT } where colorT drives the color mapping.
+function computeZ(gx, gy, t, triggers) {
+  const r2 = gx*gx + gy*gy;
+  const r  = Math.sqrt(r2);
+
+  // --- Dome baseline (paraboloid) ---
+  // Peak at center, falls off to 0 at unit circle edge.
+  const DOME_HEIGHT = 0.55;
+  const zBase = Math.max(0, (1 - r2 * 1.1)) * DOME_HEIGHT;
+
+  // --- Trigger deformation ---
+  // Risk triggers pull surface DOWN. Stable push slightly UP.
+  let zDeform = 0;
+  const DEFORM_MAX = 0.45;
+
+  for (const tr of triggers) {
+    const normalizedVal = tr.value / 100; // 0-1 (higher = more problematic)
+    // Sigma: how broadly the trigger spreads across surface
+    const sigma = 0.28 + (1 - tr.weight) * 0.18;
+    const g = gaussian(gx, gy, tr.x, tr.y, sigma);
+
+    if (tr.status === 'risk') {
+      // Strongly pulls surface down
+      zDeform -= g * tr.weight * normalizedVal * DEFORM_MAX;
+    } else if (tr.status === 'caution') {
+      // Moderately pulls down
+      zDeform -= g * tr.weight * normalizedVal * DEFORM_MAX * 0.5;
+    } else {
+      // Stable: slight upward convexity
+      zDeform += g * tr.weight * (1 - normalizedVal) * 0.06;
+    }
+  }
+
+  // --- Breathing animation ---
+  // Slow full-surface breath, slightly phase-shifted by radius
+  const BREATH_AMP  = 0.018;
+  const BREATH_FREQ = 0.7;
+  const zBreathe = Math.sin(t * BREATH_FREQ + r * 1.2) * BREATH_AMP;
+
+  // --- Risk ripples ---
+  // Active risk triggers emit pulsing rings from their epicentre
+  let zRipple = 0;
+  const RIPPLE_AMP   = 0.022;
+  const RIPPLE_FREQ  = 9.0;
+  const RIPPLE_SPEED = 2.8;
+  const RIPPLE_DECAY = 4.0;
+
+  for (const tr of triggers) {
+    if (tr.status !== 'risk') continue;
+    const dx = gx - tr.x, dy = gy - tr.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    // Outward ring that decays with distance
+    zRipple += Math.sin(dist * RIPPLE_FREQ - t * RIPPLE_SPEED)
+              * Math.exp(-dist * RIPPLE_DECAY)
+              * RIPPLE_AMP * tr.weight;
+  }
+
+  // --- Subtle terrain noise ---
+  // Low-frequency noise to break up uniformity — no library needed,
+  // use summed sine waves as a cheap pseudo-noise.
+  const zNoise = (
+    Math.sin(gx * 3.7 + t * 0.2) * Math.cos(gy * 2.9 + t * 0.15) * 0.008 +
+    Math.sin(gx * 6.1 - t * 0.1) * Math.cos(gy * 5.3 + t * 0.12) * 0.004
+  );
+
+  const zFinal = zBase + zDeform + zBreathe + zRipple + zNoise;
+
+  // colorT: 0 = worst (stressed), 1 = best (optimal)
+  // We map zFinal relative to the possible dome range
+  const colorT = clamp((zFinal) / (DOME_HEIGHT * 0.9), 0, 1);
+
+  return { z: zFinal, colorT };
+}
+
+// ============================================================
+// THREE.JS SCENE SETUP
+// ============================================================
+const GRID = 80; // NxN vertex grid — increase for more resolution, mind frame rate
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x04040A, 1);
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+
+// Subtle fog to sell depth
+scene.fog = new THREE.Fog(0x04040A, 3, 12);
+
+// Camera — angled view to show the surface in 3/4 perspective
+const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 50);
+camera.position.set(0, -2.1, 2.4);
+camera.lookAt(0, 0, 0);
+
+// Ambient + directional light to give the mesh some shading
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+scene.add(ambientLight);
+
+const dirLight = new THREE.DirectionalLight(0xc9a96e, 1.2);
+dirLight.position.set(1, -1, 2);
+scene.add(dirLight);
+
+const rimLight = new THREE.DirectionalLight(0x3060ff, 0.4);
+rimLight.position.set(-2, 2, 0.5);
+scene.add(rimLight);
+
+// ============================================================
+// SURFACE MESH CONSTRUCTION
+// ============================================================
+// BufferGeometry for maximum performance.
+// positions:  N*N * 3 floats (x, y, z per vertex)
+// colors:     N*N * 3 floats (r, g, b per vertex)
+// indices:    (N-1)*(N-1)*6 ints (two triangles per quad cell)
+
+const N = GRID;
+const vertexCount = N * N;
+const positions = new Float32Array(vertexCount * 3);
+const colors    = new Float32Array(vertexCount * 3);
+const normals   = new Float32Array(vertexCount * 3);
+
+// Build triangle index buffer — only done once
+const indices = [];
+for (let j = 0; j < N-1; j++) {
+  for (let i = 0; i < N-1; i++) {
+    const a = j * N + i;
+    const b = j * N + i + 1;
+    const c = (j+1) * N + i;
+    const d = (j+1) * N + i + 1;
+    // Two triangles per quad
+    indices.push(a, c, b);
+    indices.push(b, c, d);
+  }
+}
+
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+geometry.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
+geometry.setAttribute('normal',   new THREE.BufferAttribute(normals, 3));
+geometry.setIndex(indices);
+
+// vertexColors: true tells Three.js to use our per-vertex color array
+const material = new THREE.MeshPhongMaterial({
+  vertexColors: true,
+  side: THREE.DoubleSide,
+  shininess: 60,
+  specular: new THREE.Color(0x333333),
+});
+
+const mesh = new THREE.Mesh(geometry, material);
+// Scale surface to fill view nicely
+mesh.scale.set(2.2, 2.2, 1.4);
+scene.add(mesh);
+
+// Wireframe overlay for the grid-terrain look
+const wireMat = new THREE.MeshBasicMaterial({
+  vertexColors: true,
+  wireframe: true,
+  opacity: 0.12,
+  transparent: true,
+});
+const wireMesh = new THREE.Mesh(geometry, wireMat);
+wireMesh.scale.copy(mesh.scale);
+wireMesh.position.copy(mesh.position);
+scene.add(wireMesh);
+
+// ─── Helper: recompute all vertex positions + colors each frame ───
+const tmpNormal = new THREE.Vector3();
+const tmpA = new THREE.Vector3(), tmpB = new THREE.Vector3(), tmpC = new THREE.Vector3();
+
+function updateSurface(time) {
+  const pos = geometry.attributes.position;
+  const col = geometry.attributes.color;
+
+  // Track z range for normalisation
+  let zMin = Infinity, zMax = -Infinity;
+  const zCache = new Float32Array(vertexCount);
+
+  // Pass 1: compute z and raw colorT
+  for (let j = 0; j < N; j++) {
+    for (let i = 0; i < N; i++) {
+      const idx = j * N + i;
+      // Normalised grid coords: [-1, 1]
+      const gx = (i / (N-1)) * 2 - 1;
+      const gy = (j / (N-1)) * 2 - 1;
+
+      const { z, colorT } = computeZ(gx, gy, time, bioState.triggers);
+
+      pos.array[idx*3]   = gx;
+      pos.array[idx*3+1] = gy;
+      pos.array[idx*3+2] = z;
+
+      zCache[idx] = z;
+      if (z < zMin) zMin = z;
+      if (z > zMax) zMax = z;
+    }
+  }
+
+  // Pass 2: assign colors using global z range for consistent palette
+  const zRange = Math.max(0.001, zMax - zMin);
+  for (let idx = 0; idx < vertexCount; idx++) {
+    const t = (zCache[idx] - zMin) / zRange;
+    const [r,g,b] = mapColor(t);
+    col.array[idx*3]   = r;
+    col.array[idx*3+1] = g;
+    col.array[idx*3+2] = b;
+  }
+
+  pos.needsUpdate = true;
+  col.needsUpdate = true;
+  geometry.computeVertexNormals();
+}
+
+// ============================================================
+// ANIMATION LOOP
+// ============================================================
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  // Slow camera drift to give life to the scene
+  camera.position.x = Math.sin(t * 0.07) * 0.15;
+  camera.position.y = -2.1 + Math.sin(t * 0.11) * 0.08;
+  camera.lookAt(0, 0, 0.1);
+
+  updateSurface(t);
+  renderer.render(scene, camera);
+}
+
+animate();
+
+// ============================================================
+// RESIZE HANDLER
+// ============================================================
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ============================================================
+// UI — BUILD TRIGGER PANELS
+// ============================================================
+function statusColor(status) {
+  if (status === 'risk')    return '#ef4444';
+  if (status === 'caution') return '#f59e0b';
+  return '#22c55e';
+}
+
+function updateConditionPanel() {
+  // Recompute overall score from trigger values + statuses
+  let score = 100;
+  for (const tr of bioState.triggers) {
+    const penalty = (tr.value / 100) * tr.weight;
+    if (tr.status === 'risk')    score -= penalty * 18;
+    else if (tr.status === 'caution') score -= penalty * 8;
+  }
+  bioState.overallScore = Math.round(clamp(score, 0, 100));
+
+  const s = bioState.overallScore;
+  let condition, barColor;
+  if (s >= 80) { condition = 'thriving'; barColor = '#22c55e'; }
+  else if (s >= 65) { condition = 'strained but stable'; barColor = '#f59e0b'; }
+  else if (s >= 45) { condition = 'under load'; barColor = '#f97316'; }
+  else { condition = 'recovery required'; barColor = '#ef4444'; }
+
+  document.getElementById('condition-score').textContent = s;
+  document.getElementById('condition-text').textContent  = condition;
+  document.getElementById('score-bar').style.width       = s + '%';
+  document.getElementById('score-bar').style.background  = barColor;
+}
+
+// Build trigger slider rows
+const triggersList = document.getElementById('triggers-list');
+const miniStats    = document.getElementById('mini-stats');
+
+bioState.triggers.forEach((tr, idx) => {
+  // Full trigger row with slider
+  const row = document.createElement('div');
+  row.className = 'trigger-row';
+  row.innerHTML = `
+    <div class="trigger-row-header">
+      <span class="trigger-name">
+        <span class="trigger-dot" id="dot-${tr.id}" style="background:${statusColor(tr.status)}"></span>
+        ${tr.label}
+      </span>
+      <span class="trigger-val" id="val-${tr.id}">${tr.value}</span>
+    </div>
+    <input type="range" class="trigger-slider" min="0" max="100" value="${tr.value}"
+           data-id="${tr.id}">
+  `;
+  triggersList.appendChild(row);
+
+  // Mini stat in condition panel (top 4)
+  if (idx < 4) {
+    const ms = document.createElement('div');
+    ms.className = 'mini-stat';
+    ms.innerHTML = `
+      <span class="name" style="display:flex;align-items:center;gap:4px;">
+        <span class="dot" style="background:${statusColor(tr.status)};display:inline-block;"></span>
+        ${tr.label}
+      </span>
+      <span class="val" id="ms-${tr.id}">${tr.value}</span>
+    `;
+    miniStats.appendChild(ms);
+  }
+});
+
+// Wire slider events — update live state, recompute score
+triggersList.querySelectorAll('.trigger-slider').forEach(slider => {
+  slider.addEventListener('input', e => {
+    const id  = e.target.dataset.id;
+    const val = parseInt(e.target.value);
+    const tr  = bioState.triggers.find(t => t.id === id);
+    if (!tr) return;
+    tr.value = val;
+
+    // Update status based on new value
+    if (val >= 70)      tr.status = 'risk';
+    else if (val >= 40) tr.status = 'caution';
+    else                tr.status = 'stable';
+
+    document.getElementById('val-' + id).textContent = val;
+    const dot = document.getElementById('dot-' + id);
+    if (dot) dot.style.background = statusColor(tr.status);
+    const ms = document.getElementById('ms-' + id);
+    if (ms) ms.textContent = val;
+
+    updateConditionPanel();
+  });
+});
+
+updateConditionPanel();
+
+// ============================================================
+// HOVER TOOLTIP — raycasting on trigger positions
+// ============================================================
+// We create invisible sphere markers at each trigger's surface
+// position and raycast against them for hover detection.
+const raycaster = new THREE.Raycaster();
+const mouse     = new THREE.Vector2();
+const markers   = [];
+const tooltip   = document.getElementById('tooltip');
+const ttLabel   = document.getElementById('tooltip-label');
+const ttVal     = document.getElementById('tooltip-val');
+
+bioState.triggers.forEach(tr => {
+  const geo = new THREE.SphereGeometry(0.06, 8, 8);
+  const mat = new THREE.MeshBasicMaterial({ visible: false });
+  const marker = new THREE.Mesh(geo, mat);
+  marker.userData.trigger = tr;
+  // Position marker at scaled surface coords
+  marker.position.set(tr.x * 2.2, tr.y * 2.2, 0.5);
+  scene.add(marker);
+  markers.push(marker);
+});
+
+window.addEventListener('mousemove', e => {
+  mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(markers);
+
+  if (hits.length > 0) {
+    const tr = hits[0].object.userData.trigger;
+    ttLabel.textContent = tr.label;
+    ttVal.textContent   = `Value: ${tr.value} · Status: ${tr.status}`;
+    tooltip.style.display = 'block';
+    tooltip.style.left    = (e.clientX + 14) + 'px';
+    tooltip.style.top     = (e.clientY - 10) + 'px';
+  } else {
+    tooltip.style.display = 'none';
+  }
+});
+
+// ============================================================
+// HOW TO CONNECT REAL BIOMARKER DATA
+// ============================================================
+// Replace mockBioState.triggers values at runtime:
+//
+//   async function loadWhoopData() {
+//     const res  = await fetch('/api/data');
+//     const data = await res.json();
+//     const hrv  = bioState.triggers.find(t => t.id === 'hrv_drop');
+//     if (hrv && data.hrv !== null) {
+//       hrv.value = Math.round((1 - data.hrv / 120) * 100); // invert: low HRV = high risk
+//     }
+//     // ... map other fields similarly
+//     updateConditionPanel();
+//   }
+//
+//   setInterval(loadWhoopData, 30000); // poll every 30s
+//   loadWhoopData();
+//
+// Apple Health / Garmin / Oura follow the same pattern:
+// fetch their values from your backend → map to 0-100 risk scale
+// → write into bioState.triggers[x].value → surface updates automatically.
+</script>
+</body>
+</html>

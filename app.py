@@ -101,6 +101,10 @@ def cells():
 def biobaseline():
     return send_from_directory(BASE, 'biobaseline-chart.html')
 
+@app.route('/biosurface')
+def biosurface():
+    return send_from_directory(BASE, 'biosurface.html')
+
 @app.route('/rootcause')
 def rootcause():
     resp = make_response(send_from_directory(BASE, 'rootcause-network.html'))
