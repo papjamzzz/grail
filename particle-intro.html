@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AILIV — Particle Runner Intro</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #030208; overflow: hidden; height: 100vh; width: 100vw; }
+  canvas { display: block; }
+  #skip {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    cursor: pointer;
+    z-index: 10;
+    transition: color 0.2s;
+  }
+  #skip:hover { color: rgba(255,255,255,0.6); }
+  #label {
+    position: fixed;
+    bottom: 24px; left: 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(200,64,64,0.5);
+    z-index: 10;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="label">AILIV — Particle Runner</div>
+<div id="skip">Click to skip →</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script>
+(function rootsIntro() {
+
+  // ── TIMING ─────────────────────────────────────────────────
+  const T_FORM    = 1.1;   // scattered particles → figure
+  const T_HOLD    = 0.35;  // hold formed figure
+  const T_CHARGE  = 2.2;   // figure charges toward camera
+  const T_EXPLODE = 1.6;   // explosion scatter
+  const T_FADE    = 0.8;   // fade to black / next page
+  const N         = 2600;  // particle count
+
+  // ── RUNNER SILHOUETTE ──────────────────────────────────────
+  // Mid-stride pose. Segments weighted by visual importance.
+  // Coordinates in normalized [-0.5, 0.5] space.
+  const SEGMENTS = [
+    { type:'circle', cx:0.02,  cy:0.84,  r:0.095, w:3.5 },  // head
+    { type:'line', x1:0.02,  y1:0.745, x2:0.02,  y2:0.675, w:1.2 },  // neck
+    { type:'line', x1:0.02,  y1:0.675, x2:-0.04, y2:0.29,  w:3.5 },  // torso
+    { type:'line', x1:0.09,  y1:0.56,  x2:0.30,  y2:0.40,  w:2.2 },  // right arm upper
+    { type:'line', x1:0.30,  y1:0.40,  x2:0.36,  y2:0.20,  w:1.8 },  // right arm lower
+    { type:'line', x1:-0.05, y1:0.56,  x2:-0.26, y2:0.46,  w:2.2 },  // left arm upper
+    { type:'line', x1:-0.26, y1:0.46,  x2:-0.22, y2:0.66,  w:1.8 },  // left arm bent up
+    { type:'line', x1:0.02,  y1:0.29,  x2:0.22,  y2:0.02,  w:3.0 },  // right thigh
+    { type:'line', x1:0.22,  y1:0.02,  x2:0.30,  y2:-0.38, w:3.0 },  // right shin
+    { type:'line', x1:0.30,  y1:-0.38, x2:0.44,  y2:-0.44, w:1.2 },  // right foot
+    { type:'line', x1:-0.06, y1:0.29,  x2:-0.16, y2:-0.06, w:3.0 },  // left thigh
+    { type:'line', x1:-0.16, y1:-0.06, x2:-0.20, y2:-0.40, w:3.0 },  // left shin
+    { type:'line', x1:-0.20, y1:-0.40, x2:-0.08, y2:-0.50, w:1.2 },  // left foot
+  ];
+
+  function buildFigurePoints(count) {
+    const totalW = SEGMENTS.reduce((s, seg) => s + seg.w, 0);
+    const pts = [];
+    for (const seg of SEGMENTS) {
+      const n = Math.round(count * seg.w / totalW);
+      if (seg.type === 'circle') {
+        for (let i = 0; i < n; i++) {
+          const a = (i / n) * Math.PI * 2;
+          const j = (Math.random() - 0.5) * 0.018;
+          pts.push([ seg.cx + (seg.r + j) * Math.cos(a),
+                     seg.cy + (seg.r + j) * Math.sin(a) ]);
+        }
+      } else {
+        for (let i = 0; i < n; i++) {
+          const t = n > 1 ? i / (n - 1) : 0;
+          const j = (Math.random() - 0.5) * 0.012;
+          pts.push([ seg.x1 + (seg.x2 - seg.x1) * t + j,
+                     seg.y1 + (seg.y2 - seg.y1) * t + j ]);
+        }
+      }
+    }
+    while (pts.length < count) pts.push([...pts[Math.floor(Math.random() * pts.length)]]);
+    return pts.slice(0, count);
+  }
+
+  // ── SCENE ──────────────────────────────────────────────────
+  const canvas   = document.getElementById('c');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setClearColor(0x030208, 1);
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(58, innerWidth / innerHeight, 0.01, 100);
+  camera.position.z = 2.6;
+
+  // ── PARTICLES ──────────────────────────────────────────────
+  const figPts = buildFigurePoints(N);
+  const pos = new Float32Array(N * 3);
+  const col = new Float32Array(N * 3);
+  const sx = new Float32Array(N), sy = new Float32Array(N), sz = new Float32Array(N);
+  const tx = new Float32Array(N), ty = new Float32Array(N);
+  const vx = new Float32Array(N), vy = new Float32Array(N), vz2 = new Float32Array(N);
+
+  for (let i = 0; i < N; i++) {
+    sx[i] = (Math.random() - 0.5) * 7;
+    sy[i] = (Math.random() - 0.5) * 7;
+    sz[i] = (Math.random() - 0.5) * 4;
+    tx[i] = figPts[i][0];
+    ty[i] = figPts[i][1];
+    pos[i*3] = sx[i]; pos[i*3+1] = sy[i]; pos[i*3+2] = sz[i];
+    col[i*3]   = 0.75 + Math.random() * 0.25;
+    col[i*3+1] = 0.12 + Math.random() * 0.22;
+    col[i*3+2] = 0.06 + Math.random() * 0.08;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2.0 + Math.random() * 4.5;
+    vx[i]  = Math.cos(angle) * speed;
+    vy[i]  = Math.sin(angle) * speed * 0.75 + Math.random() * 1.8;
+    vz2[i] = (Math.random() - 0.4) * 2.5;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color',    new THREE.BufferAttribute(col, 3));
+
+  const mat = new THREE.PointsMaterial({
+    size: 0.022, vertexColors: true, transparent: true,
+    opacity: 1, depthWrite: false, blending: THREE.AdditiveBlending,
+    sizeAttenuation: true,
+  });
+
+  const pts = new THREE.Points(geo, mat);
+  scene.add(pts);
+
+  // ── EASING ─────────────────────────────────────────────────
+  const easeInOut  = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+  const easeOut    = t => 1-(1-t)*(1-t);
+  const easeIn     = t => t*t;
+  const easeInCube = t => t*t*t;
+
+  // ── STATE ──────────────────────────────────────────────────
+  let phase = 'FORM', phaseT = performance.now() / 1000;
+  let explodeSnap = null, done = false;
+
+  function finish() {
+    if (done) return;
+    done = true;
+    canvas.style.transition = 'opacity 0.5s';
+    canvas.style.opacity = '0';
+    // If embedded: dispatch event so parent page can react
+    window.dispatchEvent(new Event('particle-intro-done'));
+  }
+
+  document.getElementById('skip').addEventListener('click', finish);
+  canvas.addEventListener('click', finish);
+
+  // ── LOOP ───────────────────────────────────────────────────
+  function tick() {
+    if (done) return;
+    requestAnimationFrame(tick);
+    const now = performance.now() / 1000;
+    const el  = now - phaseT;
+    const posArr = geo.attributes.position.array;
+    const colArr = geo.attributes.color.array;
+
+    if (phase === 'FORM') {
+      const t = Math.min(el / T_FORM, 1), te = easeInOut(t);
+      for (let i = 0; i < N; i++) {
+        posArr[i*3]   = sx[i] + (tx[i] - sx[i]) * te;
+        posArr[i*3+1] = sy[i] + (ty[i] - sy[i]) * te;
+        posArr[i*3+2] = sz[i] * (1 - te);
+      }
+      geo.attributes.position.needsUpdate = true;
+      if (t >= 1) { phase = 'HOLD'; phaseT = now; }
+
+    } else if (phase === 'HOLD') {
+      if (el >= T_HOLD) { phase = 'CHARGE'; phaseT = now; }
+
+    } else if (phase === 'CHARGE') {
+      const t = Math.min(el / T_CHARGE, 1), te = easeInCube(t);
+      pts.scale.set(1 + te * 4.2, 1 + te * 4.2, 1);
+      if (t > 0.85) {
+        const shk = ((t - 0.85) / 0.15) * 0.03;
+        camera.position.x = (Math.random() - 0.5) * shk;
+        camera.position.y = (Math.random() - 0.5) * shk;
+      }
+      const heat = te * 0.85;
+      for (let i = 0; i < N; i++) {
+        colArr[i*3]   = Math.min(1, 0.75 + heat);
+        colArr[i*3+1] = Math.min(1, 0.12 + heat * 1.5);
+        colArr[i*3+2] = Math.min(1, 0.06 + heat * 1.5);
+      }
+      geo.attributes.color.needsUpdate = true;
+      if (t >= 1) {
+        explodeSnap = new Float32Array(posArr);
+        for (let i = 0; i < N; i++) { colArr[i*3]=1; colArr[i*3+1]=1; colArr[i*3+2]=1; }
+        geo.attributes.color.needsUpdate = true;
+        camera.position.set(0, 0, 2.6);
+        phase = 'EXPLODE'; phaseT = now;
+      }
+
+    } else if (phase === 'EXPLODE') {
+      const t = Math.min(el / T_EXPLODE, 1);
+      const decay = Math.exp(-el * 2.2), sc = pts.scale.x;
+      for (let i = 0; i < N; i++) {
+        posArr[i*3]   = explodeSnap[i*3]   + vx[i]  * el * decay * sc * 0.28;
+        posArr[i*3+1] = explodeSnap[i*3+1] + vy[i]  * el * decay * sc * 0.28;
+        posArr[i*3+2] = explodeSnap[i*3+2] + vz2[i] * el * decay;
+        const fade = 1 - easeIn(t);
+        colArr[i*3] = 0.9*fade; colArr[i*3+1] = 0.18*fade; colArr[i*3+2] = 0.08*fade;
+      }
+      geo.attributes.position.needsUpdate = true;
+      geo.attributes.color.needsUpdate    = true;
+      mat.opacity = 1 - easeIn(Math.min(t * 1.3, 1));
+      if (t >= 1) { phase = 'FADE'; phaseT = now; }
+
+    } else if (phase === 'FADE') {
+      const t = Math.min(el / T_FADE, 1);
+      renderer.setClearColor(0x030208, 1 - easeOut(t));
+      mat.opacity = 0;
+      if (t >= 1) { finish(); return; }
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  window.addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+
+  setTimeout(tick, 80);
+
+  // ── HOW TO EMBED IN ANOTHER PAGE ───────────────────────────
+  // 1. Load this file in an <iframe> or inline the <script> block.
+  // 2. Listen for the 'particle-intro-done' event on window:
+  //      window.addEventListener('particle-intro-done', () => { showYourPage(); });
+  // 3. Or use it standalone — it fades to transparent when done.
+
+})();
+</script>
+</body>
+</html>

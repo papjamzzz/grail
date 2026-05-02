@@ -105,6 +105,10 @@ def biobaseline():
 def biosurface():
     return send_from_directory(BASE, 'biosurface.html')
 
+@app.route('/particle-intro')
+def particle_intro():
+    return send_from_directory(BASE, 'particle-intro.html')
+
 @app.route('/rootcause')
 def rootcause():
     resp = make_response(send_from_directory(BASE, 'rootcause-network.html'))
