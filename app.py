@@ -109,6 +109,14 @@ def biosurface():
 def particle_intro():
     return send_from_directory(BASE, 'particle-intro.html')
 
+@app.route('/lumi')
+def lumi():
+    return send_from_directory(BASE, 'lumi.html')
+
+@app.route('/sloany')
+def sloany():
+    return send_from_directory(BASE, 'sloany.html')
+
 @app.route('/rootcause')
 def rootcause():
     resp = make_response(send_from_directory(BASE, 'rootcause-network.html'))
