@@ -14,267 +14,191 @@
     overflow-x: hidden;
     font-family: 'Space Grotesk', sans-serif;
     color: #fff;
+    padding-bottom: 110px;
   }
 
-  /* ── CANVAS (stars + nebula) ── */
-  #starfield {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-  }
+  #starfield { position: fixed; inset: 0; z-index: 0; }
 
-  /* ── NEBULA LAYERS ── */
+  /* ── NEBULA ── */
   .nebula {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(80px);
-    pointer-events: none;
-    z-index: 1;
+    position: fixed; border-radius: 50%;
+    filter: blur(80px); pointer-events: none; z-index: 1;
     animation: drift ease-in-out infinite;
   }
-  .neb-1 {
-    width: 500px; height: 500px;
-    top: -100px; left: -100px;
-    background: radial-gradient(circle, rgba(90,30,160,0.35) 0%, transparent 70%);
-    animation-duration: 18s;
-  }
-  .neb-2 {
-    width: 600px; height: 600px;
-    bottom: -150px; right: -150px;
-    background: radial-gradient(circle, rgba(0,150,180,0.28) 0%, transparent 70%);
-    animation-duration: 24s;
-    animation-delay: -8s;
-  }
-  .neb-3 {
-    width: 400px; height: 400px;
-    top: 40%; left: 30%;
-    background: radial-gradient(circle, rgba(180,60,200,0.18) 0%, transparent 70%);
-    animation-duration: 30s;
-    animation-delay: -4s;
-  }
-
+  .neb-1 { width:500px;height:500px; top:-100px;left:-100px; background:radial-gradient(circle,rgba(90,30,160,0.35) 0%,transparent 70%); animation-duration:18s; }
+  .neb-2 { width:600px;height:600px; bottom:-150px;right:-150px; background:radial-gradient(circle,rgba(0,150,180,0.28) 0%,transparent 70%); animation-duration:24s; animation-delay:-8s; }
+  .neb-3 { width:400px;height:400px; top:40%;left:30%; background:radial-gradient(circle,rgba(180,60,200,0.18) 0%,transparent 70%); animation-duration:30s; animation-delay:-4s; }
   @keyframes drift {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33%       { transform: translate(30px, -20px) scale(1.06); }
-    66%       { transform: translate(-20px, 15px) scale(0.96); }
+    0%,100% { transform:translate(0,0) scale(1); }
+    33%      { transform:translate(30px,-20px) scale(1.06); }
+    66%      { transform:translate(-20px,15px) scale(0.96); }
   }
 
-  /* ── WORMHOLE RING ── */
+  /* ── WORMHOLE RINGS ── */
   #wormhole {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    pointer-events: none;
+    position: fixed; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    z-index: 2; pointer-events: none;
   }
-
   .wring {
-    position: absolute;
-    border-radius: 50%;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
+    position: absolute; border-radius: 50%;
+    top:50%; left:50%; transform:translate(-50%,-50%);
     border: 1px solid transparent;
   }
-
-  .wring-1 {
-    width: 280px; height: 280px;
-    border-color: rgba(160,80,255,0.5);
-    box-shadow: 0 0 30px rgba(160,80,255,0.15), inset 0 0 30px rgba(160,80,255,0.08);
-    animation: wspin 18s linear infinite;
-  }
-  .wring-2 {
-    width: 380px; height: 380px;
-    border-color: rgba(0,180,220,0.35);
-    box-shadow: 0 0 50px rgba(0,180,220,0.10);
-    animation: wspin 28s linear infinite reverse;
-  }
-  .wring-3 {
-    width: 500px; height: 500px;
-    border-color: rgba(160,80,255,0.18);
-    animation: wspin 42s linear infinite;
-  }
-  .wring-4 {
-    width: 640px; height: 640px;
-    border-color: rgba(0,160,200,0.09);
-    animation: wspin 58s linear infinite reverse;
-  }
-
+  .wring-1 { width:280px;height:280px; border-color:rgba(160,80,255,0.5); box-shadow:0 0 30px rgba(160,80,255,0.15); animation:wspin 18s linear infinite; }
+  .wring-2 { width:380px;height:380px; border-color:rgba(0,180,220,0.35); animation:wspin 28s linear infinite reverse; }
+  .wring-3 { width:500px;height:500px; border-color:rgba(160,80,255,0.18); animation:wspin 42s linear infinite; }
+  .wring-4 { width:640px;height:640px; border-color:rgba(0,160,200,0.09); animation:wspin 58s linear infinite reverse; }
   @keyframes wspin {
-    from { transform: translate(-50%, -50%) rotate(0deg); }
-    to   { transform: translate(-50%, -50%) rotate(360deg); }
+    from { transform:translate(-50%,-50%) rotate(0deg); }
+    to   { transform:translate(-50%,-50%) rotate(360deg); }
   }
 
-  /* ── FOOTPRINT GHOST (inside rings) ── */
+  /* ── FOOTPRINT GHOST ── */
   #feet-ghost {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    overflow: hidden;
-    z-index: 3;
-    pointer-events: none;
+    position: absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:220px; height:220px;
+    border-radius:50%; overflow:hidden;
+    z-index:3; pointer-events:none;
   }
-
   #feet-ghost img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    filter: grayscale(1) brightness(0.6) contrast(1.4) hue-rotate(260deg) saturate(2);
-    opacity: 0.28;
-    animation: ghost-pulse 9s ease-in-out infinite;
+    width:100%; height:100%; object-fit:cover;
+    filter:grayscale(1) brightness(0.6) contrast(1.4) hue-rotate(260deg) saturate(2);
+    opacity:0.28;
+    animation:ghost-pulse 9s ease-in-out infinite;
   }
-
   @keyframes ghost-pulse {
-    0%, 100% { opacity: 0.28; }
-    50%       { opacity: 0.48; }
+    0%,100% { opacity:0.22; }
+    50%      { opacity:0.42; }
   }
 
-  /* Wormhole center glow */
   #worm-glow {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(120,50,220,0.08) 0%, transparent 70%);
-    box-shadow: 0 0 100px rgba(120,50,220,0.15);
-    animation: wbreathe 7s ease-in-out infinite;
-    z-index: 2;
-    pointer-events: none;
+    position: fixed; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:180px; height:180px; border-radius:50%;
+    background:radial-gradient(circle,rgba(120,50,220,0.08) 0%,transparent 70%);
+    box-shadow:0 0 100px rgba(120,50,220,0.15);
+    animation:wbreathe 7s ease-in-out infinite;
+    z-index:2; pointer-events:none;
   }
-
   @keyframes wbreathe {
-    0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-    50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.2); }
+    0%,100% { opacity:0.5; transform:translate(-50%,-50%) scale(1); }
+    50%      { opacity:1;   transform:translate(-50%,-50%) scale(1.2); }
   }
 
   /* ── CONTENT ── */
   #content {
-    position: relative;
-    z-index: 10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    padding: 60px 24px 80px;
+    position:relative; z-index:10;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:0; padding:60px 24px 40px;
   }
 
-  /* ── PHOTO FRAME ── */
-  #photo-wrap {
-    margin-bottom: 48px;
-    opacity: 0;
-    animation: fade-up 1s ease 0.4s forwards;
-  }
-
-  #photo-frame {
-    width: min(200px, 52vw);
-    height: min(200px, 52vw);
-    border-radius: 50%;
-    overflow: hidden;
-    border: 1px solid rgba(160,80,255,0.45);
-    box-shadow:
-      0 0 0 8px rgba(160,80,255,0.06),
-      0 0 0 16px rgba(0,180,220,0.03),
-      0 0 60px rgba(120,50,220,0.25),
-      0 0 100px rgba(0,150,200,0.12);
-  }
-
-  #photo-frame img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  /* ── NAME ── */
   #name {
-    font-size: clamp(3rem, 16vw, 6rem);
-    font-weight: 300;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #fff;
-    text-shadow:
-      0 0 40px rgba(160,80,255,0.6),
-      0 0 80px rgba(0,180,220,0.25),
-      0 0 120px rgba(120,50,220,0.15);
-    margin-bottom: 40px;
-    opacity: 0;
-    animation: fade-up 1s ease 1.0s forwards;
+    font-size:clamp(3rem,16vw,6rem); font-weight:300;
+    letter-spacing:0.22em; text-transform:uppercase;
+    text-shadow:0 0 40px rgba(160,80,255,0.6),0 0 80px rgba(0,180,220,0.25);
+    margin-bottom:40px; opacity:0;
+    animation:fade-up 1s ease 1.0s forwards;
   }
 
-  /* ── MESSAGE CARD ── */
   #card {
-    max-width: 360px;
-    width: 100%;
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(160,80,255,0.2);
-    border-radius: 4px;
-    padding: 28px 28px 24px;
-    box-shadow: 0 0 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(160,80,255,0.08);
-    opacity: 0;
-    animation: fade-up 1s ease 1.6s forwards;
-    margin-bottom: 36px;
+    max-width:360px; width:100%;
+    background:rgba(255,255,255,0.025);
+    border:1px solid rgba(160,80,255,0.2);
+    border-radius:4px; padding:28px 28px 24px;
+    box-shadow:0 0 40px rgba(0,0,0,0.7),inset 0 1px 0 rgba(160,80,255,0.08);
+    opacity:0; animation:fade-up 1s ease 1.6s forwards;
+    margin-bottom:28px;
   }
-
   #card-label {
-    font-size: 9px;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: rgba(160,80,255,0.55);
-    margin-bottom: 16px;
+    font-size:9px; letter-spacing:0.35em; text-transform:uppercase;
+    color:rgba(160,80,255,0.55); margin-bottom:16px;
   }
-
   #card-text {
-    font-family: 'Caveat', cursive;
-    font-size: clamp(1.1rem, 4.5vw, 1.35rem);
-    color: rgba(255,255,255,0.85);
-    line-height: 1.75;
+    font-family:'Caveat',cursive;
+    font-size:clamp(1.1rem,4.5vw,1.35rem);
+    color:rgba(255,255,255,0.85); line-height:1.75;
   }
+  #card-text em { color:rgba(160,80,255,0.95); font-style:normal; font-weight:600; }
 
-  #card-text em {
-    color: rgba(160,80,255,0.95);
-    font-style: normal;
-    font-weight: 600;
+  /* ── IMAGE CARDS ── */
+  .img-cards {
+    display:flex; gap:14px; justify-content:center;
+    max-width:360px; width:100%;
+    opacity:0; animation:fade-up 1s ease 2.0s forwards;
+    margin-bottom:28px;
   }
+  .img-card {
+    flex:1; max-width:160px;
+    border-radius:8px; overflow:hidden;
+    border:1px solid rgba(160,80,255,0.25);
+    box-shadow:0 4px 20px rgba(0,0,0,0.5);
+  }
+  .img-card img { width:100%; height:130px; object-fit:cover; display:block; }
 
-  /* ── PAPITO ── */
   #papito {
-    font-size: clamp(0.75rem, 3.2vw, 0.9rem);
-    font-weight: 300;
-    letter-spacing: 0.18em;
-    color: rgba(120,80,200,0.55);
-    text-transform: uppercase;
-    opacity: 0;
-    animation: fade-up 1s ease 2.3s forwards;
+    font-size:clamp(0.75rem,3.2vw,0.9rem); font-weight:300;
+    letter-spacing:0.18em; color:rgba(120,80,200,0.55);
+    text-transform:uppercase;
+    opacity:0; animation:fade-up 1s ease 2.5s forwards;
   }
 
   @keyframes fade-up {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* ── BOOMBOX ── */
+  #boombox-wrap {
+    position:fixed; bottom:0; left:0; right:0; z-index:100;
+    display:flex; justify-content:center; align-items:center;
+    padding:12px 0 16px;
+    background:linear-gradient(to top,rgba(2,0,8,0.95) 0%,rgba(2,0,8,0.7) 100%);
+    backdrop-filter:blur(10px);
+  }
+  #boom-btn {
+    background:none; border:none; cursor:pointer; padding:0;
+    filter:drop-shadow(0 0 12px rgba(160,80,255,0.3));
+    transition:filter 0.3s;
+  }
+  #boom-btn:hover { filter:drop-shadow(0 0 20px rgba(160,80,255,0.5)); }
+  #boom-btn.playing { filter:drop-shadow(0 0 18px rgba(160,80,255,0.6)); }
+
+  .bb-led { transition:opacity 0.3s; }
+  #boom-btn.playing .bb-led { opacity:1 !important; }
+
+  .eq-bar { transform-origin:bottom; }
+  #boom-btn.playing .eq-bar { animation:eq-bounce 0.6s ease-in-out infinite alternate; }
+  #boom-btn.playing #eq1 { animation-delay:0.00s; }
+  #boom-btn.playing #eq2 { animation-delay:0.10s; }
+  #boom-btn.playing #eq3 { animation-delay:0.20s; }
+  #boom-btn.playing #eq4 { animation-delay:0.15s; }
+  #boom-btn.playing #eq5 { animation-delay:0.05s; }
+  #boom-btn.playing #eq6 { animation-delay:0.25s; }
+  @keyframes eq-bounce {
+    from { transform:scaleY(0.3); }
+    to   { transform:scaleY(1.4); }
+  }
+
+  .boom-hint {
+    position:absolute; bottom:2px;
+    font-size:9px; letter-spacing:0.2em;
+    color:rgba(160,80,255,0.35); text-transform:uppercase;
   }
 </style>
 </head>
 <body>
 
 <canvas id="starfield"></canvas>
-
 <div class="nebula neb-1"></div>
 <div class="nebula neb-2"></div>
 <div class="nebula neb-3"></div>
-
 <div id="worm-glow"></div>
 <div id="wormhole">
-  <div id="feet-ghost">
-    <img src="/static/footprints.jpg" alt="">
-  </div>
+  <div id="feet-ghost"><img src="/static/footprints.jpg" alt=""></div>
   <div class="wring wring-1"></div>
   <div class="wring wring-2"></div>
   <div class="wring wring-3"></div>
@@ -299,53 +223,119 @@
     </div>
   </div>
 
+  <div class="img-cards">
+    <div class="img-card">
+      <img src="/static/spongebob.jpg" alt="SpongeBob" onerror="this.parentElement.style.display='none'">
+    </div>
+    <div class="img-card">
+      <img src="/static/squidward.jpg" alt="Squidward" onerror="this.parentElement.style.display='none'">
+    </div>
+  </div>
+
   <div id="papito">you are magico to me — papito</div>
 </div>
+
+<!-- BOOMBOX -->
+<div id="boombox-wrap">
+  <button id="boom-btn" onclick="toggleMusic()" title="tap to play">
+    <svg width="200" height="88" viewBox="0 0 200 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bb-stripe-s" x1="0" y1="0" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#a050ff"/>
+          <stop offset="50%" stop-color="#00b4dc"/>
+          <stop offset="100%" stop-color="#a050ff"/>
+        </linearGradient>
+      </defs>
+      <rect x="0.75" y="10" width="198.5" height="76" rx="9" fill="#06020e" stroke="#1a0830" stroke-width="1.5"/>
+      <rect x="0.75" y="10" width="198.5" height="4" rx="2" fill="url(#bb-stripe-s)"/>
+      <line x1="168" y1="10" x2="184" y2="1" stroke="#a050ff" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="184" cy="1" r="2.5" fill="#a050ff" opacity="0.85"/>
+      <!-- LEFT SPEAKER -->
+      <rect x="4" y="15" width="58" height="65" rx="6" fill="#060010" stroke="#a050ff" stroke-width="1.4"/>
+      <circle cx="33" cy="47" r="23" fill="#080018" stroke="#a050ff" stroke-width="1" opacity="0.9"/>
+      <circle cx="33" cy="47" r="15" fill="#0a0020" stroke="#a050ff" stroke-width="0.7" opacity="0.7"/>
+      <circle cx="33" cy="47" r="8"  fill="#0d0028" stroke="#a050ff" stroke-width="0.5"/>
+      <circle class="bb-led" cx="33" cy="47" r="3.5" fill="#a050ff" opacity="0.2"/>
+      <circle cx="11" cy="21" r="2" fill="#a050ff" opacity="0.15"/>
+      <circle cx="55" cy="21" r="2" fill="#a050ff" opacity="0.15"/>
+      <circle cx="11" cy="73" r="2" fill="#a050ff" opacity="0.15"/>
+      <circle cx="55" cy="73" r="2" fill="#a050ff" opacity="0.15"/>
+      <!-- RIGHT SPEAKER -->
+      <rect x="138" y="15" width="58" height="65" rx="6" fill="#000810" stroke="#00b4dc" stroke-width="1.4"/>
+      <circle cx="167" cy="47" r="23" fill="#000c18" stroke="#00b4dc" stroke-width="1" opacity="0.9"/>
+      <circle cx="167" cy="47" r="15" fill="#000e20" stroke="#00b4dc" stroke-width="0.7" opacity="0.7"/>
+      <circle cx="167" cy="47" r="8"  fill="#001028" stroke="#00b4dc" stroke-width="0.5"/>
+      <circle class="bb-led" cx="167" cy="47" r="3.5" fill="#00b4dc" opacity="0.2"/>
+      <circle cx="145" cy="21" r="2" fill="#00b4dc" opacity="0.15"/>
+      <circle cx="189" cy="21" r="2" fill="#00b4dc" opacity="0.15"/>
+      <circle cx="145" cy="73" r="2" fill="#00b4dc" opacity="0.15"/>
+      <circle cx="189" cy="73" r="2" fill="#00b4dc" opacity="0.15"/>
+      <!-- CENTER DISPLAY -->
+      <rect x="65" y="15" width="70" height="65" rx="4" fill="#040008" stroke="#1a0830" stroke-width="1"/>
+      <rect x="67" y="17" width="66" height="61" rx="3" fill="#060010" stroke="rgba(160,80,255,0.18)" stroke-width="0.5"/>
+      <!-- EQ bars -->
+      <rect class="eq-bar" id="eq1" x="71"  y="56" width="6" height="15" rx="1.5" fill="#a050ff" opacity="0.9"/>
+      <rect class="eq-bar" id="eq2" x="80"  y="50" width="6" height="21" rx="1.5" fill="#8840ee" opacity="0.9"/>
+      <rect class="eq-bar" id="eq3" x="89"  y="44" width="6" height="27" rx="1.5" fill="#00b4dc" opacity="0.9"/>
+      <rect class="eq-bar" id="eq4" x="98"  y="48" width="6" height="23" rx="1.5" fill="#20c4e8" opacity="0.9"/>
+      <rect class="eq-bar" id="eq5" x="107" y="53" width="6" height="18" rx="1.5" fill="#a050ff" opacity="0.9"/>
+      <rect class="eq-bar" id="eq6" x="116" y="59" width="6" height="12" rx="1.5" fill="#8840ee" opacity="0.9"/>
+      <line x1="69" y1="72" x2="124" y2="72" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+      <circle class="bb-led" cx="127" cy="23" r="3" fill="#a050ff" opacity="0.25"/>
+      <rect x="70" y="74" width="50" height="5" rx="1.5" fill="#06000e" stroke="rgba(255,255,255,0.07)" stroke-width="0.5"/>
+      <rect x="84" y="75.5" width="22" height="2" rx="1" fill="rgba(255,255,255,0.04)"/>
+    </svg>
+  </button>
+  <div class="boom-hint">tap to play</div>
+</div>
+
+<audio id="music" loop src="/static/perfect.mp3"></audio>
 
 <script>
 const canvas = document.getElementById('starfield');
 const ctx = canvas.getContext('2d');
 let stars = [];
-
 function resize() {
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = innerWidth; canvas.height = innerHeight;
   stars = [];
   const n = Math.floor(canvas.width * canvas.height / 1600);
   for (let i = 0; i < n; i++) {
-    // occasional colored stars for nebula feel
     const tint = Math.random();
-    let r, g, b;
-    if (tint < 0.15) { r = 200; g = 150; b = 255; }      // violet
-    else if (tint < 0.25) { r = 100; g = 220; b = 255; } // cyan
-    else { r = 255; g = 245; b = 255; }                   // white
-    stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.3,
-      a: 0.2 + Math.random() * 0.8,
-      speed: 0.002 + Math.random() * 0.005,
-      phase: Math.random() * Math.PI * 2,
-      cr: r, cg: g, cb: b,
-    });
+    let r,g,b;
+    if (tint < 0.15)      { r=200;g=150;b=255; }
+    else if (tint < 0.25) { r=100;g=220;b=255; }
+    else                  { r=255;g=245;b=255; }
+    stars.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+      r:Math.random()*1.3, a:0.2+Math.random()*0.8,
+      speed:0.002+Math.random()*0.005, phase:Math.random()*Math.PI*2, cr:r,cg:g,cb:b });
   }
 }
-
 function draw(t) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   for (const s of stars) {
-    const alpha = s.a * (0.3 + 0.7 * Math.abs(Math.sin(t * s.speed + s.phase)));
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha})`;
-    ctx.fill();
+    const alpha = s.a*(0.3+0.7*Math.abs(Math.sin(t*s.speed+s.phase)));
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${s.cr},${s.cg},${s.cb},${alpha})`; ctx.fill();
   }
   requestAnimationFrame(draw);
 }
+resize(); window.addEventListener('resize',resize); requestAnimationFrame(draw);
 
-resize();
-window.addEventListener('resize', resize);
-requestAnimationFrame(draw);
+// Boombox
+const audio = document.getElementById('music');
+const btn   = document.getElementById('boom-btn');
+const hint  = document.querySelector('.boom-hint');
+function toggleMusic() {
+  if (audio.paused) {
+    audio.play();
+    btn.classList.add('playing');
+    hint.textContent = 'now playing';
+  } else {
+    audio.pause();
+    btn.classList.remove('playing');
+    hint.textContent = 'tap to play';
+  }
+}
 </script>
 </body>
 </html>

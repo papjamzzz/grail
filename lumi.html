@@ -14,20 +14,15 @@
     overflow-x: hidden;
     font-family: 'Space Grotesk', sans-serif;
     color: #fff;
+    padding-bottom: 110px;
   }
 
-  /* ── CANVAS STARS ── */
-  #starfield {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-  }
+  #starfield { position: fixed; inset: 0; z-index: 0; }
 
-  /* ── ACCRETION DISK RINGS ── */
+  /* ── ACCRETION DISK ── */
   #disk {
     position: fixed;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1;
     pointer-events: none;
@@ -40,202 +35,160 @@
     top: 50%; left: 50%;
     transform: translate(-50%, -50%) rotateX(72deg);
   }
-
-  .ring-1 {
-    width: 340px; height: 340px;
-    border-color: rgba(201,150,60,0.55);
-    box-shadow: 0 0 40px rgba(201,150,60,0.18), inset 0 0 40px rgba(201,150,60,0.08);
-    animation: spin 22s linear infinite;
-  }
-  .ring-2 {
-    width: 420px; height: 420px;
-    border-color: rgba(201,150,60,0.30);
-    box-shadow: 0 0 60px rgba(201,150,60,0.10);
-    animation: spin 34s linear infinite reverse;
-  }
-  .ring-3 {
-    width: 520px; height: 520px;
-    border-color: rgba(201,150,60,0.15);
-    animation: spin 48s linear infinite;
-  }
-  .ring-4 {
-    width: 640px; height: 640px;
-    border-color: rgba(180,130,50,0.08);
-    animation: spin 65s linear infinite reverse;
-  }
+  .ring-1 { width:340px; height:340px; border-color:rgba(201,150,60,0.55); box-shadow:0 0 40px rgba(201,150,60,0.18); animation:spin 22s linear infinite; }
+  .ring-2 { width:420px; height:420px; border-color:rgba(201,150,60,0.30); animation:spin 34s linear infinite reverse; }
+  .ring-3 { width:520px; height:520px; border-color:rgba(201,150,60,0.15); animation:spin 48s linear infinite; }
+  .ring-4 { width:640px; height:640px; border-color:rgba(180,130,50,0.08); animation:spin 65s linear infinite reverse; }
 
   @keyframes spin {
-    from { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(0deg); }
-    to   { transform: translate(-50%, -50%) rotateX(72deg) rotateZ(360deg); }
+    from { transform: translate(-50%,-50%) rotateX(72deg) rotateZ(0deg); }
+    to   { transform: translate(-50%,-50%) rotateX(72deg) rotateZ(360deg); }
   }
 
-  /* ── FOOTPRINT GHOST (inside rings) ── */
+  /* ── FOOTPRINT GHOST ── */
   #feet-ghost {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 260px;
-    height: 260px;
+    width: 260px; height: 260px;
     border-radius: 50%;
     overflow: hidden;
     z-index: 2;
     pointer-events: none;
   }
-
   #feet-ghost img {
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     object-fit: cover;
-    display: block;
     filter: grayscale(1) sepia(0.7) brightness(0.65) contrast(1.4);
     opacity: 0.28;
     animation: ghost-pulse 8s ease-in-out infinite;
   }
-
   @keyframes ghost-pulse {
-    0%, 100% { opacity: 0.28; }
-    50%       { opacity: 0.45; }
+    0%,100% { opacity: 0.22; }
+    50%      { opacity: 0.38; }
   }
 
-  /* ── GLOW CORE ── */
   #core-glow {
-    position: fixed;
-    top: 50%;
-    left: 50%;
+    position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 200px;
-    height: 200px;
+    width: 200px; height: 200px;
     border-radius: 50%;
     background: radial-gradient(circle, rgba(201,150,60,0.06) 0%, transparent 70%);
     box-shadow: 0 0 120px rgba(201,150,60,0.12);
     animation: breathe 6s ease-in-out infinite;
-    z-index: 1;
-    pointer-events: none;
+    z-index: 1; pointer-events: none;
   }
-
   @keyframes breathe {
-    0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-    50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.15); }
+    0%,100% { opacity:0.6; transform:translate(-50%,-50%) scale(1); }
+    50%      { opacity:1;   transform:translate(-50%,-50%) scale(1.15); }
   }
 
   /* ── CONTENT ── */
   #content {
-    position: relative;
-    z-index: 10;
+    position: relative; z-index: 10;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    padding: 60px 24px 80px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 0; padding: 60px 24px 40px;
   }
 
-  /* ── PHOTO FRAME ── */
-  #photo-wrap {
-    position: relative;
-    margin-bottom: 48px;
-    opacity: 0;
-    animation: fade-up 1s ease 0.4s forwards;
-  }
-
-  #photo-frame {
-    width: min(200px, 52vw);
-    height: min(200px, 52vw);
-    border-radius: 50%;
-    overflow: hidden;
-    border: 1px solid rgba(201,150,60,0.4);
-    box-shadow:
-      0 0 0 8px rgba(201,150,60,0.06),
-      0 0 0 16px rgba(201,150,60,0.03),
-      0 0 60px rgba(201,150,60,0.20);
-    position: relative;
-    z-index: 2;
-  }
-
-  #photo-frame img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  /* lumi-hand image if present */
-  #hand-img {
-    width: min(160px, 44vw);
-    height: min(160px, 44vw);
-    object-fit: cover;
-    border-radius: 50%;
-    border: 1px solid rgba(201,150,60,0.35);
-    box-shadow: 0 0 40px rgba(201,150,60,0.18);
-    display: block;
-    margin: 0 auto 0;
-  }
-
-  /* ── NAME ── */
   #name {
-    font-size: clamp(3rem, 16vw, 6rem);
-    font-weight: 300;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #fff;
-    text-shadow:
-      0 0 40px rgba(201,150,60,0.5),
-      0 0 80px rgba(201,150,60,0.2);
-    margin-bottom: 40px;
-    opacity: 0;
+    font-size: clamp(3rem,16vw,6rem); font-weight: 300;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    text-shadow: 0 0 40px rgba(201,150,60,0.5), 0 0 80px rgba(201,150,60,0.2);
+    margin-bottom: 40px; opacity: 0;
     animation: fade-up 1s ease 1.0s forwards;
   }
 
-  /* ── MESSAGE CARD ── */
   #card {
-    max-width: 360px;
-    width: 100%;
+    max-width: 360px; width: 100%;
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(201,150,60,0.18);
-    border-radius: 4px;
-    padding: 28px 28px 24px;
+    border-radius: 4px; padding: 28px 28px 24px;
     box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
-    opacity: 0;
-    animation: fade-up 1s ease 1.6s forwards;
-    margin-bottom: 36px;
+    opacity: 0; animation: fade-up 1s ease 1.6s forwards;
+    margin-bottom: 28px;
   }
-
   #card-label {
-    font-size: 9px;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: rgba(201,150,60,0.55);
-    margin-bottom: 16px;
+    font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase;
+    color: rgba(201,150,60,0.55); margin-bottom: 16px;
   }
-
   #card-text {
     font-family: 'Caveat', cursive;
-    font-size: clamp(1.1rem, 4.5vw, 1.35rem);
-    color: rgba(255,255,255,0.85);
-    line-height: 1.75;
+    font-size: clamp(1.1rem,4.5vw,1.35rem);
+    color: rgba(255,255,255,0.85); line-height: 1.75;
+  }
+  #card-text em { color: rgba(201,150,60,0.9); font-style: normal; font-weight: 600; }
+
+  /* ── IMAGE CARDS ── */
+  .img-cards {
+    display: flex; gap: 14px; justify-content: center;
+    max-width: 360px; width: 100%;
+    opacity: 0; animation: fade-up 1s ease 2.0s forwards;
+    margin-bottom: 28px;
+  }
+  .img-card {
+    flex: 1; max-width: 160px;
+    border-radius: 8px; overflow: hidden;
+    border: 1px solid rgba(201,150,60,0.25);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .img-card img {
+    width: 100%; height: 130px;
+    object-fit: cover; display: block;
   }
 
-  #card-text em {
-    color: rgba(201,150,60,0.9);
-    font-style: normal;
-    font-weight: 600;
-  }
-
-  /* ── PAPITO ── */
   #papito {
-    font-size: clamp(0.75rem, 3.2vw, 0.9rem);
-    font-weight: 300;
-    letter-spacing: 0.18em;
-    color: rgba(201,150,60,0.5);
+    font-size: clamp(0.75rem,3.2vw,0.9rem); font-weight: 300;
+    letter-spacing: 0.18em; color: rgba(201,150,60,0.5);
     text-transform: uppercase;
-    opacity: 0;
-    animation: fade-up 1s ease 2.3s forwards;
+    opacity: 0; animation: fade-up 1s ease 2.5s forwards;
   }
 
   @keyframes fade-up {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* ── BOOMBOX PLAYER ── */
+  #boombox-wrap {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; justify-content: center; align-items: center;
+    padding: 12px 0 16px;
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 100%);
+    backdrop-filter: blur(10px);
+  }
+  #boom-btn {
+    background: none; border: none; cursor: pointer;
+    padding: 0; display: block;
+    filter: drop-shadow(0 0 12px rgba(201,150,60,0.3));
+    transition: filter 0.3s;
+  }
+  #boom-btn:hover { filter: drop-shadow(0 0 20px rgba(201,150,60,0.5)); }
+  #boom-btn.playing { filter: drop-shadow(0 0 18px rgba(201,150,60,0.6)); }
+
+  .bb-led { transition: opacity 0.3s; }
+  #boom-btn.playing .bb-led { opacity: 1 !important; }
+
+  .eq-bar { transform-origin: bottom; }
+  #boom-btn.playing .eq-bar { animation: eq-bounce 0.6s ease-in-out infinite alternate; }
+  #boom-btn.playing #eq1 { animation-delay: 0.0s; }
+  #boom-btn.playing #eq2 { animation-delay: 0.1s; }
+  #boom-btn.playing #eq3 { animation-delay: 0.2s; }
+  #boom-btn.playing #eq4 { animation-delay: 0.15s; }
+  #boom-btn.playing #eq5 { animation-delay: 0.05s; }
+  #boom-btn.playing #eq6 { animation-delay: 0.25s; }
+
+  @keyframes eq-bounce {
+    from { transform: scaleY(0.3); }
+    to   { transform: scaleY(1.4); }
+  }
+
+  .boom-hint {
+    position: absolute; bottom: 2px;
+    font-size: 9px; letter-spacing: 0.2em;
+    color: rgba(201,150,60,0.35); text-transform: uppercase;
   }
 </style>
 </head>
@@ -243,11 +196,8 @@
 
 <canvas id="starfield"></canvas>
 <div id="core-glow"></div>
-
 <div id="disk">
-  <div id="feet-ghost">
-    <img src="/static/footprints.jpg" alt="">
-  </div>
+  <div id="feet-ghost"><img src="/static/footprints.jpg" alt=""></div>
   <div class="ring ring-1"></div>
   <div class="ring ring-2"></div>
   <div class="ring ring-3"></div>
@@ -270,46 +220,115 @@
     </div>
   </div>
 
+  <div class="img-cards">
+    <div class="img-card">
+      <img src="/static/spongebob.jpg" alt="SpongeBob" onerror="this.parentElement.style.display='none'">
+    </div>
+    <div class="img-card">
+      <img src="/static/squidward.jpg" alt="Squidward" onerror="this.parentElement.style.display='none'">
+    </div>
+  </div>
+
   <div id="papito">you are perfect to papito</div>
 </div>
 
+<!-- BOOMBOX -->
+<div id="boombox-wrap">
+  <button id="boom-btn" onclick="toggleMusic()" title="tap to play">
+    <svg width="200" height="88" viewBox="0 0 200 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bb-stripe-l" x1="0" y1="0" x2="200" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#c9963c"/>
+          <stop offset="50%" stop-color="#e8b84b"/>
+          <stop offset="100%" stop-color="#c9963c"/>
+        </linearGradient>
+      </defs>
+      <rect x="0.75" y="10" width="198.5" height="76" rx="9" fill="#07060a" stroke="#2a2010" stroke-width="1.5"/>
+      <rect x="0.75" y="10" width="198.5" height="4" rx="2" fill="url(#bb-stripe-l)"/>
+      <line x1="168" y1="10" x2="184" y2="1" stroke="#c9963c" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="184" cy="1" r="2.5" fill="#c9963c" opacity="0.85"/>
+      <!-- LEFT SPEAKER -->
+      <rect x="4" y="15" width="58" height="65" rx="6" fill="#060500" stroke="#c9963c" stroke-width="1.4"/>
+      <circle cx="33" cy="47" r="23" fill="#0a0800" stroke="#c9963c" stroke-width="1" opacity="0.9"/>
+      <circle cx="33" cy="47" r="15" fill="#0d0a00" stroke="#c9963c" stroke-width="0.7" opacity="0.7"/>
+      <circle cx="33" cy="47" r="8"  fill="#110e00" stroke="#c9963c" stroke-width="0.5"/>
+      <circle class="bb-led" cx="33" cy="47" r="3.5" fill="#c9963c" opacity="0.2"/>
+      <circle cx="11" cy="21" r="2" fill="#c9963c" opacity="0.15"/>
+      <circle cx="55" cy="21" r="2" fill="#c9963c" opacity="0.15"/>
+      <circle cx="11" cy="73" r="2" fill="#c9963c" opacity="0.15"/>
+      <circle cx="55" cy="73" r="2" fill="#c9963c" opacity="0.15"/>
+      <!-- RIGHT SPEAKER -->
+      <rect x="138" y="15" width="58" height="65" rx="6" fill="#060500" stroke="#e8b84b" stroke-width="1.4"/>
+      <circle cx="167" cy="47" r="23" fill="#0a0800" stroke="#e8b84b" stroke-width="1" opacity="0.9"/>
+      <circle cx="167" cy="47" r="15" fill="#0d0a00" stroke="#e8b84b" stroke-width="0.7" opacity="0.7"/>
+      <circle cx="167" cy="47" r="8"  fill="#110e00" stroke="#e8b84b" stroke-width="0.5"/>
+      <circle class="bb-led" cx="167" cy="47" r="3.5" fill="#e8b84b" opacity="0.2"/>
+      <circle cx="145" cy="21" r="2" fill="#e8b84b" opacity="0.15"/>
+      <circle cx="189" cy="21" r="2" fill="#e8b84b" opacity="0.15"/>
+      <circle cx="145" cy="73" r="2" fill="#e8b84b" opacity="0.15"/>
+      <circle cx="189" cy="73" r="2" fill="#e8b84b" opacity="0.15"/>
+      <!-- CENTER DISPLAY -->
+      <rect x="65" y="15" width="70" height="65" rx="4" fill="#040300" stroke="#2a2010" stroke-width="1"/>
+      <rect x="67" y="17" width="66" height="61" rx="3" fill="#050400" stroke="rgba(201,150,60,0.18)" stroke-width="0.5"/>
+      <!-- EQ bars — baseline y=71 -->
+      <rect class="eq-bar" id="eq1" x="71"  y="56" width="6" height="15" rx="1.5" fill="#c9963c" opacity="0.9"/>
+      <rect class="eq-bar" id="eq2" x="80"  y="50" width="6" height="21" rx="1.5" fill="#d4a840" opacity="0.9"/>
+      <rect class="eq-bar" id="eq3" x="89"  y="44" width="6" height="27" rx="1.5" fill="#e8b84b" opacity="0.9"/>
+      <rect class="eq-bar" id="eq4" x="98"  y="48" width="6" height="23" rx="1.5" fill="#f0c855" opacity="0.9"/>
+      <rect class="eq-bar" id="eq5" x="107" y="53" width="6" height="18" rx="1.5" fill="#e8b84b" opacity="0.9"/>
+      <rect class="eq-bar" id="eq6" x="116" y="59" width="6" height="12" rx="1.5" fill="#c9963c" opacity="0.9"/>
+      <line x1="69" y1="72" x2="124" y2="72" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+      <circle class="bb-led" cx="127" cy="23" r="3" fill="#c9963c" opacity="0.25"/>
+      <rect x="70" y="74" width="50" height="5" rx="1.5" fill="#06050a" stroke="rgba(255,255,255,0.07)" stroke-width="0.5"/>
+      <rect x="84" y="75.5" width="22" height="2" rx="1" fill="rgba(255,255,255,0.04)"/>
+    </svg>
+  </button>
+  <div class="boom-hint">tap to play</div>
+</div>
+
+<audio id="music" loop src="/static/perfect.mp3"></audio>
+
 <script>
+// Stars
 const canvas = document.getElementById('starfield');
 const ctx = canvas.getContext('2d');
 let stars = [];
-
 function resize() {
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = innerWidth; canvas.height = innerHeight;
   stars = [];
   const n = Math.floor(canvas.width * canvas.height / 1800);
-  for (let i = 0; i < n; i++) {
-    stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.4,
-      a: 0.2 + Math.random() * 0.8,
-      speed: 0.003 + Math.random() * 0.005,
-      phase: Math.random() * Math.PI * 2,
-    });
-  }
+  for (let i = 0; i < n; i++) stars.push({
+    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+    r: Math.random()*1.4, a: 0.2+Math.random()*0.8,
+    speed: 0.003+Math.random()*0.005, phase: Math.random()*Math.PI*2
+  });
 }
-
 function draw(t) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   for (const s of stars) {
-    const alpha = s.a * (0.35 + 0.65 * Math.abs(Math.sin(t * s.speed + s.phase)));
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,245,220,${alpha})`;
-    ctx.fill();
+    const alpha = s.a*(0.35+0.65*Math.abs(Math.sin(t*s.speed+s.phase)));
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,245,220,${alpha})`; ctx.fill();
   }
   requestAnimationFrame(draw);
 }
+resize(); window.addEventListener('resize',resize); requestAnimationFrame(draw);
 
-resize();
-window.addEventListener('resize', resize);
-requestAnimationFrame(draw);
+// Boombox
+const audio = document.getElementById('music');
+const btn   = document.getElementById('boom-btn');
+const hint  = document.querySelector('.boom-hint');
+function toggleMusic() {
+  if (audio.paused) {
+    audio.play();
+    btn.classList.add('playing');
+    hint.textContent = 'now playing';
+  } else {
+    audio.pause();
+    btn.classList.remove('playing');
+    hint.textContent = 'tap to play';
+  }
+}
 </script>
 </body>
 </html>
