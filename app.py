@@ -136,6 +136,10 @@ def hub():
 def signal_bridge():
     return send_from_directory(BASE, 'signal-bridge.html')
 
+@app.route('/gait-analyzer')
+def gait_analyzer():
+    return send_from_directory(BASE, 'gait-analyzer.html')
+
 @app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory(os.path.join(BASE, 'static'), filename)

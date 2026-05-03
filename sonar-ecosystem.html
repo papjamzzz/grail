@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AILIV — Data Ecosystem</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;1,300&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { background: #04040A; color: #e8dfc8; font-family: 'DM Sans', sans-serif; font-weight: 300; }
+body { min-height: 100vh; overflow-x: hidden; }
+
+/* HEADER */
+.header {
+  text-align: center;
+  padding: 64px 40px 0;
+}
+.header-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: #7B4FBF;
+  margin-bottom: 16px;
+}
+.header-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 7vw, 88px);
+  letter-spacing: 8px;
+  color: #C9A96E;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.header-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 16px;
+  color: rgba(232, 223, 200, 0.45);
+  letter-spacing: 2px;
+}
+
+/* FLOW CANVAS */
+#flow-canvas {
+  display: block;
+  width: 100%;
+  height: 120px;
+  margin-top: 32px;
+}
+
+/* MAIN GRID */
+.ecosystem {
+  display: grid;
+  grid-template-columns: 1fr 180px 1fr;
+  gap: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px 80px;
+  align-items: start;
+}
+
+/* COLUMN LABELS */
+.col-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: #7B4FBF;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* DEVICES COLUMN */
+.devices-col {
+  padding-right: 20px;
+}
+.device-card {
+  background: rgba(201, 169, 110, 0.04);
+  border: 1px solid rgba(201, 169, 110, 0.12);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  transition: border-color 0.3s, background 0.3s;
+  cursor: default;
+  position: relative;
+}
+.device-card:hover {
+  border-color: rgba(201, 169, 110, 0.35);
+  background: rgba(201, 169, 110, 0.07);
+}
+.device-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.device-info { flex: 1; }
+.device-name {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: #C9A96E;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.device-data {
+  font-size: 10px;
+  color: rgba(232, 223, 200, 0.45);
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+}
+.device-tag {
+  display: inline-block;
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+}
+.tag-wearable { background: rgba(123, 79, 191, 0.2); color: #9B6FBF; border: 1px solid rgba(123,79,191,0.3); }
+.tag-cgm { background: rgba(201, 169, 110, 0.15); color: #C9A96E; border: 1px solid rgba(201,169,110,0.3); }
+.tag-medical { background: rgba(82, 196, 170, 0.12); color: #52C4AA; border: 1px solid rgba(82,196,170,0.25); }
+.tag-app { background: rgba(232, 223, 200, 0.08); color: rgba(232,223,200,0.5); border: 1px solid rgba(232,223,200,0.15); }
+
+/* SONAR CENTER */
+.sonar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: sticky;
+  top: 40px;
+}
+.sonar-orb-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
+}
+.sonar-orb {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, rgba(201,169,110,0.9) 0%, rgba(160,110,50,0.6) 40%, rgba(80,50,10,0.3) 70%, transparent 100%);
+  box-shadow:
+    0 0 40px rgba(201,169,110,0.4),
+    0 0 80px rgba(201,169,110,0.15),
+    0 0 120px rgba(201,169,110,0.06);
+  animation: sonar-pulse 3s ease-in-out infinite;
+}
+@keyframes sonar-pulse {
+  0%, 100% { box-shadow: 0 0 40px rgba(201,169,110,0.4), 0 0 80px rgba(201,169,110,0.15), 0 0 120px rgba(201,169,110,0.06); }
+  50% { box-shadow: 0 0 55px rgba(201,169,110,0.6), 0 0 100px rgba(201,169,110,0.25), 0 0 160px rgba(201,169,110,0.1); }
+}
+.sonar-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(201,169,110,0.15);
+  animation: ring-expand 3s ease-out infinite;
+}
+.sonar-ring:nth-child(1) { width: 110px; height: 110px; animation-delay: 0s; }
+.sonar-ring:nth-child(2) { width: 130px; height: 130px; animation-delay: 0.8s; }
+.sonar-ring:nth-child(3) { width: 150px; height: 150px; animation-delay: 1.6s; }
+@keyframes ring-expand {
+  0% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.85); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}
+.sonar-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 6px;
+  color: #C9A96E;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.sonar-sublabel {
+  font-size: 8px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(201,169,110,0.4);
+  text-align: center;
+  margin-bottom: 20px;
+}
+.sonar-stats {
+  width: 100%;
+}
+.sonar-stat {
+  text-align: center;
+  padding: 8px 0;
+  border-top: 1px solid rgba(201,169,110,0.1);
+}
+.sonar-stat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 2px;
+  color: #C9A96E;
+  line-height: 1;
+}
+.sonar-stat-label {
+  font-size: 8px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(232,223,200,0.3);
+  margin-top: 2px;
+}
+
+/* BIOMARKERS COLUMN */
+.biomarkers-col {
+  padding-left: 20px;
+}
+.bio-category {
+  margin-bottom: 12px;
+  border: 1px solid rgba(201,169,110,0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.bio-category:hover {
+  border-color: rgba(201,169,110,0.28);
+}
+.bio-cat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(201,169,110,0.04);
+  cursor: pointer;
+}
+.bio-cat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.bio-cat-name {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(232,223,200,0.8);
+  flex: 1;
+}
+.bio-cat-count {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(232,223,200,0.3);
+}
+.bio-markers {
+  padding: 10px 16px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.bio-chip {
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 4px 9px;
+  border-radius: 20px;
+  border: 1px solid;
+  transition: all 0.2s;
+  cursor: default;
+  white-space: nowrap;
+}
+.bio-chip:hover {
+  transform: translateY(-1px);
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 40px 40px 60px;
+  border-top: 1px solid rgba(201,169,110,0.08);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.footer-note {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(201,169,110,0.3);
+  margin-bottom: 8px;
+}
+.footer-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 14px;
+  color: rgba(232,223,200,0.3);
+  letter-spacing: 1px;
+}
+
+/* LIVE TICKER */
+.live-ticker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px 40px;
+  background: rgba(201,169,110,0.03);
+  border-top: 1px solid rgba(201,169,110,0.08);
+  border-bottom: 1px solid rgba(201,169,110,0.08);
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ticker-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #52C4AA;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+.ticker-label {
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(232,223,200,0.4);
+}
+.ticker-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: #C9A96E;
+}
+.ticker-unit {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(201,169,110,0.4);
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">Data Architecture</div>
+  <div class="header-title">AILIV ECOSYSTEM</div>
+  <div class="header-sub">Every signal. Every device. One living intelligence.</div>
+</div>
+
+<!-- LIVE SIMULATED TICKER -->
+<canvas id="flow-canvas"></canvas>
+
+<div class="live-ticker">
+  <div class="ticker-item">
+    <div class="ticker-dot"></div>
+    <span class="ticker-label">Heart Rate</span>
+    <span class="ticker-val" id="t-hr">62</span>
+    <span class="ticker-unit">BPM</span>
+  </div>
+  <div class="ticker-item">
+    <div class="ticker-dot" style="animation-delay:0.4s;background:#9B6FBF"></div>
+    <span class="ticker-label">HRV</span>
+    <span class="ticker-val" id="t-hrv">58</span>
+    <span class="ticker-unit">ms</span>
+  </div>
+  <div class="ticker-item">
+    <div class="ticker-dot" style="animation-delay:0.8s;background:#C9A96E"></div>
+    <span class="ticker-label">Glucose</span>
+    <span class="ticker-val" id="t-glucose">94</span>
+    <span class="ticker-unit">mg/dL</span>
+  </div>
+  <div class="ticker-item">
+    <div class="ticker-dot" style="animation-delay:1.2s;background:#52C4AA"></div>
+    <span class="ticker-label">SpO₂</span>
+    <span class="ticker-val" id="t-spo2">98</span>
+    <span class="ticker-unit">%</span>
+  </div>
+  <div class="ticker-item">
+    <div class="ticker-dot" style="animation-delay:1.6s;background:#7B4FBF"></div>
+    <span class="ticker-label">Skin Temp</span>
+    <span class="ticker-val" id="t-temp">98.3</span>
+    <span class="ticker-unit">°F</span>
+  </div>
+  <div class="ticker-item">
+    <div class="ticker-dot" style="animation-delay:2s;background:#C9A96E"></div>
+    <span class="ticker-label">Recovery</span>
+    <span class="ticker-val" id="t-recovery">76</span>
+    <span class="ticker-unit">%</span>
+  </div>
+  <div class="ticker-item">
+    <div class="ticker-dot" style="animation-delay:2.4s;background:#52C4AA"></div>
+    <span class="ticker-label">Sleep Score</span>
+    <span class="ticker-val" id="t-sleep">84</span>
+    <span class="ticker-unit">/ 100</span>
+  </div>
+  <div class="ticker-item">
+    <div class="ticker-dot" style="animation-delay:2.8s"></div>
+    <span class="ticker-label">VO₂ Max</span>
+    <span class="ticker-val" id="t-vo2">47</span>
+    <span class="ticker-unit">ml/kg/min</span>
+  </div>
+</div>
+
+<div class="ecosystem">
+
+  <!-- DEVICES -->
+  <div class="devices-col">
+    <div class="col-label">Input Devices</div>
+
+    <div class="device-card">
+      <div class="device-icon" style="background:rgba(232,223,200,0.06)">⌚</div>
+      <div class="device-info">
+        <span class="device-tag tag-wearable">Wearable</span>
+        <div class="device-name">Apple Watch</div>
+        <div class="device-data">Heart Rate · HRV · SpO₂ · ECG · Skin Temp · Activity · Sleep · Respiratory Rate · Blood Oxygen · Calories · Workouts</div>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-icon" style="background:rgba(232,223,200,0.06)">🟡</div>
+      <div class="device-info">
+        <span class="device-tag tag-wearable">Wearable</span>
+        <div class="device-name">WHOOP 4.0</div>
+        <div class="device-data">HRV · Resting HR · Recovery Score · Strain · Sleep Stages · Respiratory Rate · Skin Temp · SpO₂ · Cardiac Load</div>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-icon" style="background:rgba(232,223,200,0.06)">💍</div>
+      <div class="device-info">
+        <span class="device-tag tag-wearable">Wearable</span>
+        <div class="device-name">Oura Ring</div>
+        <div class="device-data">Readiness Score · Deep Sleep % · REM % · HRV · Temperature Deviation · Respiratory Rate · Activity · Resting HR · Sleep Efficiency</div>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-icon" style="background:rgba(232,223,200,0.06)">🟢</div>
+      <div class="device-info">
+        <span class="device-tag tag-wearable">Wearable</span>
+        <div class="device-name">Garmin</div>
+        <div class="device-data">VO₂ Max · Body Battery · Stress Score · Lactate Threshold · Training Load · Sleep · Steps · GPS Workouts · Pulse Ox</div>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-icon" style="background:rgba(232,223,200,0.06)">🔵</div>
+      <div class="device-info">
+        <span class="device-tag tag-wearable">Wearable</span>
+        <div class="device-name">Fitbit / Google Health</div>
+        <div class="device-data">Heart Rate · Sleep Stages · SpO₂ · Stress · Steps · Active Zone Minutes · Skin Temp · Cycle Tracking</div>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-icon" style="background:rgba(201,169,110,0.08)">📡</div>
+      <div class="device-info">
+        <span class="device-tag tag-cgm">CGM</span>
+        <div class="device-name">Dexcom Stelo / G7</div>
+        <div class="device-data">Real-Time Blood Glucose · Trend Direction · Trend Rate · Time in Range · Daily Average · Glucose Variability · Highs/Lows</div>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-icon" style="background:rgba(201,169,110,0.08)">🩺</div>
+      <div class="device-info">
+        <span class="device-tag tag-cgm">CGM</span>
+        <div class="device-name">Abbott FreeStyle Libre</div>
+        <div class="device-data">Continuous Glucose · Glucose Trend Arrow · 8-Hour History · AGP Report · Time in Range · Sensor Glucose</div>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-icon" style="background:rgba(82,196,170,0.08)">🩺</div>
+      <div class="device-info">
+        <span class="device-tag tag-medical">Medical</span>
+        <div class="device-name">Withings Body+</div>
+        <div class="device-data">Weight · Body Fat % · Muscle Mass · Bone Mass · Hydration % · Visceral Fat · Systolic/Diastolic BP · Pulse Wave Velocity</div>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-icon" style="background:rgba(232,223,200,0.06)">🏃</div>
+      <div class="device-info">
+        <span class="device-tag tag-wearable">Wearable</span>
+        <div class="device-name">Polar / Samsung</div>
+        <div class="device-data">Running Power · Training Load · Nightly Recharge · Speed · Cadence · Elevation · HR Zones · Recovery Time</div>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-icon" style="background:rgba(232,223,200,0.06)">📱</div>
+      <div class="device-info">
+        <span class="device-tag tag-app">Platform</span>
+        <div class="device-name">Apple Health / Google Fit</div>
+        <div class="device-data">Aggregated Steps · Mindful Minutes · Nutrition · Menstrual Cycle · Lab Results · Medications · Immunizations · Hearing Health</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SONAR CENTER -->
+  <div class="sonar-col">
+    <div class="col-label">Aggregator</div>
+    <div class="sonar-orb-wrap">
+      <div class="sonar-ring"></div>
+      <div class="sonar-ring"></div>
+      <div class="sonar-ring"></div>
+      <div class="sonar-orb"></div>
+    </div>
+    <div class="sonar-label">SONAR</div>
+    <div class="sonar-sublabel">Data Layer</div>
+    <div class="sonar-stats">
+      <div class="sonar-stat">
+        <div class="sonar-stat-num">500+</div>
+        <div class="sonar-stat-label">Sources</div>
+      </div>
+      <div class="sonar-stat">
+        <div class="sonar-stat-num">40+</div>
+        <div class="sonar-stat-label">Biomarkers</div>
+      </div>
+      <div class="sonar-stat">
+        <div class="sonar-stat-num">5m</div>
+        <div class="sonar-stat-label">Sync Interval</div>
+      </div>
+      <div class="sonar-stat">
+        <div class="sonar-stat-num">REST</div>
+        <div class="sonar-stat-label">API · OAuth 2.0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIOMARKERS -->
+  <div class="biomarkers-col">
+    <div class="col-label">AILIV Biomarker Nodes</div>
+
+    <div class="bio-category">
+      <div class="bio-cat-header">
+        <div class="bio-cat-dot" style="background:#C9A96E; box-shadow: 0 0 6px rgba(201,169,110,0.6)"></div>
+        <span class="bio-cat-name">Cardiovascular</span>
+        <span class="bio-cat-count">9 nodes</span>
+      </div>
+      <div class="bio-markers">
+        <span class="bio-chip" style="color:#C9A96E;border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.06)">Resting HR</span>
+        <span class="bio-chip" style="color:#C9A96E;border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.06)">HRV (RMSSD)</span>
+        <span class="bio-chip" style="color:#C9A96E;border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.06)">Active HR</span>
+        <span class="bio-chip" style="color:#C9A96E;border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.06)">Systolic BP</span>
+        <span class="bio-chip" style="color:#C9A96E;border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.06)">Diastolic BP</span>
+        <span class="bio-chip" style="color:#C9A96E;border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.06)">Pulse Wave Velocity</span>
+        <span class="bio-chip" style="color:#C9A96E;border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.06)">ApoB</span>
+        <span class="bio-chip" style="color:#C9A96E;border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.06)">Fibrinogen</span>
+        <span class="bio-chip" style="color:#C9A96E;border-color:rgba(201,169,110,0.3);background:rgba(201,169,110,0.06)">Homocysteine</span>
+      </div>
+    </div>
+
+    <div class="bio-category">
+      <div class="bio-cat-header">
+        <div class="bio-cat-dot" style="background:#7B4FBF; box-shadow: 0 0 6px rgba(123,79,191,0.6)"></div>
+        <span class="bio-cat-name">Sleep & Recovery</span>
+        <span class="bio-cat-count">7 nodes</span>
+      </div>
+      <div class="bio-markers">
+        <span class="bio-chip" style="color:#9B6FBF;border-color:rgba(123,79,191,0.3);background:rgba(123,79,191,0.06)">Sleep Duration</span>
+        <span class="bio-chip" style="color:#9B6FBF;border-color:rgba(123,79,191,0.3);background:rgba(123,79,191,0.06)">Deep Sleep %</span>
+        <span class="bio-chip" style="color:#9B6FBF;border-color:rgba(123,79,191,0.3);background:rgba(123,79,191,0.06)">REM %</span>
+        <span class="bio-chip" style="color:#9B6FBF;border-color:rgba(123,79,191,0.3);background:rgba(123,79,191,0.06)">Sleep Efficiency</span>
+        <span class="bio-chip" style="color:#9B6FBF;border-color:rgba(123,79,191,0.3);background:rgba(123,79,191,0.06)">Recovery Index</span>
+        <span class="bio-chip" style="color:#9B6FBF;border-color:rgba(123,79,191,0.3);background:rgba(123,79,191,0.06)">Readiness Score</span>
+        <span class="bio-chip" style="color:#9B6FBF;border-color:rgba(123,79,191,0.3);background:rgba(123,79,191,0.06)">Respiratory Rate</span>
+      </div>
+    </div>
+
+    <div class="bio-category">
+      <div class="bio-cat-header">
+        <div class="bio-cat-dot" style="background:#52C4AA; box-shadow: 0 0 6px rgba(82,196,170,0.6)"></div>
+        <span class="bio-cat-name">Metabolic</span>
+        <span class="bio-cat-count">6 nodes</span>
+      </div>
+      <div class="bio-markers">
+        <span class="bio-chip" style="color:#52C4AA;border-color:rgba(82,196,170,0.3);background:rgba(82,196,170,0.06)">Fasting Glucose</span>
+        <span class="bio-chip" style="color:#52C4AA;border-color:rgba(82,196,170,0.3);background:rgba(82,196,170,0.06)">Live Glucose (CGM)</span>
+        <span class="bio-chip" style="color:#52C4AA;border-color:rgba(82,196,170,0.3);background:rgba(82,196,170,0.06)">Glucose Trend</span>
+        <span class="bio-chip" style="color:#52C4AA;border-color:rgba(82,196,170,0.3);background:rgba(82,196,170,0.06)">Insulin Sensitivity</span>
+        <span class="bio-chip" style="color:#52C4AA;border-color:rgba(82,196,170,0.3);background:rgba(82,196,170,0.06)">Uric Acid</span>
+        <span class="bio-chip" style="color:#52C4AA;border-color:rgba(82,196,170,0.3);background:rgba(82,196,170,0.06)">Body Fat %</span>
+      </div>
+    </div>
+
+    <div class="bio-category">
+      <div class="bio-cat-header">
+        <div class="bio-cat-dot" style="background:#E8916A; box-shadow: 0 0 6px rgba(232,145,106,0.6)"></div>
+        <span class="bio-cat-name">Hormonal</span>
+        <span class="bio-cat-count">6 nodes</span>
+      </div>
+      <div class="bio-markers">
+        <span class="bio-chip" style="color:#E8916A;border-color:rgba(232,145,106,0.3);background:rgba(232,145,106,0.06)">Testosterone</span>
+        <span class="bio-chip" style="color:#E8916A;border-color:rgba(232,145,106,0.3);background:rgba(232,145,106,0.06)">Free Testosterone</span>
+        <span class="bio-chip" style="color:#E8916A;border-color:rgba(232,145,106,0.3);background:rgba(232,145,106,0.06)">Cortisol</span>
+        <span class="bio-chip" style="color:#E8916A;border-color:rgba(232,145,106,0.3);background:rgba(232,145,106,0.06)">DHEA-S</span>
+        <span class="bio-chip" style="color:#E8916A;border-color:rgba(232,145,106,0.3);background:rgba(232,145,106,0.06)">TSH / Thyroid</span>
+        <span class="bio-chip" style="color:#E8916A;border-color:rgba(232,145,106,0.3);background:rgba(232,145,106,0.06)">IGF-1</span>
+      </div>
+    </div>
+
+    <div class="bio-category">
+      <div class="bio-cat-header">
+        <div class="bio-cat-dot" style="background:#6AB0E8; box-shadow: 0 0 6px rgba(106,176,232,0.6)"></div>
+        <span class="bio-cat-name">Performance & Oxygen</span>
+        <span class="bio-cat-count">6 nodes</span>
+      </div>
+      <div class="bio-markers">
+        <span class="bio-chip" style="color:#6AB0E8;border-color:rgba(106,176,232,0.3);background:rgba(106,176,232,0.06)">VO₂ Max</span>
+        <span class="bio-chip" style="color:#6AB0E8;border-color:rgba(106,176,232,0.3);background:rgba(106,176,232,0.06)">SpO₂</span>
+        <span class="bio-chip" style="color:#6AB0E8;border-color:rgba(106,176,232,0.3);background:rgba(106,176,232,0.06)">Lactate Threshold</span>
+        <span class="bio-chip" style="color:#6AB0E8;border-color:rgba(106,176,232,0.3);background:rgba(106,176,232,0.06)">Muscle Mass</span>
+        <span class="bio-chip" style="color:#6AB0E8;border-color:rgba(106,176,232,0.3);background:rgba(106,176,232,0.06)">Grip Strength</span>
+        <span class="bio-chip" style="color:#6AB0E8;border-color:rgba(106,176,232,0.3);background:rgba(106,176,232,0.06)">Daily Steps</span>
+      </div>
+    </div>
+
+    <div class="bio-category">
+      <div class="bio-cat-header">
+        <div class="bio-cat-dot" style="background:#A8D96E; box-shadow: 0 0 6px rgba(168,217,110,0.6)"></div>
+        <span class="bio-cat-name">Inflammation & Immunity</span>
+        <span class="bio-cat-count">4 nodes</span>
+      </div>
+      <div class="bio-markers">
+        <span class="bio-chip" style="color:#A8D96E;border-color:rgba(168,217,110,0.3);background:rgba(168,217,110,0.06)">CRP</span>
+        <span class="bio-chip" style="color:#A8D96E;border-color:rgba(168,217,110,0.3);background:rgba(168,217,110,0.06)">Ferritin</span>
+        <span class="bio-chip" style="color:#A8D96E;border-color:rgba(168,217,110,0.3);background:rgba(168,217,110,0.06)">Vitamin D</span>
+        <span class="bio-chip" style="color:#A8D96E;border-color:rgba(168,217,110,0.3);background:rgba(168,217,110,0.06)">Wrist Temperature</span>
+      </div>
+    </div>
+
+    <div class="bio-category">
+      <div class="bio-cat-header">
+        <div class="bio-cat-dot" style="background:#D96EB0; box-shadow: 0 0 6px rgba(217,110,176,0.6)"></div>
+        <span class="bio-cat-name">Nutrients & Cellular</span>
+        <span class="bio-cat-count">6 nodes</span>
+      </div>
+      <div class="bio-markers">
+        <span class="bio-chip" style="color:#D96EB0;border-color:rgba(217,110,176,0.3);background:rgba(217,110,176,0.06)">Magnesium</span>
+        <span class="bio-chip" style="color:#D96EB0;border-color:rgba(217,110,176,0.3);background:rgba(217,110,176,0.06)">Omega-3 Index</span>
+        <span class="bio-chip" style="color:#D96EB0;border-color:rgba(217,110,176,0.3);background:rgba(217,110,176,0.06)">B12</span>
+        <span class="bio-chip" style="color:#D96EB0;border-color:rgba(217,110,176,0.3);background:rgba(217,110,176,0.06)">Zinc</span>
+        <span class="bio-chip" style="color:#D96EB0;border-color:rgba(217,110,176,0.3);background:rgba(217,110,176,0.06)">NAD+</span>
+        <span class="bio-chip" style="color:#D96EB0;border-color:rgba(217,110,176,0.3);background:rgba(217,110,176,0.06)">Serum Albumin</span>
+      </div>
+    </div>
+
+    <div class="bio-category">
+      <div class="bio-cat-header">
+        <div class="bio-cat-dot" style="background:#E8D06A; box-shadow: 0 0 6px rgba(232,208,106,0.6)"></div>
+        <span class="bio-cat-name">Organ & Liver</span>
+        <span class="bio-cat-count">3 nodes</span>
+      </div>
+      <div class="bio-markers">
+        <span class="bio-chip" style="color:#E8D06A;border-color:rgba(232,208,106,0.3);background:rgba(232,208,106,0.06)">ALT Liver Enzyme</span>
+        <span class="bio-chip" style="color:#E8D06A;border-color:rgba(232,208,106,0.3);background:rgba(232,208,106,0.06)">Hydration</span>
+        <span class="bio-chip" style="color:#E8D06A;border-color:rgba(232,208,106,0.3);background:rgba(232,208,106,0.06)">Visceral Fat</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-note">Powered by Sonar · Dexcom API · OAuth 2.0</div>
+  <div class="footer-desc">All biomarker data flows through a unified normalization layer into AILIV's 40-node orbital intelligence engine.</div>
+</div>
+
+<script>
+// FLOW CANVAS — animated data particles moving left→center and center→right
+const canvas = document.getElementById('flow-canvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+  canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+resize();
+window.addEventListener('resize', resize);
+
+const W = () => canvas.offsetWidth;
+const H = () => canvas.offsetHeight;
+
+const particles = [];
+const COLORS = ['#C9A96E','#9B6FBF','#52C4AA','#6AB0E8','#E8916A','#A8D96E'];
+
+function spawnParticle() {
+  const fromRight = Math.random() > 0.5;
+  const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+  if (fromRight) {
+    particles.push({
+      x: W() * 0.65, y: H() * (0.2 + Math.random() * 0.6),
+      tx: W(), ty: H() * (0.2 + Math.random() * 0.6),
+      color, alpha: 0, size: 1.5 + Math.random() * 1.5,
+      speed: 0.4 + Math.random() * 0.4, progress: 0
+    });
+  } else {
+    particles.push({
+      x: 0, y: H() * (0.2 + Math.random() * 0.6),
+      tx: W() * 0.35, ty: H() * (0.2 + Math.random() * 0.6),
+      color, alpha: 0, size: 1.5 + Math.random() * 1.5,
+      speed: 0.4 + Math.random() * 0.4, progress: 0
+    });
+  }
+}
+
+let lastSpawn = 0;
+function draw(t) {
+  ctx.clearRect(0, 0, W(), H());
+
+  // Spawn
+  if (t - lastSpawn > 80) {
+    spawnParticle();
+    lastSpawn = t;
+  }
+
+  // Draw center glow
+  const cx = W() / 2, cy = H() / 2;
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 40);
+  grad.addColorStop(0, 'rgba(201,169,110,0.18)');
+  grad.addColorStop(1, 'rgba(201,169,110,0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Draw horizontal guide lines
+  ctx.strokeStyle = 'rgba(201,169,110,0.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 3; i++) {
+    const y = H() * (0.25 + i * 0.25);
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W(), y);
+    ctx.stroke();
+  }
+
+  // Update + draw particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.progress += p.speed / 100;
+    p.x = p.x + (p.tx - p.x) * 0.015;
+    p.y = p.y + (p.ty - p.y) * 0.008;
+
+    if (p.progress < 0.2) p.alpha = p.progress / 0.2;
+    else if (p.progress > 0.8) p.alpha = 1 - (p.progress - 0.8) / 0.2;
+    else p.alpha = 1;
+
+    if (p.progress >= 1) { particles.splice(i, 1); continue; }
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = p.color + Math.floor(p.alpha * 200).toString(16).padStart(2,'0');
+    ctx.fill();
+
+    // Trail
+    ctx.beginPath();
+    ctx.arc(p.x - (p.tx > W()/2 ? -3 : 3), p.y, p.size * 0.5, 0, Math.PI * 2);
+    ctx.fillStyle = p.color + Math.floor(p.alpha * 80).toString(16).padStart(2,'0');
+    ctx.fill();
+  }
+
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+// LIVE TICKER SIMULATION
+const tickerValues = {
+  'hr': { el: document.getElementById('t-hr'), base: 62, range: 8, dec: 0 },
+  'hrv': { el: document.getElementById('t-hrv'), base: 58, range: 12, dec: 0 },
+  'glucose': { el: document.getElementById('t-glucose'), base: 94, range: 10, dec: 0 },
+  'spo2': { el: document.getElementById('t-spo2'), base: 98, range: 2, dec: 0 },
+  'temp': { el: document.getElementById('t-temp'), base: 98.3, range: 0.4, dec: 1 },
+  'recovery': { el: document.getElementById('t-recovery'), base: 76, range: 10, dec: 0 },
+  'sleep': { el: document.getElementById('t-sleep'), base: 84, range: 8, dec: 0 },
+  'vo2': { el: document.getElementById('t-vo2'), base: 47, range: 3, dec: 0 },
+};
+
+setInterval(() => {
+  const keys = Object.keys(tickerValues);
+  const key = keys[Math.floor(Math.random() * keys.length)];
+  const t = tickerValues[key];
+  const newVal = t.base + (Math.random() - 0.5) * t.range;
+  t.el.textContent = newVal.toFixed(t.dec);
+  t.el.style.color = '#52C4AA';
+  setTimeout(() => { t.el.style.color = '#C9A96E'; }, 600);
+}, 2200);
+</script>
+</body>
+</html>
