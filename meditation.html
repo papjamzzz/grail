@@ -278,30 +278,11 @@ body::after {
   letter-spacing: 0.06em;
 }
 
-/* ── PULSE RING (CSS, behind canvas) ── */
-#pulse-ring {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 0;
-  border-radius: 50%;
-  border: 1px solid rgba(180, 130, 40, 0.12);
-  animation: breathe 4.5s ease-in-out infinite;
-  pointer-events: none;
-  width: 120px;
-  height: 120px;
-}
-@keyframes breathe {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
-  50%       { transform: translate(-50%, -50%) scale(1.15); opacity: 0.15; }
-}
 </style>
 </head>
 <body>
 
 <canvas id="canvas"></canvas>
-<div id="pulse-ring"></div>
 
 <div id="header">
   <h1>Change</h1>
@@ -507,43 +488,6 @@ const centerMat = new THREE.MeshLambertMaterial({
 const centerMesh = new THREE.Mesh(centerGeo, centerMat);
 scene.add(centerMesh);
 
-// Inner warm glow shell — renders behind main sphere, additive blend
-const glow1Geo = new THREE.SphereGeometry(0.26, 20, 20);
-const glow1Mat = new THREE.MeshBasicMaterial({
-  color: 0xd49010,
-  transparent: true,
-  opacity: 0.10,
-  side: THREE.BackSide,
-  blending: THREE.AdditiveBlending,
-  depthWrite: false,
-});
-const glow1 = new THREE.Mesh(glow1Geo, glow1Mat);
-scene.add(glow1);
-
-// Outer diffuse halo — wide, very faint
-const glow2Geo = new THREE.SphereGeometry(0.42, 16, 16);
-const glow2Mat = new THREE.MeshBasicMaterial({
-  color: 0xe0a030,
-  transparent: true,
-  opacity: 0.04,
-  side: THREE.BackSide,
-  blending: THREE.AdditiveBlending,
-  depthWrite: false,
-});
-const glow2 = new THREE.Mesh(glow2Geo, glow2Mat);
-scene.add(glow2);
-
-// Inner halo ring (geometric accent)
-const haloGeo = new THREE.RingGeometry(0.30, 0.34, 64);
-const haloMat = new THREE.MeshBasicMaterial({
-  color: 0xc99040,
-  transparent: true,
-  opacity: 0.12,
-  side: THREE.DoubleSide,
-});
-const halo = new THREE.Mesh(haloGeo, haloMat);
-halo.rotation.x = Math.PI * 0.5;
-scene.add(halo);
 
 // ── PARTICLES ────────────────────────────────────────────────
 
@@ -609,6 +553,7 @@ let curLevel      = 0;
 let targetCoh     = LEVELS[0].coherence;
 let curCoh        = LEVELS[0].coherence;
 let time          = 0;
+let breathPhase   = 0; // accumulates breath cycle independently of time
 const mouseW      = new THREE.Vector3(-999, -999, 0);
 let mouseActive   = false;
 
@@ -726,24 +671,21 @@ function animate() {
 
   const chaos = 1.0 - curCoh;
 
-  // Breathing center orb
-  const breath = Math.sin(time * 1.05) * 0.5 + 0.5;
-  flameLight.intensity       = 1.4 + breath * 1.0;
-  centerMesh.scale.setScalar(1.0 + breath * 0.09);
-  centerMat.emissiveIntensity = 0.55 + breath * 0.55;
+  // Breathing rate tied to practice depth:
+  // No practice → ~15 breaths/min (freq 3.5), deep practice → ~5 breaths/min (freq 1.16)
+  // This is the same force slowing the biomarkers — one unified rhythm
+  const breathFreq = 3.5 - curCoh * 2.34;
+  breathPhase += breathFreq * 0.0075;
+  const breath = Math.sin(breathPhase) * 0.5 + 0.5;
+
+  // Orb breathes: grows in size and brightens on the inhale
+  flameLight.intensity        = 1.0 + breath * 1.4;
+  centerMesh.scale.setScalar(1.0 + breath * 0.20);
+  centerMat.emissiveIntensity = 0.35 + breath * 0.90;
 
   // Felt texture slowly rotates — the fibers shift
-  centerMesh.rotation.y += 0.0008;
-  centerMesh.rotation.x += 0.0003;
-
-  // Glow shells breathe with center
-  glow1Mat.opacity = 0.06 + breath * 0.12;
-  glow2Mat.opacity = 0.02 + breath * 0.05;
-  glow1.scale.setScalar(1.0 + breath * 0.10);
-  glow2.scale.setScalar(1.0 + breath * 0.14);
-
-  haloMat.opacity             = 0.08 + breath * 0.12;
-  halo.scale.setScalar(1.0 + breath * 0.06);
+  centerMesh.rotation.y += 0.0006;
+  centerMesh.rotation.x += 0.0002;
 
   // Gentle camera drift
   camera.position.x = Math.sin(time * 0.038) * 0.55;
