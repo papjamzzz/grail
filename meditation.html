@@ -49,20 +49,12 @@ body::after {
 }
 #header h1 {
   font-family: 'IM Fell English', Georgia, serif;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: normal;
-  letter-spacing: 0.42em;
+  letter-spacing: 0.48em;
   text-transform: uppercase;
   color: #5c3d10;
-  opacity: 0.65;
-}
-#header p {
-  font-size: 9.5px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: #7a5520;
-  opacity: 0.42;
-  margin-top: 5px;
+  opacity: 0.55;
 }
 
 /* ── COMMITMENT PANEL ── */
@@ -72,29 +64,21 @@ body::after {
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  width: 210px;
-}
-#commitment .panel-label {
-  font-size: 9px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: #7a5520;
-  opacity: 0.55;
-  margin-bottom: 22px;
+  width: 175px;
 }
 .level-item {
-  padding: 6px 0;
+  padding: 5px 0;
   cursor: pointer;
-  opacity: 0.38;
+  opacity: 0.32;
   transition: opacity 0.35s;
   position: relative;
   user-select: none;
 }
-.level-item:hover { opacity: 0.68; }
+.level-item:hover { opacity: 0.62; }
 .level-item.active { opacity: 1; }
 .level-name {
   display: block;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 300;
   color: #3a2910;
   line-height: 1.3;
@@ -103,20 +87,13 @@ body::after {
   font-style: italic;
   color: #7a3e0a;
 }
-.level-sub {
-  display: block;
-  font-size: 10px;
-  color: #7a5520;
-  opacity: 0.6;
-  margin-top: 1px;
-}
 .level-dot {
   position: absolute;
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: #c9841a;
   opacity: 0;
@@ -135,19 +112,13 @@ body::after {
   width: 175px;
   text-align: right;
 }
-#impact-panel .panel-label {
-  font-size: 9px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: #7a5520;
-  opacity: 0.55;
-  margin-bottom: 22px;
-}
 .impact-item {
   margin-bottom: 18px;
   opacity: 0;
   transform: translateX(10px);
   transition: opacity 0.7s ease, transform 0.7s ease;
+  position: relative;
+  cursor: default;
 }
 .impact-item.visible { opacity: 1; transform: translateX(0); }
 .impact-name {
@@ -165,16 +136,54 @@ body::after {
   line-height: 1.05;
   margin-top: 1px;
 }
-.impact-desc {
-  font-size: 10px;
-  font-style: italic;
+
+/* ── BIOMARKER HOVER CARD ── */
+.bio-card {
+  display: none;
+  position: absolute;
+  right: 185px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 230px;
+  background: rgba(246, 237, 218, 0.97);
+  border: 1px solid rgba(139, 94, 20, 0.18);
+  padding: 16px 18px;
+  text-align: left;
+  z-index: 50;
+  box-shadow: 0 4px 24px rgba(80, 50, 10, 0.10);
+}
+.impact-item:hover .bio-card { display: block; }
+.bio-card-marker {
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
   color: #7a5520;
   opacity: 0.6;
-  margin-top: 2px;
+  margin-bottom: 6px;
+}
+.bio-card-status {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 14px;
+  color: #3a2910;
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+.bio-card-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(139, 94, 20, 0.15);
+  margin-bottom: 10px;
+}
+.bio-card-med {
+  font-size: 12px;
+  font-style: italic;
+  color: #6b4010;
+  line-height: 1.5;
+  opacity: 0.85;
 }
 
-/* ── AFFIRMATION ── */
-#affirmation {
+/* ── SELECTION FLASH ── */
+#sel-flash {
   position: fixed;
   bottom: 72px;
   left: 50%;
@@ -183,25 +192,15 @@ body::after {
   z-index: 10;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 1.4s ease;
-  width: 520px;
-  max-width: 90vw;
+  transition: opacity 1.2s ease;
 }
-#affirmation .aff-main {
+#sel-flash .flash-val {
   font-family: 'IM Fell English', Georgia, serif;
-  font-style: italic;
-  font-size: 21px;
-  color: #5c3508;
-  letter-spacing: 0.015em;
-  line-height: 1.5;
-}
-#affirmation .aff-impact {
-  font-size: 11px;
-  letter-spacing: 0.22em;
+  font-size: 13px;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #8b6030;
-  opacity: 0.55;
-  margin-top: 9px;
+  color: #8b5e14;
+  opacity: 0.6;
 }
 
 /* ── CENTER LABEL ── */
@@ -291,55 +290,75 @@ body::after {
 <div id="pulse-ring"></div>
 
 <div id="header">
-  <h1>Meditation</h1>
-  <p>Biomarker Intelligence · AILIV</p>
+  <h1>Change</h1>
 </div>
 
-<div id="commitment">
-  <div class="panel-label">Your Practice</div>
-</div>
+<div id="commitment"></div>
 
 <div id="impact-panel">
-  <div class="panel-label">Biomarker Response</div>
+
   <div class="impact-item" id="imp-hrv">
     <span class="impact-name">HRV</span>
     <span class="impact-value" id="v-hrv">—</span>
-    <span class="impact-desc">Heart Rate Variability</span>
+    <div class="bio-card">
+      <div class="bio-card-marker">Heart Rate Variability</div>
+      <div class="bio-card-status">The gap between heartbeats, measured in milliseconds. Higher variability means your nervous system is adaptive and resilient. Low HRV is one of the clearest signs of chronic stress.</div>
+      <div class="bio-card-divider"></div>
+      <div class="bio-card-med">Meditation is the most evidence-backed intervention for HRV. Even 20 minutes daily produces measurable improvement within two weeks.</div>
+    </div>
   </div>
+
   <div class="impact-item" id="imp-rhr">
     <span class="impact-name">Resting HR</span>
     <span class="impact-value" id="v-rhr">—</span>
-    <span class="impact-desc">Resting Heart Rate</span>
+    <div class="bio-card">
+      <div class="bio-card-marker">Resting Heart Rate</div>
+      <div class="bio-card-status">Your heart rate at rest. Lower is calmer. Athletes sit at 40–50 bpm. Most adults run 60–80. Elevated resting HR is a direct signal of sympathetic overdrive.</div>
+      <div class="bio-card-divider"></div>
+      <div class="bio-card-med">Regular meditation activates the parasympathetic system. Most practitioners see resting HR drop 3–5 bpm within a month of consistent practice.</div>
+    </div>
   </div>
+
   <div class="impact-item" id="imp-cort">
     <span class="impact-name">Cortisol</span>
     <span class="impact-value" id="v-cort">—</span>
-    <span class="impact-desc">Stress Marker</span>
+    <div class="bio-card">
+      <div class="bio-card-marker">Cortisol</div>
+      <div class="bio-card-status">Your primary stress hormone. Peaks in the morning, should taper through the day. Chronically elevated cortisol disrupts sleep, immunity, metabolism, and mood.</div>
+      <div class="bio-card-divider"></div>
+      <div class="bio-card-med">Meditation reduces cortisol more reliably than almost any other non-pharmaceutical intervention. TM studies show 30–32% reduction with consistent twice-daily practice.</div>
+    </div>
   </div>
+
   <div class="impact-item" id="imp-resp">
     <span class="impact-name">Resp Rate</span>
     <span class="impact-value" id="v-resp">—</span>
-    <span class="impact-desc">Respiratory Rate</span>
+    <div class="bio-card">
+      <div class="bio-card-marker">Respiratory Rate</div>
+      <div class="bio-card-status">Breaths per minute at rest. Normal is 12–20. Slower, deeper breathing is directly correlated with calm nervous system function and better oxygen efficiency.</div>
+      <div class="bio-card-divider"></div>
+      <div class="bio-card-med">The most immediate effect of meditation. Breath slows within minutes of sitting. Over time, your resting rate shifts lower as the practice becomes the baseline.</div>
+    </div>
   </div>
+
   <div class="impact-item" id="imp-rec">
     <span class="impact-name">Recovery</span>
     <span class="impact-value" id="v-rec">—</span>
-    <span class="impact-desc">Recovery Index</span>
+    <div class="bio-card">
+      <div class="bio-card-marker">Recovery Index</div>
+      <div class="bio-card-status">A composite score drawn from HRV, resting HR, sleep quality, and respiratory rate. It measures how well your body bounces back. Declines with poor sleep, stress, and overtraining.</div>
+      <div class="bio-card-divider"></div>
+      <div class="bio-card-med">As the primary markers improve through meditation, recovery rises with them. It is the downstream signal. If you are practicing, this number moves.</div>
+    </div>
   </div>
+
 </div>
 
 <div id="center-label"><span>stillness</span></div>
 
-<div id="affirmation">
-  <div class="aff-main" id="aff-text"></div>
-  <div class="aff-impact" id="aff-impact"></div>
-</div>
+<div id="sel-flash"><div class="flash-val" id="flash-val"></div></div>
 
 <div id="hover-tip"><span id="hover-tip-text"></span></div>
-
-<div id="footer">
-  <p>This model is an approximation. The practice is real.</p>
-</div>
 
 <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 <script>
@@ -362,16 +381,16 @@ const GROUPS = [
 ];
 
 const LEVELS = [
-  { label:'No practice',        sub:'The journey begins here',       coherence:0.05, impact:0.000, affirmation:'Every path begins with a single breath.', impactStr:'' },
-  { label:'5 minutes, once',    sub:'A seed planted each morning',   coherence:0.16, impact:0.020, affirmation:'Every beginning is sacred.',              impactStr:'+2% across primary biomarkers' },
-  { label:'10 minutes, once',   sub:'Something is growing in you',   coherence:0.28, impact:0.035, affirmation:'You are beginning to listen.',            impactStr:'+3.5% across primary biomarkers' },
-  { label:'20 minutes, once',   sub:'The TM standard. Real change.', coherence:0.43, impact:0.050, affirmation:'The practice has taken root. The body knows.', impactStr:'+5% across primary biomarkers' },
-  { label:'20 minutes, twice',  sub:'Morning and evening. Ancient.', coherence:0.58, impact:0.090, affirmation:'Twice a day. The ancient rhythm. Well done.', impactStr:'+9% across primary biomarkers' },
-  { label:'30 minutes, twice',  sub:'A dedicated, structured life',  coherence:0.70, impact:0.130, affirmation:'You are building something real and lasting.', impactStr:'+13% across primary biomarkers' },
-  { label:'1 hour, once',       sub:'The body knows this depth',     coherence:0.78, impact:0.160, affirmation:'An hour of stillness. You are changing.',  impactStr:'+16% across primary biomarkers' },
-  { label:'1 hour, twice',      sub:'Presence as a way of life',     coherence:0.86, impact:0.220, affirmation:'Two sessions. You are the practice now.',  impactStr:'+22% across primary biomarkers' },
-  { label:'2 hours, once',      sub:'Vipassana depth. Rare and real',coherence:0.93, impact:0.300, affirmation:'Two hours. The body remembers everything.', impactStr:'+30% across primary biomarkers' },
-  { label:'2 hours, twice',     sub:'Peak. The monks lived here.',   coherence:1.00, impact:0.380, affirmation:'The monks knew this path. Now you do.',    impactStr:'+38% across primary biomarkers' },
+  { label:'—',              coherence:0.05, impact:0.000 },
+  { label:'5 min · once',   coherence:0.16, impact:0.020 },
+  { label:'10 min · once',  coherence:0.28, impact:0.035 },
+  { label:'20 min · once',  coherence:0.43, impact:0.050 },
+  { label:'20 min · twice', coherence:0.58, impact:0.090 },
+  { label:'30 min · twice', coherence:0.70, impact:0.130 },
+  { label:'1 hr · once',    coherence:0.78, impact:0.160 },
+  { label:'1 hr · twice',   coherence:0.86, impact:0.220 },
+  { label:'2 hr · once',    coherence:0.93, impact:0.300 },
+  { label:'2 hr · twice',   coherence:1.00, impact:0.380 },
 ];
 
 // Biomarker-specific impact weights
@@ -507,31 +526,29 @@ const panel = document.getElementById('commitment');
 LEVELS.forEach((lv, i) => {
   const el = document.createElement('div');
   el.className = 'level-item' + (i === 0 ? ' active' : '');
-  el.innerHTML = `<span class="level-name">${lv.label}</span><span class="level-sub">${lv.sub}</span><span class="level-dot"></span>`;
+  el.innerHTML = `<span class="level-name">${lv.label}</span><span class="level-dot"></span>`;
   el.addEventListener('click', () => selectLevel(i));
   panel.appendChild(el);
 });
 
 function selectLevel(i) {
-  curLevel    = i;
-  targetCoh   = LEVELS[i].coherence;
+  curLevel  = i;
+  targetCoh = LEVELS[i].coherence;
   document.querySelectorAll('.level-item').forEach((el,j) => el.classList.toggle('active', j===i));
-  showAffirmation(LEVELS[i].affirmation, LEVELS[i].impactStr);
   updateImpact(LEVELS[i].impact);
-  // Show center label once something is chosen
-  if (i > 0) document.getElementById('center-label').classList.add('visible');
+  if (i > 0) {
+    document.getElementById('center-label').classList.add('visible');
+    flashImpact(LEVELS[i].impact);
+  }
 }
 
-// ── AFFIRMATION ─────────────────────────────────────────────
-
-let affTimer = null;
-function showAffirmation(text, impactStr) {
-  const el  = document.getElementById('affirmation');
-  document.getElementById('aff-text').textContent   = text;
-  document.getElementById('aff-impact').textContent = impactStr || '';
+function flashImpact(pct) {
+  const el  = document.getElementById('sel-flash');
+  const val = document.getElementById('flash-val');
+  val.textContent = pct > 0 ? `+${Math.round(pct * 100)}% primary biomarkers` : '';
   el.style.opacity = '1';
-  clearTimeout(affTimer);
-  affTimer = setTimeout(() => { el.style.opacity = '0'; }, 5000);
+  clearTimeout(flashImpact._t);
+  flashImpact._t = setTimeout(() => { el.style.opacity = '0'; }, 2500);
 }
 
 // ── IMPACT PANEL ────────────────────────────────────────────
