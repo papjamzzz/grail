@@ -110,6 +110,10 @@ def biosurface():
 def meditation():
     return send_from_directory(BASE, 'meditation.html')
 
+@app.route('/meditation-guide')
+def meditation_guide():
+    return send_from_directory(BASE, 'meditation-guide.html')
+
 @app.route('/particle-intro')
 def particle_intro():
     return send_from_directory(BASE, 'particle-intro.html')

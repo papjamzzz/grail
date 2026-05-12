@@ -57,6 +57,32 @@ body::after {
   opacity: 0.55;
 }
 
+/* ── HELP BUTTON ── */
+#help-btn {
+  position: fixed;
+  top: 28px;
+  right: 36px;
+  z-index: 20;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(90, 60, 20, 0.35);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 16px;
+  color: rgba(90, 60, 20, 0.50);
+  text-decoration: none;
+  transition: color 0.25s, border-color 0.25s, opacity 0.25s;
+  opacity: 0.48;
+}
+#help-btn:hover {
+  opacity: 1;
+  color: #7a3e0a;
+  border-color: rgba(122, 62, 10, 0.65);
+}
+
 /* ── COMMITMENT PANEL ── */
 #commitment {
   position: fixed;
@@ -64,7 +90,17 @@ body::after {
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  width: 175px;
+  width: 210px;
+}
+#commitment-label {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.30em;
+  text-transform: uppercase;
+  color: #5c3d10;
+  opacity: 0.42;
+  margin-bottom: 18px;
+  display: block;
 }
 .level-item {
   padding: 5px 0;
@@ -78,10 +114,10 @@ body::after {
 .level-item.active { opacity: 1; }
 .level-name {
   display: block;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 300;
   color: #3a2910;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 .level-item.active .level-name {
   font-style: italic;
@@ -203,28 +239,6 @@ body::after {
   opacity: 0.6;
 }
 
-/* ── CENTER LABEL ── */
-#center-label {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  pointer-events: none;
-  z-index: 2;
-  opacity: 0;
-  transition: opacity 2s ease;
-}
-#center-label.visible { opacity: 1; }
-#center-label span {
-  font-family: 'IM Fell English', Georgia, serif;
-  font-size: 11px;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: #8b5e14;
-  opacity: 0.45;
-}
-
 /* ── HOVER TOOLTIP ── */
 #hover-tip {
   position: fixed;
@@ -293,7 +307,11 @@ body::after {
   <h1>Change</h1>
 </div>
 
-<div id="commitment"></div>
+<a id="help-btn" href="/meditation-guide" target="_blank">?</a>
+
+<div id="commitment">
+  <span id="commitment-label">My Practice</span>
+</div>
 
 <div id="impact-panel">
 
@@ -354,8 +372,6 @@ body::after {
 
 </div>
 
-<div id="center-label"><span>stillness</span></div>
-
 <div id="sel-flash"><div class="flash-val" id="flash-val"></div></div>
 
 <div id="hover-tip"><span id="hover-tip-text"></span></div>
@@ -364,7 +380,7 @@ body::after {
 <script>
 // ════════════════════════════════════════════════════════════
 //  MEDITATION BIOMARKER VISUALIZER
-//  AILIV — proof of concept
+//  AILIV
 // ════════════════════════════════════════════════════════════
 
 // ── DATA ────────────────────────────────────────────────────
@@ -380,17 +396,20 @@ const GROUPS = [
   { name:'Other',    label:'Other Biomarkers',       count:290, rad:4.65, r:0.50, g:0.47, b:0.42 },
 ];
 
+// Coherence values: dramatic spread at upper levels for visible slowdown
+// chaos = 1 - coherence controls all motion
 const LEVELS = [
-  { label:'—',              coherence:0.05, impact:0.000 },
-  { label:'5 min · once',   coherence:0.16, impact:0.020 },
-  { label:'10 min · once',  coherence:0.28, impact:0.035 },
-  { label:'20 min · once',  coherence:0.43, impact:0.050 },
-  { label:'20 min · twice', coherence:0.58, impact:0.090 },
-  { label:'30 min · twice', coherence:0.70, impact:0.130 },
-  { label:'1 hr · once',    coherence:0.78, impact:0.160 },
-  { label:'1 hr · twice',   coherence:0.86, impact:0.220 },
-  { label:'2 hr · once',    coherence:0.93, impact:0.300 },
-  { label:'2 hr · twice',   coherence:1.00, impact:0.380 },
+  { label:'No practice',      coherence:0.02, impact:0.000 },
+  { label:'5 min · once',     coherence:0.11, impact:0.018 },
+  { label:'10 min · once',    coherence:0.21, impact:0.032 },
+  { label:'20 min · once',    coherence:0.33, impact:0.048 },
+  { label:'20 min · twice',   coherence:0.46, impact:0.085 },
+  { label:'30 min · twice',   coherence:0.58, impact:0.125 },
+  { label:'1 hr · once',      coherence:0.68, impact:0.155 },
+  { label:'1 hr · twice',     coherence:0.80, impact:0.215 },
+  { label:'2 hr · once',      coherence:0.88, impact:0.290 },
+  { label:'2 hr · twice',     coherence:0.94, impact:0.360 },
+  { label:'4+ hrs · beyond',  coherence:1.00, impact:0.450 },
 ];
 
 // Biomarker-specific impact weights
@@ -428,13 +447,111 @@ const rimLight = new THREE.DirectionalLight(0xf0d8a0, 0.22);
 rimLight.position.set(-4, 6, -4);
 scene.add(rimLight);
 
+// ── FELT ORB TEXTURE ────────────────────────────────────────
+
+// Paint fiber-like noise onto a canvas to simulate felt/textile
+const feltCanvas = document.createElement('canvas');
+feltCanvas.width = 256; feltCanvas.height = 256;
+const fctx = feltCanvas.getContext('2d');
+
+// Base warm amber fill
+fctx.fillStyle = '#c49040';
+fctx.fillRect(0, 0, 256, 256);
+
+// Radial warmth from center — simulate inner glow
+const radGrad = fctx.createRadialGradient(128,128,0, 128,128,128);
+radGrad.addColorStop(0,   'rgba(240, 180, 60, 0.55)');
+radGrad.addColorStop(0.5, 'rgba(180, 120, 20, 0.20)');
+radGrad.addColorStop(1,   'rgba(80,  45,  5, 0.38)');
+fctx.fillStyle = radGrad;
+fctx.fillRect(0, 0, 256, 256);
+
+// Felt fibers — short strokes in random directions
+const rng = { v: 42 };
+function nextRng() {
+  rng.v = (rng.v * 1664525 + 1013904223) & 0xffffffff;
+  return (rng.v >>> 0) / 0xffffffff;
+}
+for (let i = 0; i < 18000; i++) {
+  const x   = nextRng() * 256;
+  const y   = nextRng() * 256;
+  const len = 1.5 + nextRng() * 6;
+  const ang = nextRng() * Math.PI;
+  const br  = nextRng();
+  const a   = 0.08 + nextRng() * 0.28;
+  const col = br > 0.55
+    ? `rgba(240, 190, 80, ${a})`
+    : br > 0.25
+      ? `rgba(160, 100, 20, ${a * 0.7})`
+      : `rgba(70,  40,  8, ${a * 0.5})`;
+  fctx.strokeStyle = col;
+  fctx.lineWidth = 0.4 + nextRng() * 0.9;
+  fctx.beginPath();
+  fctx.moveTo(x, y);
+  fctx.lineTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len);
+  fctx.stroke();
+}
+
+const feltTexture = new THREE.CanvasTexture(feltCanvas);
+
+// ── CENTER ORB — felt/textile, glows from within ─────────────
+
+const centerGeo = new THREE.SphereGeometry(0.20, 32, 32);
+const centerMat = new THREE.MeshLambertMaterial({
+  map:              feltTexture,
+  emissive:         new THREE.Color(0.50, 0.24, 0.02),
+  emissiveIntensity: 0.80,
+  transparent: true,
+  opacity: 0.96,
+});
+const centerMesh = new THREE.Mesh(centerGeo, centerMat);
+scene.add(centerMesh);
+
+// Inner warm glow shell — renders behind main sphere, additive blend
+const glow1Geo = new THREE.SphereGeometry(0.26, 20, 20);
+const glow1Mat = new THREE.MeshBasicMaterial({
+  color: 0xd49010,
+  transparent: true,
+  opacity: 0.10,
+  side: THREE.BackSide,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+});
+const glow1 = new THREE.Mesh(glow1Geo, glow1Mat);
+scene.add(glow1);
+
+// Outer diffuse halo — wide, very faint
+const glow2Geo = new THREE.SphereGeometry(0.42, 16, 16);
+const glow2Mat = new THREE.MeshBasicMaterial({
+  color: 0xe0a030,
+  transparent: true,
+  opacity: 0.04,
+  side: THREE.BackSide,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+});
+const glow2 = new THREE.Mesh(glow2Geo, glow2Mat);
+scene.add(glow2);
+
+// Inner halo ring (geometric accent)
+const haloGeo = new THREE.RingGeometry(0.30, 0.34, 64);
+const haloMat = new THREE.MeshBasicMaterial({
+  color: 0xc99040,
+  transparent: true,
+  opacity: 0.12,
+  side: THREE.DoubleSide,
+});
+const halo = new THREE.Mesh(haloGeo, haloMat);
+halo.rotation.x = Math.PI * 0.5;
+scene.add(halo);
+
 // ── PARTICLES ────────────────────────────────────────────────
 
 const totalPts = GROUPS.reduce((s,g) => s + g.count, 0);
 const positions = new Float32Array(totalPts * 3);
 const colors    = new Float32Array(totalPts * 3);
 
-const pData = []; // per-particle state
+const pData = [];
 
 let idx = 0;
 GROUPS.forEach((group, gi) => {
@@ -486,31 +603,6 @@ const mat = new THREE.PointsMaterial({
 const points = new THREE.Points(geo, mat);
 scene.add(points);
 
-// Center orb — the meditation focal point
-const centerGeo = new THREE.SphereGeometry(0.20, 28, 28);
-const centerMat = new THREE.MeshPhongMaterial({
-  color:     0xc99040,
-  emissive:  0x7a4a08,
-  emissiveIntensity: 0.65,
-  transparent: true,
-  opacity: 0.88,
-  shininess: 35,
-});
-const centerMesh = new THREE.Mesh(centerGeo, centerMat);
-scene.add(centerMesh);
-
-// Inner halo ring (geometry, no text)
-const haloGeo = new THREE.RingGeometry(0.30, 0.34, 64);
-const haloMat = new THREE.MeshBasicMaterial({
-  color: 0xc99040,
-  transparent: true,
-  opacity: 0.12,
-  side: THREE.DoubleSide,
-});
-const halo = new THREE.Mesh(haloGeo, haloMat);
-halo.rotation.x = Math.PI * 0.5;
-scene.add(halo);
-
 // ── STATE ───────────────────────────────────────────────────
 
 let curLevel      = 0;
@@ -537,7 +629,6 @@ function selectLevel(i) {
   document.querySelectorAll('.level-item').forEach((el,j) => el.classList.toggle('active', j===i));
   updateImpact(LEVELS[i].impact);
   if (i > 0) {
-    document.getElementById('center-label').classList.add('visible');
     flashImpact(LEVELS[i].impact);
   }
 }
@@ -555,7 +646,7 @@ function flashImpact(pct) {
 
 function updateImpact(pct) {
   ['hrv','rhr','cort','resp','rec'].forEach((k, i) => {
-    const el = document.getElementById('imp-' + (k === 'cort' ? 'cort' : k));
+    const el = document.getElementById('imp-' + k);
     if (!el) return;
     el.classList.remove('visible');
     setTimeout(() => {
@@ -570,7 +661,6 @@ function updateImpact(pct) {
 document.addEventListener('mousemove', (e) => {
   const nx = (e.clientX / innerWidth)  * 2 - 1;
   const ny = -(e.clientY / innerHeight) * 2 + 1;
-  // Project to approximate z=0 plane at camera distance
   const fov   = 54 * Math.PI / 180;
   const dist  = camera.position.z;
   const worldH = 2 * Math.tan(fov/2) * dist;
@@ -590,12 +680,10 @@ let lastHoverGroup = -1;
 function checkHover(e) {
   const mx = e.clientX;
   const my = e.clientY;
-  // Find nearest particle group to cursor using approximate screen mapping
   let minDist = Infinity;
   let nearGroup = -1;
 
   GROUPS.forEach((g, gi) => {
-    // Rough screen center of each group ring (top-down view)
     const sx = innerWidth  * 0.5;
     const sy = innerHeight * 0.5;
     const screenRad = g.rad * (innerHeight / 9.2) * 0.65;
@@ -633,20 +721,31 @@ function animate() {
   requestAnimationFrame(animate);
   time += 0.0075;
 
-  // Smooth coherence transition
+  // Smooth coherence — use sqrt easing for snappier initial response
   curCoh += (targetCoh - curCoh) * 0.016;
 
   const chaos = 1.0 - curCoh;
 
-  // Breathing center
+  // Breathing center orb
   const breath = Math.sin(time * 1.05) * 0.5 + 0.5;
   flameLight.intensity       = 1.4 + breath * 1.0;
   centerMesh.scale.setScalar(1.0 + breath * 0.09);
-  centerMat.emissiveIntensity = 0.45 + breath * 0.45;
+  centerMat.emissiveIntensity = 0.55 + breath * 0.55;
+
+  // Felt texture slowly rotates — the fibers shift
+  centerMesh.rotation.y += 0.0008;
+  centerMesh.rotation.x += 0.0003;
+
+  // Glow shells breathe with center
+  glow1Mat.opacity = 0.06 + breath * 0.12;
+  glow2Mat.opacity = 0.02 + breath * 0.05;
+  glow1.scale.setScalar(1.0 + breath * 0.10);
+  glow2.scale.setScalar(1.0 + breath * 0.14);
+
   haloMat.opacity             = 0.08 + breath * 0.12;
   halo.scale.setScalar(1.0 + breath * 0.06);
 
-  // Gentle camera drift — the world breathes
+  // Gentle camera drift
   camera.position.x = Math.sin(time * 0.038) * 0.55;
   camera.position.y = 1.4 + Math.sin(time * 0.024) * 0.38;
   camera.lookAt(0, 0, 0);
@@ -658,7 +757,7 @@ function animate() {
     const d     = pData[p];
     const group = GROUPS[d.gi];
 
-    // Advance angle — chaos makes it fast/random, coherence makes it slow/stately
+    // Advance angle — chaos fast/random, coherence slow/stately
     d.angle += d.speed * (0.45 + chaos * 1.8);
 
     // Helix: at high coherence particles form a beautiful double helix
@@ -672,7 +771,7 @@ function animate() {
     // Orbit radius variation with chaos
     const r   = group.rad + d.rVar * chaos;
 
-    // Micro-wobble — the body is never still (Vipassana: all is change)
+    // Micro-wobble
     const wob = Math.sin(time * 0.9 + d.phase) * chaos * 0.12;
 
     // Target position

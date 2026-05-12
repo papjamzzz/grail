@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meditation Guide · AILIV</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 60% 20%, rgba(200, 160, 60, 0.10) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(140, 90, 20, 0.08) 0%, transparent 50%),
+    linear-gradient(162deg, #f6ecda 0%, #efe1c2 45%, #e6d5ae 100%);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: #3a2910;
+  padding: 0;
+}
+
+/* Parchment grain overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23g)'/%3E%3C/svg%3E");
+  opacity: 0.055;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 80px 48px 120px;
+}
+
+/* Back link */
+.back {
+  display: inline-block;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #7a5520;
+  opacity: 0.50;
+  text-decoration: none;
+  margin-bottom: 64px;
+  transition: opacity 0.2s;
+}
+.back:hover { opacity: 0.85; }
+.back::before { content: '← '; }
+
+/* Masthead */
+.masthead {
+  margin-bottom: 64px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(139, 94, 20, 0.15);
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #7a5520;
+  opacity: 0.50;
+  margin-bottom: 20px;
+}
+.title {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 38px;
+  font-weight: normal;
+  color: #3a2005;
+  line-height: 1.15;
+  margin-bottom: 18px;
+}
+.subtitle {
+  font-size: 18px;
+  font-style: italic;
+  color: #5c3d10;
+  opacity: 0.72;
+  line-height: 1.55;
+  font-weight: 300;
+}
+
+/* Section */
+.section {
+  margin-bottom: 58px;
+}
+.section-label {
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #7a5520;
+  opacity: 0.45;
+  margin-bottom: 22px;
+}
+.section h2 {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 22px;
+  font-weight: normal;
+  color: #3a2005;
+  margin-bottom: 14px;
+  line-height: 1.3;
+}
+.section p {
+  font-size: 17px;
+  font-weight: 300;
+  color: #4a3015;
+  line-height: 1.70;
+  margin-bottom: 14px;
+}
+.section p:last-child { margin-bottom: 0; }
+
+/* Commitment table */
+.commit-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+}
+.commit-table tr {
+  border-bottom: 1px solid rgba(139, 94, 20, 0.10);
+}
+.commit-table tr:first-child {
+  border-top: 1px solid rgba(139, 94, 20, 0.10);
+}
+.commit-table td {
+  padding: 10px 0;
+  font-size: 15px;
+  color: #4a3015;
+  font-weight: 300;
+}
+.commit-table td:first-child {
+  font-style: italic;
+  width: 44%;
+  color: #7a3e0a;
+}
+.commit-table td:last-child {
+  font-size: 14px;
+  color: #7a5520;
+  opacity: 0.70;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid rgba(139, 94, 20, 0.14);
+  margin: 52px 0;
+}
+
+/* Place cards */
+.place-list {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.place {
+  padding-bottom: 28px;
+  border-bottom: 1px solid rgba(139, 94, 20, 0.10);
+}
+.place:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.place-name {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 20px;
+  color: #3a2005;
+  margin-bottom: 5px;
+}
+.place-loc {
+  font-size: 11px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: #7a5520;
+  opacity: 0.50;
+  margin-bottom: 9px;
+}
+.place-desc {
+  font-size: 15px;
+  font-weight: 300;
+  color: #4a3015;
+  line-height: 1.60;
+  margin-bottom: 10px;
+}
+.place-link {
+  font-size: 13px;
+  font-style: italic;
+  color: #7a3e0a;
+  text-decoration: none;
+  opacity: 0.70;
+  transition: opacity 0.2s;
+}
+.place-link:hover { opacity: 1; }
+
+/* Closing */
+.closing {
+  margin-top: 72px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(139, 94, 20, 0.14);
+  text-align: center;
+}
+.closing p {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-style: italic;
+  font-size: 17px;
+  color: #5c3d10;
+  opacity: 0.55;
+  line-height: 1.6;
+}
+.ailiv-mark {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #7a5520;
+  opacity: 0.30;
+  margin-top: 28px;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a class="back" href="/meditation">Return to practice</a>
+
+  <div class="masthead">
+    <div class="eyebrow">AILIV · Meditation</div>
+    <h1 class="title">How practice<br>moves your biology</h1>
+    <p class="subtitle">A guide to the visualization and the science behind it.</p>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section">
+    <div class="section-label">How It Works</div>
+    <h2>The field is your nervous system</h2>
+    <p>Each particle in the visualization represents a biomarker data point — heart rate variability, cortisol, respiratory rate, resting heart rate, and recovery. They orbit in rings corresponding to how directly each marker responds to meditation practice.</p>
+    <p>When you select a practice level, the particles change. At no practice, the field is chaotic — particles fly and scatter. As you commit more deeply, the field slows, organizes, and begins to form coherent patterns. At the deepest levels, a double helix emerges.</p>
+    <p>This is not decoration. It is a biological metaphor. The body under stress is incoherent — systems firing without rhythm. The body in deep practice is ordered, slow, and self-regulating.</p>
+  </div>
+
+  <!-- COMMITMENT LEVELS -->
+  <div class="section">
+    <div class="section-label">The Commitment Spectrum</div>
+    <h2>What each level represents</h2>
+    <p>Select the level that honestly describes your daily practice. The visualization reflects the cumulative biological effect of sustained practice at that intensity.</p>
+
+    <table class="commit-table">
+      <tr><td>No practice</td><td>Maximum field chaos. Baseline biology, unstressed.</td></tr>
+      <tr><td>5 min · once</td><td>A beginning. Small coherence begins to appear.</td></tr>
+      <tr><td>10 min · once</td><td>Enough to shift breath and lower cortisol slightly.</td></tr>
+      <tr><td>20 min · once</td><td>Clinically studied range. Measurable HRV improvement.</td></tr>
+      <tr><td>20 min · twice</td><td>Standard TM protocol. Cortisol reduction begins here.</td></tr>
+      <tr><td>30 min · twice</td><td>Entering serious practice. The field slows noticeably.</td></tr>
+      <tr><td>1 hr · once</td><td>Retreat-level practice. Biology changes are sustained.</td></tr>
+      <tr><td>1 hr · twice</td><td>Deep practitioner range. Significant field order visible.</td></tr>
+      <tr><td>2 hr · once</td><td>Advanced daily practice. Recovery index climbs.</td></tr>
+      <tr><td>2 hr · twice</td><td>Near-monastic commitment. Near-total field coherence.</td></tr>
+      <tr><td>4+ hrs · beyond</td><td>Long retreat or dedicated practice. Total harmony.</td></tr>
+    </table>
+  </div>
+
+  <!-- WHAT THE NUMBERS MEAN -->
+  <div class="section">
+    <div class="section-label">The Right Panel</div>
+    <h2>What the percentages mean</h2>
+    <p>The five biomarkers on the right show the estimated effect size of your practice level on each marker, based on peer-reviewed literature on meditation and physiology. These are directional guides, not clinical predictions.</p>
+    <p>HRV and cortisol are the most sensitive to practice. Resting heart rate follows slowly. Respiratory rate shifts almost immediately. Recovery is the composite — when the others move, it moves with them.</p>
+    <p>Hover any marker to read what it measures and what the evidence says about meditation's effect on it.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- PLACES TO PRACTICE -->
+  <div class="section">
+    <div class="section-label">Places to Practice</div>
+    <h2>Where to go if you want to go deeper</h2>
+    <p>These are real places, real teachers. Not a curated list — just the ones worth knowing about.</p>
+
+    <div class="place-list">
+
+      <div class="place">
+        <div class="place-name">Valley Meditation Center</div>
+        <div class="place-loc">Shelburne Falls, Massachusetts</div>
+        <div class="place-desc">A small, serious Insight Meditation center in western Massachusetts. Daylong sits, evening sits, and retreats. Quiet and unpretentious. The kind of place that changes things.</div>
+      </div>
+
+      <div class="place">
+        <div class="place-name">Insight Meditation Society</div>
+        <div class="place-loc">Barre, Massachusetts</div>
+        <div class="place-desc">One of the preeminent Vipassana retreat centers in the Western world. Residential retreats from three days to three months. The teachers here trained most of the teachers everywhere else.</div>
+        <a class="place-link" href="https://www.dharma.org" target="_blank">dharma.org</a>
+      </div>
+
+      <div class="place">
+        <div class="place-name">Spirit Rock Meditation Center</div>
+        <div class="place-loc">Woodacre, California</div>
+        <div class="place-desc">The West Coast counterpart to IMS. Beautiful land, serious practice, excellent teacher lineup. Daylong programs and longer residential retreats. Strong community.</div>
+        <a class="place-link" href="https://www.spiritrock.org" target="_blank">spiritrock.org</a>
+      </div>
+
+      <div class="place">
+        <div class="place-name">Insight Meditation Community of Washington</div>
+        <div class="place-loc">Washington, D.C.</div>
+        <div class="place-desc">An active urban sangha with weekly sits, study groups, and retreats. If you are near DC and looking for community practice, this is the place. Tara Brach leads here.</div>
+        <a class="place-link" href="https://www.imcw.org" target="_blank">imcw.org</a>
+      </div>
+
+      <div class="place">
+        <div class="place-name">Transcendental Meditation</div>
+        <div class="place-loc">Worldwide</div>
+        <div class="place-desc">The most clinically studied meditation technique in existence. The twice-daily protocol — 20 minutes morning and evening — is what drives most of the cortisol and blood pressure research. Requires in-person instruction.</div>
+        <a class="place-link" href="https://www.tm.org" target="_blank">tm.org</a>
+      </div>
+
+      <div class="place">
+        <div class="place-name">Against the Stream</div>
+        <div class="place-loc">Online and in community</div>
+        <div class="place-desc">Founded by Noah Levine. A more contemporary, accessible entry into Insight Meditation — no prerequisites, no gatekeeping. Good for people who are early in practice and want direct instruction without the traditional structure.</div>
+        <a class="place-link" href="https://www.againstthestream.org" target="_blank">againstthestream.org</a>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="closing">
+    <p>The practice is not about achieving anything.<br>It is about seeing what is already here.</p>
+    <span class="ailiv-mark">AILIV · Built with intention</span>
+  </div>
+
+</div>
+</body>
+</html>
