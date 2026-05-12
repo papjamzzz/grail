@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meditation · AILIV</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at center, transparent 25%, rgba(80, 55, 20, 0.28) 100%),
+    linear-gradient(158deg, #f5ead5 0%, #eee0c0 50%, #e5d3aa 100%);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: #3a2910;
+}
+
+/* Parchment grain */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23g)'/%3E%3C/svg%3E");
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 999;
+}
+
+#canvas {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 1;
+}
+
+/* ── HEADER ── */
+#header {
+  position: fixed;
+  top: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+}
+#header h1 {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 13px;
+  font-weight: normal;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: #5c3d10;
+  opacity: 0.65;
+}
+#header p {
+  font-size: 9.5px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #7a5520;
+  opacity: 0.42;
+  margin-top: 5px;
+}
+
+/* ── COMMITMENT PANEL ── */
+#commitment {
+  position: fixed;
+  left: 42px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 210px;
+}
+#commitment .panel-label {
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #7a5520;
+  opacity: 0.55;
+  margin-bottom: 22px;
+}
+.level-item {
+  padding: 6px 0;
+  cursor: pointer;
+  opacity: 0.38;
+  transition: opacity 0.35s;
+  position: relative;
+  user-select: none;
+}
+.level-item:hover { opacity: 0.68; }
+.level-item.active { opacity: 1; }
+.level-name {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 300;
+  color: #3a2910;
+  line-height: 1.3;
+}
+.level-item.active .level-name {
+  font-style: italic;
+  color: #7a3e0a;
+}
+.level-sub {
+  display: block;
+  font-size: 10px;
+  color: #7a5520;
+  opacity: 0.6;
+  margin-top: 1px;
+}
+.level-dot {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c9841a;
+  opacity: 0;
+  transition: opacity 0.4s;
+  box-shadow: 0 0 6px rgba(201, 132, 26, 0.6);
+}
+.level-item.active .level-dot { opacity: 1; }
+
+/* ── IMPACT PANEL ── */
+#impact-panel {
+  position: fixed;
+  right: 42px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 175px;
+  text-align: right;
+}
+#impact-panel .panel-label {
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #7a5520;
+  opacity: 0.55;
+  margin-bottom: 22px;
+}
+.impact-item {
+  margin-bottom: 18px;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.impact-item.visible { opacity: 1; transform: translateX(0); }
+.impact-name {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #5c3d10;
+  opacity: 0.55;
+}
+.impact-value {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 26px;
+  color: #8b4e10;
+  display: block;
+  line-height: 1.05;
+  margin-top: 1px;
+}
+.impact-desc {
+  font-size: 10px;
+  font-style: italic;
+  color: #7a5520;
+  opacity: 0.6;
+  margin-top: 2px;
+}
+
+/* ── AFFIRMATION ── */
+#affirmation {
+  position: fixed;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+  width: 520px;
+  max-width: 90vw;
+}
+#affirmation .aff-main {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-style: italic;
+  font-size: 21px;
+  color: #5c3508;
+  letter-spacing: 0.015em;
+  line-height: 1.5;
+}
+#affirmation .aff-impact {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8b6030;
+  opacity: 0.55;
+  margin-top: 9px;
+}
+
+/* ── CENTER LABEL ── */
+#center-label {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+#center-label.visible { opacity: 1; }
+#center-label span {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #8b5e14;
+  opacity: 0.45;
+}
+
+/* ── HOVER TOOLTIP ── */
+#hover-tip {
+  position: fixed;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+#hover-tip span {
+  display: block;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: #3a2910;
+  background: rgba(245, 234, 213, 0.92);
+  border: 1px solid rgba(139, 94, 20, 0.22);
+  padding: 5px 13px;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+/* ── FOOTER ── */
+#footer {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+}
+#footer p {
+  font-size: 10px;
+  font-style: italic;
+  color: #7a5520;
+  opacity: 0.38;
+  letter-spacing: 0.06em;
+}
+
+/* ── PULSE RING (CSS, behind canvas) ── */
+#pulse-ring {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(180, 130, 40, 0.12);
+  animation: breathe 4.5s ease-in-out infinite;
+  pointer-events: none;
+  width: 120px;
+  height: 120px;
+}
+@keyframes breathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
+  50%       { transform: translate(-50%, -50%) scale(1.15); opacity: 0.15; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<div id="pulse-ring"></div>
+
+<div id="header">
+  <h1>Meditation</h1>
+  <p>Biomarker Intelligence · AILIV</p>
+</div>
+
+<div id="commitment">
+  <div class="panel-label">Your Practice</div>
+</div>
+
+<div id="impact-panel">
+  <div class="panel-label">Biomarker Response</div>
+  <div class="impact-item" id="imp-hrv">
+    <span class="impact-name">HRV</span>
+    <span class="impact-value" id="v-hrv">—</span>
+    <span class="impact-desc">Heart Rate Variability</span>
+  </div>
+  <div class="impact-item" id="imp-rhr">
+    <span class="impact-name">Resting HR</span>
+    <span class="impact-value" id="v-rhr">—</span>
+    <span class="impact-desc">Resting Heart Rate</span>
+  </div>
+  <div class="impact-item" id="imp-cort">
+    <span class="impact-name">Cortisol</span>
+    <span class="impact-value" id="v-cort">—</span>
+    <span class="impact-desc">Stress Marker</span>
+  </div>
+  <div class="impact-item" id="imp-resp">
+    <span class="impact-name">Resp Rate</span>
+    <span class="impact-value" id="v-resp">—</span>
+    <span class="impact-desc">Respiratory Rate</span>
+  </div>
+  <div class="impact-item" id="imp-rec">
+    <span class="impact-name">Recovery</span>
+    <span class="impact-value" id="v-rec">—</span>
+    <span class="impact-desc">Recovery Index</span>
+  </div>
+</div>
+
+<div id="center-label"><span>stillness</span></div>
+
+<div id="affirmation">
+  <div class="aff-main" id="aff-text"></div>
+  <div class="aff-impact" id="aff-impact"></div>
+</div>
+
+<div id="hover-tip"><span id="hover-tip-text"></span></div>
+
+<div id="footer">
+  <p>This model is an approximation. The practice is real.</p>
+</div>
+
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<script>
+// ════════════════════════════════════════════════════════════
+//  MEDITATION BIOMARKER VISUALIZER
+//  AILIV — proof of concept
+// ════════════════════════════════════════════════════════════
+
+// ── DATA ────────────────────────────────────────────────────
+
+const GROUPS = [
+  { name:'HRV',      label:'Heart Rate Variability', count:290, rad:1.25, r:0.76, g:0.36, b:0.09 },
+  { name:'RHR',      label:'Resting Heart Rate',     count:270, rad:1.65, r:0.71, g:0.42, b:0.13 },
+  { name:'Cortisol', label:'Cortisol',               count:250, rad:2.10, r:0.67, g:0.52, b:0.19 },
+  { name:'Resp',     label:'Respiratory Rate',       count:230, rad:2.55, r:0.63, g:0.57, b:0.26 },
+  { name:'Recovery', label:'Recovery Index',         count:210, rad:3.05, r:0.59, g:0.55, b:0.33 },
+  { name:'Sleep',    label:'Sleep Quality',          count:190, rad:3.55, r:0.56, g:0.52, b:0.37 },
+  { name:'BP',       label:'Blood Pressure',         count:170, rad:4.05, r:0.53, g:0.50, b:0.40 },
+  { name:'Other',    label:'Other Biomarkers',       count:290, rad:4.65, r:0.50, g:0.47, b:0.42 },
+];
+
+const LEVELS = [
+  { label:'No practice',        sub:'The journey begins here',       coherence:0.05, impact:0.000, affirmation:'Every path begins with a single breath.', impactStr:'' },
+  { label:'5 minutes, once',    sub:'A seed planted each morning',   coherence:0.16, impact:0.020, affirmation:'Every beginning is sacred.',              impactStr:'+2% across primary biomarkers' },
+  { label:'10 minutes, once',   sub:'Something is growing in you',   coherence:0.28, impact:0.035, affirmation:'You are beginning to listen.',            impactStr:'+3.5% across primary biomarkers' },
+  { label:'20 minutes, once',   sub:'The TM standard. Real change.', coherence:0.43, impact:0.050, affirmation:'The practice has taken root. The body knows.', impactStr:'+5% across primary biomarkers' },
+  { label:'20 minutes, twice',  sub:'Morning and evening. Ancient.', coherence:0.58, impact:0.090, affirmation:'Twice a day. The ancient rhythm. Well done.', impactStr:'+9% across primary biomarkers' },
+  { label:'30 minutes, twice',  sub:'A dedicated, structured life',  coherence:0.70, impact:0.130, affirmation:'You are building something real and lasting.', impactStr:'+13% across primary biomarkers' },
+  { label:'1 hour, once',       sub:'The body knows this depth',     coherence:0.78, impact:0.160, affirmation:'An hour of stillness. You are changing.',  impactStr:'+16% across primary biomarkers' },
+  { label:'1 hour, twice',      sub:'Presence as a way of life',     coherence:0.86, impact:0.220, affirmation:'Two sessions. You are the practice now.',  impactStr:'+22% across primary biomarkers' },
+  { label:'2 hours, once',      sub:'Vipassana depth. Rare and real',coherence:0.93, impact:0.300, affirmation:'Two hours. The body remembers everything.', impactStr:'+30% across primary biomarkers' },
+  { label:'2 hours, twice',     sub:'Peak. The monks lived here.',   coherence:1.00, impact:0.380, affirmation:'The monks knew this path. Now you do.',    impactStr:'+38% across primary biomarkers' },
+];
+
+// Biomarker-specific impact weights
+const WEIGHTS = { hrv:1.00, rhr:0.76, cort:0.87, resp:0.62, rec:0.56 };
+
+function formatImpact(key, pct) {
+  if (pct === 0) return '—';
+  const w = WEIGHTS[key];
+  const v = Math.round(pct * 100 * w);
+  const sign = (key === 'rhr' || key === 'cort' || key === 'resp') ? '−' : '+';
+  return `${sign}${v}%`;
+}
+
+// ── THREE.JS SETUP ───────────────────────────────────────────
+
+const canvas   = document.getElementById('canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.setClearColor(0x000000, 0);
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(54, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(0, 1.4, 9.2);
+camera.lookAt(0, 0, 0);
+
+// Lighting — warm, soft, flame-like
+const ambient = new THREE.AmbientLight(0xd4a870, 0.35);
+scene.add(ambient);
+
+const flameLight = new THREE.PointLight(0xe0a840, 2.2, 12);
+scene.add(flameLight);
+
+const rimLight = new THREE.DirectionalLight(0xf0d8a0, 0.22);
+rimLight.position.set(-4, 6, -4);
+scene.add(rimLight);
+
+// ── PARTICLES ────────────────────────────────────────────────
+
+const totalPts = GROUPS.reduce((s,g) => s + g.count, 0);
+const positions = new Float32Array(totalPts * 3);
+const colors    = new Float32Array(totalPts * 3);
+
+const pData = []; // per-particle state
+
+let idx = 0;
+GROUPS.forEach((group, gi) => {
+  for (let i = 0; i < group.count; i++) {
+    const angle  = (i / group.count) * Math.PI * 2 + gi * 0.42;
+    const initX  = group.rad * Math.cos(angle);
+    const initZ  = group.rad * Math.sin(angle);
+    const initY  = (Math.random() - 0.5) * 2.2;
+
+    pData.push({
+      gi,
+      angle,
+      baseAngle: angle,
+      yBase:  initY,
+      rVar:   (Math.random() - 0.5) * 0.32,
+      speed:  0.007 + Math.random() * 0.007,
+      phase:  Math.random() * Math.PI * 2,
+      n1: Math.random() * 2 - 1,
+      n2: Math.random() * 2 - 1,
+      px: initX, py: initY, pz: initZ,
+      vx: 0, vy: 0, vz: 0,
+      idx,
+    });
+
+    colors[idx*3]   = group.r;
+    colors[idx*3+1] = group.g;
+    colors[idx*3+2] = group.b;
+
+    positions[idx*3]   = initX;
+    positions[idx*3+1] = initY;
+    positions[idx*3+2] = initZ;
+
+    idx++;
+  }
+});
+
+const geo = new THREE.BufferGeometry();
+geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+geo.setAttribute('color',    new THREE.BufferAttribute(colors,    3));
+
+const mat = new THREE.PointsMaterial({
+  size: 0.042,
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.72,
+  sizeAttenuation: true,
+});
+
+const points = new THREE.Points(geo, mat);
+scene.add(points);
+
+// Center orb — the meditation focal point
+const centerGeo = new THREE.SphereGeometry(0.20, 28, 28);
+const centerMat = new THREE.MeshPhongMaterial({
+  color:     0xc99040,
+  emissive:  0x7a4a08,
+  emissiveIntensity: 0.65,
+  transparent: true,
+  opacity: 0.88,
+  shininess: 35,
+});
+const centerMesh = new THREE.Mesh(centerGeo, centerMat);
+scene.add(centerMesh);
+
+// Inner halo ring (geometry, no text)
+const haloGeo = new THREE.RingGeometry(0.30, 0.34, 64);
+const haloMat = new THREE.MeshBasicMaterial({
+  color: 0xc99040,
+  transparent: true,
+  opacity: 0.12,
+  side: THREE.DoubleSide,
+});
+const halo = new THREE.Mesh(haloGeo, haloMat);
+halo.rotation.x = Math.PI * 0.5;
+scene.add(halo);
+
+// ── STATE ───────────────────────────────────────────────────
+
+let curLevel      = 0;
+let targetCoh     = LEVELS[0].coherence;
+let curCoh        = LEVELS[0].coherence;
+let time          = 0;
+const mouseW      = new THREE.Vector3(-999, -999, 0);
+let mouseActive   = false;
+
+// ── COMMITMENT UI ───────────────────────────────────────────
+
+const panel = document.getElementById('commitment');
+LEVELS.forEach((lv, i) => {
+  const el = document.createElement('div');
+  el.className = 'level-item' + (i === 0 ? ' active' : '');
+  el.innerHTML = `<span class="level-name">${lv.label}</span><span class="level-sub">${lv.sub}</span><span class="level-dot"></span>`;
+  el.addEventListener('click', () => selectLevel(i));
+  panel.appendChild(el);
+});
+
+function selectLevel(i) {
+  curLevel    = i;
+  targetCoh   = LEVELS[i].coherence;
+  document.querySelectorAll('.level-item').forEach((el,j) => el.classList.toggle('active', j===i));
+  showAffirmation(LEVELS[i].affirmation, LEVELS[i].impactStr);
+  updateImpact(LEVELS[i].impact);
+  // Show center label once something is chosen
+  if (i > 0) document.getElementById('center-label').classList.add('visible');
+}
+
+// ── AFFIRMATION ─────────────────────────────────────────────
+
+let affTimer = null;
+function showAffirmation(text, impactStr) {
+  const el  = document.getElementById('affirmation');
+  document.getElementById('aff-text').textContent   = text;
+  document.getElementById('aff-impact').textContent = impactStr || '';
+  el.style.opacity = '1';
+  clearTimeout(affTimer);
+  affTimer = setTimeout(() => { el.style.opacity = '0'; }, 5000);
+}
+
+// ── IMPACT PANEL ────────────────────────────────────────────
+
+function updateImpact(pct) {
+  ['hrv','rhr','cort','resp','rec'].forEach((k, i) => {
+    const el = document.getElementById('imp-' + (k === 'cort' ? 'cort' : k));
+    if (!el) return;
+    el.classList.remove('visible');
+    setTimeout(() => {
+      document.getElementById('v-' + k).textContent = formatImpact(k, pct);
+      el.classList.add('visible');
+    }, i * 130);
+  });
+}
+
+// ── MOUSE ───────────────────────────────────────────────────
+
+document.addEventListener('mousemove', (e) => {
+  const nx = (e.clientX / innerWidth)  * 2 - 1;
+  const ny = -(e.clientY / innerHeight) * 2 + 1;
+  // Project to approximate z=0 plane at camera distance
+  const fov   = 54 * Math.PI / 180;
+  const dist  = camera.position.z;
+  const worldH = 2 * Math.tan(fov/2) * dist;
+  const worldW = worldH * (innerWidth / innerHeight);
+  mouseW.set(nx * worldW * 0.5, ny * worldH * 0.5, 0);
+  mouseActive = true;
+});
+
+document.addEventListener('mouseleave', () => { mouseActive = false; });
+
+// ── HOVER TOOLTIP ───────────────────────────────────────────
+
+const tipEl  = document.getElementById('hover-tip');
+const tipTxt = document.getElementById('hover-tip-text');
+let lastHoverGroup = -1;
+
+function checkHover(e) {
+  const mx = e.clientX;
+  const my = e.clientY;
+  // Find nearest particle group to cursor using approximate screen mapping
+  let minDist = Infinity;
+  let nearGroup = -1;
+
+  GROUPS.forEach((g, gi) => {
+    // Rough screen center of each group ring (top-down view)
+    const sx = innerWidth  * 0.5;
+    const sy = innerHeight * 0.5;
+    const screenRad = g.rad * (innerHeight / 9.2) * 0.65;
+    const dx = mx - sx;
+    const dy = my - sy;
+    const d  = Math.sqrt(dx*dx + dy*dy);
+    const diff = Math.abs(d - screenRad);
+    if (diff < minDist && diff < 30) {
+      minDist = diff;
+      nearGroup = gi;
+    }
+  });
+
+  if (nearGroup !== lastHoverGroup) {
+    lastHoverGroup = nearGroup;
+    if (nearGroup >= 0) {
+      tipTxt.textContent = GROUPS[nearGroup].label;
+      tipEl.style.opacity  = '1';
+      tipEl.style.left     = (mx + 14) + 'px';
+      tipEl.style.top      = (my - 20) + 'px';
+    } else {
+      tipEl.style.opacity = '0';
+    }
+  } else if (nearGroup >= 0) {
+    tipEl.style.left = (mx + 14) + 'px';
+    tipEl.style.top  = (my - 20) + 'px';
+  }
+}
+
+document.addEventListener('mousemove', checkHover);
+
+// ── ANIMATION LOOP ───────────────────────────────────────────
+
+function animate() {
+  requestAnimationFrame(animate);
+  time += 0.0075;
+
+  // Smooth coherence transition
+  curCoh += (targetCoh - curCoh) * 0.016;
+
+  const chaos = 1.0 - curCoh;
+
+  // Breathing center
+  const breath = Math.sin(time * 1.05) * 0.5 + 0.5;
+  flameLight.intensity       = 1.4 + breath * 1.0;
+  centerMesh.scale.setScalar(1.0 + breath * 0.09);
+  centerMat.emissiveIntensity = 0.45 + breath * 0.45;
+  haloMat.opacity             = 0.08 + breath * 0.12;
+  halo.scale.setScalar(1.0 + breath * 0.06);
+
+  // Gentle camera drift — the world breathes
+  camera.position.x = Math.sin(time * 0.038) * 0.55;
+  camera.position.y = 1.4 + Math.sin(time * 0.024) * 0.38;
+  camera.lookAt(0, 0, 0);
+
+  // Particle update
+  const posArr = geo.attributes.position.array;
+
+  for (let p = 0; p < pData.length; p++) {
+    const d     = pData[p];
+    const group = GROUPS[d.gi];
+
+    // Advance angle — chaos makes it fast/random, coherence makes it slow/stately
+    d.angle += d.speed * (0.45 + chaos * 1.8);
+
+    // Helix: at high coherence particles form a beautiful double helix
+    const helixPhase = d.baseAngle * 3.5 + time * 0.28;
+    const helixY     = Math.sin(helixPhase) * curCoh * 2.1
+                     + Math.cos(helixPhase * 0.5) * curCoh * 0.5;
+
+    // Chaos Y scatter
+    const cY  = d.yBase * chaos * 2.8 + d.n1 * chaos * 0.6;
+
+    // Orbit radius variation with chaos
+    const r   = group.rad + d.rVar * chaos;
+
+    // Micro-wobble — the body is never still (Vipassana: all is change)
+    const wob = Math.sin(time * 0.9 + d.phase) * chaos * 0.12;
+
+    // Target position
+    const tx = r * Math.cos(d.angle) + wob;
+    const ty = helixY + cY;
+    const tz = r * Math.sin(d.angle) + wob * 0.7;
+
+    // Mouse gravity
+    if (mouseActive) {
+      const dx2 = mouseW.x - d.px;
+      const dy2 = mouseW.y - d.py;
+      const dist2 = dx2*dx2 + dy2*dy2;
+      if (dist2 < 5.5) {
+        const pull = (1.0 - dist2 / 5.5) * 0.028;
+        d.vx += dx2 * pull;
+        d.vy += dy2 * pull;
+      }
+    }
+
+    // Spring toward orbit target + damping
+    d.vx += (tx - d.px) * 0.016;
+    d.vy += (ty - d.py) * 0.016;
+    d.vz += (tz - d.pz) * 0.016;
+    d.vx *= 0.86;
+    d.vy *= 0.86;
+    d.vz *= 0.86;
+
+    d.px += d.vx;
+    d.py += d.vy;
+    d.pz += d.vz;
+
+    posArr[d.idx*3]   = d.px;
+    posArr[d.idx*3+1] = d.py;
+    posArr[d.idx*3+2] = d.pz;
+  }
+
+  geo.attributes.position.needsUpdate = true;
+  renderer.render(scene, camera);
+}
+
+// ── RESIZE ──────────────────────────────────────────────────
+
+window.addEventListener('resize', () => {
+  renderer.setSize(innerWidth, innerHeight);
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+});
+
+// ── INIT ────────────────────────────────────────────────────
+
+updateImpact(0);
+animate();
+</script>
+</body>
+</html>

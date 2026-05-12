@@ -106,6 +106,10 @@ def biobaseline():
 def biosurface():
     return send_from_directory(BASE, 'biosurface.html')
 
+@app.route('/meditation')
+def meditation():
+    return send_from_directory(BASE, 'meditation.html')
+
 @app.route('/particle-intro')
 def particle_intro():
     return send_from_directory(BASE, 'particle-intro.html')
@@ -410,6 +414,102 @@ Based on this complete profile, provide a precise 7-day dietary and lifestyle pr
         })
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
+
+@app.route('/api/roots-analysis', methods=['POST'])
+def roots_analysis():
+    body = request.get_json(force=True, silent=True) or {}
+    labs  = body.get('labs', [])
+    roots = body.get('roots', [])
+    rxs   = body.get('interventions', [])
+
+    lab_lines  = "\n".join([f"- {l['name']}: {l.get('value','?')} — {l.get('flag','')}" for l in labs])
+    root_lines = "\n".join([f"- {r['name']}: {r.get('note','')}" for r in roots])
+    rx_lines   = "\n".join([f"- {i['name']} (urgency {i.get('urgency',1)}/3): {i.get('note','')}" for i in rxs])
+
+    prompt = f"""You are a precision health advisor analyzing a root cause network for a biohacker.
+
+FLAGGED LABS:
+{lab_lines or 'None'}
+
+ROOT CAUSES IDENTIFIED:
+{root_lines or 'None'}
+
+MAPPED INTERVENTIONS:
+{rx_lines or 'None'}
+
+Identify the top 3 highest-leverage interventions to prioritize RIGHT NOW. For each: which root cause it targets, which flagged labs it will move, expected timeline for measurable change. Name specific doses, timing, and sequence. Be direct."""
+
+    try:
+        resp = req.post(FI_URL, json={"prompt": prompt, "verdict": True, "models": ["claude","gpt","gemini"]}, timeout=60)
+        r = resp.json()
+        return jsonify({"ok": True, "verdict": r.get("verdict",""), "results": r.get("results",{}), "elapsed": r.get("elapsed",0)})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/baseline-analysis', methods=['POST'])
+def baseline_analysis():
+    body    = request.get_json(force=True, silent=True) or {}
+    markers = body.get('markers', [])
+    score   = body.get('score', 'unknown')
+
+    flagged    = [m for m in markers if m.get('status') == 'flagged']
+    borderline = [m for m in markers if m.get('status') == 'borderline']
+
+    def fmt_markers(lst):
+        return "\n".join([f"- {m['name']} ({m.get('system','')}) {m.get('value','')} {m.get('unit','')} [optimal: {m.get('optimal','')}] — {m.get('note','')}" for m in lst])
+
+    prompt = f"""You are a longevity advisor analyzing a 40-marker biobaseline. Overall score: {score}/100.
+
+FLAGGED MARKERS (needs intervention):
+{fmt_markers(flagged) or 'None'}
+
+BORDERLINE MARKERS (watch zone):
+{fmt_markers(borderline) or 'None'}
+
+Across 6 biological systems (metabolic, hormonal, inflammatory, cardiovascular, cognitive, longevity):
+1. The single highest-priority system to address first and exactly why
+2. 3 specific actions — supplement, diet, lifestyle — that move the most markers within 30 days
+3. Any dangerous cross-system patterns that warrant urgent attention
+
+Name specific supplements with doses, specific foods, specific timing."""
+
+    try:
+        resp = req.post(FI_URL, json={"prompt": prompt, "verdict": True, "models": ["claude","gpt","gemini"]}, timeout=60)
+        r = resp.json()
+        return jsonify({"ok": True, "verdict": r.get("verdict",""), "results": r.get("results",{}), "elapsed": r.get("elapsed",0)})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/bridge-analysis', methods=['POST'])
+def bridge_analysis():
+    body         = request.get_json(force=True, silent=True) or {}
+    time_state   = body.get('state', 'morning')
+    state_desc   = body.get('stateDesc', '')
+    correlations = body.get('correlations', [])
+
+    corr_lines = "\n".join([f"- {c['appleLabel']} (Apple) ↔ {c['whoopLabel']} (WHOOP) — strength {round(c.get('strength',0)*100)}%" for c in correlations])
+
+    prompt = f"""You are a biometric correlation analyst reviewing cross-device data from Apple Health and WHOOP during the {time_state} window ({state_desc}).
+
+ACTIVE CORRELATIONS:
+{corr_lines or 'No data provided'}
+
+Analyze these correlations and provide:
+1. The most actionable pattern visible — what is the body doing during this window that both devices are capturing?
+2. One specific behavioral change to make during this window based on what the correlations reveal
+3. The single correlation that is the earliest warning signal — the one to watch most closely
+
+Specific and actionable. No generic advice."""
+
+    try:
+        resp = req.post(FI_URL, json={"prompt": prompt, "verdict": True, "models": ["claude","gpt","gemini"]}, timeout=60)
+        r = resp.json()
+        return jsonify({"ok": True, "verdict": r.get("verdict",""), "results": r.get("results",{}), "elapsed": r.get("elapsed",0)})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
 
 # -------- WHOOP helpers --------
 
