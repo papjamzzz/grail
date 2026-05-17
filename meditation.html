@@ -3,32 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meditation · AILIV</title>
-<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<title>Change · AILIV</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:       #080612;
+  --green:    #58DE83;
+  --cyan:     #00E5FF;
+  --mint:     #C3FDD8;
+  --white:    #F0EEF8;
+  --purple:   #BD93F9;
+  --panel-bg: rgba(8, 6, 18, 0.88);
+  --border:   rgba(88, 222, 131, 0.14);
+}
 
 body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at center, transparent 25%, rgba(80, 55, 20, 0.28) 100%),
-    linear-gradient(158deg, #f5ead5 0%, #eee0c0 50%, #e5d3aa 100%);
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  color: #3a2910;
+  background: radial-gradient(ellipse at 50% 50%, #0d0a20 0%, #080612 55%, #04030c 100%);
+  font-family: 'Inter', sans-serif;
+  color: var(--white);
 }
 
-/* Parchment grain */
+/* Scanline grain overlay */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23g)'/%3E%3C/svg%3E");
-  opacity: 0.06;
-  mix-blend-mode: multiply;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
   pointer-events: none;
-  z-index: 999;
+  z-index: 998;
 }
 
 #canvas {
@@ -40,7 +53,7 @@ body::after {
 /* ── HEADER ── */
 #header {
   position: fixed;
-  top: 34px;
+  top: 32px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -48,80 +61,89 @@ body::after {
   pointer-events: none;
 }
 #header h1 {
-  font-family: 'IM Fell English', Georgia, serif;
-  font-size: 15px;
-  font-weight: normal;
-  letter-spacing: 0.48em;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.52em;
   text-transform: uppercase;
-  color: #5c3d10;
-  opacity: 0.55;
+  color: var(--mint);
+  opacity: 0.45;
 }
 
 /* ── HELP BUTTON ── */
 #help-btn {
   position: fixed;
-  top: 28px;
+  top: 26px;
   right: 36px;
   z-index: 20;
   width: 26px;
   height: 26px;
-  border: 1px solid rgba(90, 60, 20, 0.35);
+  border: 1px solid rgba(88, 222, 131, 0.25);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 16px;
-  color: rgba(90, 60, 20, 0.50);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: rgba(88, 222, 131, 0.40);
   text-decoration: none;
-  transition: color 0.25s, border-color 0.25s, opacity 0.25s;
-  opacity: 0.48;
+  transition: color 0.25s, border-color 0.25s, opacity 0.25s, box-shadow 0.25s;
+  opacity: 0.55;
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
 }
 #help-btn:hover {
   opacity: 1;
-  color: #7a3e0a;
-  border-color: rgba(122, 62, 10, 0.65);
+  color: var(--cyan);
+  border-color: rgba(0, 229, 255, 0.55);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.20);
 }
 
 /* ── COMMITMENT PANEL ── */
 #commitment {
   position: fixed;
-  left: 42px;
+  left: 40px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  width: 210px;
+  width: 218px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  padding: 20px 20px 18px;
+  backdrop-filter: blur(12px);
 }
 #commitment-label {
-  font-family: 'IM Fell English', Georgia, serif;
-  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
   letter-spacing: 0.30em;
   text-transform: uppercase;
-  color: #5c3d10;
-  opacity: 0.42;
-  margin-bottom: 18px;
+  color: var(--green);
+  opacity: 0.55;
+  margin-bottom: 16px;
   display: block;
 }
 .level-item {
   padding: 5px 0;
   cursor: pointer;
-  opacity: 0.32;
-  transition: opacity 0.35s;
+  opacity: 0.28;
+  transition: opacity 0.30s;
   position: relative;
   user-select: none;
 }
-.level-item:hover { opacity: 0.62; }
+.level-item:hover { opacity: 0.60; }
 .level-item.active { opacity: 1; }
 .level-name {
   display: block;
-  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
   font-weight: 300;
-  color: #3a2910;
-  line-height: 1.35;
+  color: var(--white);
+  line-height: 1.4;
 }
 .level-item.active .level-name {
   font-style: italic;
-  color: #7a3e0a;
+  color: var(--green);
+  font-weight: 400;
 }
 .level-dot {
   position: absolute;
@@ -131,97 +153,121 @@ body::after {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #c9841a;
+  background: var(--cyan);
   opacity: 0;
   transition: opacity 0.4s;
-  box-shadow: 0 0 6px rgba(201, 132, 26, 0.6);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.80);
 }
 .level-item.active .level-dot { opacity: 1; }
 
 /* ── IMPACT PANEL ── */
 #impact-panel {
   position: fixed;
-  right: 42px;
+  right: 40px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  width: 175px;
+  width: 180px;
+  text-align: right;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  padding: 20px 20px 18px;
+  backdrop-filter: blur(12px);
+}
+.impact-panel-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.30em;
+  text-transform: uppercase;
+  color: var(--green);
+  opacity: 0.55;
+  margin-bottom: 16px;
+  display: block;
   text-align: right;
 }
 .impact-item {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
   opacity: 0;
   transform: translateX(10px);
   transition: opacity 0.7s ease, transform 0.7s ease;
   position: relative;
   cursor: default;
 }
+.impact-item:last-child { margin-bottom: 0; }
 .impact-item.visible { opacity: 1; transform: translateX(0); }
 .impact-name {
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #5c3d10;
+  color: var(--mint);
   opacity: 0.55;
 }
 .impact-value {
-  font-family: 'IM Fell English', Georgia, serif;
-  font-size: 26px;
-  color: #8b4e10;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--cyan);
   display: block;
-  line-height: 1.05;
-  margin-top: 1px;
+  line-height: 1.1;
+  margin-top: 2px;
+  text-shadow: 0 0 16px rgba(0, 229, 255, 0.50);
 }
 
 /* ── BIOMARKER HOVER CARD ── */
 .bio-card {
   display: none;
   position: absolute;
-  right: 185px;
+  right: 190px;
   top: 50%;
   transform: translateY(-50%);
-  width: 230px;
-  background: rgba(246, 237, 218, 0.97);
-  border: 1px solid rgba(139, 94, 20, 0.18);
-  padding: 16px 18px;
+  width: 248px;
+  background: rgba(4, 3, 14, 0.97);
+  border: 1px solid rgba(88, 222, 131, 0.22);
+  padding: 18px 20px;
   text-align: left;
   z-index: 50;
-  box-shadow: 0 4px 24px rgba(80, 50, 10, 0.10);
+  box-shadow: 0 0 32px rgba(88, 222, 131, 0.08), 0 8px 32px rgba(0, 0, 0, 0.60);
+  backdrop-filter: blur(16px);
 }
 .impact-item:hover .bio-card { display: block; }
 .bio-card-marker {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #7a5520;
-  opacity: 0.6;
-  margin-bottom: 6px;
+  color: var(--green);
+  opacity: 0.70;
+  margin-bottom: 8px;
 }
 .bio-card-status {
-  font-family: 'IM Fell English', Georgia, serif;
-  font-size: 14px;
-  color: #3a2910;
-  line-height: 1.45;
-  margin-bottom: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--mint);
+  line-height: 1.55;
+  margin-bottom: 12px;
+  opacity: 0.85;
 }
 .bio-card-divider {
   width: 100%;
   height: 1px;
-  background: rgba(139, 94, 20, 0.15);
-  margin-bottom: 10px;
+  background: rgba(88, 222, 131, 0.14);
+  margin-bottom: 12px;
 }
 .bio-card-med {
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-style: italic;
-  color: #6b4010;
-  line-height: 1.5;
-  opacity: 0.85;
+  color: var(--cyan);
+  line-height: 1.55;
+  opacity: 0.78;
 }
 
 /* ── SELECTION FLASH ── */
 #sel-flash {
   position: fixed;
-  bottom: 72px;
+  bottom: 68px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -231,12 +277,12 @@ body::after {
   transition: opacity 1.2s ease;
 }
 #sel-flash .flash-val {
-  font-family: 'IM Fell English', Georgia, serif;
-  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #8b5e14;
-  opacity: 0.6;
+  color: var(--green);
+  text-shadow: 0 0 20px rgba(88, 222, 131, 0.60);
 }
 
 /* ── HOVER TOOLTIP ── */
@@ -249,18 +295,18 @@ body::after {
 }
 #hover-tip span {
   display: block;
-  font-family: 'IM Fell English', Georgia, serif;
-  font-style: italic;
-  font-size: 13px;
-  color: #3a2910;
-  background: rgba(245, 234, 213, 0.92);
-  border: 1px solid rgba(139, 94, 20, 0.22);
-  padding: 5px 13px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--mint);
+  background: rgba(4, 3, 14, 0.94);
+  border: 1px solid rgba(88, 222, 131, 0.22);
+  padding: 5px 14px;
   white-space: nowrap;
-  letter-spacing: 0.03em;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.50);
 }
 
-/* ── FOOTER ── */
+/* ── CORNER MARK ── */
 #footer {
   position: fixed;
   bottom: 22px;
@@ -271,13 +317,13 @@ body::after {
   pointer-events: none;
 }
 #footer p {
-  font-size: 10px;
-  font-style: italic;
-  color: #7a5520;
-  opacity: 0.38;
-  letter-spacing: 0.06em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.30em;
+  text-transform: uppercase;
+  color: var(--mint);
+  opacity: 0.18;
 }
-
 </style>
 </head>
 <body>
@@ -295,6 +341,7 @@ body::after {
 </div>
 
 <div id="impact-panel">
+  <span class="impact-panel-label">Biomarkers</span>
 
   <div class="impact-item" id="imp-hrv">
     <span class="impact-name">HRV</span>
@@ -354,31 +401,29 @@ body::after {
 </div>
 
 <div id="sel-flash"><div class="flash-val" id="flash-val"></div></div>
-
 <div id="hover-tip"><span id="hover-tip-text"></span></div>
+<div id="footer"><p>AILIV · Change</p></div>
 
 <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 <script>
 // ════════════════════════════════════════════════════════════
-//  MEDITATION BIOMARKER VISUALIZER
-//  AILIV
+//  CHANGE — MEDITATION BIOMARKER VISUALIZER
+//  Creative Konsoles · AILIV
 // ════════════════════════════════════════════════════════════
 
 // ── DATA ────────────────────────────────────────────────────
 
 const GROUPS = [
-  { name:'HRV',      label:'Heart Rate Variability', count:290, rad:1.25, r:0.76, g:0.36, b:0.09 },
-  { name:'RHR',      label:'Resting Heart Rate',     count:270, rad:1.65, r:0.71, g:0.42, b:0.13 },
-  { name:'Cortisol', label:'Cortisol',               count:250, rad:2.10, r:0.67, g:0.52, b:0.19 },
-  { name:'Resp',     label:'Respiratory Rate',       count:230, rad:2.55, r:0.63, g:0.57, b:0.26 },
-  { name:'Recovery', label:'Recovery Index',         count:210, rad:3.05, r:0.59, g:0.55, b:0.33 },
-  { name:'Sleep',    label:'Sleep Quality',          count:190, rad:3.55, r:0.56, g:0.52, b:0.37 },
-  { name:'BP',       label:'Blood Pressure',         count:170, rad:4.05, r:0.53, g:0.50, b:0.40 },
-  { name:'Other',    label:'Other Biomarkers',       count:290, rad:4.65, r:0.50, g:0.47, b:0.42 },
+  { name:'HRV',      label:'Heart Rate Variability', count:290, rad:1.25, r:0.345, g:0.871, b:0.514 }, // #58DE83
+  { name:'RHR',      label:'Resting Heart Rate',     count:270, rad:1.65, r:0.000, g:0.898, b:1.000 }, // #00E5FF
+  { name:'Cortisol', label:'Cortisol',               count:250, rad:2.10, r:0.741, g:0.576, b:0.976 }, // #BD93F9
+  { name:'Resp',     label:'Respiratory Rate',       count:230, rad:2.55, r:0.314, g:0.980, b:0.482 }, // #50FA7B
+  { name:'Recovery', label:'Recovery Index',         count:210, rad:3.05, r:0.545, g:0.914, b:0.992 }, // #8BE9FD
+  { name:'Sleep',    label:'Sleep Quality',          count:190, rad:3.55, r:1.000, g:0.475, b:0.776 }, // #FF79C6
+  { name:'BP',       label:'Blood Pressure',         count:170, rad:4.05, r:1.000, g:0.722, b:0.424 }, // #FFB86C
+  { name:'Other',    label:'Other Biomarkers',       count:290, rad:4.65, r:0.384, g:0.447, b:0.643 }, // #6272A4
 ];
 
-// Coherence values: dramatic spread at upper levels for visible slowdown
-// chaos = 1 - coherence controls all motion
 const LEVELS = [
   { label:'No practice',      coherence:0.02, impact:0.000 },
   { label:'5 min · once',     coherence:0.10, impact:0.018 },
@@ -387,13 +432,12 @@ const LEVELS = [
   { label:'20 min · twice',   coherence:0.42, impact:0.085 },
   { label:'30 min · twice',   coherence:0.54, impact:0.125 },
   { label:'1 hr · once',      coherence:0.65, impact:0.155 },
-  { label:'1 hr · twice',     coherence:0.92, impact:0.215 }, // sweet spot — big jump
+  { label:'1 hr · twice',     coherence:0.92, impact:0.215 },
   { label:'2 hr · once',      coherence:0.94, impact:0.290 },
   { label:'2 hr · twice',     coherence:0.97, impact:0.360 },
   { label:'4+ hrs · beyond',  coherence:1.00, impact:0.450 },
 ];
 
-// Biomarker-specific impact weights
 const WEIGHTS = { hrv:1.00, rhr:0.76, cort:0.87, resp:0.62, rec:0.56 };
 
 function formatImpact(key, pct) {
@@ -417,77 +461,69 @@ const camera = new THREE.PerspectiveCamera(54, innerWidth/innerHeight, 0.1, 100)
 camera.position.set(0, 1.4, 9.2);
 camera.lookAt(0, 0, 0);
 
-// Lighting — warm, soft, flame-like
-const ambient = new THREE.AmbientLight(0xd4a870, 0.35);
+// Lighting — cool, electric, hardware-grade
+const ambient = new THREE.AmbientLight(0x0d0820, 0.60);
 scene.add(ambient);
 
-const flameLight = new THREE.PointLight(0xe0a840, 2.2, 12);
-scene.add(flameLight);
+const coreLight = new THREE.PointLight(0x00e5ff, 2.2, 14);
+scene.add(coreLight);
 
-const rimLight = new THREE.DirectionalLight(0xf0d8a0, 0.22);
+const rimLight = new THREE.DirectionalLight(0x58de83, 0.28);
 rimLight.position.set(-4, 6, -4);
 scene.add(rimLight);
 
-// ── FELT ORB TEXTURE ────────────────────────────────────────
+// ── CENTER ORB TEXTURE — glowing cyan core ───────────────────
 
-// Paint fiber-like noise onto a canvas to simulate felt/textile
-const feltCanvas = document.createElement('canvas');
-feltCanvas.width = 256; feltCanvas.height = 256;
-const fctx = feltCanvas.getContext('2d');
+const orbCanvas = document.createElement('canvas');
+orbCanvas.width = 256; orbCanvas.height = 256;
+const octx = orbCanvas.getContext('2d');
 
-// Base warm amber fill
-fctx.fillStyle = '#c49040';
-fctx.fillRect(0, 0, 256, 256);
+octx.fillStyle = '#030610';
+octx.fillRect(0, 0, 256, 256);
 
-// Radial warmth from center — simulate inner glow
-const radGrad = fctx.createRadialGradient(128,128,0, 128,128,128);
-radGrad.addColorStop(0,   'rgba(240, 180, 60, 0.55)');
-radGrad.addColorStop(0.5, 'rgba(180, 120, 20, 0.20)');
-radGrad.addColorStop(1,   'rgba(80,  45,  5, 0.38)');
-fctx.fillStyle = radGrad;
-fctx.fillRect(0, 0, 256, 256);
+const coreGrad = octx.createRadialGradient(128, 128, 0, 128, 128, 128);
+coreGrad.addColorStop(0,    'rgba(0, 229, 255, 0.95)');
+coreGrad.addColorStop(0.22, 'rgba(88, 222, 131, 0.75)');
+coreGrad.addColorStop(0.50, 'rgba(30, 60, 100, 0.45)');
+coreGrad.addColorStop(0.80, 'rgba(8, 6, 24, 0.60)');
+coreGrad.addColorStop(1,    'rgba(4, 3, 14, 0.95)');
+octx.fillStyle = coreGrad;
+octx.fillRect(0, 0, 256, 256);
 
-// Felt fibers — short strokes in random directions
-const rng = { v: 42 };
+// Micro sparkle dots
+const rng = { v: 137 };
 function nextRng() {
   rng.v = (rng.v * 1664525 + 1013904223) & 0xffffffff;
   return (rng.v >>> 0) / 0xffffffff;
 }
-for (let i = 0; i < 18000; i++) {
-  const x   = nextRng() * 256;
-  const y   = nextRng() * 256;
-  const len = 1.5 + nextRng() * 6;
-  const ang = nextRng() * Math.PI;
-  const br  = nextRng();
-  const a   = 0.08 + nextRng() * 0.28;
-  const col = br > 0.55
-    ? `rgba(240, 190, 80, ${a})`
-    : br > 0.25
-      ? `rgba(160, 100, 20, ${a * 0.7})`
-      : `rgba(70,  40,  8, ${a * 0.5})`;
-  fctx.strokeStyle = col;
-  fctx.lineWidth = 0.4 + nextRng() * 0.9;
-  fctx.beginPath();
-  fctx.moveTo(x, y);
-  fctx.lineTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len);
-  fctx.stroke();
+for (let i = 0; i < 600; i++) {
+  const x = nextRng() * 256;
+  const y = nextRng() * 256;
+  const dx = x - 128, dy = y - 128;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  if (dist > 100) continue;
+  const a = 0.10 + nextRng() * 0.35;
+  const col = nextRng() > 0.5 ? `rgba(0,229,255,${a})` : `rgba(88,222,131,${a})`;
+  octx.fillStyle = col;
+  octx.beginPath();
+  octx.arc(x, y, nextRng() * 1.2, 0, Math.PI * 2);
+  octx.fill();
 }
 
-const feltTexture = new THREE.CanvasTexture(feltCanvas);
+const orbTexture = new THREE.CanvasTexture(orbCanvas);
 
-// ── CENTER ORB — felt/textile, glows from within ─────────────
+// ── CENTER ORB ───────────────────────────────────────────────
 
 const centerGeo = new THREE.SphereGeometry(0.20, 32, 32);
 const centerMat = new THREE.MeshLambertMaterial({
-  map:              feltTexture,
-  emissive:         new THREE.Color(0.50, 0.24, 0.02),
-  emissiveIntensity: 0.80,
-  transparent: true,
-  opacity: 0.96,
+  map:               orbTexture,
+  emissive:          new THREE.Color(0.00, 0.55, 0.40),
+  emissiveIntensity: 1.10,
+  transparent:       true,
+  opacity:           0.96,
 });
 const centerMesh = new THREE.Mesh(centerGeo, centerMat);
 scene.add(centerMesh);
-
 
 // ── PARTICLES ────────────────────────────────────────────────
 
@@ -537,27 +573,27 @@ geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 geo.setAttribute('color',    new THREE.BufferAttribute(colors,    3));
 
 const mat = new THREE.PointsMaterial({
-  size: 0.042,
+  size: 0.044,
   vertexColors: true,
   transparent: true,
-  opacity: 0.72,
+  opacity: 0.80,
   sizeAttenuation: true,
 });
 
 const points = new THREE.Points(geo, mat);
 scene.add(points);
 
-// ── STATE ───────────────────────────────────────────────────
+// ── STATE ────────────────────────────────────────────────────
 
-let curLevel      = 0;
-let targetCoh     = LEVELS[0].coherence;
-let curCoh        = LEVELS[0].coherence;
-let time          = 0;
-let breathPhase   = 0; // accumulates breath cycle independently of time
-const mouseW      = new THREE.Vector3(-999, -999, 0);
-let mouseActive   = false;
+let curLevel    = 0;
+let targetCoh   = LEVELS[0].coherence;
+let curCoh      = LEVELS[0].coherence;
+let time        = 0;
+let breathPhase = 0;
+const mouseW    = new THREE.Vector3(-999, -999, 0);
+let mouseActive = false;
 
-// ── COMMITMENT UI ───────────────────────────────────────────
+// ── COMMITMENT UI ────────────────────────────────────────────
 
 const panel = document.getElementById('commitment');
 LEVELS.forEach((lv, i) => {
@@ -573,9 +609,7 @@ function selectLevel(i) {
   targetCoh = LEVELS[i].coherence;
   document.querySelectorAll('.level-item').forEach((el,j) => el.classList.toggle('active', j===i));
   updateImpact(LEVELS[i].impact);
-  if (i > 0) {
-    flashImpact(LEVELS[i].impact);
-  }
+  if (i > 0) flashImpact(LEVELS[i].impact);
 }
 
 function flashImpact(pct) {
@@ -587,7 +621,7 @@ function flashImpact(pct) {
   flashImpact._t = setTimeout(() => { el.style.opacity = '0'; }, 2500);
 }
 
-// ── IMPACT PANEL ────────────────────────────────────────────
+// ── IMPACT PANEL ─────────────────────────────────────────────
 
 function updateImpact(pct) {
   ['hrv','rhr','cort','resp','rec'].forEach((k, i) => {
@@ -601,7 +635,7 @@ function updateImpact(pct) {
   });
 }
 
-// ── MOUSE ───────────────────────────────────────────────────
+// ── MOUSE ────────────────────────────────────────────────────
 
 document.addEventListener('mousemove', (e) => {
   const nx = (e.clientX / innerWidth)  * 2 - 1;
@@ -616,7 +650,7 @@ document.addEventListener('mousemove', (e) => {
 
 document.addEventListener('mouseleave', () => { mouseActive = false; });
 
-// ── HOVER TOOLTIP ───────────────────────────────────────────
+// ── HOVER TOOLTIP ─────────────────────────────────────────────
 
 const tipEl  = document.getElementById('hover-tip');
 const tipTxt = document.getElementById('hover-tip-text');
@@ -625,7 +659,7 @@ let lastHoverGroup = -1;
 function checkHover(e) {
   const mx = e.clientX;
   const my = e.clientY;
-  let minDist = Infinity;
+  let minDist  = Infinity;
   let nearGroup = -1;
 
   GROUPS.forEach((g, gi) => {
@@ -637,7 +671,7 @@ function checkHover(e) {
     const d  = Math.sqrt(dx*dx + dy*dy);
     const diff = Math.abs(d - screenRad);
     if (diff < minDist && diff < 30) {
-      minDist = diff;
+      minDist   = diff;
       nearGroup = gi;
     }
   });
@@ -646,9 +680,9 @@ function checkHover(e) {
     lastHoverGroup = nearGroup;
     if (nearGroup >= 0) {
       tipTxt.textContent = GROUPS[nearGroup].label;
-      tipEl.style.opacity  = '1';
-      tipEl.style.left     = (mx + 14) + 'px';
-      tipEl.style.top      = (my - 20) + 'px';
+      tipEl.style.opacity = '1';
+      tipEl.style.left    = (mx + 14) + 'px';
+      tipEl.style.top     = (my - 20) + 'px';
     } else {
       tipEl.style.opacity = '0';
     }
@@ -660,71 +694,53 @@ function checkHover(e) {
 
 document.addEventListener('mousemove', checkHover);
 
-// ── ANIMATION LOOP ───────────────────────────────────────────
+// ── ANIMATION LOOP ────────────────────────────────────────────
 
 function animate() {
   requestAnimationFrame(animate);
   time += 0.0075;
 
-  // Smooth coherence — use sqrt easing for snappier initial response
   curCoh += (targetCoh - curCoh) * 0.016;
-
   const chaos = 1.0 - curCoh;
 
-  // Breathing rate tied to practice depth:
-  // No practice → ~15 breaths/min (freq 3.5), deep practice → ~5 breaths/min (freq 1.16)
-  // This is the same force slowing the biomarkers — one unified rhythm
   const breathFreq = 3.5 - curCoh * 2.34;
   breathPhase += breathFreq * 0.0075;
   const breath = Math.sin(breathPhase) * 0.5 + 0.5;
 
-  // Orb breathes: grows in size and brightens on the inhale
-  flameLight.intensity        = 1.0 + breath * 1.4;
+  coreLight.intensity         = 1.0 + breath * 1.6;
   centerMesh.scale.setScalar(1.0 + breath * 0.20);
-  centerMat.emissiveIntensity = 0.35 + breath * 0.90;
+  centerMat.emissiveIntensity = 0.50 + breath * 1.00;
 
-  // Felt texture slowly rotates — the fibers shift
-  centerMesh.rotation.y += 0.0006;
+  centerMesh.rotation.y += 0.0007;
   centerMesh.rotation.x += 0.0002;
 
-  // Gentle camera drift
   camera.position.x = Math.sin(time * 0.038) * 0.55;
   camera.position.y = 1.4 + Math.sin(time * 0.024) * 0.38;
   camera.lookAt(0, 0, 0);
 
-  // Particle update
   const posArr = geo.attributes.position.array;
 
   for (let p = 0; p < pData.length; p++) {
     const d     = pData[p];
     const group = GROUPS[d.gi];
 
-    // Advance angle — chaos fast/random, coherence slow/stately
     d.angle += d.speed * (0.45 + chaos * 1.8);
 
-    // Helix: at high coherence particles form a beautiful double helix
     const helixPhase = d.baseAngle * 3.5 + time * 0.28;
     const helixY     = Math.sin(helixPhase) * curCoh * 2.1
                      + Math.cos(helixPhase * 0.5) * curCoh * 0.5;
 
-    // Chaos Y scatter
     const cY  = d.yBase * chaos * 2.8 + d.n1 * chaos * 0.6;
-
-    // Orbit radius variation with chaos
     const r   = group.rad + d.rVar * chaos;
-
-    // Micro-wobble
     const wob = Math.sin(time * 0.9 + d.phase) * chaos * 0.12;
 
-    // Target position
     const tx = r * Math.cos(d.angle) + wob;
     const ty = helixY + cY;
     const tz = r * Math.sin(d.angle) + wob * 0.7;
 
-    // Mouse gravity
     if (mouseActive) {
-      const dx2 = mouseW.x - d.px;
-      const dy2 = mouseW.y - d.py;
+      const dx2   = mouseW.x - d.px;
+      const dy2   = mouseW.y - d.py;
       const dist2 = dx2*dx2 + dy2*dy2;
       if (dist2 < 5.5) {
         const pull = (1.0 - dist2 / 5.5) * 0.028;
@@ -733,7 +749,6 @@ function animate() {
       }
     }
 
-    // Spring toward orbit target + damping
     d.vx += (tx - d.px) * 0.016;
     d.vy += (ty - d.py) * 0.016;
     d.vz += (tz - d.pz) * 0.016;
@@ -754,7 +769,7 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// ── RESIZE ──────────────────────────────────────────────────
+// ── RESIZE ───────────────────────────────────────────────────
 
 window.addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight);
@@ -762,7 +777,7 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
 });
 
-// ── INIT ────────────────────────────────────────────────────
+// ── INIT ─────────────────────────────────────────────────────
 
 updateImpact(0);
 animate();

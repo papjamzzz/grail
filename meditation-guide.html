@@ -3,85 +3,103 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meditation Guide · AILIV</title>
-<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
+<title>Change · Guide · AILIV</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:      #080612;
+  --green:   #58DE83;
+  --cyan:    #00E5FF;
+  --mint:    #C3FDD8;
+  --white:   #F0EEF8;
+  --purple:  #BD93F9;
+  --border:  rgba(88, 222, 131, 0.14);
+  --panel:   rgba(12, 10, 28, 0.85);
+}
 
 body {
   min-height: 100vh;
   background:
-    radial-gradient(ellipse at 60% 20%, rgba(200, 160, 60, 0.10) 0%, transparent 55%),
-    radial-gradient(ellipse at 20% 80%, rgba(140, 90, 20, 0.08) 0%, transparent 50%),
-    linear-gradient(162deg, #f6ecda 0%, #efe1c2 45%, #e6d5ae 100%);
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  color: #3a2910;
-  padding: 0;
+    radial-gradient(ellipse at 60% 10%, rgba(88, 222, 131, 0.04) 0%, transparent 45%),
+    radial-gradient(ellipse at 20% 80%, rgba(0, 229, 255, 0.03) 0%, transparent 45%),
+    linear-gradient(162deg, #0a0818 0%, #080612 50%, #04030c 100%);
+  font-family: 'Inter', sans-serif;
+  color: var(--white);
 }
 
-/* Parchment grain overlay */
+/* Scanline overlay */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23g)'/%3E%3C/svg%3E");
-  opacity: 0.055;
-  mix-blend-mode: multiply;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.025) 2px,
+    rgba(0, 0, 0, 0.025) 4px
+  );
   pointer-events: none;
   z-index: 999;
 }
 
 .page {
-  max-width: 680px;
+  max-width: 700px;
   margin: 0 auto;
   padding: 80px 48px 120px;
 }
 
 /* Back link */
 .back {
-  display: inline-block;
-  font-family: 'IM Fell English', Georgia, serif;
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #7a5520;
+  color: var(--green);
   opacity: 0.50;
   text-decoration: none;
   margin-bottom: 64px;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, color 0.2s;
 }
-.back:hover { opacity: 0.85; }
-.back::before { content: '← '; }
+.back:hover { opacity: 1; color: var(--cyan); }
+.back::before { content: '←'; font-size: 12px; }
 
 /* Masthead */
 .masthead {
   margin-bottom: 64px;
   padding-bottom: 40px;
-  border-bottom: 1px solid rgba(139, 94, 20, 0.15);
+  border-bottom: 1px solid var(--border);
 }
 .eyebrow {
-  font-size: 10px;
-  letter-spacing: 0.35em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.38em;
   text-transform: uppercase;
-  color: #7a5520;
-  opacity: 0.50;
-  margin-bottom: 20px;
+  color: var(--green);
+  opacity: 0.55;
+  margin-bottom: 22px;
 }
 .title {
-  font-family: 'IM Fell English', Georgia, serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 38px;
-  font-weight: normal;
-  color: #3a2005;
-  line-height: 1.15;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.12;
   margin-bottom: 18px;
+  letter-spacing: -0.01em;
 }
 .subtitle {
-  font-size: 18px;
-  font-style: italic;
-  color: #5c3d10;
-  opacity: 0.72;
-  line-height: 1.55;
+  font-family: 'Inter', sans-serif;
+  font-size: 17px;
   font-weight: 300;
+  color: var(--mint);
+  opacity: 0.68;
+  line-height: 1.60;
 }
 
 /* Section */
@@ -89,27 +107,30 @@ body::after {
   margin-bottom: 58px;
 }
 .section-label {
-  font-size: 10px;
-  letter-spacing: 0.32em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: #7a5520;
-  opacity: 0.45;
-  margin-bottom: 22px;
+  color: var(--green);
+  opacity: 0.50;
+  margin-bottom: 20px;
 }
 .section h2 {
-  font-family: 'IM Fell English', Georgia, serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 22px;
-  font-weight: normal;
-  color: #3a2005;
+  font-weight: 500;
+  color: var(--white);
   margin-bottom: 14px;
   line-height: 1.3;
 }
 .section p {
-  font-size: 17px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
   font-weight: 300;
-  color: #4a3015;
-  line-height: 1.70;
+  color: var(--mint);
+  line-height: 1.75;
   margin-bottom: 14px;
+  opacity: 0.82;
 }
 .section p:last-child { margin-bottom: 0; }
 
@@ -118,34 +139,37 @@ body::after {
   width: 100%;
   border-collapse: collapse;
   margin: 24px 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
 }
 .commit-table tr {
-  border-bottom: 1px solid rgba(139, 94, 20, 0.10);
+  border-bottom: 1px solid rgba(88, 222, 131, 0.08);
 }
-.commit-table tr:first-child {
-  border-top: 1px solid rgba(139, 94, 20, 0.10);
-}
+.commit-table tr:last-child { border-bottom: none; }
 .commit-table td {
-  padding: 10px 0;
-  font-size: 15px;
-  color: #4a3015;
+  padding: 11px 16px;
+  font-size: 13px;
   font-weight: 300;
 }
 .commit-table td:first-child {
+  font-family: 'JetBrains Mono', monospace;
   font-style: italic;
   width: 44%;
-  color: #7a3e0a;
+  color: var(--cyan);
+  opacity: 0.85;
+  font-size: 12px;
 }
 .commit-table td:last-child {
-  font-size: 14px;
-  color: #7a5520;
-  opacity: 0.70;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--mint);
+  opacity: 0.62;
 }
 
 /* Divider */
 .divider {
   border: none;
-  border-top: 1px solid rgba(139, 94, 20, 0.14);
+  border-top: 1px solid var(--border);
   margin: 52px 0;
 }
 
@@ -153,70 +177,71 @@ body::after {
 .place-list {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 2px;
 }
 .place {
-  padding-bottom: 28px;
-  border-bottom: 1px solid rgba(139, 94, 20, 0.10);
+  padding: 24px 24px 22px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  transition: border-color 0.25s;
 }
-.place:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+.place:hover {
+  border-color: rgba(88, 222, 131, 0.30);
 }
 .place-name {
-  font-family: 'IM Fell English', Georgia, serif;
-  font-size: 20px;
-  color: #3a2005;
-  margin-bottom: 5px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--white);
+  margin-bottom: 4px;
 }
 .place-loc {
-  font-size: 11px;
-  letter-spacing: 0.20em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #7a5520;
-  opacity: 0.50;
-  margin-bottom: 9px;
+  color: var(--green);
+  opacity: 0.55;
+  margin-bottom: 12px;
 }
 .place-desc {
-  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
   font-weight: 300;
-  color: #4a3015;
-  line-height: 1.60;
-  margin-bottom: 10px;
+  color: var(--mint);
+  line-height: 1.65;
+  margin-bottom: 12px;
+  opacity: 0.75;
 }
 .place-link {
-  font-size: 13px;
-  font-style: italic;
-  color: #7a3e0a;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--cyan);
   text-decoration: none;
-  opacity: 0.70;
-  transition: opacity 0.2s;
+  opacity: 0.65;
+  letter-spacing: 0.04em;
+  transition: opacity 0.2s, text-shadow 0.2s;
 }
-.place-link:hover { opacity: 1; }
+.place-link:hover {
+  opacity: 1;
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.50);
+}
 
 /* Closing */
 .closing {
   margin-top: 72px;
   padding-top: 40px;
-  border-top: 1px solid rgba(139, 94, 20, 0.14);
+  border-top: 1px solid var(--border);
   text-align: center;
-}
-.closing p {
-  font-family: 'IM Fell English', Georgia, serif;
-  font-style: italic;
-  font-size: 17px;
-  color: #5c3d10;
-  opacity: 0.55;
-  line-height: 1.6;
 }
 .ailiv-mark {
   display: block;
-  font-size: 10px;
-  letter-spacing: 0.35em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.38em;
   text-transform: uppercase;
-  color: #7a5520;
-  opacity: 0.30;
-  margin-top: 28px;
+  color: var(--green);
+  opacity: 0.22;
 }
 </style>
 </head>
@@ -226,7 +251,7 @@ body::after {
   <a class="back" href="/meditation">Return to practice</a>
 
   <div class="masthead">
-    <div class="eyebrow">AILIV · Meditation</div>
+    <div class="eyebrow">AILIV · Change</div>
     <h1 class="title">How practice<br>moves your biology</h1>
     <p class="subtitle">A guide to the visualization and the science behind it.</p>
   </div>
@@ -326,7 +351,7 @@ body::after {
   </div>
 
   <div class="closing">
-    <span class="ailiv-mark">AILIV</span>
+    <span class="ailiv-mark">AILIV · Change</span>
   </div>
 
 </div>
