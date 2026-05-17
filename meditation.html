@@ -512,6 +512,34 @@ for (let i = 0; i < 600; i++) {
 
 const orbTexture = new THREE.CanvasTexture(orbCanvas);
 
+// ── PARTICLE SPRITE — bright core + outer ring ───────────────
+
+const spriteCanvas = document.createElement('canvas');
+spriteCanvas.width = 64; spriteCanvas.height = 64;
+const sctx = spriteCanvas.getContext('2d');
+sctx.clearRect(0, 0, 64, 64);
+
+// Outer ring halo
+const haloGrad = sctx.createRadialGradient(32, 32, 16, 32, 32, 32);
+haloGrad.addColorStop(0,    'rgba(255,255,255,0.00)');
+haloGrad.addColorStop(0.68, 'rgba(255,255,255,0.00)');
+haloGrad.addColorStop(0.78, 'rgba(255,255,255,0.55)');
+haloGrad.addColorStop(0.88, 'rgba(255,255,255,0.22)');
+haloGrad.addColorStop(1,    'rgba(255,255,255,0.00)');
+sctx.fillStyle = haloGrad;
+sctx.fillRect(0, 0, 64, 64);
+
+// Bright inner core
+const coreGrad2 = sctx.createRadialGradient(32, 32, 0, 32, 32, 18);
+coreGrad2.addColorStop(0,    'rgba(255,255,255,1.00)');
+coreGrad2.addColorStop(0.28, 'rgba(255,255,255,0.85)');
+coreGrad2.addColorStop(0.60, 'rgba(255,255,255,0.30)');
+coreGrad2.addColorStop(1,    'rgba(255,255,255,0.00)');
+sctx.fillStyle = coreGrad2;
+sctx.fillRect(0, 0, 64, 64);
+
+const spriteTexture = new THREE.CanvasTexture(spriteCanvas);
+
 // ── CENTER ORB ───────────────────────────────────────────────
 
 const centerGeo = new THREE.SphereGeometry(0.20, 32, 32);
@@ -524,6 +552,30 @@ const centerMat = new THREE.MeshLambertMaterial({
 });
 const centerMesh = new THREE.Mesh(centerGeo, centerMat);
 scene.add(centerMesh);
+
+// ── ORBITAL RING TRACKS ──────────────────────────────────────
+
+const ringMats = [];
+GROUPS.forEach((group) => {
+  const segments = 160;
+  const ringGeo  = new THREE.BufferGeometry();
+  const ringPos  = new Float32Array((segments + 1) * 3);
+  for (let i = 0; i <= segments; i++) {
+    const a = (i / segments) * Math.PI * 2;
+    ringPos[i*3]   = group.rad * Math.cos(a);
+    ringPos[i*3+1] = 0;
+    ringPos[i*3+2] = group.rad * Math.sin(a);
+  }
+  ringGeo.setAttribute('position', new THREE.BufferAttribute(ringPos, 3));
+  const ringMat = new THREE.LineBasicMaterial({
+    color:       new THREE.Color(group.r, group.g, group.b),
+    transparent: true,
+    opacity:     0.07,
+  });
+  const ring = new THREE.LineLoop(ringGeo, ringMat);
+  scene.add(ring);
+  ringMats.push(ringMat);
+});
 
 // ── PARTICLES ────────────────────────────────────────────────
 
@@ -573,11 +625,14 @@ geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 geo.setAttribute('color',    new THREE.BufferAttribute(colors,    3));
 
 const mat = new THREE.PointsMaterial({
-  size: 0.044,
+  size: 0.11,
   vertexColors: true,
   transparent: true,
-  opacity: 0.80,
+  opacity: 0.92,
   sizeAttenuation: true,
+  map: spriteTexture,
+  alphaTest: 0.01,
+  depthWrite: false,
 });
 
 const points = new THREE.Points(geo, mat);
@@ -706,6 +761,9 @@ function animate() {
   const breathFreq = 3.5 - curCoh * 2.34;
   breathPhase += breathFreq * 0.0075;
   const breath = Math.sin(breathPhase) * 0.5 + 0.5;
+
+  // Orbital rings — faint at chaos, brighter as particles settle onto tracks
+  ringMats.forEach(rm => { rm.opacity = 0.06 + curCoh * 0.22; });
 
   coreLight.intensity         = 1.0 + breath * 1.6;
   centerMesh.scale.setScalar(1.0 + breath * 0.20);
