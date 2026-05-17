@@ -81,25 +81,58 @@ body::after {
   letter-spacing: 0.38em;
   text-transform: uppercase;
   color: var(--green);
-  opacity: 0.55;
+  opacity: 0.70;
   margin-bottom: 22px;
+  text-shadow: 0 0 12px rgba(88, 222, 131, 0.40);
 }
 .title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 38px;
-  font-weight: 600;
+  font-size: 40px;
+  font-weight: 700;
   color: var(--white);
-  line-height: 1.12;
+  line-height: 1.10;
   margin-bottom: 18px;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 40px rgba(240, 238, 248, 0.12);
 }
 .subtitle {
   font-family: 'Inter', sans-serif;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 300;
   color: var(--mint);
   opacity: 0.68;
   line-height: 1.60;
+  margin-bottom: 20px;
+}
+.data-strip {
+  display: flex;
+  gap: 0;
+  margin-top: 22px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+.data-strip-item {
+  flex: 1;
+  padding: 10px 16px;
+  border-right: 1px solid var(--border);
+}
+.data-strip-item:last-child { border-right: none; }
+.data-strip-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--green);
+  opacity: 0.60;
+  display: block;
+  margin-bottom: 3px;
+}
+.data-strip-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--cyan);
+  text-shadow: 0 0 14px rgba(0, 229, 255, 0.45);
 }
 
 /* Section */
@@ -109,30 +142,81 @@ body::after {
 .section-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--green);
-  opacity: 0.50;
-  margin-bottom: 20px;
+  opacity: 0.80;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::before {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--green);
+  opacity: 0.55;
 }
 .section h2 {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 22px;
-  font-weight: 500;
+  font-size: 24px;
+  font-weight: 600;
   color: var(--white);
-  margin-bottom: 14px;
-  line-height: 1.3;
+  margin-bottom: 16px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 .section p {
   font-family: 'Inter', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 300;
   color: var(--mint);
-  line-height: 1.75;
+  line-height: 1.80;
   margin-bottom: 14px;
-  opacity: 0.82;
+  opacity: 0.80;
 }
 .section p:last-child { margin-bottom: 0; }
+.stat-row {
+  display: flex;
+  gap: 2px;
+  margin: 20px 0;
+}
+.stat-cell {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 12px 14px;
+}
+.stat-cell-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--green);
+  opacity: 0.60;
+  display: block;
+  margin-bottom: 4px;
+}
+.stat-cell-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--cyan);
+  text-shadow: 0 0 14px rgba(0, 229, 255, 0.40);
+}
+.commit-table thead td {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px !important;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--green) !important;
+  opacity: 0.55 !important;
+  font-style: normal !important;
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid rgba(88, 222, 131, 0.18) !important;
+}
 
 /* Commitment table */
 .commit-table {
@@ -251,55 +335,91 @@ body::after {
   <a class="back" href="/meditation">Return to practice</a>
 
   <div class="masthead">
-    <div class="eyebrow">AILIV · Change</div>
+    <div class="eyebrow">AILIV · Change · Biometric Reference</div>
     <h1 class="title">How practice<br>moves your biology</h1>
-    <p class="subtitle">A guide to the visualization and the science behind it.</p>
+    <p class="subtitle">The field maps your nervous system in real time. This is the science behind what you're seeing.</p>
+    <div class="data-strip">
+      <div class="data-strip-item">
+        <span class="data-strip-key">Biomarker Rings</span>
+        <span class="data-strip-val">8</span>
+      </div>
+      <div class="data-strip-item">
+        <span class="data-strip-key">Practice Levels</span>
+        <span class="data-strip-val">11</span>
+      </div>
+      <div class="data-strip-item">
+        <span class="data-strip-key">Coherence Range</span>
+        <span class="data-strip-val">0.02 → 1.00</span>
+      </div>
+      <div class="data-strip-item">
+        <span class="data-strip-key">Particles</span>
+        <span class="data-strip-val">1,900</span>
+      </div>
+    </div>
   </div>
 
   <!-- HOW IT WORKS -->
   <div class="section">
-    <div class="section-label">How It Works</div>
+    <div class="section-label">01 · System Model</div>
     <h2>The field is your nervous system</h2>
-    <p>Each particle in the visualization represents a biomarker data point — heart rate variability, cortisol, respiratory rate, resting heart rate, and recovery. They orbit in rings corresponding to how directly each marker responds to meditation practice.</p>
-    <p>When you select a practice level, the particles change. At no practice, the field is chaotic — particles fly and scatter. As you commit more deeply, the field slows, organizes, and begins to form coherent patterns. At the deepest levels, a double helix emerges.</p>
-    <p>This is not decoration. It is a biological metaphor. The body under stress is incoherent — systems firing without rhythm. The body in deep practice is ordered, slow, and self-regulating.</p>
+    <p>Each particle maps to a biomarker data point — HRV, cortisol, respiratory rate, resting heart rate, recovery. Eight rings, each corresponding to how directly that system responds to meditation. Inner rings = highest sensitivity. Outer rings = slower, cumulative change.</p>
+    <div class="stat-row">
+      <div class="stat-cell">
+        <span class="stat-cell-key">Chaos state</span>
+        <span class="stat-cell-val">coherence 0.02</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-cell-key">Helix threshold</span>
+        <span class="stat-cell-val">coherence 0.92</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-cell-key">Max coherence</span>
+        <span class="stat-cell-val">coherence 1.00</span>
+      </div>
+    </div>
+    <p>At no practice the field is fully chaotic — particles scatter, orbits break, the system is dysregulated. As practice depth increases, coherence rises. The particles slow, lock to their orbital tracks, and at the highest levels form a double helix — the biological signature of a regulated nervous system.</p>
   </div>
 
   <!-- COMMITMENT LEVELS -->
   <div class="section">
-    <div class="section-label">The Commitment Spectrum</div>
-    <h2>What each level represents</h2>
-    <p>Select the level that honestly describes your daily practice. The visualization reflects the cumulative biological effect of sustained practice at that intensity.</p>
+    <div class="section-label">02 · Practice Input</div>
+    <h2>Commitment levels and field output</h2>
+    <p>Select the level matching your actual daily practice. The field reflects cumulative biological effect — not a single session, but what sustained practice at that intensity does to the underlying physiology over weeks.</p>
 
     <table class="commit-table">
-      <tr><td>No practice</td><td>Maximum field chaos. Baseline biology, unstressed.</td></tr>
-      <tr><td>5 min · once</td><td>A beginning. Small coherence begins to appear.</td></tr>
-      <tr><td>10 min · once</td><td>Enough to shift breath and lower cortisol slightly.</td></tr>
-      <tr><td>20 min · once</td><td>Clinically studied range. Measurable HRV improvement.</td></tr>
-      <tr><td>20 min · twice</td><td>Standard TM protocol. Cortisol reduction begins here.</td></tr>
-      <tr><td>30 min · twice</td><td>Entering serious practice. The field slows noticeably.</td></tr>
-      <tr><td>1 hr · once</td><td>Retreat-level practice. Biology changes are sustained.</td></tr>
-      <tr><td>1 hr · twice</td><td>Deep practitioner range. Significant field order visible.</td></tr>
-      <tr><td>2 hr · once</td><td>Advanced daily practice. Recovery index climbs.</td></tr>
-      <tr><td>2 hr · twice</td><td>Near-monastic commitment. Near-total field coherence.</td></tr>
-      <tr><td>4+ hrs · beyond</td><td>Long retreat or dedicated practice. Total harmony.</td></tr>
+      <thead>
+        <tr><td>Protocol</td><td>Field Behavior</td></tr>
+      </thead>
+      <tbody>
+        <tr><td>No practice</td><td>Maximum chaos. Baseline biology, unstressed.</td></tr>
+        <tr><td>5 min · once</td><td>A beginning. Small coherence starts to register.</td></tr>
+        <tr><td>10 min · once</td><td>Breath shifts. Cortisol begins to drop slightly.</td></tr>
+        <tr><td>20 min · once</td><td>Clinically studied range. Measurable HRV improvement.</td></tr>
+        <tr><td>20 min · twice</td><td>Standard TM protocol. Cortisol reduction begins here.</td></tr>
+        <tr><td>30 min · twice</td><td>Serious practice. The field slows noticeably.</td></tr>
+        <tr><td>1 hr · once</td><td>Retreat-level input. Biological changes become sustained.</td></tr>
+        <tr><td>1 hr · twice</td><td>Deep practitioner range. Helix structure becomes visible.</td></tr>
+        <tr><td>2 hr · once</td><td>Advanced daily practice. Recovery index climbs sharply.</td></tr>
+        <tr><td>2 hr · twice</td><td>Near-monastic load. Near-total field coherence.</td></tr>
+        <tr><td>4+ hrs · beyond</td><td>Long retreat or dedicated practice. Full system harmony.</td></tr>
+      </tbody>
     </table>
   </div>
 
   <!-- WHAT THE NUMBERS MEAN -->
   <div class="section">
-    <div class="section-label">The Right Panel</div>
-    <h2>What the percentages mean</h2>
-    <p>The five biomarkers on the right show the estimated effect size of your practice level on each marker, based on peer-reviewed literature on meditation and physiology. These are directional guides, not clinical predictions.</p>
-    <p>HRV and cortisol are the most sensitive to practice. Resting heart rate follows slowly. Respiratory rate shifts almost immediately. Recovery is the composite — when the others move, it moves with them.</p>
-    <p>Hover any marker to read what it measures and what the evidence says about meditation's effect on it.</p>
+    <div class="section-label">03 · Output Signals</div>
+    <h2>Reading the biomarker panel</h2>
+    <p>The five values on the right are estimated effect sizes derived from peer-reviewed literature on meditation and autonomic physiology. They are weighted by each marker's known sensitivity to practice — HRV at 1.0×, cortisol at 0.87×, resting HR at 0.76×, respiratory rate at 0.62×, recovery at 0.56×.</p>
+    <p>HRV and cortisol move fastest. Resting HR follows slowly over weeks. Respiratory rate shifts within a single session. Recovery is the composite output — it rises as the others move.</p>
+    <p>Hover any marker on the panel to see what it measures and what the clinical evidence says about meditation's effect on it.</p>
   </div>
 
   <hr class="divider">
 
   <!-- PLACES TO PRACTICE -->
   <div class="section">
-    <div class="section-label">Places to Practice</div>
+    <div class="section-label">04 · Places to Practice</div>
     <h2>Where to go if you want to go deeper</h2>
     <p>These are real places, real teachers. Not a curated list — just the ones worth knowing about.</p>
 
@@ -308,7 +428,7 @@ body::after {
       <div class="place">
         <div class="place-name">Dhamma Dhara — Vipassana Meditation Center</div>
         <div class="place-loc">Shelburne Falls, Massachusetts</div>
-        <div class="place-desc">The first Vipassana center established outside India, and the first in the Western Hemisphere. Founded in 1982 under S.N. Goenka, in the tradition of Sayagyi U Ba Khin. The standard course is ten days of silence — no reading, no writing, no devices. A meditation hall for 200 students. Fifteen to twenty courses per year, nearly every one full with a waitlist. All courses run on donation only, accepted solely from those who have already completed a course. This is the origin point of Goenka Vipassana in the West.</div>
+        <div class="place-desc">The first Vipassana center established outside India, founded in 1982 under S.N. Goenka. The standard course is ten days of silence — no reading, writing, or devices. Capacity for 200 students, 15–20 courses per year, consistently full with a waitlist. Donation-based, open only to those who have completed a prior course. The origin point of Goenka Vipassana in the West.</div>
         <a class="place-link" href="https://dhara.dhamma.org" target="_blank">dhara.dhamma.org</a>
       </div>
 
