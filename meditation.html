@@ -62,12 +62,13 @@ body::after {
 }
 #header h1 {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.52em;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.58em;
   text-transform: uppercase;
   color: var(--mint);
-  opacity: 0.45;
+  opacity: 0.90;
+  text-shadow: 0 0 22px rgba(195, 253, 216, 0.55), 0 0 60px rgba(88, 222, 131, 0.22);
 }
 
 /* ── HELP BUTTON ── */
@@ -114,49 +115,58 @@ body::after {
 }
 #commitment-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.30em;
+  font-size: 10px;
+  letter-spacing: 0.34em;
   text-transform: uppercase;
   color: var(--green);
-  opacity: 0.55;
+  opacity: 0.90;
   margin-bottom: 16px;
   display: block;
+  text-shadow: 0 0 14px rgba(88, 222, 131, 0.60);
 }
 .level-item {
-  padding: 5px 0;
+  padding: 6px 0;
   cursor: pointer;
-  opacity: 0.28;
+  opacity: 0.38;
   transition: opacity 0.30s;
   position: relative;
   user-select: none;
+  padding-left: 10px;
+  border-left: 2px solid transparent;
+  transition: opacity 0.30s, border-color 0.30s;
 }
-.level-item:hover { opacity: 0.60; }
-.level-item.active { opacity: 1; }
+.level-item:hover { opacity: 0.72; }
+.level-item.active {
+  opacity: 1;
+  border-left-color: var(--cyan);
+}
 .level-name {
   display: block;
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 300;
+  font-size: 14px;
+  font-weight: 400;
   color: var(--white);
   line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 .level-item.active .level-name {
   font-style: italic;
   color: var(--green);
-  font-weight: 400;
+  font-weight: 500;
+  text-shadow: 0 0 18px rgba(88, 222, 131, 0.50);
 }
 .level-dot {
   position: absolute;
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--cyan);
   opacity: 0;
   transition: opacity 0.4s;
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.80);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.90), 0 0 20px rgba(0, 229, 255, 0.40);
 }
 .level-item.active .level-dot { opacity: 1; }
 
@@ -176,17 +186,18 @@ body::after {
 }
 .impact-panel-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.30em;
+  font-size: 10px;
+  letter-spacing: 0.34em;
   text-transform: uppercase;
   color: var(--green);
-  opacity: 0.55;
+  opacity: 0.90;
   margin-bottom: 16px;
   display: block;
   text-align: right;
+  text-shadow: 0 0 14px rgba(88, 222, 131, 0.60);
 }
 .impact-item {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   opacity: 0;
   transform: translateX(10px);
   transition: opacity 0.7s ease, transform 0.7s ease;
@@ -197,21 +208,22 @@ body::after {
 .impact-item.visible { opacity: 1; transform: translateX(0); }
 .impact-name {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.22em;
+  font-size: 10px;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--mint);
-  opacity: 0.55;
+  opacity: 0.80;
 }
 .impact-value {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 22px;
-  font-weight: 400;
+  font-size: 28px;
+  font-weight: 500;
   color: var(--cyan);
   display: block;
   line-height: 1.1;
-  margin-top: 2px;
-  text-shadow: 0 0 16px rgba(0, 229, 255, 0.50);
+  margin-top: 3px;
+  text-shadow: 0 0 20px rgba(0, 229, 255, 0.70), 0 0 50px rgba(0, 229, 255, 0.25);
+  letter-spacing: -0.02em;
 }
 
 /* ── BIOMARKER HOVER CARD ── */
@@ -278,11 +290,12 @@ body::after {
 }
 #sel-flash .flash-val {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.28em;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--green);
-  text-shadow: 0 0 20px rgba(88, 222, 131, 0.60);
+  text-shadow: 0 0 24px rgba(88, 222, 131, 0.80), 0 0 60px rgba(88, 222, 131, 0.30);
 }
 
 /* ── HOVER TOOLTIP ── */
@@ -318,11 +331,12 @@ body::after {
 }
 #footer p {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.30em;
+  font-size: 10px;
+  letter-spacing: 0.38em;
   text-transform: uppercase;
   color: var(--mint);
-  opacity: 0.18;
+  opacity: 0.35;
+  text-shadow: 0 0 12px rgba(195, 253, 216, 0.25);
 }
 </style>
 </head>
