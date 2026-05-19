@@ -7,347 +7,162 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
 :root {
-  --bg:       #080612;
-  --green:    #58DE83;
-  --cyan:     #00E5FF;
-  --mint:     #C3FDD8;
-  --white:    #F0EEF8;
-  --purple:   #BD93F9;
-  --panel-bg: rgba(8, 6, 18, 0.88);
-  --border:   rgba(88, 222, 131, 0.14);
+  --bg: #080612; --green: #58DE83; --cyan: #00E5FF;
+  --mint: #C3FDD8; --white: #F0EEF8; --purple: #BD93F9;
+  --amber: #FFB86C; --lime: #50FA7B;
+  --panel-bg: rgba(8,6,18,0.92); --border: rgba(88,222,131,0.14);
 }
-
 body {
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  width: 100vw; height: 100vh; overflow: hidden;
   background: radial-gradient(ellipse at 50% 50%, #0d0a20 0%, #080612 55%, #04030c 100%);
-  font-family: 'Inter', sans-serif;
-  color: var(--white);
+  font-family: 'Inter', sans-serif; color: var(--white);
 }
-
-/* Scanline grain overlay */
 body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.03) 2px,
-    rgba(0, 0, 0, 0.03) 4px
-  );
-  pointer-events: none;
-  z-index: 998;
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 998;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.025) 2px, rgba(0,0,0,0.025) 4px);
 }
+#canvas { position: fixed; top: 0; left: 0; z-index: 1; }
 
-#canvas {
-  position: fixed;
-  top: 0; left: 0;
-  z-index: 1;
-}
-
-/* ── HEADER ── */
 #header {
-  position: fixed;
-  top: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 10;
-  pointer-events: none;
+  position: fixed; top: 32px; left: 50%; transform: translateX(-50%);
+  text-align: center; z-index: 10; pointer-events: none;
 }
 #header h1 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.58em;
-  text-transform: uppercase;
-  color: var(--mint);
-  opacity: 0.90;
-  text-shadow: 0 0 22px rgba(195, 253, 216, 0.55), 0 0 60px rgba(88, 222, 131, 0.22);
+  font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600;
+  letter-spacing: 0.58em; text-transform: uppercase; color: var(--mint); opacity: 0.90;
+  text-shadow: 0 0 22px rgba(195,253,216,0.55), 0 0 60px rgba(88,222,131,0.22);
 }
 
-/* ── HELP BUTTON ── */
 #help-btn {
-  position: fixed;
-  top: 26px;
-  right: 36px;
-  z-index: 20;
-  width: 26px;
-  height: 26px;
-  border: 1px solid rgba(88, 222, 131, 0.25);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  color: rgba(88, 222, 131, 0.40);
-  text-decoration: none;
-  transition: color 0.25s, border-color 0.25s, opacity 0.25s, box-shadow 0.25s;
-  opacity: 0.55;
-  background: var(--panel-bg);
-  backdrop-filter: blur(8px);
+  position: fixed; top: 26px; right: 36px; z-index: 20;
+  width: 26px; height: 26px; border: 1px solid rgba(88,222,131,0.25); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  color: rgba(88,222,131,0.40); text-decoration: none; transition: all 0.25s;
+  opacity: 0.55; background: var(--panel-bg); backdrop-filter: blur(8px);
 }
-#help-btn:hover {
-  opacity: 1;
-  color: var(--cyan);
-  border-color: rgba(0, 229, 255, 0.55);
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.20);
-}
+#help-btn:hover { opacity: 1; color: var(--cyan); border-color: rgba(0,229,255,0.55); box-shadow: 0 0 12px rgba(0,229,255,0.20); }
 
-/* ── COMMITMENT PANEL ── */
 #commitment {
-  position: fixed;
-  left: 40px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  width: 218px;
-  background: var(--panel-bg);
-  border: 1px solid var(--border);
-  padding: 20px 20px 18px;
-  backdrop-filter: blur(12px);
+  position: fixed; left: 40px; top: 50%; transform: translateY(-50%);
+  z-index: 10; width: 218px; background: var(--panel-bg); border: 1px solid var(--border);
+  padding: 20px 20px 18px; backdrop-filter: blur(12px);
 }
 #commitment-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: var(--green);
-  opacity: 0.90;
-  margin-bottom: 16px;
-  display: block;
-  text-shadow: 0 0 14px rgba(88, 222, 131, 0.60);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.34em;
+  text-transform: uppercase; color: var(--green); opacity: 0.90; margin-bottom: 16px;
+  display: block; text-shadow: 0 0 14px rgba(88,222,131,0.60);
 }
 .level-item {
-  padding: 6px 0;
-  cursor: pointer;
-  opacity: 0.38;
-  transition: opacity 0.30s;
-  position: relative;
-  user-select: none;
-  padding-left: 10px;
-  border-left: 2px solid transparent;
-  transition: opacity 0.30s, border-color 0.30s;
+  padding: 6px 0 6px 10px; cursor: pointer; opacity: 0.38; position: relative;
+  user-select: none; border-left: 2px solid transparent; transition: opacity 0.30s, border-color 0.30s;
 }
 .level-item:hover { opacity: 0.72; }
-.level-item.active {
-  opacity: 1;
-  border-left-color: var(--cyan);
-}
-.level-name {
-  display: block;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--white);
-  line-height: 1.4;
-  letter-spacing: 0.01em;
-}
-.level-item.active .level-name {
-  font-style: italic;
-  color: var(--green);
-  font-weight: 500;
-  text-shadow: 0 0 18px rgba(88, 222, 131, 0.50);
-}
+.level-item.active { opacity: 1; border-left-color: var(--cyan); }
+.level-name { display: block; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400; color: var(--white); line-height: 1.4; }
+.level-item.active .level-name { font-style: italic; color: var(--green); font-weight: 500; text-shadow: 0 0 18px rgba(88,222,131,0.50); }
 .level-dot {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--cyan);
-  opacity: 0;
-  transition: opacity 0.4s;
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.90), 0 0 20px rgba(0, 229, 255, 0.40);
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  width: 5px; height: 5px; border-radius: 50%; background: var(--cyan); opacity: 0;
+  transition: opacity 0.4s; box-shadow: 0 0 10px rgba(0,229,255,0.90), 0 0 20px rgba(0,229,255,0.40);
 }
 .level-item.active .level-dot { opacity: 1; }
 
-/* ── IMPACT PANEL ── */
+/* ── FUTURISTIC BIOMARKER PANEL ── */
 #impact-panel {
-  position: fixed;
-  right: 40px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  width: 180px;
-  text-align: right;
-  background: var(--panel-bg);
-  border: 1px solid var(--border);
-  padding: 20px 20px 18px;
-  backdrop-filter: blur(12px);
+  position: fixed; right: 40px; top: 50%; transform: translateY(-50%);
+  z-index: 10; width: 210px; background: var(--panel-bg); border: 1px solid var(--border);
+  padding: 20px 18px 18px; backdrop-filter: blur(12px);
 }
 .impact-panel-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: var(--green);
-  opacity: 0.90;
-  margin-bottom: 16px;
-  display: block;
-  text-align: right;
-  text-shadow: 0 0 14px rgba(88, 222, 131, 0.60);
-}
-.impact-item {
-  margin-bottom: 18px;
-  opacity: 0;
-  transform: translateX(10px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-  position: relative;
-  cursor: default;
-}
-.impact-item:last-child { margin-bottom: 0; }
-.impact-item.visible { opacity: 1; transform: translateX(0); }
-.impact-name {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--mint);
-  opacity: 0.80;
-}
-.impact-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 28px;
-  font-weight: 500;
-  color: var(--cyan);
-  display: block;
-  line-height: 1.1;
-  margin-top: 3px;
-  text-shadow: 0 0 20px rgba(0, 229, 255, 0.70), 0 0 50px rgba(0, 229, 255, 0.25);
-  letter-spacing: -0.02em;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.34em;
+  text-transform: uppercase; color: var(--green); opacity: 0.90; margin-bottom: 20px;
+  display: block; text-shadow: 0 0 14px rgba(88,222,131,0.60);
 }
 
-/* ── BIOMARKER HOVER CARD ── */
+.bio-row {
+  margin-bottom: 16px; opacity: 0; transform: translateX(8px);
+  transition: opacity 0.6s ease, transform 0.6s ease; position: relative; cursor: default;
+}
+.bio-row:last-child { margin-bottom: 0; }
+.bio-row.visible { opacity: 1; transform: translateX(0); }
+
+.bio-top { display: flex; align-items: center; gap: 9px; margin-bottom: 6px; }
+
+.bio-diamond {
+  width: 8px; height: 8px; transform: rotate(45deg); flex-shrink: 0;
+  animation: dpulse 2s ease-in-out infinite;
+}
+.bio-row:nth-child(2) .bio-diamond { animation-delay: 0.4s; }
+.bio-row:nth-child(3) .bio-diamond { animation-delay: 0.8s; }
+.bio-row:nth-child(4) .bio-diamond { animation-delay: 1.2s; }
+.bio-row:nth-child(5) .bio-diamond { animation-delay: 1.6s; }
+@keyframes dpulse {
+  0%,100% { opacity: 0.65; transform: rotate(45deg) scale(1); }
+  50%      { opacity: 1.0;  transform: rotate(45deg) scale(1.35); }
+}
+
+.bio-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--mint); opacity: 0.60; flex: 1; }
+.bio-val   { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 500; line-height: 1; text-align: right; min-width: 44px; text-shadow: 0 0 14px currentColor; }
+
+.bio-track { width: 100%; height: 2px; background: rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+.bio-fill  { position: absolute; top: 0; left: 0; height: 100%; width: 0%; transition: width 0.9s ease; }
+.bio-scan  {
+  position: absolute; top: 0; height: 100%; width: 24px;
+  animation: scanmove 2.8s ease-in-out infinite;
+}
+.bio-row:nth-child(2) .bio-scan { animation-delay: 0.56s; }
+.bio-row:nth-child(3) .bio-scan { animation-delay: 1.12s; }
+.bio-row:nth-child(4) .bio-scan { animation-delay: 1.68s; }
+.bio-row:nth-child(5) .bio-scan { animation-delay: 2.24s; }
+@keyframes scanmove { 0% { left: -24px; } 100% { left: 100%; } }
+
+/* Hover card */
 .bio-card {
-  display: none;
-  position: absolute;
-  right: 190px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 248px;
-  background: rgba(4, 3, 14, 0.97);
-  border: 1px solid rgba(88, 222, 131, 0.22);
-  padding: 18px 20px;
-  text-align: left;
-  z-index: 50;
-  box-shadow: 0 0 32px rgba(88, 222, 131, 0.08), 0 8px 32px rgba(0, 0, 0, 0.60);
-  backdrop-filter: blur(16px);
+  display: none; position: absolute; right: 218px; top: 50%; transform: translateY(-50%);
+  width: 248px; background: rgba(4,3,14,0.97); border: 1px solid rgba(88,222,131,0.22);
+  padding: 18px 20px; text-align: left; z-index: 50;
+  box-shadow: 0 0 32px rgba(88,222,131,0.08), 0 8px 32px rgba(0,0,0,0.70); backdrop-filter: blur(16px);
 }
-.impact-item:hover .bio-card { display: block; }
-.bio-card-marker {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--green);
-  opacity: 0.70;
-  margin-bottom: 8px;
-}
-.bio-card-status {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 300;
-  color: var(--mint);
-  line-height: 1.55;
-  margin-bottom: 12px;
-  opacity: 0.85;
-}
-.bio-card-divider {
-  width: 100%;
-  height: 1px;
-  background: rgba(88, 222, 131, 0.14);
-  margin-bottom: 12px;
-}
-.bio-card-med {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-style: italic;
-  color: var(--cyan);
-  line-height: 1.55;
-  opacity: 0.78;
-}
+.bio-row:hover .bio-card { display: block; }
+.bio-card-title { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--green); opacity: 0.70; margin-bottom: 8px; }
+.bio-card-body  { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 300; color: var(--mint); line-height: 1.55; margin-bottom: 12px; opacity: 0.85; }
+.bio-card-rule  { width: 100%; height: 1px; background: rgba(88,222,131,0.14); margin-bottom: 12px; }
+.bio-card-sci   { font-family: 'Inter', sans-serif; font-size: 12px; font-style: italic; color: var(--cyan); line-height: 1.55; opacity: 0.78; }
 
-/* ── SELECTION FLASH ── */
 #sel-flash {
-  position: fixed;
-  bottom: 68px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 10;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 1.2s ease;
+  position: fixed; bottom: 68px; left: 50%; transform: translateX(-50%);
+  text-align: center; z-index: 10; pointer-events: none; opacity: 0; transition: opacity 1.2s ease;
 }
-#sel-flash .flash-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--green);
-  text-shadow: 0 0 24px rgba(88, 222, 131, 0.80), 0 0 60px rgba(88, 222, 131, 0.30);
+#sel-flash .fv {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500;
+  letter-spacing: 0.32em; text-transform: uppercase; color: var(--green);
+  text-shadow: 0 0 24px rgba(88,222,131,0.80), 0 0 60px rgba(88,222,131,0.30);
 }
 
-/* ── HOVER TOOLTIP ── */
-#hover-tip {
-  position: fixed;
-  z-index: 20;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-#hover-tip span {
-  display: block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: var(--mint);
-  background: rgba(4, 3, 14, 0.94);
-  border: 1px solid rgba(88, 222, 131, 0.22);
-  padding: 5px 14px;
-  white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.50);
+/* phase indicator */
+#phase-label {
+  position: fixed; bottom: 46px; left: 50%; transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.38em;
+  text-transform: uppercase; color: var(--cyan); opacity: 0.28; z-index: 10; pointer-events: none;
+  transition: opacity 0.8s;
 }
 
-/* ── CORNER MARK ── */
 #footer {
-  position: fixed;
-  bottom: 22px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 10;
-  pointer-events: none;
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  text-align: center; z-index: 10; pointer-events: none;
 }
 #footer p {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.38em;
-  text-transform: uppercase;
-  color: var(--mint);
-  opacity: 0.35;
-  text-shadow: 0 0 12px rgba(195, 253, 216, 0.25);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.38em;
+  text-transform: uppercase; color: var(--mint); opacity: 0.35;
 }
 </style>
 </head>
 <body>
 
 <canvas id="canvas"></canvas>
-
-<div id="header">
-  <h1>Change</h1>
-</div>
-
+<div id="header"><h1>Change</h1></div>
 <a id="help-btn" href="/meditation-guide" target="_blank">?</a>
 
 <div id="commitment">
@@ -357,473 +172,379 @@ body::after {
 <div id="impact-panel">
   <span class="impact-panel-label">Biomarkers</span>
 
-  <div class="impact-item" id="imp-hrv">
-    <span class="impact-name">HRV</span>
-    <span class="impact-value" id="v-hrv">—</span>
+  <div class="bio-row" id="row-hrv">
+    <div class="bio-top">
+      <div class="bio-diamond" style="background:#58DE83; box-shadow:0 0 8px #58DE83, 0 0 18px rgba(88,222,131,0.4);"></div>
+      <span class="bio-label">HRV</span>
+      <span class="bio-val" id="v-hrv" style="color:#58DE83;">—</span>
+    </div>
+    <div class="bio-track">
+      <div class="bio-fill" id="bar-hrv" style="background:#58DE83;"></div>
+      <div class="bio-scan" style="background:linear-gradient(90deg,transparent,rgba(88,222,131,0.85),transparent);"></div>
+    </div>
     <div class="bio-card">
-      <div class="bio-card-marker">Heart Rate Variability</div>
-      <div class="bio-card-status">The gap between heartbeats, measured in milliseconds. Higher variability means your nervous system is adaptive and resilient. Low HRV is one of the clearest signs of chronic stress.</div>
-      <div class="bio-card-divider"></div>
-      <div class="bio-card-med">Meditation is the most evidence-backed intervention for HRV. Even 20 minutes daily produces measurable improvement within two weeks.</div>
+      <div class="bio-card-title">Heart Rate Variability</div>
+      <div class="bio-card-body">The gap between heartbeats in milliseconds. Higher variability means your nervous system is adaptive and resilient. Low HRV is one of the clearest signs of chronic stress.</div>
+      <div class="bio-card-rule"></div>
+      <div class="bio-card-sci">Meditation is the most evidence-backed intervention for HRV. Even 20 minutes daily produces measurable improvement within two weeks.</div>
     </div>
   </div>
 
-  <div class="impact-item" id="imp-rhr">
-    <span class="impact-name">Resting HR</span>
-    <span class="impact-value" id="v-rhr">—</span>
+  <div class="bio-row" id="row-rhr">
+    <div class="bio-top">
+      <div class="bio-diamond" style="background:#00E5FF; box-shadow:0 0 8px #00E5FF, 0 0 18px rgba(0,229,255,0.4);"></div>
+      <span class="bio-label">Resting HR</span>
+      <span class="bio-val" id="v-rhr" style="color:#00E5FF;">—</span>
+    </div>
+    <div class="bio-track">
+      <div class="bio-fill" id="bar-rhr" style="background:#00E5FF;"></div>
+      <div class="bio-scan" style="background:linear-gradient(90deg,transparent,rgba(0,229,255,0.85),transparent);"></div>
+    </div>
     <div class="bio-card">
-      <div class="bio-card-marker">Resting Heart Rate</div>
-      <div class="bio-card-status">Your heart rate at rest. Lower is calmer. Athletes sit at 40–50 bpm. Most adults run 60–80. Elevated resting HR is a direct signal of sympathetic overdrive.</div>
-      <div class="bio-card-divider"></div>
-      <div class="bio-card-med">Regular meditation activates the parasympathetic system. Most practitioners see resting HR drop 3–5 bpm within a month of consistent practice.</div>
+      <div class="bio-card-title">Resting Heart Rate</div>
+      <div class="bio-card-body">Your heart rate at rest. Lower is calmer. Athletes sit at 40–50 bpm. Most adults run 60–80. Elevated resting HR is a direct signal of sympathetic overdrive.</div>
+      <div class="bio-card-rule"></div>
+      <div class="bio-card-sci">Regular meditation activates the parasympathetic system. Most practitioners see resting HR drop 3–5 bpm within a month of consistent practice.</div>
     </div>
   </div>
 
-  <div class="impact-item" id="imp-cort">
-    <span class="impact-name">Cortisol</span>
-    <span class="impact-value" id="v-cort">—</span>
+  <div class="bio-row" id="row-cort">
+    <div class="bio-top">
+      <div class="bio-diamond" style="background:#BD93F9; box-shadow:0 0 8px #BD93F9, 0 0 18px rgba(189,147,249,0.4);"></div>
+      <span class="bio-label">Cortisol</span>
+      <span class="bio-val" id="v-cort" style="color:#BD93F9;">—</span>
+    </div>
+    <div class="bio-track">
+      <div class="bio-fill" id="bar-cort" style="background:#BD93F9;"></div>
+      <div class="bio-scan" style="background:linear-gradient(90deg,transparent,rgba(189,147,249,0.85),transparent);"></div>
+    </div>
     <div class="bio-card">
-      <div class="bio-card-marker">Cortisol</div>
-      <div class="bio-card-status">Your primary stress hormone. Peaks in the morning, should taper through the day. Chronically elevated cortisol disrupts sleep, immunity, metabolism, and mood.</div>
-      <div class="bio-card-divider"></div>
-      <div class="bio-card-med">Meditation reduces cortisol more reliably than almost any other non-pharmaceutical intervention. TM studies show 30–32% reduction with consistent twice-daily practice.</div>
+      <div class="bio-card-title">Cortisol</div>
+      <div class="bio-card-body">Your primary stress hormone. Peaks in the morning, should taper through the day. Chronically elevated cortisol disrupts sleep, immunity, metabolism, and mood.</div>
+      <div class="bio-card-rule"></div>
+      <div class="bio-card-sci">Meditation reduces cortisol more reliably than almost any other non-pharmaceutical intervention. TM studies show 30–32% reduction with consistent twice-daily practice.</div>
     </div>
   </div>
 
-  <div class="impact-item" id="imp-resp">
-    <span class="impact-name">Resp Rate</span>
-    <span class="impact-value" id="v-resp">—</span>
+  <div class="bio-row" id="row-resp">
+    <div class="bio-top">
+      <div class="bio-diamond" style="background:#50FA7B; box-shadow:0 0 8px #50FA7B, 0 0 18px rgba(80,250,123,0.4);"></div>
+      <span class="bio-label">Resp Rate</span>
+      <span class="bio-val" id="v-resp" style="color:#50FA7B;">—</span>
+    </div>
+    <div class="bio-track">
+      <div class="bio-fill" id="bar-resp" style="background:#50FA7B;"></div>
+      <div class="bio-scan" style="background:linear-gradient(90deg,transparent,rgba(80,250,123,0.85),transparent);"></div>
+    </div>
     <div class="bio-card">
-      <div class="bio-card-marker">Respiratory Rate</div>
-      <div class="bio-card-status">Breaths per minute at rest. Normal is 12–20. Slower, deeper breathing is directly correlated with calm nervous system function and better oxygen efficiency.</div>
-      <div class="bio-card-divider"></div>
-      <div class="bio-card-med">The most immediate effect of meditation. Breath slows within minutes of sitting. Over time, your resting rate shifts lower as the practice becomes the baseline.</div>
+      <div class="bio-card-title">Respiratory Rate</div>
+      <div class="bio-card-body">Breaths per minute at rest. Normal is 12–20. Slower, deeper breathing is directly correlated with calm nervous system function and better oxygen efficiency.</div>
+      <div class="bio-card-rule"></div>
+      <div class="bio-card-sci">The most immediate effect of meditation. Breath slows within minutes of sitting. Over time, your resting rate shifts lower as the practice becomes the baseline.</div>
     </div>
   </div>
 
-  <div class="impact-item" id="imp-rec">
-    <span class="impact-name">Recovery</span>
-    <span class="impact-value" id="v-rec">—</span>
+  <div class="bio-row" id="row-rec">
+    <div class="bio-top">
+      <div class="bio-diamond" style="background:#FFB86C; box-shadow:0 0 8px #FFB86C, 0 0 18px rgba(255,184,108,0.4);"></div>
+      <span class="bio-label">Recovery</span>
+      <span class="bio-val" id="v-rec" style="color:#FFB86C;">—</span>
+    </div>
+    <div class="bio-track">
+      <div class="bio-fill" id="bar-rec" style="background:#FFB86C;"></div>
+      <div class="bio-scan" style="background:linear-gradient(90deg,transparent,rgba(255,184,108,0.85),transparent);"></div>
+    </div>
     <div class="bio-card">
-      <div class="bio-card-marker">Recovery Index</div>
-      <div class="bio-card-status">A composite score drawn from HRV, resting HR, sleep quality, and respiratory rate. It measures how well your body bounces back. Declines with poor sleep, stress, and overtraining.</div>
-      <div class="bio-card-divider"></div>
-      <div class="bio-card-med">As the primary markers improve through meditation, recovery rises with them. It is the downstream signal. If you are practicing, this number moves.</div>
+      <div class="bio-card-title">Recovery Index</div>
+      <div class="bio-card-body">A composite score drawn from HRV, resting HR, sleep quality, and respiratory rate. It measures how well your body bounces back. Declines with poor sleep, stress, and overtraining.</div>
+      <div class="bio-card-rule"></div>
+      <div class="bio-card-sci">As the primary markers improve through meditation, recovery rises with them. It is the downstream signal. If you are practicing, this number moves.</div>
     </div>
   </div>
-
 </div>
 
-<div id="sel-flash"><div class="flash-val" id="flash-val"></div></div>
-<div id="hover-tip"><span id="hover-tip-text"></span></div>
+<div id="sel-flash"><div class="fv" id="fv"></div></div>
+<div id="phase-label" id="phase-label">FORMING</div>
 <div id="footer"><p>AILIV · Change</p></div>
 
 <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 <script>
-// ════════════════════════════════════════════════════════════
-//  CHANGE — MEDITATION BIOMARKER VISUALIZER
-//  Creative Konsoles · AILIV
-// ════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  DOUBLE HELIX — AILIV CHANGE
+// ═══════════════════════════════════════════
 
-// ── DATA ────────────────────────────────────────────────────
+const HR  = 1.15;   // helix radius
+const HH  = 2.9;    // half-height
+const HT  = 3.5;    // turns
+const NS  = 270;    // particles per strand
+const BST = 6;      // bridge step (every Nth)
+const NB  = Math.floor(NS / BST);  // bridge count
 
-const GROUPS = [
-  { name:'HRV',      label:'Heart Rate Variability', count:290, rad:1.25, r:0.345, g:0.871, b:0.514 }, // #58DE83
-  { name:'RHR',      label:'Resting Heart Rate',     count:270, rad:1.65, r:0.000, g:0.898, b:1.000 }, // #00E5FF
-  { name:'Cortisol', label:'Cortisol',               count:250, rad:2.10, r:0.741, g:0.576, b:0.976 }, // #BD93F9
-  { name:'Resp',     label:'Respiratory Rate',       count:230, rad:2.55, r:0.314, g:0.980, b:0.482 }, // #50FA7B
-  { name:'Recovery', label:'Recovery Index',         count:210, rad:3.05, r:0.545, g:0.914, b:0.992 }, // #8BE9FD
-  { name:'Sleep',    label:'Sleep Quality',          count:190, rad:3.55, r:1.000, g:0.475, b:0.776 }, // #FF79C6
-  { name:'BP',       label:'Blood Pressure',         count:170, rad:4.05, r:1.000, g:0.722, b:0.424 }, // #FFB86C
-  { name:'Other',    label:'Other Biomarkers',       count:290, rad:4.65, r:0.384, g:0.447, b:0.643 }, // #6272A4
+const BIO = [
+  [0.345,0.871,0.514],
+  [0.000,0.898,1.000],
+  [0.741,0.576,0.976],
+  [0.314,0.980,0.482],
+  [1.000,0.722,0.424],
 ];
+
+function bioCol(f) {
+  const z = f * (BIO.length - 1), i = Math.floor(z), t = z - i;
+  const a = BIO[Math.min(i, BIO.length-1)], b = BIO[Math.min(i+1, BIO.length-1)];
+  return [a[0]*(1-t)+b[0]*t, a[1]*(1-t)+b[1]*t, a[2]*(1-t)+b[2]*t];
+}
 
 const LEVELS = [
-  { label:'No practice',      coherence:0.02, impact:0.000 },
-  { label:'5 min · once',     coherence:0.10, impact:0.018 },
-  { label:'10 min · once',    coherence:0.19, impact:0.032 },
-  { label:'20 min · once',    coherence:0.30, impact:0.048 },
-  { label:'20 min · twice',   coherence:0.42, impact:0.085 },
-  { label:'30 min · twice',   coherence:0.54, impact:0.125 },
-  { label:'1 hr · once',      coherence:0.65, impact:0.155 },
-  { label:'1 hr · twice',     coherence:0.92, impact:0.215 },
-  { label:'2 hr · once',      coherence:0.94, impact:0.290 },
-  { label:'2 hr · twice',     coherence:0.97, impact:0.360 },
-  { label:'4+ hrs · beyond',  coherence:1.00, impact:0.450 },
+  {label:'No practice',     coh:0.02,imp:0.000},
+  {label:'5 min · once',    coh:0.10,imp:0.018},
+  {label:'10 min · once',   coh:0.19,imp:0.032},
+  {label:'20 min · once',   coh:0.30,imp:0.048},
+  {label:'20 min · twice',  coh:0.42,imp:0.085},
+  {label:'30 min · twice',  coh:0.54,imp:0.125},
+  {label:'1 hr · once',     coh:0.65,imp:0.155},
+  {label:'1 hr · twice',    coh:0.92,imp:0.215},
+  {label:'2 hr · once',     coh:0.94,imp:0.290},
+  {label:'2 hr · twice',    coh:0.97,imp:0.360},
+  {label:'4+ hrs · beyond', coh:1.00,imp:0.450},
 ];
+const W = {hrv:1.00,rhr:0.76,cort:0.87,resp:0.62,rec:0.56};
 
-const WEIGHTS = { hrv:1.00, rhr:0.76, cort:0.87, resp:0.62, rec:0.56 };
+// THREE setup
+const cvs = document.getElementById('canvas');
+const rdr = new THREE.WebGLRenderer({canvas:cvs,alpha:true,antialias:true});
+rdr.setPixelRatio(Math.min(devicePixelRatio,2));
+rdr.setSize(innerWidth,innerHeight);
+rdr.setClearColor(0,0);
 
-function formatImpact(key, pct) {
-  if (pct === 0) return '—';
-  const w = WEIGHTS[key];
-  const v = Math.round(pct * 100 * w);
-  const sign = (key === 'rhr' || key === 'cort' || key === 'resp') ? '−' : '+';
-  return `${sign}${v}%`;
+const scene = new THREE.Scene();
+const cam   = new THREE.PerspectiveCamera(52, innerWidth/innerHeight, 0.1, 100);
+cam.position.set(2.2, 1.8, 9.8);
+cam.lookAt(0,0,0);
+
+scene.add(new THREE.AmbientLight(0x0d0820, 0.6));
+const ptLight = new THREE.PointLight(0x00e5ff, 2.0, 14);
+scene.add(ptLight);
+const rimL = new THREE.DirectionalLight(0x58de83, 0.3);
+rimL.position.set(-4,6,-4);
+scene.add(rimL);
+
+// Sprite
+const sp = document.createElement('canvas');
+sp.width = sp.height = 64;
+const sx = sp.getContext('2d');
+const g1 = sx.createRadialGradient(32,32,0,32,32,18);
+g1.addColorStop(0,'rgba(255,255,255,1)');
+g1.addColorStop(0.35,'rgba(255,255,255,0.8)');
+g1.addColorStop(0.7,'rgba(255,255,255,0.2)');
+g1.addColorStop(1,'rgba(255,255,255,0)');
+sx.fillStyle=g1; sx.fillRect(0,0,64,64);
+const g2 = sx.createRadialGradient(32,32,14,32,32,32);
+g2.addColorStop(0,'rgba(255,255,255,0)');
+g2.addColorStop(0.72,'rgba(255,255,255,0)');
+g2.addColorStop(0.82,'rgba(255,255,255,0.45)');
+g2.addColorStop(1,'rgba(255,255,255,0)');
+sx.fillStyle=g2; sx.fillRect(0,0,64,64);
+const spriteTex = new THREE.CanvasTexture(sp);
+
+// Helix position helper
+function hpos(f, off, rot) {
+  const t = f * HT * Math.PI * 2;
+  return {
+    x: HR * Math.cos(t + off + rot),
+    y: (f*2-1) * HH,
+    z: HR * Math.sin(t + off + rot),
+  };
 }
 
-// ── THREE.JS SETUP ───────────────────────────────────────────
+// Build particles
+const total = NS*2 + NB;
+const pos   = new Float32Array(total*3);
+const col   = new Float32Array(total*3);
+const pd    = [];
+let   pi    = 0;
 
-const canvas   = document.getElementById('canvas');
-const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-renderer.setClearColor(0x000000, 0);
-
-const scene  = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(54, innerWidth/innerHeight, 0.1, 100);
-camera.position.set(0, 1.4, 9.2);
-camera.lookAt(0, 0, 0);
-
-// Lighting — cool, electric, hardware-grade
-const ambient = new THREE.AmbientLight(0x0d0820, 0.60);
-scene.add(ambient);
-
-const coreLight = new THREE.PointLight(0x00e5ff, 2.2, 14);
-scene.add(coreLight);
-
-const rimLight = new THREE.DirectionalLight(0x58de83, 0.28);
-rimLight.position.set(-4, 6, -4);
-scene.add(rimLight);
-
-// ── CENTER ORB TEXTURE — glowing cyan core ───────────────────
-
-const orbCanvas = document.createElement('canvas');
-orbCanvas.width = 256; orbCanvas.height = 256;
-const octx = orbCanvas.getContext('2d');
-
-octx.fillStyle = '#030610';
-octx.fillRect(0, 0, 256, 256);
-
-const coreGrad = octx.createRadialGradient(128, 128, 0, 128, 128, 128);
-coreGrad.addColorStop(0,    'rgba(0, 229, 255, 0.95)');
-coreGrad.addColorStop(0.22, 'rgba(88, 222, 131, 0.75)');
-coreGrad.addColorStop(0.50, 'rgba(30, 60, 100, 0.45)');
-coreGrad.addColorStop(0.80, 'rgba(8, 6, 24, 0.60)');
-coreGrad.addColorStop(1,    'rgba(4, 3, 14, 0.95)');
-octx.fillStyle = coreGrad;
-octx.fillRect(0, 0, 256, 256);
-
-// Micro sparkle dots
-const rng = { v: 137 };
-function nextRng() {
-  rng.v = (rng.v * 1664525 + 1013904223) & 0xffffffff;
-  return (rng.v >>> 0) / 0xffffffff;
-}
-for (let i = 0; i < 600; i++) {
-  const x = nextRng() * 256;
-  const y = nextRng() * 256;
-  const dx = x - 128, dy = y - 128;
-  const dist = Math.sqrt(dx*dx + dy*dy);
-  if (dist > 100) continue;
-  const a = 0.10 + nextRng() * 0.35;
-  const col = nextRng() > 0.5 ? `rgba(0,229,255,${a})` : `rgba(88,222,131,${a})`;
-  octx.fillStyle = col;
-  octx.beginPath();
-  octx.arc(x, y, nextRng() * 1.2, 0, Math.PI * 2);
-  octx.fill();
+function addParticle(type, f, tx, ty, tz, r, g, b) {
+  const scatter = type==='bridge' ? 4 : 5.5;
+  pd.push({type,f,tx,ty,tz,
+    px:tx+(Math.random()-.5)*scatter,
+    py:ty+(Math.random()-.5)*scatter,
+    pz:tz+(Math.random()-.5)*scatter,
+    vx:0,vy:0,vz:0,pi});
+  col[pi*3]=r; col[pi*3+1]=g; col[pi*3+2]=b;
+  pos[pi*3]=pd[pd.length-1].px;
+  pos[pi*3+1]=pd[pd.length-1].py;
+  pos[pi*3+2]=pd[pd.length-1].pz;
+  pi++;
 }
 
-const orbTexture = new THREE.CanvasTexture(orbCanvas);
-
-// ── PARTICLE SPRITE — bright core + outer ring ───────────────
-
-const spriteCanvas = document.createElement('canvas');
-spriteCanvas.width = 64; spriteCanvas.height = 64;
-const sctx = spriteCanvas.getContext('2d');
-sctx.clearRect(0, 0, 64, 64);
-
-// Outer ring halo
-const haloGrad = sctx.createRadialGradient(32, 32, 16, 32, 32, 32);
-haloGrad.addColorStop(0,    'rgba(255,255,255,0.00)');
-haloGrad.addColorStop(0.68, 'rgba(255,255,255,0.00)');
-haloGrad.addColorStop(0.78, 'rgba(255,255,255,0.55)');
-haloGrad.addColorStop(0.88, 'rgba(255,255,255,0.22)');
-haloGrad.addColorStop(1,    'rgba(255,255,255,0.00)');
-sctx.fillStyle = haloGrad;
-sctx.fillRect(0, 0, 64, 64);
-
-// Bright inner core
-const coreGrad2 = sctx.createRadialGradient(32, 32, 0, 32, 32, 18);
-coreGrad2.addColorStop(0,    'rgba(255,255,255,1.00)');
-coreGrad2.addColorStop(0.28, 'rgba(255,255,255,0.85)');
-coreGrad2.addColorStop(0.60, 'rgba(255,255,255,0.30)');
-coreGrad2.addColorStop(1,    'rgba(255,255,255,0.00)');
-sctx.fillStyle = coreGrad2;
-sctx.fillRect(0, 0, 64, 64);
-
-const spriteTexture = new THREE.CanvasTexture(spriteCanvas);
-
-// ── CENTER ORB ───────────────────────────────────────────────
-
-const centerGeo = new THREE.SphereGeometry(0.20, 32, 32);
-const centerMat = new THREE.MeshLambertMaterial({
-  map:               orbTexture,
-  emissive:          new THREE.Color(0.00, 0.55, 0.40),
-  emissiveIntensity: 1.10,
-  transparent:       true,
-  opacity:           0.96,
-});
-const centerMesh = new THREE.Mesh(centerGeo, centerMat);
-scene.add(centerMesh);
-
-
-// ── PARTICLES ────────────────────────────────────────────────
-
-const totalPts = GROUPS.reduce((s,g) => s + g.count, 0);
-const positions = new Float32Array(totalPts * 3);
-const colors    = new Float32Array(totalPts * 3);
-
-const pData = [];
-
-let idx = 0;
-GROUPS.forEach((group, gi) => {
-  for (let i = 0; i < group.count; i++) {
-    const angle  = (i / group.count) * Math.PI * 2 + gi * 0.42;
-    const initX  = group.rad * Math.cos(angle);
-    const initZ  = group.rad * Math.sin(angle);
-    const initY  = (Math.random() - 0.5) * 2.2;
-
-    pData.push({
-      gi,
-      angle,
-      baseAngle: angle,
-      yBase:  initY,
-      rVar:   (Math.random() - 0.5) * 0.32,
-      speed:  0.007 + Math.random() * 0.007,
-      phase:  Math.random() * Math.PI * 2,
-      n1: Math.random() * 2 - 1,
-      n2: Math.random() * 2 - 1,
-      px: initX, py: initY, pz: initZ,
-      vx: 0, vy: 0, vz: 0,
-      idx,
-    });
-
-    colors[idx*3]   = group.r;
-    colors[idx*3+1] = group.g;
-    colors[idx*3+2] = group.b;
-
-    positions[idx*3]   = initX;
-    positions[idx*3+1] = initY;
-    positions[idx*3+2] = initZ;
-
-    idx++;
-  }
-});
+for (let i=0; i<NS; i++) {
+  const f=i/NS, c=bioCol(f), p=hpos(f,0,0);
+  addParticle('s1',f,p.x,p.y,p.z,c[0],c[1],c[2]);
+}
+for (let i=0; i<NS; i++) {
+  const f=i/NS, c=bioCol(f), p=hpos(f,Math.PI,0);
+  addParticle('s2',f,p.x,p.y,p.z,c[0],c[1],c[2]);
+}
+for (let i=0; i<NS; i+=BST) {
+  const f=i/NS, p1=hpos(f,0,0), p2=hpos(f,Math.PI,0);
+  addParticle('bridge',f,(p1.x+p2.x)/2,(p1.y+p2.y)/2,(p1.z+p2.z)/2,0.76,0.99,0.85);
+}
 
 const geo = new THREE.BufferGeometry();
-geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-geo.setAttribute('color',    new THREE.BufferAttribute(colors,    3));
-
+geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+geo.setAttribute('color',    new THREE.BufferAttribute(col,3));
 const mat = new THREE.PointsMaterial({
-  size: 0.11,
-  vertexColors: true,
-  transparent: true,
-  opacity: 0.92,
-  sizeAttenuation: true,
-  map: spriteTexture,
-  alphaTest: 0.01,
-  depthWrite: false,
+  size:0.10, vertexColors:true, transparent:true, opacity:0.92,
+  sizeAttenuation:true, map:spriteTex, alphaTest:0.01, depthWrite:false,
 });
+scene.add(new THREE.Points(geo,mat));
 
-const points = new THREE.Points(geo, mat);
-scene.add(points);
+// State
+let hAngle=0, phase='reform', phaseT=0, globalT=0;
+let curCoh=LEVELS[0].coh, tgtCoh=LEVELS[0].coh;
+const DUR = {spin:580,fall:80,chaos:110,reform:150};
+const phaseEl = document.getElementById('phase-label');
 
-// ── STATE ────────────────────────────────────────────────────
-
-let curLevel    = 0;
-let targetCoh   = LEVELS[0].coherence;
-let curCoh      = LEVELS[0].coherence;
-let time        = 0;
-let breathPhase = 0;
-const mouseW    = new THREE.Vector3(-999, -999, 0);
-let mouseActive = false;
-
-// ── COMMITMENT UI ────────────────────────────────────────────
-
-const panel = document.getElementById('commitment');
-LEVELS.forEach((lv, i) => {
-  const el = document.createElement('div');
-  el.className = 'level-item' + (i === 0 ? ' active' : '');
-  el.innerHTML = `<span class="level-name">${lv.label}</span><span class="level-dot"></span>`;
-  el.addEventListener('click', () => selectLevel(i));
-  panel.appendChild(el);
-});
-
-function selectLevel(i) {
-  curLevel  = i;
-  targetCoh = LEVELS[i].coherence;
-  document.querySelectorAll('.level-item').forEach((el,j) => el.classList.toggle('active', j===i));
-  updateImpact(LEVELS[i].impact);
-  if (i > 0) flashImpact(LEVELS[i].impact);
+function setPhase(p) {
+  phase=p; phaseT=0;
+  const labels={spin:'COHERENT',fall:'DISSOLVING',chaos:'ENTROPY',reform:'REFORMING'};
+  if(phaseEl){ phaseEl.textContent=labels[p]||p; phaseEl.style.opacity='0.28'; }
 }
 
-function flashImpact(pct) {
-  const el  = document.getElementById('sel-flash');
-  const val = document.getElementById('flash-val');
-  val.textContent = pct > 0 ? `+${Math.round(pct * 100)}% primary biomarkers` : '';
-  el.style.opacity = '1';
-  clearTimeout(flashImpact._t);
-  flashImpact._t = setTimeout(() => { el.style.opacity = '0'; }, 2500);
-}
-
-// ── IMPACT PANEL ─────────────────────────────────────────────
-
-function updateImpact(pct) {
-  ['hrv','rhr','cort','resp','rec'].forEach((k, i) => {
-    const el = document.getElementById('imp-' + k);
-    if (!el) return;
-    el.classList.remove('visible');
-    setTimeout(() => {
-      document.getElementById('v-' + k).textContent = formatImpact(k, pct);
-      el.classList.add('visible');
-    }, i * 130);
-  });
-}
-
-// ── MOUSE ────────────────────────────────────────────────────
-
-document.addEventListener('mousemove', (e) => {
-  const nx = (e.clientX / innerWidth)  * 2 - 1;
-  const ny = -(e.clientY / innerHeight) * 2 + 1;
-  const fov   = 54 * Math.PI / 180;
-  const dist  = camera.position.z;
-  const worldH = 2 * Math.tan(fov/2) * dist;
-  const worldW = worldH * (innerWidth / innerHeight);
-  mouseW.set(nx * worldW * 0.5, ny * worldH * 0.5, 0);
-  mouseActive = true;
-});
-
-document.addEventListener('mouseleave', () => { mouseActive = false; });
-
-// ── HOVER TOOLTIP ─────────────────────────────────────────────
-
-const tipEl  = document.getElementById('hover-tip');
-const tipTxt = document.getElementById('hover-tip-text');
-let lastHoverGroup = -1;
-
-function checkHover(e) {
-  const mx = e.clientX;
-  const my = e.clientY;
-  let minDist  = Infinity;
-  let nearGroup = -1;
-
-  GROUPS.forEach((g, gi) => {
-    const sx = innerWidth  * 0.5;
-    const sy = innerHeight * 0.5;
-    const screenRad = g.rad * (innerHeight / 9.2) * 0.65;
-    const dx = mx - sx;
-    const dy = my - sy;
-    const d  = Math.sqrt(dx*dx + dy*dy);
-    const diff = Math.abs(d - screenRad);
-    if (diff < minDist && diff < 30) {
-      minDist   = diff;
-      nearGroup = gi;
-    }
-  });
-
-  if (nearGroup !== lastHoverGroup) {
-    lastHoverGroup = nearGroup;
-    if (nearGroup >= 0) {
-      tipTxt.textContent = GROUPS[nearGroup].label;
-      tipEl.style.opacity = '1';
-      tipEl.style.left    = (mx + 14) + 'px';
-      tipEl.style.top     = (my - 20) + 'px';
-    } else {
-      tipEl.style.opacity = '0';
-    }
-  } else if (nearGroup >= 0) {
-    tipEl.style.left = (mx + 14) + 'px';
-    tipEl.style.top  = (my - 20) + 'px';
+function updateTargets() {
+  let p=0;
+  for(let i=0;i<NS;i++,p++){
+    const q=hpos(i/NS,0,hAngle);
+    pd[p].tx=q.x; pd[p].ty=q.y; pd[p].tz=q.z;
+  }
+  for(let i=0;i<NS;i++,p++){
+    const q=hpos(i/NS,Math.PI,hAngle);
+    pd[p].tx=q.x; pd[p].ty=q.y; pd[p].tz=q.z;
+  }
+  for(let i=0;i<NS;i+=BST,p++){
+    const f=i/NS, q1=hpos(f,0,hAngle), q2=hpos(f,Math.PI,hAngle);
+    pd[p].tx=(q1.x+q2.x)/2; pd[p].ty=(q1.y+q2.y)/2; pd[p].tz=(q1.z+q2.z)/2;
   }
 }
 
-document.addEventListener('mousemove', checkHover);
+function explode() {
+  pd.forEach(p=>{
+    const spd = (p.type==='bridge' ? 1.7 : 1.0) * (0.10 + Math.random()*0.22);
+    const th=Math.random()*Math.PI*2, ph=(Math.random()-.5)*Math.PI;
+    p.vx=Math.cos(th)*Math.cos(ph)*spd;
+    p.vy=Math.sin(ph)*spd*0.8;
+    p.vz=Math.sin(th)*Math.cos(ph)*spd;
+  });
+}
 
-// ── ANIMATION LOOP ────────────────────────────────────────────
+function lerpTo(str) {
+  pd.forEach(p=>{
+    p.vx+=(p.tx-p.px)*str;
+    p.vy+=(p.ty-p.py)*str;
+    p.vz+=(p.tz-p.pz)*str;
+    p.vx*=0.81; p.vy*=0.81; p.vz*=0.81;
+    p.px+=p.vx; p.py+=p.vy; p.pz+=p.vz;
+  });
+}
+
+function drift(damp) {
+  pd.forEach(p=>{
+    p.vy-=0.0006;
+    p.vx*=damp; p.vy*=damp; p.vz*=damp;
+    p.px+=p.vx; p.py+=p.vy; p.pz+=p.vz;
+  });
+}
 
 function animate() {
   requestAnimationFrame(animate);
-  time += 0.0075;
+  globalT+=0.007;
+  phaseT++;
+  curCoh+=(tgtCoh-curCoh)*0.014;
 
-  curCoh += (targetCoh - curCoh) * 0.016;
-  const chaos = 1.0 - curCoh;
+  const rotSpd = 0.005 + curCoh*0.005;
+  hAngle+=rotSpd;
+  updateTargets();
 
-  const breathFreq = 3.5 - curCoh * 2.34;
-  breathPhase += breathFreq * 0.0075;
-  const breath = Math.sin(breathPhase) * 0.5 + 0.5;
-
-  coreLight.intensity         = 1.0 + breath * 1.6;
-  centerMesh.scale.setScalar(1.0 + breath * 0.20);
-  centerMat.emissiveIntensity = 0.50 + breath * 1.00;
-
-  centerMesh.rotation.y += 0.0007;
-  centerMesh.rotation.x += 0.0002;
-
-  camera.position.x = Math.sin(time * 0.038) * 0.55;
-  camera.position.y = 1.4 + Math.sin(time * 0.024) * 0.38;
-  camera.lookAt(0, 0, 0);
-
-  const posArr = geo.attributes.position.array;
-
-  for (let p = 0; p < pData.length; p++) {
-    const d     = pData[p];
-    const group = GROUPS[d.gi];
-
-    d.angle += d.speed * (0.45 + chaos * 1.8);
-
-    const helixPhase = d.baseAngle * 3.5 + time * 0.28;
-    const helixY     = Math.sin(helixPhase) * curCoh * 2.1
-                     + Math.cos(helixPhase * 0.5) * curCoh * 0.5;
-
-    const cY  = d.yBase * chaos * 2.8 + d.n1 * chaos * 0.6;
-    const r   = group.rad + d.rVar * chaos;
-    const wob = Math.sin(time * 0.9 + d.phase) * chaos * 0.12;
-
-    const tx = r * Math.cos(d.angle) + wob;
-    const ty = helixY + cY;
-    const tz = r * Math.sin(d.angle) + wob * 0.7;
-
-    if (mouseActive) {
-      const dx2   = mouseW.x - d.px;
-      const dy2   = mouseW.y - d.py;
-      const dist2 = dx2*dx2 + dy2*dy2;
-      if (dist2 < 5.5) {
-        const pull = (1.0 - dist2 / 5.5) * 0.028;
-        d.vx += dx2 * pull;
-        d.vy += dy2 * pull;
-      }
-    }
-
-    d.vx += (tx - d.px) * 0.016;
-    d.vy += (ty - d.py) * 0.016;
-    d.vz += (tz - d.pz) * 0.016;
-    d.vx *= 0.86;
-    d.vy *= 0.86;
-    d.vz *= 0.86;
-
-    d.px += d.vx;
-    d.py += d.vy;
-    d.pz += d.vz;
-
-    posArr[d.idx*3]   = d.px;
-    posArr[d.idx*3+1] = d.py;
-    posArr[d.idx*3+2] = d.pz;
+  switch(phase){
+    case 'spin':
+      lerpTo(0.07 + curCoh*0.04);
+      if(phaseT>=DUR.spin){ explode(); setPhase('fall'); }
+      break;
+    case 'fall':
+      drift(0.985);
+      if(phaseT>=DUR.fall) setPhase('chaos');
+      break;
+    case 'chaos':
+      drift(0.974);
+      if(phaseT>=DUR.chaos) setPhase('reform');
+      break;
+    case 'reform':
+      lerpTo(0.022 + (phaseT/DUR.reform)*0.065);
+      if(phaseT>=DUR.reform) setPhase('spin');
+      break;
   }
 
-  geo.attributes.position.needsUpdate = true;
-  renderer.render(scene, camera);
+  const posArr=geo.attributes.position.array;
+  pd.forEach(p=>{
+    posArr[p.pi*3]=p.px; posArr[p.pi*3+1]=p.py; posArr[p.pi*3+2]=p.pz;
+  });
+  geo.attributes.position.needsUpdate=true;
+
+  cam.position.x = 2.2 + Math.sin(globalT*0.022)*1.1;
+  cam.position.y = 1.8 + Math.sin(globalT*0.016)*0.4;
+  cam.lookAt(0,0,0);
+
+  ptLight.intensity = 1.2 + Math.sin(globalT*2.4)*0.7*(0.4+curCoh*0.6);
+  rdr.render(scene,cam);
 }
 
-// ── RESIZE ───────────────────────────────────────────────────
-
-window.addEventListener('resize', () => {
-  renderer.setSize(innerWidth, innerHeight);
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
+// Commitment panel
+const panel = document.getElementById('commitment');
+LEVELS.forEach((lv,i)=>{
+  const el=document.createElement('div');
+  el.className='level-item'+(i===0?' active':'');
+  el.innerHTML=`<span class="level-name">${lv.label}</span><span class="level-dot"></span>`;
+  el.addEventListener('click',()=>selectLevel(i));
+  panel.appendChild(el);
 });
 
-// ── INIT ─────────────────────────────────────────────────────
+function selectLevel(i){
+  tgtCoh=LEVELS[i].coh;
+  document.querySelectorAll('.level-item').forEach((el,j)=>el.classList.toggle('active',j===i));
+  updateImpact(LEVELS[i].imp);
+  if(i>0) flashImpact(LEVELS[i].imp);
+}
+
+function flashImpact(pct){
+  const el=document.getElementById('sel-flash'), fv=document.getElementById('fv');
+  fv.textContent=pct>0?`+${Math.round(pct*100)}% primary biomarkers`:'';
+  el.style.opacity='1';
+  clearTimeout(flashImpact._t);
+  flashImpact._t=setTimeout(()=>el.style.opacity='0',2500);
+}
+
+function updateImpact(pct){
+  ['hrv','rhr','cort','resp','rec'].forEach((k,i)=>{
+    const row=document.getElementById('row-'+k);
+    const val=document.getElementById('v-'+k);
+    const bar=document.getElementById('bar-'+k);
+    if(!row||!val) return;
+    row.classList.remove('visible');
+    setTimeout(()=>{
+      const wt=W[k];
+      const sign=(k==='rhr'||k==='cort'||k==='resp')?'−':'+';
+      val.textContent = pct===0 ? '—' : `${sign}${Math.round(pct*100*wt)}%`;
+      if(bar) bar.style.width = pct>0 ? `${Math.min(pct*100*wt,100)}%` : '0%';
+      row.classList.add('visible');
+    }, i*120);
+  });
+}
+
+window.addEventListener('resize',()=>{
+  rdr.setSize(innerWidth,innerHeight);
+  cam.aspect=innerWidth/innerHeight;
+  cam.updateProjectionMatrix();
+});
 
 updateImpact(0);
 animate();
