@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AILIV — Every Signal. One Profile.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: #04040A; }
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: #04040A;
+  color: rgba(201,169,110,0.85);
+  overflow-x: hidden;
+}
+
+/* ── Film grain over everything ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9000;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.055;
+}
+
+/* ── NAV ── */
+#nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  padding: 28px 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: all 0.5s;
+}
+#nav.solid {
+  background: rgba(4,4,10,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 18px 52px;
+  border-bottom: 1px solid rgba(201,169,110,0.08);
+}
+.nav-wordmark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  color: rgba(201,169,110,0.9);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.nav-wordmark em { font-style: italic; color: rgba(201,169,110,0.5); }
+.nav-enter {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(201,169,110,0.5);
+  text-decoration: none;
+  border: 1px solid rgba(201,169,110,0.2);
+  padding: 9px 22px;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+.nav-enter:hover {
+  color: rgba(201,169,110,0.95);
+  border-color: rgba(201,169,110,0.5);
+  background: rgba(201,169,110,0.04);
+}
+
+/* ── SECTION BASE ── */
+section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ── SECTION 1: HERO ── */
+#s-hero {
+  height: 100vh;
+  flex-direction: column;
+}
+
+.orbital-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#orbital-svg {
+  width: min(90vw, 90vh);
+  height: min(90vw, 90vh);
+  overflow: visible;
+}
+
+.hero-text {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(201,169,110,0.4);
+  margin-bottom: 20px;
+}
+
+.hero-headline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(52px, 8vw, 110px);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  color: rgba(201,169,110,0.92);
+}
+
+.hero-headline em {
+  font-style: italic;
+  color: rgba(201,169,110,0.45);
+}
+
+.hero-sub {
+  margin-top: 24px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: rgba(201,169,110,0.35);
+  text-transform: uppercase;
+}
+
+.scroll-cue {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(201,169,110,0.25);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.scroll-cue-line {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, transparent, rgba(201,169,110,0.3));
+  animation: scrollDrop 2s ease infinite;
+}
+@keyframes scrollDrop {
+  0%,100%{opacity:0.3;transform:scaleY(0);transform-origin:top}
+  50%{opacity:1;transform:scaleY(1);transform-origin:top}
+}
+
+/* ── SECTION 2: BIOMARKERS ── */
+#s-biomarkers {
+  min-height: 200vh;
+  align-items: flex-start;
+  padding: 120px 0;
+}
+
+.bio-inner {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.bio-section-label {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.bio-section-label h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(42px, 5vw, 72px);
+  font-weight: 300;
+  color: rgba(201,169,110,0.85);
+  line-height: 1.1;
+}
+
+.bio-section-label h2 em {
+  font-style: italic;
+  color: rgba(201,169,110,0.4);
+}
+
+.bio-section-label p {
+  margin-top: 16px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: rgba(201,169,110,0.3);
+  text-transform: uppercase;
+}
+
+/* The spine */
+.bio-spine {
+  position: absolute;
+  left: 50%;
+  top: 200px;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(201,169,110,0.15) 10%, rgba(201,169,110,0.15) 90%, transparent);
+  transform: translateX(-50%);
+}
+
+/* Biomarker row */
+.bio-row {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  gap: 0 20px;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.bio-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateX(var(--tx, 40px));
+}
+
+.bio-item.left { justify-content: flex-end; --tx: -50px; }
+.bio-item.right { justify-content: flex-start; --tx: 50px; }
+
+.bio-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
+}
+.bio-dot.optimal  { background: #c8f060; color: #c8f060; }
+.bio-dot.border   { background: #f0a060; color: #f0a060; }
+.bio-dot.flagged  { background: #f06060; color: #f06060; }
+.bio-dot.dim      { background: rgba(201,169,110,0.3); color: rgba(201,169,110,0.3); }
+
+.bio-label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(201,169,110,0.65);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bio-value {
+  font-size: 10px;
+  color: rgba(201,169,110,0.35);
+  letter-spacing: 0.05em;
+}
+
+/* Spine connector dot */
+.bio-connector {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(201,169,110,0.3);
+  margin: 0 auto;
+}
+
+/* Ring group headers */
+.ring-header {
+  text-align: center;
+  margin: 60px 0 36px;
+  position: relative;
+  z-index: 2;
+}
+.ring-header span {
+  font-size: 9px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(201,169,110,0.25);
+  background: #04040A;
+  padding: 0 20px;
+}
+
+/* ── SECTION 3: SYSTEMS ── */
+#s-systems {
+  min-height: 120vh;
+  align-items: center;
+  padding: 80px 40px;
+}
+
+.systems-inner {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.systems-header {
+  margin-bottom: 72px;
+}
+
+.systems-header h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(38px, 5vw, 68px);
+  font-weight: 300;
+  color: rgba(201,169,110,0.85);
+  line-height: 1.1;
+}
+
+.systems-header h2 em { font-style: italic; color: rgba(201,169,110,0.4); }
+
+.systems-header p {
+  margin-top: 14px;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: rgba(201,169,110,0.3);
+  text-transform: uppercase;
+}
+
+.systems-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.sys-card {
+  border: 1px solid rgba(201,169,110,0.1);
+  padding: 28px;
+  position: relative;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: border-color 0.3s;
+}
+
+.sys-card:hover {
+  border-color: rgba(201,169,110,0.25);
+}
+
+.sys-card-accent {
+  position: absolute;
+  top: 0; left: 0;
+  width: 2px; height: 100%;
+}
+
+.sys-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: rgba(201,169,110,0.85);
+  margin-bottom: 4px;
+}
+
+.sys-status {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.sys-status.optimal { color: #c8f060; }
+.sys-status.border  { color: #f0a060; }
+.sys-status.flagged { color: #f06060; }
+
+/* Mini bubble visualization */
+.sys-bubbles {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.sys-bubble {
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sys-markers {
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: rgba(201,169,110,0.3);
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+
+/* ── SECTION 4: SIGNAL BRIDGE ── */
+#s-signal {
+  min-height: 100vh;
+  flex-direction: column;
+  padding: 80px 52px;
+}
+
+.signal-inner {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.signal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 60px;
+}
+
+.signal-header h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 4.5vw, 64px);
+  font-weight: 300;
+  color: rgba(201,169,110,0.85);
+  line-height: 1.1;
+}
+
+.signal-header h2 em { font-style: italic; color: rgba(201,169,110,0.4); }
+
+.signal-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.sig-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(201,169,110,0.4);
+}
+
+.sig-legend-line {
+  width: 28px;
+  height: 2px;
+}
+
+.signal-chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 280px;
+}
+
+#signal-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.signal-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: rgba(201,169,110,0.25);
+  text-transform: uppercase;
+}
+
+/* ── SECTION 5: CTA ── */
+#s-cta {
+  min-height: 100vh;
+  flex-direction: column;
+  text-align: center;
+  padding: 80px 40px;
+}
+
+.cta-orbital-wrap {
+  margin-bottom: 52px;
+  opacity: 0;
+}
+
+#cta-orbital-svg {
+  width: 280px;
+  height: 280px;
+  overflow: visible;
+}
+
+.cta-text h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 5vw, 70px);
+  font-weight: 300;
+  color: rgba(201,169,110,0.85);
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+
+.cta-text h2 em {
+  font-style: italic;
+  color: rgba(201,169,110,0.4);
+}
+
+.cta-text p {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: rgba(201,169,110,0.3);
+  text-transform: uppercase;
+  margin-bottom: 48px;
+}
+
+.cta-btn {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(201,169,110,0.7);
+  text-decoration: none;
+  border: 1px solid rgba(201,169,110,0.3);
+  padding: 16px 52px;
+  transition: all 0.25s;
+}
+
+.cta-btn:hover {
+  color: rgba(201,169,110,1);
+  border-color: rgba(201,169,110,0.7);
+  background: rgba(201,169,110,0.04);
+  letter-spacing: 0.4em;
+}
+
+.cta-fine {
+  margin-top: 32px;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: rgba(201,169,110,0.2);
+  text-transform: uppercase;
+}
+
+/* ── MISC ── */
+.divider {
+  width: 40px; height: 1px;
+  background: rgba(201,169,110,0.2);
+  margin: 0 auto;
+}
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  #nav { padding: 20px 24px; }
+  #nav.solid { padding: 14px 24px; }
+  #s-signal { padding: 80px 24px; }
+  #s-cta { padding: 80px 24px; }
+  .systems-grid { grid-template-columns: 1fr; }
+  .signal-header { flex-direction: column; align-items: flex-start; gap: 24px; }
+  .signal-legend { align-items: flex-start; }
+  .bio-inner { padding: 0 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav id="nav">
+  <a href="/" class="nav-wordmark">AIL<em>IV</em></a>
+  <a href="/ailiv" class="nav-enter">Enter Platform →</a>
+</nav>
+
+<!-- ── S1: HERO ── -->
+<section id="s-hero">
+  <div class="orbital-wrap">
+    <svg id="orbital-svg" viewBox="-220 -220 440 440" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="glow-strong">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow-soft">
+          <feGaussianBlur stdDeviation="6" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <radialGradient id="core-grad" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="rgba(201,169,110,0.6)"/>
+          <stop offset="60%" stop-color="rgba(201,169,110,0.15)"/>
+          <stop offset="100%" stop-color="rgba(201,169,110,0)"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Ring halos -->
+      <circle id="halo-4" cx="0" cy="0" r="188" fill="none" stroke="rgba(201,169,110,0.04)" stroke-width="32"/>
+      <circle id="halo-3" cx="0" cy="0" r="146" fill="none" stroke="rgba(201,169,110,0.05)" stroke-width="24"/>
+      <circle id="halo-2" cx="0" cy="0" r="106" fill="none" stroke="rgba(201,169,110,0.06)" stroke-width="18"/>
+      <circle id="halo-1" cx="0" cy="0" r="70"  fill="none" stroke="rgba(201,169,110,0.08)" stroke-width="12"/>
+
+      <!-- Rings -->
+      <g id="ring-group-4">
+        <circle cx="0" cy="0" r="188" fill="none" stroke="rgba(201,169,110,0.12)" stroke-width="0.5"/>
+      </g>
+      <g id="ring-group-3">
+        <circle cx="0" cy="0" r="146" fill="none" stroke="rgba(201,169,110,0.16)" stroke-width="0.5"/>
+      </g>
+      <g id="ring-group-2">
+        <circle cx="0" cy="0" r="106" fill="none" stroke="rgba(201,169,110,0.22)" stroke-width="0.5"/>
+      </g>
+      <g id="ring-group-1">
+        <circle cx="0" cy="0" r="70"  fill="none" stroke="rgba(201,169,110,0.30)" stroke-width="0.5"/>
+      </g>
+
+      <!-- Orb groups (populated by JS) -->
+      <g id="orbs-4"></g>
+      <g id="orbs-3"></g>
+      <g id="orbs-2"></g>
+      <g id="orbs-1"></g>
+
+      <!-- Center core -->
+      <circle cx="0" cy="0" r="28" fill="url(#core-grad)"/>
+      <circle id="core-orb" cx="0" cy="0" r="10" fill="rgba(201,169,110,0.5)" stroke="rgba(201,169,110,0.9)" stroke-width="0.8" filter="url(#glow-strong)"/>
+    </svg>
+  </div>
+
+  <div class="hero-text" id="hero-text">
+    <div class="hero-eyebrow" id="hero-eyebrow">40 Biomarkers · Every Wearable · All Your Labs</div>
+    <h1 class="hero-headline" id="hero-headline">
+      Every signal.<br><em>One profile.</em>
+    </h1>
+    <div class="hero-sub" id="hero-sub">AILIV — Biohacking Intelligence Platform</div>
+  </div>
+
+  <div class="scroll-cue">
+    <div class="scroll-cue-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- ── S2: BIOMARKERS ── -->
+<section id="s-biomarkers">
+  <div class="bio-inner">
+    <div class="bio-section-label">
+      <h2>Forty signals.<br><em>One organism.</em></h2>
+      <p>Your complete biomarker profile, live and continuous</p>
+    </div>
+
+    <div class="bio-spine"></div>
+
+    <!-- Ring 1 -->
+    <div class="ring-header"><span>Ring I — Core Vitals</span></div>
+    <div id="ring-1-rows"></div>
+
+    <!-- Ring 2 -->
+    <div class="ring-header"><span>Ring II — Metabolic &amp; Hormonal</span></div>
+    <div id="ring-2-rows"></div>
+
+    <!-- Ring 3 -->
+    <div class="ring-header"><span>Ring III — Deep Optimization</span></div>
+    <div id="ring-3-rows"></div>
+
+    <!-- Ring 4 -->
+    <div class="ring-header"><span>Ring IV — Longevity Markers</span></div>
+    <div id="ring-4-rows"></div>
+  </div>
+</section>
+
+<!-- ── S3: SYSTEMS ── -->
+<section id="s-systems">
+  <div class="systems-inner">
+    <div class="systems-header">
+      <h2>Six systems.<br><em>Complete intelligence.</em></h2>
+      <p>Every biomarker mapped to its biological origin</p>
+    </div>
+    <div class="systems-grid" id="systems-grid"></div>
+  </div>
+</section>
+
+<!-- ── S4: SIGNAL BRIDGE ── -->
+<section id="s-signal">
+  <div class="signal-inner">
+    <div class="signal-header">
+      <h2>Two sources.<br><em>One truth.</em></h2>
+      <div class="signal-legend">
+        <div class="sig-legend-item">
+          <div class="sig-legend-line" style="background:#7EB8D4;"></div>
+          Apple Watch
+        </div>
+        <div class="sig-legend-item">
+          <div class="sig-legend-line" style="background:#C9A96E;"></div>
+          WHOOP 4.0
+        </div>
+      </div>
+    </div>
+    <div class="signal-chart-wrap">
+      <svg id="signal-svg" viewBox="0 0 1200 280" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="line-glow">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <linearGradient id="fill-apple" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#7EB8D4" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#7EB8D4" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="fill-whoop" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#C9A96E" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#C9A96E" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Grid lines -->
+        <line x1="0" y1="70"  x2="1200" y2="70"  stroke="rgba(201,169,110,0.06)" stroke-width="1"/>
+        <line x1="0" y1="140" x2="1200" y2="140" stroke="rgba(201,169,110,0.06)" stroke-width="1"/>
+        <line x1="0" y1="210" x2="1200" y2="210" stroke="rgba(201,169,110,0.06)" stroke-width="1"/>
+
+        <!-- Apple Watch HRV fill -->
+        <path id="apple-fill" d="M0,280 L0,200 C60,190 120,160 200,140 C280,120 340,100 440,90 C520,82 580,95 680,88 C760,82 820,70 920,78 C1000,84 1060,92 1200,85 L1200,280 Z"
+          fill="url(#fill-apple)" opacity="0"/>
+
+        <!-- WHOOP HRV fill -->
+        <path id="whoop-fill" d="M0,280 L0,210 C60,205 120,185 200,168 C280,152 340,130 440,118 C520,108 580,120 680,110 C760,102 820,90 920,98 C1000,104 1060,112 1200,105 L1200,280 Z"
+          fill="url(#fill-whoop)" opacity="0"/>
+
+        <!-- Apple Watch line -->
+        <path id="apple-line"
+          d="M0,200 C60,190 120,160 200,140 C280,120 340,100 440,90 C520,82 580,95 680,88 C760,82 820,70 920,78 C1000,84 1060,92 1200,85"
+          fill="none" stroke="#7EB8D4" stroke-width="1.8"
+          stroke-dasharray="1400" stroke-dashoffset="1400"
+          filter="url(#line-glow)"/>
+
+        <!-- WHOOP line -->
+        <path id="whoop-line"
+          d="M0,210 C60,205 120,185 200,168 C280,152 340,130 440,118 C520,108 580,120 680,110 C760,102 820,90 920,98 C1000,104 1060,112 1200,105"
+          fill="none" stroke="#C9A96E" stroke-width="1.8"
+          stroke-dasharray="1400" stroke-dashoffset="1400"
+          filter="url(#line-glow)"/>
+
+        <!-- Data point dots (Apple) -->
+        <g id="apple-dots" opacity="0">
+          <circle cx="200" cy="140" r="3" fill="#7EB8D4" filter="url(#line-glow)"/>
+          <circle cx="440" cy="90"  r="3" fill="#7EB8D4" filter="url(#line-glow)"/>
+          <circle cx="680" cy="88"  r="3" fill="#7EB8D4" filter="url(#line-glow)"/>
+          <circle cx="920" cy="78"  r="3" fill="#7EB8D4" filter="url(#line-glow)"/>
+        </g>
+
+        <!-- Data point dots (WHOOP) -->
+        <g id="whoop-dots" opacity="0">
+          <circle cx="200" cy="168" r="3" fill="#C9A96E" filter="url(#line-glow)"/>
+          <circle cx="440" cy="118" r="3" fill="#C9A96E" filter="url(#line-glow)"/>
+          <circle cx="680" cy="110" r="3" fill="#C9A96E" filter="url(#line-glow)"/>
+          <circle cx="920" cy="98"  r="3" fill="#C9A96E" filter="url(#line-glow)"/>
+        </g>
+
+        <!-- Labels -->
+        <text x="8" y="16" font-family="IBM Plex Mono" font-size="10" fill="rgba(201,169,110,0.25)" letter-spacing="2">HRV ms</text>
+        <text x="8" y="268" font-family="IBM Plex Mono" font-size="10" fill="rgba(201,169,110,0.2)" letter-spacing="2">6 weeks</text>
+      </svg>
+    </div>
+    <div class="signal-labels">
+      <span>6 weeks ago</span><span>4 weeks</span><span>2 weeks</span><span>Today</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── S5: CTA ── -->
+<section id="s-cta">
+  <div class="cta-orbital-wrap" id="cta-orbital">
+    <svg id="cta-orbital-svg" viewBox="-140 -140 280 280" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="cta-core-g" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="rgba(201,169,110,0.5)"/>
+          <stop offset="100%" stop-color="rgba(201,169,110,0)"/>
+        </radialGradient>
+      </defs>
+      <circle cx="0" cy="0" r="125" fill="none" stroke="rgba(201,169,110,0.06)" stroke-width="0.5"/>
+      <circle cx="0" cy="0" r="95"  fill="none" stroke="rgba(201,169,110,0.09)" stroke-width="0.5"/>
+      <circle cx="0" cy="0" r="65"  fill="none" stroke="rgba(201,169,110,0.13)" stroke-width="0.5"/>
+      <circle cx="0" cy="0" r="40"  fill="none" stroke="rgba(201,169,110,0.18)" stroke-width="0.5"/>
+      <circle cx="0" cy="0" r="22" fill="url(#cta-core-g)"/>
+      <circle id="cta-core" cx="0" cy="0" r="7" fill="rgba(201,169,110,0.6)" stroke="rgba(201,169,110,1)" stroke-width="0.6"/>
+      <g id="cta-orbs"></g>
+    </svg>
+  </div>
+  <div class="cta-text" id="cta-text-block">
+    <h2>Your biology is speaking.<br><em>Are you listening?</em></h2>
+    <p>40 biomarkers · Live · Continuous · Yours</p>
+    <a href="/ailiv" class="cta-btn">Enter AILIV</a>
+    <div class="cta-fine">No signup required to explore · Connect your wearable to go live</div>
+  </div>
+</section>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ── DATA ────────────────────────────────────────────────────────────────────
+
+const RINGS = [
+  {
+    r: 70, id: 1,
+    nodes: [
+      { label: 'Resting HR',     status: 'optimal', val: '58 bpm' },
+      { label: 'HRV',            status: 'optimal', val: '72 ms'  },
+      { label: 'SpO₂',          status: 'optimal', val: '98%'    },
+      { label: 'Sleep',          status: 'border',  val: '6.4 hr' },
+      { label: 'Resp Rate',      status: 'optimal', val: '14/min' },
+      { label: 'VO₂ Max',        status: 'border',  val: '42 ml'  },
+      { label: 'Wrist Temp',     status: 'optimal', val: '36.4°'  },
+      { label: 'Glucose',        status: 'optimal', val: '88 mg'  },
+    ]
+  },
+  {
+    r: 106, id: 2,
+    nodes: [
+      { label: 'Active HR',      status: 'optimal', val: '142 bpm' },
+      { label: 'Testosterone',   status: 'border',  val: '480 ng'  },
+      { label: 'CRP',            status: 'optimal', val: '0.4 mg'  },
+      { label: 'Recovery',       status: 'optimal', val: '78%'     },
+      { label: 'Cortisol',       status: 'border',  val: '18 μg'   },
+      { label: 'Vitamin D',      status: 'flagged', val: '22 ng'   },
+      { label: 'Deep Sleep',     status: 'border',  val: '18%'     },
+      { label: 'REM Sleep',      status: 'optimal', val: '22%'     },
+      { label: 'Daily Steps',    status: 'optimal', val: '9,240'   },
+      { label: 'Systolic BP',    status: 'optimal', val: '118 mmHg'},
+      { label: 'Body Fat',       status: 'border',  val: '18.2%'   },
+      { label: 'Ferritin',       status: 'optimal', val: '88 ng'   },
+    ]
+  },
+  {
+    r: 146, id: 3,
+    nodes: [
+      { label: 'Magnesium',      status: 'border',  val: '1.8 mg'  },
+      { label: 'Omega-3 Index',  status: 'border',  val: '6.2%'    },
+      { label: 'Insulin Sens.',  status: 'optimal', val: '4.8'     },
+      { label: 'Uric Acid',      status: 'optimal', val: '4.8 mg'  },
+      { label: 'B12',            status: 'optimal', val: '620 pg'  },
+      { label: 'Zinc',           status: 'border',  val: '78 μg'   },
+      { label: 'Hydration',      status: 'optimal', val: '62%'     },
+      { label: 'Grip Strength',  status: 'optimal', val: '48 kg'   },
+      { label: 'Lactate Thresh', status: 'border',  val: '3.2 mM'  },
+      { label: 'Muscle Mass',    status: 'optimal', val: '42.8 kg' },
+    ]
+  },
+  {
+    r: 188, id: 4,
+    nodes: [
+      { label: 'Serum Albumin',  status: 'optimal', val: '4.4 g'   },
+      { label: 'ALT Enzyme',     status: 'optimal', val: '22 U/L'  },
+      { label: 'DHEA-S',         status: 'border',  val: '180 μg'  },
+      { label: 'Free Test.',     status: 'border',  val: '9.2 pg'  },
+      { label: 'IGF-1',          status: 'optimal', val: '188 ng'  },
+      { label: 'Homocysteine',   status: 'border',  val: '11 μmol' },
+      { label: 'ApoB',           status: 'border',  val: '88 mg'   },
+      { label: 'Fibrinogen',     status: 'optimal', val: '280 mg'  },
+      { label: 'NAD+',           status: 'flagged', val: '28 μM'   },
+      { label: 'TSH/Thyroid',    status: 'optimal', val: '1.8 mIU' },
+    ]
+  }
+];
+
+const SYSTEMS = [
+  {
+    name: 'Cardiovascular',
+    status: 'optimal',
+    color: '#f06060',
+    markers: ['Resting HR', 'HRV', 'SpO₂', 'Systolic BP', 'ApoB', 'Fibrinogen'],
+    bubbles: [
+      { s: 18, st: 'optimal' }, { s: 22, st: 'optimal' }, { s: 14, st: 'optimal' },
+      { s: 16, st: 'optimal' }, { s: 12, st: 'border'  }, { s: 10, st: 'optimal' }
+    ]
+  },
+  {
+    name: 'Metabolic',
+    status: 'border',
+    color: '#f0a060',
+    markers: ['Glucose', 'Insulin Sens.', 'Uric Acid', 'Body Fat', 'Cortisol', 'Omega-3'],
+    bubbles: [
+      { s: 20, st: 'optimal' }, { s: 16, st: 'optimal' }, { s: 14, st: 'optimal' },
+      { s: 18, st: 'border'  }, { s: 12, st: 'border'  }, { s: 10, st: 'border'  }
+    ]
+  },
+  {
+    name: 'Hormonal',
+    status: 'border',
+    color: '#c8a060',
+    markers: ['Testosterone', 'Free Test.', 'Cortisol', 'DHEA-S', 'IGF-1', 'TSH'],
+    bubbles: [
+      { s: 18, st: 'border'  }, { s: 16, st: 'border'  }, { s: 14, st: 'border'  },
+      { s: 20, st: 'optimal' }, { s: 12, st: 'optimal' }, { s: 10, st: 'border'  }
+    ]
+  },
+  {
+    name: 'Inflammatory',
+    status: 'optimal',
+    color: '#c8f060',
+    markers: ['CRP', 'Homocysteine', 'Fibrinogen', 'ALT Enzyme', 'Ferritin', 'ApoB'],
+    bubbles: [
+      { s: 22, st: 'optimal' }, { s: 14, st: 'border'  }, { s: 16, st: 'optimal' },
+      { s: 12, st: 'optimal' }, { s: 18, st: 'optimal' }, { s: 10, st: 'border'  }
+    ]
+  },
+  {
+    name: 'Recovery',
+    status: 'optimal',
+    color: '#60c8b0',
+    markers: ['HRV', 'Deep Sleep', 'REM Sleep', 'Recovery Score', 'Wrist Temp', 'Resp Rate'],
+    bubbles: [
+      { s: 24, st: 'optimal' }, { s: 16, st: 'border'  }, { s: 18, st: 'optimal' },
+      { s: 20, st: 'optimal' }, { s: 10, st: 'optimal' }, { s: 12, st: 'optimal' }
+    ]
+  },
+  {
+    name: 'Longevity',
+    status: 'border',
+    color: '#9060c8',
+    markers: ['NAD+', 'IGF-1', 'Telomere Act.', 'VO₂ Max', 'Vitamin D', 'B12'],
+    bubbles: [
+      { s: 20, st: 'flagged' }, { s: 16, st: 'optimal' }, { s: 14, st: 'border'  },
+      { s: 18, st: 'border'  }, { s: 22, st: 'flagged' }, { s: 12, st: 'optimal' }
+    ]
+  }
+];
+
+// ── HELPERS ─────────────────────────────────────────────────────────────────
+
+function statusColor(s) {
+  return s === 'optimal' ? '#c8f060' : s === 'border' ? '#f0a060' : '#f06060';
+}
+
+function makeSVGEl(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+// ── BUILD ORBITAL ────────────────────────────────────────────────────────────
+
+function buildOrbital(svgId, rings, scale = 1) {
+  RINGS.forEach(ring => {
+    const g = document.getElementById(`orbs-${ring.id}`) ||
+              document.querySelector(`#${svgId} #orbs-${ring.id}`);
+    if (!g) return;
+    ring.nodes.forEach((node, i) => {
+      const angle = (i / ring.nodes.length) * Math.PI * 2 - Math.PI / 2;
+      const r = ring.r * scale;
+      const x = Math.cos(angle) * r;
+      const y = Math.sin(angle) * r;
+      const col = statusColor(node.status);
+      const size = ring.id === 1 ? 4.5 : ring.id === 2 ? 4 : ring.id === 3 ? 3.5 : 3;
+
+      // Orb circle
+      const orb = makeSVGEl('circle', {
+        cx: x, cy: y, r: size,
+        fill: col,
+        opacity: ring.id === 1 ? '0.9' : ring.id === 2 ? '0.75' : ring.id === 3 ? '0.6' : '0.45',
+        filter: 'url(#glow-strong)'
+      });
+      g.appendChild(orb);
+    });
+  });
+}
+
+buildOrbital('orbital-svg', RINGS, 1);
+
+// Build CTA orbital (smaller, simplified)
+(function() {
+  const g = document.getElementById('cta-orbs');
+  if (!g) return;
+  const ctaRings = [
+    { r: 40, n: 8  },
+    { r: 65, n: 10 },
+    { r: 95, n: 10 },
+    { r: 125, n: 10 },
+  ];
+  ctaRings.forEach((ring, ri) => {
+    for (let i = 0; i < ring.n; i++) {
+      const angle = (i / ring.n) * Math.PI * 2;
+      const orb = makeSVGEl('circle', {
+        cx: Math.cos(angle) * ring.r,
+        cy: Math.sin(angle) * ring.r,
+        r: 2.5,
+        fill: `rgba(201,169,110,${0.7 - ri * 0.12})`,
+        filter: 'url(#glow-strong)'
+      });
+      g.appendChild(orb);
+    }
+  });
+})();
+
+// ── BUILD BIOMARKER ROWS ──────────────────────────────────────────────────────
+
+RINGS.forEach(ring => {
+  const container = document.getElementById(`ring-${ring.id}-rows`);
+  if (!container) return;
+
+  const half = Math.ceil(ring.nodes.length / 2);
+  const left  = ring.nodes.slice(0, half);
+  const right = ring.nodes.slice(half);
+  const rows  = Math.max(left.length, right.length);
+
+  for (let i = 0; i < rows; i++) {
+    const row = document.createElement('div');
+    row.className = 'bio-row';
+
+    // Left item
+    const lDiv = document.createElement('div');
+    if (left[i]) {
+      const n = left[i];
+      lDiv.className = 'bio-item left';
+      lDiv.innerHTML = `
+        <span class="bio-value">${n.val}</span>
+        <span class="bio-label">${n.label}</span>
+        <div class="bio-dot ${n.status}"></div>
+      `;
+    }
+
+    // Connector
+    const cDiv = document.createElement('div');
+    cDiv.className = 'bio-connector';
+
+    // Right item
+    const rDiv = document.createElement('div');
+    if (right[i]) {
+      const n = right[i];
+      rDiv.className = 'bio-item right';
+      rDiv.innerHTML = `
+        <div class="bio-dot ${n.status}"></div>
+        <span class="bio-label">${n.label}</span>
+        <span class="bio-value">${n.val}</span>
+      `;
+    }
+
+    row.appendChild(lDiv);
+    row.appendChild(cDiv);
+    row.appendChild(rDiv);
+    container.appendChild(row);
+  }
+});
+
+// ── BUILD SYSTEMS GRID ───────────────────────────────────────────────────────
+
+const grid = document.getElementById('systems-grid');
+SYSTEMS.forEach(sys => {
+  const card = document.createElement('div');
+  card.className = 'sys-card';
+
+  const accent = document.createElement('div');
+  accent.className = 'sys-card-accent';
+  accent.style.background = sys.color;
+  accent.style.opacity = '0.6';
+
+  const bubblesHTML = sys.bubbles.map(b =>
+    `<div class="sys-bubble" style="width:${b.s}px;height:${b.s}px;background:${statusColor(b.st)};opacity:${b.st==='optimal'?0.7:0.5};box-shadow:0 0 8px ${statusColor(b.st)}40"></div>`
+  ).join('');
+
+  card.innerHTML = `
+    <div class="sys-name">${sys.name}</div>
+    <div class="sys-status ${sys.status}">${sys.status}</div>
+    <div class="sys-bubbles">${bubblesHTML}</div>
+    <div class="sys-markers">${sys.markers.join('  ·  ')}</div>
+  `;
+  card.insertBefore(accent, card.firstChild);
+  grid.appendChild(card);
+});
+
+// ── LENIS ───────────────────────────────────────────────────────────────────
+
+const lenis = new Lenis({
+  duration: 1.5,
+  easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  smooth: true,
+});
+
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(time => { lenis.raf(time * 1000); });
+gsap.ticker.lagSmoothing(0);
+
+// ── GSAP ANIMATIONS ──────────────────────────────────────────────────────────
+
+// Nav solid on scroll
+lenis.on('scroll', ({ scroll }) => {
+  document.getElementById('nav').classList.toggle('solid', scroll > 60);
+});
+
+// ── Hero orbital rotation (continuous + scroll-driven scale) ──
+gsap.to(['#ring-group-1'], {
+  rotation: 360, duration: 80, repeat: -1, ease: 'none',
+  transformOrigin: '0px 0px',
+});
+gsap.to(['#ring-group-2'], {
+  rotation: -360, duration: 120, repeat: -1, ease: 'none',
+  transformOrigin: '0px 0px',
+});
+gsap.to(['#ring-group-3'], {
+  rotation: 360, duration: 180, repeat: -1, ease: 'none',
+  transformOrigin: '0px 0px',
+});
+gsap.to(['#ring-group-4'], {
+  rotation: -360, duration: 240, repeat: -1, ease: 'none',
+  transformOrigin: '0px 0px',
+});
+
+// Orb groups counter-rotate to stay in place while rings spin
+gsap.to(['#orbs-1'], { rotation: -360, duration: 80,  repeat: -1, ease: 'none', transformOrigin: '0px 0px' });
+gsap.to(['#orbs-2'], { rotation: 360,  duration: 120, repeat: -1, ease: 'none', transformOrigin: '0px 0px' });
+gsap.to(['#orbs-3'], { rotation: -360, duration: 180, repeat: -1, ease: 'none', transformOrigin: '0px 0px' });
+gsap.to(['#orbs-4'], { rotation: 360,  duration: 240, repeat: -1, ease: 'none', transformOrigin: '0px 0px' });
+
+// Core pulse
+gsap.to('#core-orb', {
+  r: 13, opacity: 0.9, duration: 2.2,
+  repeat: -1, yoyo: true, ease: 'sine.inOut',
+  attr: { r: 13 }
+});
+
+// Hero scale on scroll
+gsap.to('#orbital-svg', {
+  scale: 1.18,
+  ease: 'none',
+  scrollTrigger: {
+    trigger: '#s-hero',
+    start: 'top top',
+    end: 'bottom top',
+    scrub: 1.5,
+  }
+});
+
+// Hero text fades out on scroll
+gsap.to('#hero-text', {
+  opacity: 0, y: -40,
+  ease: 'none',
+  scrollTrigger: {
+    trigger: '#s-hero',
+    start: 'top top',
+    end: '40% top',
+    scrub: 1,
+  }
+});
+
+// Hero entrance
+gsap.from(['#hero-eyebrow', '#hero-headline', '#hero-sub'], {
+  y: 30, opacity: 0, duration: 1.4, stagger: 0.2, ease: 'power3.out', delay: 0.4
+});
+
+// ── Biomarker rows scroll in ──
+gsap.utils.toArray('.bio-item').forEach((el, i) => {
+  const isLeft = el.classList.contains('left');
+  gsap.to(el, {
+    opacity: 1,
+    x: 0,
+    duration: 0.7,
+    ease: 'power2.out',
+    scrollTrigger: {
+      trigger: el,
+      start: 'top 88%',
+      toggleActions: 'play none none none',
+    },
+    delay: (i % 4) * 0.04,
+  });
+});
+
+// ── Systems cards ──
+gsap.utils.toArray('.sys-card').forEach((card, i) => {
+  gsap.to(card, {
+    opacity: 1, y: 0,
+    duration: 0.85,
+    ease: 'power3.out',
+    scrollTrigger: {
+      trigger: card,
+      start: 'top 85%',
+      toggleActions: 'play none none none',
+    },
+    delay: (i % 3) * 0.12,
+  });
+});
+
+// ── Signal Bridge lines draw in ──
+ScrollTrigger.create({
+  trigger: '#s-signal',
+  start: 'top 60%',
+  onEnter: () => {
+    gsap.to('#apple-fill', { opacity: 1, duration: 0.8, delay: 0.5 });
+    gsap.to('#whoop-fill', { opacity: 1, duration: 0.8, delay: 0.7 });
+    gsap.to('#apple-dots', { opacity: 1, duration: 0.4, delay: 1.6 });
+    gsap.to('#whoop-dots', { opacity: 1, duration: 0.4, delay: 1.8 });
+  }
+});
+
+gsap.to('#apple-line', {
+  strokeDashoffset: 0,
+  duration: 2.2,
+  ease: 'power2.inOut',
+  scrollTrigger: {
+    trigger: '#s-signal',
+    start: 'top 60%',
+    toggleActions: 'play none none none',
+  },
+  delay: 0.3,
+});
+
+gsap.to('#whoop-line', {
+  strokeDashoffset: 0,
+  duration: 2.4,
+  ease: 'power2.inOut',
+  scrollTrigger: {
+    trigger: '#s-signal',
+    start: 'top 60%',
+    toggleActions: 'play none none none',
+  },
+  delay: 0.6,
+});
+
+// ── CTA section ──
+gsap.to('#cta-orbital', {
+  opacity: 1, y: 0,
+  duration: 1.4,
+  ease: 'power3.out',
+  scrollTrigger: {
+    trigger: '#s-cta',
+    start: 'top 70%',
+    toggleActions: 'play none none none',
+  }
+});
+
+gsap.from('#cta-text-block', {
+  opacity: 0, y: 40,
+  duration: 1.2,
+  ease: 'power3.out',
+  scrollTrigger: {
+    trigger: '#s-cta',
+    start: 'top 60%',
+    toggleActions: 'play none none none',
+  },
+  delay: 0.3,
+});
+
+// CTA orbital rotation
+gsap.to('#cta-orbs', {
+  rotation: 360, duration: 60, repeat: -1, ease: 'none',
+  transformOrigin: '0px 0px',
+});
+</script>
+</body>
+</html>

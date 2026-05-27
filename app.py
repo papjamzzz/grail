@@ -71,8 +71,8 @@ def wjson(path, data):
 DOMAIN_MAP = {
     'grailcells.creativekonsoles.com': 'cells.html',
     'grailbody.creativekonsoles.com':  'body.html',
-    'ailiv.health':                    'ailiv-landing.html',
-    'www.ailiv.health':                'ailiv-landing.html',
+    'ailiv.health':                    'ailiv-home.html',
+    'www.ailiv.health':                'ailiv-home.html',
 }
 
 # ------- routes -------
@@ -87,12 +87,12 @@ def index():
     filename = DOMAIN_MAP.get(host, 'index.html')
     # fallback: if host contains 'ailiv', serve landing
     if filename == 'index.html' and 'ailiv' in host:
-        filename = 'ailiv-landing.html'
+        filename = 'ailiv-home.html'
     return send_from_directory(BASE, filename)
 
 @app.route('/ailiv')
 def ailiv_landing():
-    return send_from_directory(BASE, 'ailiv-landing.html')
+    return send_from_directory(BASE, 'ailiv-home.html')
 
 @app.route('/cells')
 def cells():
