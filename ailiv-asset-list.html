@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AILIV — Internal Asset List</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f4f0e8;
+    --surface: #ece7dc;
+    --border: #ccc3b4;
+    --text: #1a1410;
+    --muted: #7a6a52;
+    --accent: #a07c1c;
+    --ai-green: #2a6a3a;
+    --ai-green-bg: #eaf4ec;
+    --ai-pending: #5a4a1c;
+    --ai-pending-bg: #f8f4e4;
+    --none-color: #8a8a8a;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10pt;
+    line-height: 1.6;
+    padding: 60px 72px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ── HEADER ── */
+  .doc-header {
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 20px;
+    margin-bottom: 36px;
+  }
+  .doc-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .doc-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28pt;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .doc-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 7pt;
+    color: var(--muted);
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ── AI SUMMARY BAR ── */
+  .ai-summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 36px;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .ai-summary-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .ai-summary-stat {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20pt;
+    color: var(--text);
+    line-height: 1;
+  }
+  .ai-summary-sub {
+    font-size: 7.5pt;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ── ASSET ── */
+  .asset {
+    border-top: 1px solid var(--border);
+    padding: 24px 0;
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 0 20px;
+  }
+  .asset:last-of-type { border-bottom: 1px solid var(--border); }
+
+  .asset-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 7pt;
+    color: var(--muted);
+    padding-top: 3px;
+    letter-spacing: 0.06em;
+  }
+
+  .asset-body {}
+
+  .asset-top {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+
+  .asset-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 14pt;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .asset-status {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 6.5pt;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #2a6a3a;
+    background: #eaf4ec;
+    border: 1px solid #b0d8b8;
+    border-radius: 3px;
+    padding: 2px 7px;
+  }
+
+  .asset-url {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 7.5pt;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .asset-desc {
+    font-size: 9pt;
+    color: var(--text);
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+
+  .asset-specs {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 7pt;
+    color: var(--muted);
+    line-height: 1.9;
+    margin-bottom: 10px;
+  }
+  .asset-specs span { color: var(--text); }
+
+  /* ── AI BADGE ── */
+  .ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+  .ai-badge.live {
+    background: var(--ai-green-bg);
+    border: 1px solid #b0d8b8;
+    color: var(--ai-green);
+  }
+  .ai-badge.pending {
+    background: var(--ai-pending-bg);
+    border: 1px solid #d4c080;
+    color: var(--ai-pending);
+  }
+  .ai-badge.none {
+    background: #f0ede8;
+    border: 1px solid var(--border);
+    color: var(--none-color);
+  }
+  .ai-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .ai-dot.live    { background: #2a6a3a; }
+  .ai-dot.pending { background: #c8a040; }
+  .ai-dot.none    { background: #c0b8b0; }
+
+  .ai-detail {
+    font-size: 8pt;
+    color: var(--muted);
+    margin-top: 5px;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  /* ── AI INTEGRATION TABLE ── */
+  .summary-section {
+    margin-top: 48px;
+    page-break-inside: avoid;
+  }
+  .section-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+  th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 6.5pt;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 6px 10px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e0d8cc;
+    vertical-align: top;
+    color: var(--text);
+  }
+  tr:last-child td { border-bottom: none; }
+  .td-asset { font-weight: 500; }
+  .td-status-live    { color: #2a6a3a; font-family:'IBM Plex Mono',monospace; font-size:7pt; }
+  .td-status-pending { color: #8a6a10; font-family:'IBM Plex Mono',monospace; font-size:7pt; }
+  .td-status-none    { color: #b0a898; font-family:'IBM Plex Mono',monospace; font-size:7pt; }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 6.5pt;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  @media print {
+    body { padding: 40px 56px; }
+    .asset { page-break-inside: avoid; }
+    .summary-section { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div class="doc-eyebrow">Internal Asset List — Confidential</div>
+  <div class="doc-title">AILIV</div>
+  <div class="doc-meta">
+    <span>Jeremiah Smith + Christian Seeber</span>
+    <span>ailiv.health · Updated 2026-05-04</span>
+  </div>
+</div>
+
+<!-- AI INTEGRATION SUMMARY BAR -->
+<div class="ai-summary">
+  <div>
+    <div class="ai-summary-label">AI Integrated</div>
+    <div class="ai-summary-stat">4</div>
+    <div class="ai-summary-sub">of 9 assets</div>
+  </div>
+  <div>
+    <div class="ai-summary-label">Live AI</div>
+    <div class="ai-summary-stat">4</div>
+    <div class="ai-summary-sub">Orbital + Roots + Baseline + Bridge</div>
+  </div>
+  <div>
+    <div class="ai-summary-label">AI Engine</div>
+    <div class="ai-summary-stat" style="font-size:13pt;padding-top:4px">5i Synthesis</div>
+    <div class="ai-summary-sub">Claude · GPT · Gemini · verdict layer</div>
+  </div>
+  <div>
+    <div class="ai-summary-label">Sonar Layer</div>
+    <div class="ai-summary-stat" style="font-size:13pt;padding-top:4px">Pending</div>
+    <div class="ai-summary-sub">Cross-metric correlation AI</div>
+  </div>
+</div>
+
+<!-- ASSETS -->
+
+<div class="asset">
+  <div class="asset-num">01</div>
+  <div class="asset-body">
+    <div class="asset-top">
+      <div class="asset-name">Orbital-Live</div>
+      <div class="asset-status">LIVE</div>
+    </div>
+    <div class="asset-url">ailiv.health/</div>
+    <div class="asset-desc">Flagship view. 40 biomarker orbs arranged across 4 orbital rings. Each orb reflects live health status via color, pulse, and glow. Includes real-time health scoring and AI synthesis panel.</div>
+    <div class="asset-specs">
+      Flask route: <span>/</span> · Canvas-rendered orbs via JS · 4 orb states: optimal, warning, critical, inactive<br>
+      Right sidebar: scoring + detail panels · Status ring at top
+    </div>
+    <div class="ai-badge live"><div class="ai-dot live"></div>AI INTEGRATED · LIVE</div>
+    <div class="ai-detail">Grail Guidance button → POST /api/grail-guide → 5i synthesis engine (Claude + GPT + Gemini) → verdict + per-model results. Full biomarker profile + symptoms + meals sent as context.</div>
+  </div>
+</div>
+
+<div class="asset">
+  <div class="asset-num">02</div>
+  <div class="asset-body">
+    <div class="asset-top">
+      <div class="asset-name">Cells</div>
+      <div class="asset-status">LIVE</div>
+    </div>
+    <div class="asset-url">ailiv.health/cells</div>
+    <div class="asset-desc">Cellular-level visualization. 90 biomarker blobs in a physics-based organic cluster. More emotional, less structured than Orbital. Built for feel over precision.</div>
+    <div class="asset-specs">
+      Flask route: <span>/cells</span> · Physics simulation via JS · Electric pastel color palette<br>
+      Same biomarker data model as Orbital · Exploratory/secondary view
+    </div>
+    <div class="ai-badge none"><div class="ai-dot none"></div>NO AI INTEGRATION</div>
+  </div>
+</div>
+
+<div class="asset">
+  <div class="asset-num">03</div>
+  <div class="asset-body">
+    <div class="asset-top">
+      <div class="asset-name">BioSurface</div>
+      <div class="asset-status">LIVE</div>
+    </div>
+    <div class="asset-url">ailiv.health/biosurface</div>
+    <div class="asset-desc">Living 3D terrain map of biological state. Biological systems rendered as a stress-to-optimal color-coded surface. Gives a spatial sense of the body as a landscape.</div>
+    <div class="asset-specs">
+      Flask route: <span>/biosurface</span> · 3D terrain rendering in-browser<br>
+      Color gradient: stress (red) → optimal (green) · No external 3D lib — pure JS/CSS
+    </div>
+    <div class="ai-badge none"><div class="ai-dot none"></div>NO AI INTEGRATION</div>
+  </div>
+</div>
+
+<div class="asset">
+  <div class="asset-num">04</div>
+  <div class="asset-body">
+    <div class="asset-top">
+      <div class="asset-name">Body Figure</div>
+      <div class="asset-status">LIVE</div>
+    </div>
+    <div class="asset-url">ailiv.health/bodyfigure</div>
+    <div class="asset-desc">Comprehensive system dashboard. Covers cardiovascular, metabolic, hormonal, and recovery metrics in a single view. Full-body read at a glance.</div>
+    <div class="asset-specs">
+      Flask route: <span>/bodyfigure</span> · Multi-system layout<br>
+      4 biological domains rendered as grouped panels · CSS variables for all state colors
+    </div>
+    <div class="ai-badge none"><div class="ai-dot none"></div>NO AI INTEGRATION</div>
+  </div>
+</div>
+
+<div class="asset">
+  <div class="asset-num">05</div>
+  <div class="asset-body">
+    <div class="asset-top">
+      <div class="asset-name">Biobaseline</div>
+      <div class="asset-status">LIVE</div>
+    </div>
+    <div class="asset-url">ailiv.health/biobaseline</div>
+    <div class="asset-desc">Baseline visualization across 6 biological systems including metabolic, hormonal, and longevity metrics. Shows where the user sits relative to their personal baseline.</div>
+    <div class="asset-specs">
+      Flask route: <span>/biobaseline</span> · 6-system layout · Baseline comparison logic<br>
+      Longevity markers included · 40-marker physics cluster · drag to explore
+    </div>
+    <div class="ai-badge live"><div class="ai-dot live"></div>AI INTEGRATED · LIVE</div>
+    <div class="ai-detail">AI Synthesis button → POST /api/baseline-analysis → 5i synthesis (Claude + GPT + Gemini). Sends all 40 markers with values, status, and notes. Returns prioritized cross-system intervention protocol.</div>
+  </div>
+</div>
+
+<div class="asset">
+  <div class="asset-num">06</div>
+  <div class="asset-body">
+    <div class="asset-top">
+      <div class="asset-name">Signal Bridge</div>
+      <div class="asset-status">LIVE</div>
+    </div>
+    <div class="asset-url">ailiv.health/signal-bridge</div>
+    <div class="asset-desc">Cross-platform correlation tool. Links Apple Health and WHOOP data across 4 time periods. Surfaces relationships between metrics that wouldn't be visible in either app alone.</div>
+    <div class="asset-specs">
+      Flask route: <span>/signal-bridge</span> · Apple Health + WHOOP data correlation<br>
+      4 time windows: Morning · Afternoon · Evening · Sleep · Chord diagram visualization
+    </div>
+    <div class="ai-badge live"><div class="ai-dot live"></div>AI INTEGRATED · LIVE</div>
+    <div class="ai-detail">AI button per time window → POST /api/bridge-analysis → 5i synthesis (Claude + GPT + Gemini). Sends active Apple×WHOOP correlation pairs with strength scores for the selected time window.</div>
+  </div>
+</div>
+
+<div class="asset">
+  <div class="asset-num">07</div>
+  <div class="asset-body">
+    <div class="asset-top">
+      <div class="asset-name">Roots</div>
+      <div class="asset-status">LIVE</div>
+    </div>
+    <div class="asset-url">ailiv.health/rootcause</div>
+    <div class="asset-desc">Force-directed network map. Connects flagged labs to root causes to targeted protocols. Shows why something is off and what to do about it — not just what the number is.</div>
+    <div class="asset-specs">
+      Flask route: <span>/rootcause</span> · Force-directed graph (D3.js)<br>
+      Node types: flagged lab → root cause → intervention · Live wearable data integration
+    </div>
+    <div class="ai-badge live"><div class="ai-dot live"></div>AI INTEGRATED · LIVE</div>
+    <div class="ai-detail">AI button → POST /api/roots-analysis → 5i synthesis (Claude + GPT + Gemini). Sends all flagged lab nodes, root cause nodes, and intervention nodes. Returns top 3 highest-leverage protocol priorities with timelines.</div>
+  </div>
+</div>
+
+<div class="asset">
+  <div class="asset-num">08</div>
+  <div class="asset-body">
+    <div class="asset-top">
+      <div class="asset-name">Centrifuge</div>
+      <div class="asset-status">LIVE</div>
+    </div>
+    <div class="asset-url">ailiv.health/ailiv</div>
+    <div class="asset-desc">Ambient biometric display. Designed for presentations and demonstrations. All biomarkers in a single spinning visual — more art than dashboard.</div>
+    <div class="asset-specs">
+      Flask route: <span>/ailiv</span> · Rotating/centrifuge animation<br>
+      Presentation mode — no interaction required · Full-screen ambient display
+    </div>
+    <div class="ai-badge none"><div class="ai-dot none"></div>NO AI INTEGRATION</div>
+  </div>
+</div>
+
+<div class="asset">
+  <div class="asset-num">09</div>
+  <div class="asset-body">
+    <div class="asset-top">
+      <div class="asset-name">Console</div>
+      <div class="asset-status">LIVE</div>
+    </div>
+    <div class="asset-url">ailiv.health/console</div>
+    <div class="asset-desc">Internal control panel. Shows biomarker data, system logs, and health metrics in a structured console interface. Admin and dev-facing.</div>
+    <div class="asset-specs">
+      Flask route: <span>/console</span> · System logs + health metrics<br>
+      Internal use only · Not user-facing in v1
+    </div>
+    <div class="ai-badge none"><div class="ai-dot none"></div>NO AI INTEGRATION</div>
+  </div>
+</div>
+
+<!-- AI INTEGRATION SUMMARY TABLE -->
+<div class="summary-section">
+  <div class="section-title">AI Integration Summary</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Asset</th>
+        <th>Status</th>
+        <th>Route</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-asset">Orbital-Live</td>
+        <td class="td-status-live">✓ Live</td>
+        <td>/api/grail-guide</td>
+        <td>Full biomarker + symptom + meal synthesis. Grail Guidance button.</td>
+      </tr>
+      <tr>
+        <td class="td-asset">Biobaseline</td>
+        <td class="td-status-live">✓ Live</td>
+        <td>/api/baseline-analysis</td>
+        <td>40-marker cross-system priority analysis. AI Synthesis button in header.</td>
+      </tr>
+      <tr>
+        <td class="td-asset">Signal Bridge</td>
+        <td class="td-status-live">✓ Live</td>
+        <td>/api/bridge-analysis</td>
+        <td>Apple×WHOOP correlation analysis per time window. AI button in tabs.</td>
+      </tr>
+      <tr>
+        <td class="td-asset">Roots</td>
+        <td class="td-status-live">✓ Live</td>
+        <td>/api/roots-analysis</td>
+        <td>Root cause → intervention priority ranking. AI button in corner controls.</td>
+      </tr>
+      <tr>
+        <td class="td-asset">Cells</td>
+        <td class="td-status-none">— None</td>
+        <td>—</td>
+        <td>Visualization only.</td>
+      </tr>
+      <tr>
+        <td class="td-asset">BioSurface</td>
+        <td class="td-status-none">— None</td>
+        <td>—</td>
+        <td>Visualization only.</td>
+      </tr>
+      <tr>
+        <td class="td-asset">Body Figure</td>
+        <td class="td-status-none">— None</td>
+        <td>—</td>
+        <td>Visualization only.</td>
+      </tr>
+      <tr>
+        <td class="td-asset">Centrifuge</td>
+        <td class="td-status-none">— None</td>
+        <td>—</td>
+        <td>Ambient/presentation display.</td>
+      </tr>
+      <tr>
+        <td class="td-asset">Console</td>
+        <td class="td-status-none">— None</td>
+        <td>—</td>
+        <td>Internal admin only.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FOOTER -->
+<div class="doc-footer">
+  <span>AILIV — Internal Asset List · Jeremiah Smith + Christian Seeber · Confidential</span>
+  <span>Page 1</span>
+</div>
+
+</body>
+</html>

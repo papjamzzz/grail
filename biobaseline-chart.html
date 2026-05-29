@@ -34,6 +34,22 @@ body {
 }
 
 /* ── HEADER ── */
+/* ── AI PANEL ── */
+.ai-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; z-index:9999; }
+.ai-overlay.open { display:flex; }
+.ai-panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:2rem; width:min(680px,90vw); max-height:82vh; overflow-y:auto; position:relative; }
+.ai-panel-title { font-family:'IBM Plex Mono',monospace; font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:1.2rem; }
+.ai-verdict { font-size:0.85rem; line-height:1.75; color:var(--text); margin-bottom:1.4rem; }
+.ai-models { display:flex; flex-direction:column; gap:0.6rem; }
+.ai-model-row { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:6px; padding:0.7rem 0.9rem; }
+.ai-model-label { font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:0.3rem; }
+.ai-model-text { font-size:0.78rem; line-height:1.6; color:var(--muted); }
+.ai-close { position:absolute; top:1rem; right:1rem; background:none; border:none; cursor:pointer; font-size:1rem; color:var(--muted); }
+.ai-close:hover { color:var(--text); }
+.ai-loading { text-align:center; padding:2rem; font-size:0.78rem; color:var(--muted); letter-spacing:0.08em; }
+.bb-ai-btn { background:none; border:1px solid var(--border); color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:0.65rem; letter-spacing:0.1em; padding:0.4rem 0.9rem; border-radius:4px; cursor:pointer; transition:all 0.2s; align-self:center; }
+.bb-ai-btn:hover { border-color:var(--accent); color:var(--accent); }
+
 header {
   padding: 2.4rem 3rem 1.6rem;
   border-bottom: 1px solid var(--border);
@@ -335,6 +351,7 @@ header {
     <span class="num" id="overallScore">72</span>
     <span class="label">overall longevity score</span>
   </div>
+  <button class="bb-ai-btn" onclick="openBaselineAI()">AI Synthesis</button>
 </header>
 
 <div class="controls" id="controls">
@@ -774,6 +791,55 @@ const step = () => {
   }
 };
 setTimeout(step, 300);
+
+// ════════════════════════════════════════════════════
+// AI SYNTHESIS
+// ════════════════════════════════════════════════════
+function openBaselineAI() {
+  document.getElementById('aiOverlay').classList.add('open');
+  runBaselineAI();
+}
+function closeBaselineAI() {
+  document.getElementById('aiOverlay').classList.remove('open');
+}
+
+async function runBaselineAI() {
+  const body = document.getElementById('aiBody');
+  body.innerHTML = '<div class="ai-loading">Routing through 3 AI models…</div>';
+
+  const score = document.getElementById('overallScore').textContent;
+  const payload = {
+    score,
+    markers: MARKERS.map(m => ({ name:m.name, system:m.system, value:m.value, unit:m.unit, optimal:m.optimal, status:m.status, note:m.note }))
+  };
+
+  try {
+    const res  = await fetch('/api/baseline-analysis', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Analysis failed');
+
+    let html = `<div class="ai-verdict">${data.verdict.replace(/\n/g,'<br>')}</div>`;
+    if (data.results && Object.keys(data.results).length) {
+      html += '<div class="ai-models">';
+      for (const [model, text] of Object.entries(data.results)) {
+        html += `<div class="ai-model-row"><div class="ai-model-label">${model}</div><div class="ai-model-text">${String(text).replace(/\n/g,'<br>')}</div></div>`;
+      }
+      html += '</div>';
+    }
+    body.innerHTML = html;
+  } catch (err) {
+    body.innerHTML = `<div class="ai-loading" style="color:#c84040">Error: ${err.message}</div>`;
+  }
+}
 </script>
+
+<div id="aiOverlay" class="ai-overlay">
+  <div class="ai-panel">
+    <button class="ai-close" onclick="closeBaselineAI()">✕</button>
+    <div class="ai-panel-title">AI Synthesis · Baseline Priority Analysis</div>
+    <div id="aiBody"><div class="ai-loading">Routing through 3 AI models…</div></div>
+  </div>
+</div>
+
 </body>
 </html>

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AILIV — Platform Overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:   #3EC45A;
+  --green2:  #2DA847;
+  --cyan:    #00C8D8;
+  --mint:    #E6F7EC;
+  --pink:    #E91E8C;
+  --dark:    #111111;
+  --card:    #FFFFFF;
+  --grey:    #555555;
+  --grey2:   #888888;
+  --orange:  #E07A30;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(145deg, #d4f0dc 0%, #e8f7ee 35%, #f0fbf3 70%, #d8f0e0 100%);
+  min-height: 100vh;
+  color: var(--dark);
+  overflow-x: hidden;
+}
+
+/* ── LAYOUT ── */
+.page {
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 28px 32px 36px;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0;
+}
+
+/* ── TOP STRIP ── */
+.top-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+.phase-labels {
+  display: flex; gap: 32px; align-items: center;
+}
+.phase {
+  font-size: 28px; font-weight: 900; letter-spacing: -0.01em;
+}
+.phase.p1 { color: var(--green); }
+.phase.p2 { color: var(--cyan); }
+.market-badge {
+  background: var(--pink); color: white;
+  padding: 10px 18px; text-align: center;
+  border-radius: 4px;
+}
+.market-badge .big { font-size: 32px; font-weight: 900; display: block; line-height: 1; }
+.market-badge .small { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.9; margin-top: 3px; }
+
+.b2b-targets {
+  display: flex; gap: 12px; align-items: center;
+}
+.b2b-circle {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: rgba(255,255,255,0.5); border: 2px solid rgba(0,0,0,0.12);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+}
+.b2b-circle svg { opacity: 0.5; }
+.b2b-circle .b2b-label {
+  font-size: 7.5px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--grey);
+}
+
+/* ── MAIN GRID ── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 230px 1fr 260px;
+  gap: 16px;
+  align-items: center;
+  padding: 8px 0;
+}
+
+/* ── PARTNER CARDS (left column) ── */
+.partners-col {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.partner-card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 14px 14px 12px;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.08);
+  position: relative;
+}
+.card-tag {
+  display: inline-block;
+  background: var(--dark);
+  color: white;
+  font-size: 8.5px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 3px 9px; border-radius: 3px;
+  margin-bottom: 10px;
+}
+.card-tag.blood { background: #c0392b; }
+.card-tag.scan  { background: #2c3e50; }
+.card-tag.apps  { background: #1a6b3a; }
+.partner-logos {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+}
+.plogo {
+  font-size: 9.5px; font-weight: 700; letter-spacing: -0.02em;
+  color: var(--grey); background: #f4f4f4;
+  padding: 4px 8px; border-radius: 4px;
+  white-space: nowrap;
+}
+.plogo.featured {
+  background: transparent; font-size: 11px; color: #222;
+}
+.plogo-dots {
+  display: flex; gap: 3px; align-items: center; flex-wrap: wrap; margin-top: 4px;
+}
+.dot-row { display: flex; gap: 3px; }
+.dot { width: 14px; height: 6px; background: #e0e0e0; border-radius: 2px; }
+.dot.g { background: #c8e6c9; }
+.blood-icon {
+  width: 28px; height: 36px; margin-right: 6px;
+}
+
+/* ── CENTER HUB ── */
+.center-col {
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  position: relative;
+}
+.hub-row {
+  display: flex; align-items: center; gap: 0; width: 100%;
+  justify-content: center; position: relative;
+}
+.hub-circle {
+  width: 180px; height: 180px; border-radius: 50%;
+  background: white;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.12), 0 0 0 8px rgba(255,255,255,0.5);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 10; flex-shrink: 0;
+  position: relative;
+}
+.hub-logo {
+  font-size: 42px; font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+  color: var(--dark);
+}
+.hub-logo span { color: var(--green); }
+.hub-sub {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.06em;
+  color: var(--grey2); margin-top: 4px; text-transform: uppercase;
+}
+.hub-plus {
+  font-size: 11px; font-weight: 600; color: var(--grey2); margin-top: 8px;
+}
+.hub-partners-small {
+  display: flex; gap: 6px; align-items: center; margin-top: 4px;
+}
+.hub-partner-chip {
+  font-size: 8.5px; font-weight: 700; color: var(--grey);
+  background: #f0f0f0; padding: 2px 7px; border-radius: 10px;
+}
+
+/* Dashed connection lines — SVG overlay */
+.connections-svg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 1;
+}
+
+.arrow-right {
+  display: flex; align-items: center; gap: 0;
+}
+.arrow-shaft {
+  height: 3px; background: var(--dark); width: 48px;
+}
+.arrow-head {
+  width: 0; height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 12px solid var(--dark);
+}
+
+/* ── VALUE PROPS ── */
+.value-props {
+  text-align: center; margin-bottom: 12px;
+  max-width: 340px;
+}
+.vp-item {
+  font-size: 13px; color: var(--dark); line-height: 1.7;
+}
+.vp-item strong { font-weight: 700; }
+
+/* ── PHONE MOCKUP ── */
+.phone-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.phone-frame {
+  width: 160px; height: 290px;
+  background: #1a1a1a; border-radius: 26px;
+  border: 3px solid #333;
+  padding: 14px 10px 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  position: relative;
+  overflow: hidden;
+}
+.phone-notch {
+  width: 50px; height: 8px; background: #333;
+  border-radius: 4px; margin: 0 auto 8px;
+}
+.phone-canvas-wrap {
+  width: 100%; height: 220px; position: relative;
+}
+canvas#miniOrbital {
+  width: 100%; height: 100%;
+}
+.phone-stat {
+  display: flex; gap: 6px; align-items: center; margin-top: 4px;
+}
+.phone-stat-icon { font-size: 11px; }
+.phone-stat-text { font-size: 8px; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; }
+
+.feature-tags {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  margin-top: 8px;
+}
+.ftag {
+  background: var(--dark); color: white;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 8px 16px; border-radius: 4px;
+}
+
+/* ── RIGHT COLUMN ── */
+.right-col {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.rx-box {
+  background: rgba(255,255,255,0.6);
+  border-radius: 12px; padding: 14px 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.rx-title { font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+.rx-list { font-size: 11px; color: var(--grey); line-height: 1.8; }
+
+.dash-mockup {
+  background: #2a0a12; border-radius: 12px;
+  padding: 14px; overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+}
+.dash-mockup .tab-bar {
+  display: flex; gap: 4px; align-items: center; margin-bottom: 10px;
+}
+.tab-dot { width: 8px; height: 8px; border-radius: 50%; }
+.tab-dot.r { background: #ff5f57; }
+.tab-dot.y { background: #ffbd2e; }
+.tab-dot.g { background: #28c840; }
+.dash-title { font-size: 7px; color: rgba(255,255,255,0.3); letter-spacing: 0.15em; text-transform: uppercase; margin-left: 8px; }
+
+.dash-metrics {
+  display: flex; gap: 8px; margin-bottom: 10px;
+}
+.dash-ring {
+  flex: 1; background: rgba(255,255,255,0.04);
+  border-radius: 8px; padding: 10px 6px; text-align: center;
+}
+.dash-ring-pct {
+  font-size: 18px; font-weight: 700; color: var(--cyan); line-height: 1;
+}
+.dash-ring-lbl { font-size: 6.5px; color: rgba(255,255,255,0.35); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+.dash-chart {
+  background: rgba(255,255,255,0.03); border-radius: 6px;
+  padding: 8px; margin-bottom: 8px;
+}
+.dash-bar-row {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 5px;
+}
+.dash-bar-label { font-size: 6px; color: rgba(255,255,255,0.35); width: 40px; letter-spacing: 0.06em; text-transform: uppercase; }
+.dash-bar-track { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; }
+.dash-bar-fill { height: 100%; border-radius: 2px; }
+.dash-bar-val { font-size: 6.5px; color: rgba(255,255,255,0.4); width: 22px; text-align: right; }
+
+.dash-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.dash-figure { text-align: center; }
+.dash-figure-icon { font-size: 18px; }
+.dash-figure-pct { font-size: 9px; font-weight: 700; }
+.dash-note { font-size: 6px; color: rgba(255,255,255,0.25); letter-spacing: 0.08em; max-width: 90px; text-transform: uppercase; line-height: 1.6; }
+
+.b2b-badges {
+  display: flex; gap: 8px;
+}
+.b2b-badge {
+  flex: 1; padding: 8px 6px; border-radius: 6px;
+  text-align: center; font-size: 8.5px; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.b2b-badge.emr { background: #E91E8C; color: white; }
+.b2b-badge.ins { background: #E91E8C; color: white; }
+
+/* ── BOTTOM STRIP ── */
+.bottom-strip {
+  margin-top: 14px;
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+}
+.bottom-btn {
+  background: var(--dark); color: white;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; padding: 11px 24px; border-radius: 4px;
+}
+
+/* ── SVG DASHED LINES ── */
+.hub-connections {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  pointer-events: none; z-index: 5;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- TOP STRIP -->
+  <div class="top-strip">
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div class="phase-labels">
+        <div class="phase p1">PHASE 1: B2C</div>
+        <div class="phase p2">PHASE 2: B2B</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:flex-start;gap:20px;">
+      <div class="market-badge">
+        <span class="big">$660B+</span>
+        <span class="small">Global Digital Health Market</span>
+      </div>
+      <div class="b2b-targets">
+        <div class="b2b-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <span class="b2b-label">Clinics</span>
+        </div>
+        <div class="b2b-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 8v4l3 3"/></svg>
+          <span class="b2b-label">Practices</span>
+        </div>
+        <div class="b2b-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><path d="M4 20V10l8-8 8 8v10"/><path d="M10 20v-5h4v5"/></svg>
+          <span class="b2b-label">Gyms</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid" style="position:relative;">
+
+    <!-- LEFT: Partner cards -->
+    <div class="partners-col">
+
+      <div class="partner-card">
+        <span class="card-tag">Wearables</span>
+        <div class="partner-logos">
+          <span class="plogo featured">WHOOP</span>
+          <span class="plogo featured">○ RingConn</span>
+          <span class="plogo featured">ŌURA</span>
+          <span class="plogo featured">✦ fitbit</span>
+          <span class="plogo">Apple Watch</span>
+          <span class="plogo">Samsung</span>
+          <span class="plogo">Garmin</span>
+          <span class="plogo">Polar</span>
+        </div>
+        <div class="plogo-dots" style="margin-top:6px;">
+          <div class="dot-row"><div class="dot g"></div><div class="dot g"></div><div class="dot g"></div><div class="dot"></div><div class="dot"></div></div>
+          <div class="dot-row"><div class="dot"></div><div class="dot g"></div><div class="dot"></div><div class="dot g"></div><div class="dot"></div></div>
+        </div>
+      </div>
+
+      <div class="partner-card">
+        <span class="card-tag scan">Body Scans</span>
+        <div class="partner-logos">
+          <span class="plogo featured">✕ HumeHealth</span>
+          <span class="plogo featured">InBody</span>
+          <span class="plogo featured">✕ DEXAFIT</span>
+          <span class="plogo">Prenuvo</span>
+          <span class="plogo">BodySpec</span>
+          <span class="plogo">Spren AI</span>
+        </div>
+        <div class="plogo-dots" style="margin-top:6px;">
+          <div class="dot-row"><div class="dot g"></div><div class="dot g"></div><div class="dot"></div><div class="dot g"></div><div class="dot"></div></div>
+          <div class="dot-row"><div class="dot g"></div><div class="dot"></div><div class="dot g"></div><div class="dot"></div><div class="dot g"></div></div>
+        </div>
+      </div>
+
+      <div class="partner-card">
+        <span class="card-tag blood">Bloodwork</span>
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <svg class="blood-icon" viewBox="0 0 28 36" fill="none">
+            <path d="M14 2 C14 2 2 18 2 24 C2 30 7.4 34 14 34 C20.6 34 26 30 26 24 C26 18 14 2 14 2Z" fill="#c0392b" opacity="0.85"/>
+          </svg>
+          <div class="partner-logos" style="flex:1;">
+            <span class="plogo featured">rythm</span>
+            <span class="plogo featured">superpower</span>
+            <span class="plogo featured">Quest Diagnostics</span>
+            <span class="plogo featured">○ Function</span>
+            <span class="plogo">LabCorp</span>
+            <span class="plogo">Viome</span>
+            <span class="plogo">InsideTracker</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="partner-card">
+        <span class="card-tag apps">Health / Fitness Apps</span>
+        <div class="partner-logos">
+          <span class="plogo" style="background:#ffecec;color:#c0392b;font-weight:800;">♥</span>
+          <span class="plogo featured">Apple Health</span>
+          <span class="plogo">MyFitnessPal</span>
+          <span class="plogo">Cronometer</span>
+          <span class="plogo">Noom</span>
+          <span class="plogo">Strava</span>
+        </div>
+      </div>
+
+    </div><!-- /partners-col -->
+
+    <!-- CENTER: Hub + value props + phone -->
+    <div class="center-col" style="position:relative;">
+
+      <!-- SVG connecting arcs -->
+      <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;" viewBox="0 0 600 520" preserveAspectRatio="xMidYMid meet">
+        <!-- Left arcs from hub to partner column -->
+        <path d="M 230 220 C 180 220 140 160 90 145" stroke="#00C8D8" stroke-width="1.8" stroke-dasharray="6,4" fill="none" opacity="0.65"/>
+        <path d="M 230 240 C 175 240 135 250 90 255" stroke="#00C8D8" stroke-width="1.8" stroke-dasharray="6,4" fill="none" opacity="0.65"/>
+        <path d="M 230 260 C 175 275 135 330 90 345" stroke="#00C8D8" stroke-width="1.8" stroke-dasharray="6,4" fill="none" opacity="0.65"/>
+        <path d="M 230 270 C 175 300 135 400 90 415" stroke="#00C8D8" stroke-width="1.8" stroke-dasharray="6,4" fill="none" opacity="0.65"/>
+        <!-- Right arc to phone mockup -->
+        <path d="M 370 240 C 420 240 440 240 470 240" stroke="#111" stroke-width="2.5" fill="none" opacity="0.8" marker-end="url(#arr)"/>
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M 0 0 L 6 3 L 0 6 Z" fill="#111"/>
+          </marker>
+        </defs>
+      </svg>
+
+      <!-- Value props above hub -->
+      <div class="value-props" style="position:relative;z-index:10;margin-bottom:14px;">
+        <div class="vp-item"><strong>Biometrically Visualized</strong> &amp; Actionable Data</div>
+        <div class="vp-item"><strong>AI-Synthesized</strong> Health Intelligence</div>
+        <div class="vp-item"><strong>40 biomarkers.</strong> Every wearable. Every lab.</div>
+        <div class="vp-item">One <strong>all-inclusive</strong> monthly subscription</div>
+      </div>
+
+      <!-- Hub row: hub + arrow + phone -->
+      <div class="hub-row" style="position:relative;z-index:10;gap:18px;">
+        <!-- Hub circle -->
+        <div class="hub-circle">
+          <div class="hub-logo">A<span>I</span>LIV</div>
+          <div class="hub-sub">Health Intelligence</div>
+          <div class="hub-plus">+</div>
+          <div class="hub-partners-small">
+            <span class="hub-partner-chip">sonar</span>
+            <span class="hub-partner-chip">5i AI</span>
+          </div>
+        </div>
+
+        <!-- Arrow -->
+        <div class="arrow-right" style="position:relative;z-index:10;">
+          <div class="arrow-shaft"></div>
+          <div class="arrow-head"></div>
+        </div>
+
+        <!-- Phone mockup -->
+        <div class="phone-wrap" style="position:relative;z-index:10;">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-canvas-wrap">
+              <canvas id="miniOrbital" width="280" height="440"></canvas>
+            </div>
+            <div class="phone-stat">
+              <span class="phone-stat-icon">⬤</span>
+              <span class="phone-stat-text">AILIV INTELLIGENCE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature tags bottom -->
+      <div class="feature-tags" style="position:relative;z-index:10;margin-top:16px;">
+        <div class="ftag">Biomarker Hub</div>
+        <div class="ftag">AI Synthesis</div>
+        <div class="ftag">Telehealth</div>
+        <div class="ftag">Clinical Reports</div>
+      </div>
+
+      <!-- Bottom icons row (MIND / FITNESS / HEALTH) -->
+      <div style="display:flex;gap:28px;margin-top:12px;position:relative;z-index:10;">
+        <div style="text-align:center;">
+          <div style="font-size:28px;">🧠</div>
+          <div style="font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#555;margin-top:3px;">Mind</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:28px;">🏋️</div>
+          <div style="font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#555;margin-top:3px;">Fitness</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:28px;">❤️</div>
+          <div style="font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#555;margin-top:3px;">Health</div>
+        </div>
+      </div>
+
+    </div><!-- /center-col -->
+
+    <!-- RIGHT: RX + B2B dashboard -->
+    <div class="right-col">
+
+      <div class="rx-box">
+        <div class="rx-title">RX: Content, Apps, Devices, Supplements,</div>
+        <div class="rx-list">Nutritional Regimens, Habits, Accountability,<br>Telehealth, and more…</div>
+      </div>
+
+      <!-- B2B Dark Dashboard Mockup -->
+      <div class="dash-mockup">
+        <div class="tab-bar">
+          <div class="tab-dot r"></div>
+          <div class="tab-dot y"></div>
+          <div class="tab-dot g"></div>
+          <span class="dash-title">AILIV Clinical · Patient Dashboard</span>
+        </div>
+
+        <div class="dash-metrics">
+          <div class="dash-ring">
+            <div class="dash-ring-pct" style="color:#3EC45A;">84</div>
+            <div class="dash-ring-lbl">Score</div>
+          </div>
+          <div class="dash-ring">
+            <div class="dash-ring-pct" style="color:#00C8D8;">68</div>
+            <div class="dash-ring-lbl">HRV ms</div>
+          </div>
+          <div class="dash-ring">
+            <div class="dash-ring-pct" style="color:#E07A30;">92</div>
+            <div class="dash-ring-lbl">Recovery</div>
+          </div>
+        </div>
+
+        <div class="dash-chart">
+          <div class="dash-bar-row">
+            <span class="dash-bar-label">Cortisol</span>
+            <div class="dash-bar-track"><div class="dash-bar-fill" style="width:38%;background:#E91E8C;"></div></div>
+            <span class="dash-bar-val" style="color:#E91E8C;">↓38%</span>
+          </div>
+          <div class="dash-bar-row">
+            <span class="dash-bar-label">Inflam.</span>
+            <div class="dash-bar-track"><div class="dash-bar-fill" style="width:24%;background:#E07A30;"></div></div>
+            <span class="dash-bar-val" style="color:#E07A30;">↓24%</span>
+          </div>
+          <div class="dash-bar-row">
+            <span class="dash-bar-label">Sleep</span>
+            <div class="dash-bar-track"><div class="dash-bar-fill" style="width:78%;background:#3EC45A;"></div></div>
+            <span class="dash-bar-val" style="color:#3EC45A;">7.4h</span>
+          </div>
+          <div class="dash-bar-row">
+            <span class="dash-bar-label">Glucose</span>
+            <div class="dash-bar-track"><div class="dash-bar-fill" style="width:60%;background:#00C8D8;"></div></div>
+            <span class="dash-bar-val" style="color:#00C8D8;">88</span>
+          </div>
+        </div>
+
+        <div class="dash-bottom">
+          <div class="dash-figure">
+            <div class="dash-figure-icon">🧍</div>
+            <div class="dash-figure-pct" style="color:#3EC45A;">78%</div>
+          </div>
+          <div class="dash-note">Population above active blood panel threshold</div>
+          <div class="dash-figure">
+            <div class="dash-figure-icon">🧍‍♀️</div>
+            <div class="dash-figure-pct" style="color:#E07A30;">33%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="b2b-badges">
+        <div class="b2b-badge emr">EMR / EHR</div>
+        <div class="b2b-badge ins">Insurance Co's</div>
+      </div>
+
+    </div><!-- /right-col -->
+
+  </div><!-- /main-grid -->
+
+  <!-- BOTTOM BUTTONS -->
+  <div class="bottom-strip">
+    <div class="bottom-btn">Marketplace</div>
+    <div class="bottom-btn">Telehealth</div>
+    <div class="bottom-btn">Partners</div>
+    <div class="bottom-btn">Directory</div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// ── MINI ORBITAL CANVAS ──
+const c  = document.getElementById('miniOrbital');
+const DPR = Math.min(window.devicePixelRatio||1, 2);
+c.width  = c.offsetWidth  * DPR;
+c.height = c.offsetHeight * DPR;
+const ctx = c.getContext('2d');
+ctx.scale(DPR, DPR);
+const W = c.offsetWidth, H = c.offsetHeight;
+
+const RINGS = [
+  {count:6,  rf:0.18, spd:0.028},
+  {count:9,  rf:0.30, spd:0.018},
+  {count:8,  rf:0.41, spd:0.012},
+  {count:8,  rf:0.51, spd:0.007},
+];
+const NCOLS = [
+  [62,196,90],[240,160,96],[240,96,96],[96,168,240],
+  [96,212,200],[180,130,220],[224,194,64],[200,200,90]
+];
+const orbs = [];
+let ni=0;
+RINGS.forEach(ring => {
+  for (let i=0; i<ring.count; i++) {
+    orbs.push({ring, angle:(i/ring.count)*Math.PI*2, phase:Math.random()*Math.PI*2, col:NCOLS[ni%NCOLS.length]});
+    ni++;
+  }
+});
+
+function drawMini(t) {
+  requestAnimationFrame(drawMini);
+  ctx.clearRect(0,0,W,H);
+  const cx=W*.5, cy=H*.52, mr=Math.min(W,H)*.44;
+
+  // Dark bg
+  ctx.fillStyle='#0d0d1a';
+  ctx.fillRect(0,0,W,H);
+
+  // Ring tracks
+  RINGS.forEach(r => {
+    ctx.beginPath(); ctx.arc(cx,cy,mr*r.rf,0,Math.PI*2);
+    ctx.strokeStyle='rgba(201,169,110,0.1)'; ctx.lineWidth=0.5; ctx.stroke();
+  });
+
+  orbs.forEach(n => {
+    n.angle += n.ring.spd;
+    const r=mr*n.ring.rf, x=cx+Math.cos(n.angle)*r, y=cy+Math.sin(n.angle)*r;
+    const pulse=Math.sin(t*.002+n.phase)*.5+.5;
+    const sz=(1.8+pulse*1.8);
+    const [cr,cg,cb]=n.col, al=0.55+pulse*.4;
+    const grd=ctx.createRadialGradient(x,y,0,x,y,sz*3.5);
+    grd.addColorStop(0,`rgba(${cr},${cg},${cb},${al*.5})`);
+    grd.addColorStop(1,`rgba(${cr},${cg},${cb},0)`);
+    ctx.beginPath(); ctx.arc(x,y,sz*3.5,0,Math.PI*2); ctx.fillStyle=grd; ctx.fill();
+    ctx.beginPath(); ctx.arc(x,y,sz,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${cr},${cg},${cb},${al})`; ctx.fill();
+  });
+
+  // Center orb
+  const cs=mr*.1, cp=Math.sin(t*.0015)*.5+.5;
+  const cg2=ctx.createRadialGradient(cx,cy,0,cx,cy,cs*3);
+  cg2.addColorStop(0,'rgba(201,169,110,0.9)'); cg2.addColorStop(.4,'rgba(201,169,110,0.4)'); cg2.addColorStop(1,'rgba(201,169,110,0)');
+  ctx.beginPath(); ctx.arc(cx,cy,cs*(1+cp*.1),0,Math.PI*2); ctx.fillStyle=cg2; ctx.fill();
+
+  // Score text
+  ctx.font=`bold ${Math.floor(cs*.9)}px Inter`;
+  ctx.fillStyle='rgba(201,169,110,0.9)'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('84',cx,cy);
+}
+requestAnimationFrame(drawMini);
+</script>
+</body>
+</html>

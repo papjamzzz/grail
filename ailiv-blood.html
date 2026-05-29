@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AILIV — Bloodwork Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#1a0505;font-family:'Inter',sans-serif;min-width:1440px;}
+:root{--cr:#F5EFE6;--cd:#EDE4D3;--rd:#6B0A0A;--rm:#A31515;--rb:#C8281C;--or:#D45A1A;--ol:#E8821A;--gd:#C89628;--gl:#E8B840;--tx:#2C1810;--tm:#5A2A1A;}
+.page{width:1440px;margin:0 auto;display:grid;grid-template-columns:238px 222px 278px 260px 222px 220px;grid-template-rows:48px 30px auto;box-shadow:0 0 60px rgba(0,0,0,.6);}
+.hdr{grid-column:1/-1;background:var(--rd);display:flex;align-items:center;padding:0 18px;gap:16px;}
+.hdr-logo{font-size:26px;font-weight:900;color:#fff;letter-spacing:-.02em;}
+.hdr-logo em{font-style:normal;color:var(--ol);}
+.hdr-sub{font-size:8px;color:rgba(255,255,255,.4);letter-spacing:.18em;text-transform:uppercase;border-left:1px solid rgba(255,255,255,.15);padding-left:14px;}
+.hdr-r{margin-left:auto;font-size:7px;color:rgba(255,255,255,.22);letter-spacing:.14em;text-transform:uppercase;}
+.snav{grid-column:1/-1;background:#3d0707;display:flex;align-items:center;padding:0 18px;gap:2px;border-bottom:1px solid rgba(255,255,255,.06);}
+.snl{font-size:7.5px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;padding:0 13px;height:30px;display:flex;align-items:center;border-radius:2px;transition:all .2s;}
+.snl:hover{color:rgba(255,255,255,.72);background:rgba(255,255,255,.06);}
+.snl.a{color:#fff;background:rgba(255,255,255,.11);}
+.snl-div{width:1px;height:14px;background:rgba(255,255,255,.1);margin:0 4px;}
+.p{padding:13px 12px;border-right:1px solid rgba(160,90,50,.12);overflow:hidden;position:relative;background:var(--cr);}
+.p.dk{background:var(--rd);color:#fff;border-right:none;}
+.p.cd{background:var(--cd);}
+.sl{font-size:6.8px;letter-spacing:.16em;text-transform:uppercase;opacity:.42;margin-bottom:4px;}
+.sl.w{opacity:.4;color:#fff;}
+.bd{font-size:6.7px;line-height:1.65;color:var(--tm);opacity:.85;}
+.bd.w{color:rgba(255,255,255,.65);opacity:1;}
+.hr{height:1px;background:rgba(160,90,50,.17);margin:8px 0;}
+.hr.w{background:rgba(255,255,255,.1);}
+.drop{width:118px;height:144px;background:var(--rb);border-radius:50% 50% 50% 50%/60% 60% 40% 40%;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;margin:10px auto;box-shadow:0 8px 30px rgba(200,40,28,.38);}
+.drop-in{transform:rotate(180deg);text-align:center;padding:12px 9px;}
+.d1{font-size:6px;color:rgba(255,255,255,.55);letter-spacing:.1em;text-transform:uppercase;}
+.d2{font-size:10px;font-weight:700;color:#fff;line-height:1.3;margin:4px 0;}
+.d3{font-size:6px;color:rgba(255,255,255,.45);}
+.fb{background:rgba(0,0,0,.22);border-radius:4px;padding:9px;margin:7px 0;}
+.fbl{font-size:6.5px;color:rgba(255,255,255,.42);text-transform:uppercase;letter-spacing:.1em;}
+.fbt{font-size:10px;font-weight:700;color:#fff;margin:2px 0 7px;}
+.fv{display:flex;gap:5px;}
+.fvi{background:var(--ol);border-radius:3px;padding:5px 8px;font-size:12px;font-weight:800;color:#fff;flex:1;text-align:center;line-height:1.2;}
+.fvi span{display:block;font-size:8px;font-weight:600;}
+.fvi.gd{background:var(--gd);}
+.fvi.rm{background:var(--rm);}
+.rbar{display:flex;align-items:center;gap:4px;margin:4px 0;}
+.rbar-l{font-size:7px;width:56px;color:var(--tx);font-weight:600;text-align:right;flex-shrink:0;}
+.rbar-t{flex:1;height:14px;background:rgba(160,90,50,.1);border-radius:3px;position:relative;overflow:visible;}
+.rbar-ok{position:absolute;height:100%;background:rgba(100,200,100,.3);border-radius:2px;}
+.rbar-mk{position:absolute;top:-3px;width:3px;height:20px;background:#1D4ED8;border-radius:2px;}
+.rbar-v{font-size:7px;color:var(--tm);margin-left:4px;width:52px;}
+.gi{display:flex;align-items:flex-start;gap:6px;margin:6px 0;}
+.gi-t{font-size:9px;font-weight:700;color:#fff;}
+.gi-d{font-size:6.4px;color:rgba(255,255,255,.6);line-height:1.5;}
+.tbdg{display:inline-flex;align-items:center;justify-content:center;width:33px;height:33px;border-radius:50%;font-size:7.5px;font-weight:800;background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.22);}
+.tbdg.r{background:var(--rb);border-color:var(--rb);}
+.tbdg.or{background:var(--or);border-color:var(--or);}
+.tbdg.gd{background:var(--gd);border-color:var(--gd);}
+.tbdg.lg{background:var(--ol);border-color:var(--ol);}
+canvas{display:block;}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hdr">
+  <div class="hdr-logo">AI<em>LIV</em></div>
+  <div class="hdr-sub">Bloodwork Intelligence</div>
+  <div class="hdr-r">Bloodwork · Biomarkers · Longevity</div>
+</div>
+<div class="snav">
+  <a class="snl" href="/ailiv-bloodlife">Overview</a>
+  <div class="snl-div"></div>
+  <a class="snl a" href="/ailiv-blood">Bloodwork</a>
+  <div class="snl-div"></div>
+  <a class="snl" href="/ailiv-meditation">Meditation</a>
+  <div style="margin-left:auto;font-size:6.5px;color:rgba(255,255,255,.2);letter-spacing:.12em;">ailiv.health · bloodwork intelligence · may 2026</div>
+</div>
+
+<!-- COL 1 -->
+<div class="p">
+  <div style="font-size:8px;font-weight:700;color:var(--rd);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;">Blood never lies.</div>
+  <p class="bd" style="margin-bottom:8px;">Your blood is a running biography of your biology. A standard panel captures just 12 markers — AILIV tracks 40+, revealing what your blood has been saying for years.</p>
+  <div class="hr"></div>
+  <div class="sl">What's in 5 liters of blood</div>
+  <canvas id="blood-comp" width="214" height="80" style="border-radius:3px;margin-bottom:6px;"></canvas>
+  <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;font-size:6.5px;color:var(--tm);">
+    <div style="display:flex;align-items:center;gap:2px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--rb);"></div>RBCs 44%</div>
+    <div style="display:flex;align-items:center;gap:2px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--gd);"></div>Plasma 55%</div>
+    <div style="display:flex;align-items:center;gap:2px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--or);"></div>WBCs+Plt 1%</div>
+  </div>
+  <div class="hr"></div>
+  <div style="font-size:7px;color:var(--rd);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">key facts</div>
+  <div style="font-size:28px;font-weight:900;color:var(--rd);line-height:1;">250B</div>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:6px;">red blood cells produced per day</div>
+  <div style="font-size:28px;font-weight:900;color:var(--or);line-height:1;">120</div>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:6px;">day lifespan of a red blood cell</div>
+  <div style="font-size:28px;font-weight:900;color:var(--gd);line-height:1;">40+</div>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:8px;">biomarkers in an AILIV full panel</div>
+  <div class="hr"></div>
+  <div class="sl">How often to test</div>
+  <canvas id="test-timeline" width="214" height="60"></canvas>
+  <div class="hr"></div>
+  <div style="font-size:7px;color:var(--tm);">A standard doctor's panel misses <b>70%</b> of the biomarkers that predict disease. AILIV fills the gap.</div>
+</div>
+
+<!-- COL 2 -->
+<div class="p cd">
+  <div class="sl">Complete blood count · CBC</div>
+  <div style="font-size:8px;font-weight:700;color:var(--rd);margin-bottom:8px;">The foundation panel</div>
+
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">Hemoglobin (g/dL)</div>
+  <canvas id="rng1" width="198" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">RBC count (×10⁶/μL)</div>
+  <canvas id="rng2" width="198" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">WBC count (×10³/μL)</div>
+  <canvas id="rng3" width="198" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">Platelets (×10³/μL)</div>
+  <canvas id="rng4" width="198" height="18" style="margin-bottom:8px;"></canvas>
+
+  <div class="hr"></div>
+  <div class="sl">Metabolic panel</div>
+
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">Fasting Glucose (mg/dL)</div>
+  <canvas id="rng5" width="198" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">HbA1c (%)</div>
+  <canvas id="rng6" width="198" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">ALT / liver enzyme (U/L)</div>
+  <canvas id="rng7" width="198" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">Creatinine (mg/dL)</div>
+  <canvas id="rng8" width="198" height="18" style="margin-bottom:8px;"></canvas>
+
+  <div class="hr"></div>
+
+  <div style="display:flex;gap:8px;margin-bottom:6px;">
+    <div><div style="font-size:22px;font-weight:900;color:var(--rd);">40%</div><div style="font-size:6.5px;color:var(--tm);">have suboptimal<br>fasting glucose</div></div>
+    <div><div style="font-size:22px;font-weight:900;color:var(--or);">33%</div><div style="font-size:6.5px;color:var(--tm);">don't know<br>their HbA1c</div></div>
+    <div><div style="font-size:22px;font-weight:900;color:var(--gd);">28%</div><div style="font-size:6.5px;color:var(--tm);">have elevated<br>liver enzymes</div></div>
+  </div>
+
+  <div class="hr"></div>
+  <div class="sl">Biomarker trend · fasting glucose</div>
+  <canvas id="gluc-trend" width="198" height="48"></canvas>
+</div>
+
+<!-- COL 3 DARK -->
+<div class="p dk">
+  <div class="drop">
+    <div class="drop-in">
+      <div class="d1">Science says</div>
+      <div class="d2">Blood predicts<br>disease<br>15 YEARS early</div>
+      <div class="d3">if you know what to look for</div>
+    </div>
+  </div>
+
+  <div class="fb">
+    <div class="fbl">Longevity optimal ranges</div>
+    <div class="fbt">Not "normal" — optimal</div>
+    <div class="fv">
+      <div class="fvi">ApoB<span>&lt;80 mg/dL</span></div>
+      <div class="fvi gd">HbA1c<span>&lt;5.4%</span></div>
+    </div>
+  </div>
+
+  <div style="margin:8px 0 5px;">
+    <div style="font-size:8px;color:rgba(255,255,255,.55);">Do you know what your</div>
+    <div style="font-size:15px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:5px;">ApoB level is<br>doing to your<br>arteries?</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="font-size:24px;font-weight:900;color:var(--gl);">40%</div>
+      <div style="font-size:6.5px;color:rgba(255,255,255,.45);">CVD risk reduction<br>with optimal ApoB<br>(&lt;80 mg/dL)</div>
+    </div>
+  </div>
+
+  <div class="hr w"></div>
+
+  <div style="font-size:7px;color:rgba(255,255,255,.42);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">Glucose trend · 12 weeks on AILIV</div>
+  <canvas id="dark-trend" width="252" height="62" style="margin-bottom:3px;"></canvas>
+  <div style="display:flex;gap:10px;">
+    <div style="display:flex;align-items:center;gap:3px;"><div style="width:10px;height:2px;background:var(--gl);"></div><span style="font-size:5.5px;color:rgba(255,255,255,.38);">Fasting Glucose</span></div>
+    <div style="display:flex;align-items:center;gap:3px;"><div style="width:10px;height:2px;background:var(--rb);"></div><span style="font-size:5.5px;color:rgba(255,255,255,.38);">Insulin (μU/mL)</span></div>
+  </div>
+
+  <div class="hr w"></div>
+
+  <div style="font-size:7px;color:rgba(255,255,255,.42);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">Lipid optimization · physics</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:5px 0 8px;">
+    <div style="background:rgba(0,0,0,.2);border-radius:3px;padding:7px;text-align:center;">
+      <div style="font-size:8px;color:rgba(255,255,255,.45);">LDL optimal</div>
+      <div style="font-size:18px;font-weight:900;color:var(--gl);">&lt;70</div>
+      <div style="font-size:6px;color:rgba(255,255,255,.35);">mg/dL longevity</div>
+    </div>
+    <div style="background:rgba(0,0,0,.2);border-radius:3px;padding:7px;text-align:center;">
+      <div style="font-size:8px;color:rgba(255,255,255,.45);">HDL optimal</div>
+      <div style="font-size:18px;font-weight:900;color:var(--ol);">&gt;80</div>
+      <div style="font-size:6px;color:rgba(255,255,255,.35);">mg/dL longevity</div>
+    </div>
+    <div style="background:rgba(0,0,0,.2);border-radius:3px;padding:7px;text-align:center;">
+      <div style="font-size:8px;color:rgba(255,255,255,.45);">Trig. optimal</div>
+      <div style="font-size:18px;font-weight:900;color:var(--gd);">&lt;75</div>
+      <div style="font-size:6px;color:rgba(255,255,255,.35);">mg/dL</div>
+    </div>
+    <div style="background:rgba(0,0,0,.2);border-radius:3px;padding:7px;text-align:center;">
+      <div style="font-size:8px;color:rgba(255,255,255,.45);">CRP optimal</div>
+      <div style="font-size:18px;font-weight:900;color:var(--rb);">&lt;0.5</div>
+      <div style="font-size:6px;color:rgba(255,255,255,.35);">mg/L</div>
+    </div>
+  </div>
+
+  <div class="hr w"></div>
+
+  <div style="text-align:center;margin:5px 0;">
+    <div style="font-size:7px;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">CVD risk reduction with optimal panel</div>
+    <canvas id="gauge-c" width="138" height="66" style="margin:0 auto;display:block;"></canvas>
+    <div style="font-size:34px;font-weight:900;color:var(--gl);line-height:1;margin-top:-4px;">40%</div>
+    <div style="font-size:7px;color:rgba(255,255,255,.4);">risk reduction · optimal ApoB + LDL</div>
+  </div>
+
+  <div class="hr w"></div>
+
+  <div style="font-size:7.5px;font-weight:700;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Blood biomarkers give you...</div>
+  <div class="gi">
+    <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M8.5 2C6.5 2 3.5 5.5 3.5 9a5 5 0 0010 0c0-3.5-3-7-5-7z" fill="#E74C3C"/></svg>
+    <div><div class="gi-t">Foresight</div><div class="gi-d">ApoB elevation predicts cardiovascular disease 15–20 years before a cardiac event</div></div>
+  </div>
+  <div class="gi">
+    <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="6.5" fill="var(--ol)"/><path d="M8.5 5.5v3l2.5 1.2" stroke="white" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <div><div class="gi-t">Precision</div><div class="gi-d">HbA1c below 5.4% adds estimated 3–5 years of metabolically healthy life</div></div>
+  </div>
+  <div class="gi">
+    <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="6.5" stroke="#4CAF50" stroke-width="1.4"/><path d="M5 8.5l3 3 4.5-4.5" stroke="#4CAF50" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <div><div class="gi-t">Control</div><div class="gi-d">CRP below 0.5 mg/L is associated with 50% lower heart attack risk compared to CRP above 3.0</div></div>
+  </div>
+</div>
+
+<!-- COL 4 -->
+<div class="p">
+  <div style="font-size:8.5px;font-weight:700;color:var(--rd);margin-bottom:7px;">Lipid + Inflammation Panel</div>
+  <div class="sl">Advanced cardiovascular markers</div>
+
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">LDL Cholesterol (mg/dL)</div>
+  <canvas id="lipid1" width="236" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">HDL Cholesterol (mg/dL)</div>
+  <canvas id="lipid2" width="236" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">Triglycerides (mg/dL)</div>
+  <canvas id="lipid3" width="236" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">ApoB (mg/dL)</div>
+  <canvas id="lipid4" width="236" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">hsCRP — Inflammation (mg/L)</div>
+  <canvas id="lipid5" width="236" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">Homocysteine (μmol/L)</div>
+  <canvas id="lipid6" width="236" height="18" style="margin-bottom:8px;"></canvas>
+
+  <div class="hr"></div>
+  <div style="font-size:8.5px;font-weight:700;color:var(--rd);margin-bottom:6px;">Hormone Panel</div>
+
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">Testosterone — men (ng/dL)</div>
+  <canvas id="horm1" width="236" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">Cortisol AM (μg/dL)</div>
+  <canvas id="horm2" width="236" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">TSH / Thyroid (mIU/L)</div>
+  <canvas id="horm3" width="236" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">Vitamin D (ng/mL)</div>
+  <canvas id="horm4" width="236" height="18" style="margin-bottom:8px;"></canvas>
+
+  <div class="hr"></div>
+  <p class="bd">Testosterone declines <b>~1% per year</b> after age 30. Vitamin D deficiency affects 42% of US adults and suppresses immune function, bone density, and mood. Optimal TSH (0.5–2.5 mIU/L) supports thyroid health beyond the clinical normal range.</p>
+</div>
+
+<!-- COL 5 -->
+<div class="p cd">
+  <div class="sl">Longevity markers</div>
+  <div style="font-size:8.5px;font-weight:700;color:var(--rd);margin-bottom:7px;">Beyond the standard panel</div>
+
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">IGF-1 — Growth Hormone axis (ng/mL)</div>
+  <canvas id="lon1" width="198" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">DHEA-S (μg/dL)</div>
+  <canvas id="lon2" width="198" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">NAD+ (pmol/mg)</div>
+  <canvas id="lon3" width="198" height="18" style="margin-bottom:6px;"></canvas>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:5px;font-weight:600;">Omega-3 Index (%)</div>
+  <canvas id="lon4" width="198" height="18" style="margin-bottom:8px;"></canvas>
+
+  <div class="hr"></div>
+
+  <div style="font-size:8px;font-weight:700;color:var(--rd);margin-bottom:5px;">Panel comparison · risk stratification</div>
+  <canvas id="risk-donut" width="198" height="90" style="display:block;margin:0 auto 4px;"></canvas>
+  <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-bottom:8px;">
+    <div style="display:flex;align-items:center;gap:2px;"><div style="width:7px;height:7px;border-radius:50%;background:#4CAF50;"></div><span style="font-size:6.5px;color:var(--tm);">Optimal 18%</span></div>
+    <div style="display:flex;align-items:center;gap:2px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--gd);"></div><span style="font-size:6.5px;color:var(--tm);">Good 34%</span></div>
+    <div style="display:flex;align-items:center;gap:2px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--or);"></div><span style="font-size:6.5px;color:var(--tm);">Suboptimal 31%</span></div>
+    <div style="display:flex;align-items:center;gap:2px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--rb);"></div><span style="font-size:6.5px;color:var(--tm);">At-risk 17%</span></div>
+  </div>
+
+  <div class="hr"></div>
+  <div style="font-size:8px;font-weight:700;color:var(--rd);margin-bottom:5px;">Biomarker age vs chronological age</div>
+  <canvas id="bio-age" width="198" height="56" style="margin-bottom:5px;"></canvas>
+  <div style="font-size:6.5px;color:var(--tm);">AILIV users average <b>4.2 years younger</b> biological age after 6 months of optimization</div>
+  <div class="hr"></div>
+  <p class="bd">NAD+ declines <b>50% between ages 40 and 60</b>. DHEA-S peaks at 25 and declines 10–20% per decade. IGF-1 optimization is associated with preserved muscle mass and cognitive function into your 70s. These are the markers standard panels don't measure.</p>
+</div>
+
+<!-- COL 6 DARK -->
+<div class="p dk">
+  <div style="display:flex;justify-content:center;margin-bottom:7px;">
+    <div style="width:28px;height:28px;background:var(--rb);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 2C8 2 4 6 4 9.5a4 4 0 008 0C12 6 8 2 8 2z" fill="white"/></svg>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:7px;">
+    <div style="text-align:center;"><div style="font-size:11.5px;font-weight:800;color:#fff;">15yr</div><div style="font-size:5.5px;color:rgba(255,255,255,.34);text-transform:uppercase;letter-spacing:.07em;">ApoB predicts<br>CVD this early</div></div>
+    <div style="text-align:center;"><div style="font-size:11.5px;font-weight:800;color:#fff;">50%</div><div style="font-size:5.5px;color:rgba(255,255,255,.34);text-transform:uppercase;letter-spacing:.07em;">NAD+ decline<br>age 40→60</div></div>
+    <div style="text-align:center;"><div style="font-size:11.5px;font-weight:800;color:#fff;">70%</div><div style="font-size:5.5px;color:rgba(255,255,255,.34);text-transform:uppercase;letter-spacing:.07em;">Panels missed<br>by standard GP</div></div>
+    <div style="text-align:center;"><div style="font-size:11.5px;font-weight:800;color:#fff;">4.2yr</div><div style="font-size:5.5px;color:rgba(255,255,255,.34);text-transform:uppercase;letter-spacing:.07em;">Bio age saved<br>AILIV 6mo</div></div>
+  </div>
+
+  <div class="hr w"></div>
+  <div style="font-size:7px;color:rgba(255,255,255,.38);">After seeing your full panel</div>
+  <div style="font-size:8px;font-weight:700;color:rgba(255,255,255,.72);margin-bottom:0;">are you ready to see the truth?</div>
+  <div style="font-size:26px;font-weight:900;color:var(--gl);line-height:1.05;margin:12px 0 5px;">YOUR BLOOD<br>KNOWS.</div>
+  <div style="font-size:8.5px;color:rgba(255,255,255,.55);line-height:1.5;">Now are you ready<br>to act on it?</div>
+
+  <div class="hr w" style="margin:11px 0;"></div>
+
+  <!-- Marker categories -->
+  <div style="font-size:7px;color:rgba(255,255,255,.35);margin-bottom:6px;">AILIV bloodwork covers</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+    <div class="tbdg r" style="font-size:6px;width:38px;height:38px;">CBC</div>
+    <div class="tbdg or" style="font-size:6px;width:38px;height:38px;">Lipids</div>
+    <div class="tbdg gd" style="font-size:6px;width:38px;height:38px;">Hormones</div>
+    <div class="tbdg lg" style="font-size:6px;width:38px;height:38px;">Inflam.</div>
+    <div class="tbdg r" style="font-size:6px;width:38px;height:38px;">Metabolic</div>
+    <div class="tbdg or" style="font-size:6px;width:38px;height:38px;">Longevity</div>
+  </div>
+
+  <div class="hr w"></div>
+  <canvas id="panel-radar" width="200" height="100" style="display:block;margin:0 auto 8px;"></canvas>
+
+  <div class="hr w"></div>
+  <div style="display:flex;justify-content:center;margin:8px 0 7px;">
+    <div style="width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 34% 34%,#F0C850,#C8281C,#6B0A0A);display:flex;align-items:center;justify-content:center;box-shadow:0 0 22px rgba(200,40,28,.4);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3C12 3 5.5 8.5 5.5 13.5a6.5 6.5 0 0013 0C18.5 8.5 12 3 12 3z" fill="rgba(255,255,255,.92)"/></svg>
+    </div>
+  </div>
+  <div style="font-size:16px;font-weight:800;color:#fff;text-align:center;margin-bottom:1px;">Test smarter.</div>
+  <div style="font-size:7px;color:rgba(255,255,255,.32);text-align:center;margin-bottom:8px;">Know more. Live longer.</div>
+  <div class="hr w"></div>
+  <div style="font-size:17px;font-weight:900;color:#fff;text-align:center;margin-bottom:2px;">Give truth.</div>
+  <div style="font-size:7px;color:rgba(255,255,255,.22);text-align:center;letter-spacing:.12em;">ailiv.health · bloodwork</div>
+</div>
+
+</div>
+<script>
+const DPR=window.devicePixelRatio||1;
+const C={rb:'#1D4ED8',or:'#D45A1A',gd:'#C89628',ol:'#E8821A',rd:'#6B0A0A',rm:'#3B82F6',cr:'#F5EFE6',cd:'#EDE4D3',tm:'#5A2A1A',gl:'#22C55E',gr:'#22C55E'};
+function setup(id,w,h){const el=document.getElementById(id);if(!el)return null;el.width=w*DPR;el.height=h*DPR;el.style.width=w+'px';el.style.height=h+'px';const ctx=el.getContext('2d');ctx.scale(DPR,DPR);return ctx;}
+
+// BLOOD COMPOSITION PIE
+(function(){const ctx=setup('blood-comp',214,80);if(!ctx)return;const cx=40,cy=40,r=34;const sl=[{p:.44,c:C.rb},{p:.55,c:C.gd},{p:.01,c:C.or}];let a=-Math.PI/2;sl.forEach(s=>{const end=a+s.p*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a,end);ctx.closePath();ctx.fillStyle=s.c;ctx.fill();a=end;});ctx.beginPath();ctx.arc(cx,cy,15,0,Math.PI*2);ctx.fillStyle=C.cd;ctx.fill();
+// legend on right
+const items=[{c:C.rb,l:'Red Blood Cells',v:'44%'},{c:C.gd,l:'Blood Plasma',v:'55%'},{c:C.or,l:'WBCs + Platelets',v:'1%'}];
+items.forEach((it,i)=>{const y=16+i*22;ctx.beginPath();ctx.arc(88,y,5,0,Math.PI*2);ctx.fillStyle=it.c;ctx.fill();ctx.font='bold 7.5px Inter';ctx.fillStyle=C.tx;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(it.l,98,y-2);ctx.font='6.5px Inter';ctx.fillStyle=it.c;ctx.fillText(it.v,98,y+7);});})();
+
+// TEST TIMELINE
+(function(){const ctx=setup('test-timeline',214,60);if(!ctx)return;const W=214,H=60;ctx.fillStyle=C.cd;ctx.fillRect(0,0,W,H);
+const items=[{x:20,l:'Full panel',f:'Every 2mo',c:C.rb},{x:80,l:'Lipids+HbA1c',f:'Every 3mo',c:C.or},{x:148,l:'Hormones',f:'Every 6mo',c:C.gd},{x:198,l:'NAD+',f:'Annual',c:C.ol}];
+ctx.strokeStyle='rgba(160,90,50,.2)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(16,30);ctx.lineTo(210,30);ctx.stroke();
+items.forEach(it=>{ctx.beginPath();ctx.arc(it.x,30,5,0,Math.PI*2);ctx.fillStyle=it.c;ctx.fill();ctx.font='bold 6px Inter';ctx.fillStyle=C.tx;ctx.textAlign='center';ctx.fillText(it.l,it.x,20);ctx.font='5.5px Inter';ctx.fillStyle=C.tm;ctx.fillText(it.f,it.x,42);});})();
+
+// RANGE BAR HELPER
+function rangebar(id,w,val,min,max,optLo,optHi,col,unit){
+  const ctx=setup(id,w,18);if(!ctx)return;
+  const pad=0,bw=w-pad*2,H=18;
+  ctx.fillStyle='rgba(160,90,50,.1)';ctx.fillRect(pad,4,bw,10);
+  const ol=(optLo-min)/(max-min)*bw,oh=(optHi-min)/(max-min)*bw;
+  ctx.fillStyle='rgba(100,200,100,.25)';ctx.fillRect(pad+ol,4,oh-ol,10);
+  const vp=(val-min)/(max-min)*bw;
+  const ok=val>=optLo&&val<=optHi;
+  ctx.fillStyle=ok?C.gr:C.rb;ctx.fillRect(pad+vp-2,2,4,14);
+  ctx.font='6px Inter';ctx.fillStyle=C.tm;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(String(min),0,H/2);
+  ctx.textAlign='right';ctx.fillText(String(max),w,H/2);
+  ctx.textAlign='center';ctx.fillStyle=ok?C.gr:C.rb;ctx.font='bold 7px Inter';ctx.fillText(val+unit,pad+vp,H/2);
+}
+rangebar('rng1',198,14.5,8,18,13.5,17,'','g/dL');
+rangebar('rng2',198,4.8,3,6.5,4.5,5.9,'','×10⁶');
+rangebar('rng3',198,5.8,1,12,4,10,'','×10³');
+rangebar('rng4',198,245,50,450,150,400,'','×10³');
+rangebar('rng5',198,88,60,200,70,85,'','mg/dL');
+rangebar('rng6',198,5.2,4,8,4,5.4,'','%');
+rangebar('rng7',198,22,5,80,7,40,'','U/L');
+rangebar('rng8',198,0.9,0.2,2.5,0.6,1.1,'','mg/dL');
+rangebar('lipid1',236,82,30,250,30,70,'','mg/dL');
+rangebar('lipid2',236,65,20,120,60,120,'','mg/dL');
+rangebar('lipid3',236,88,20,300,20,75,'','mg/dL');
+rangebar('lipid4',236,74,30,200,30,80,'','mg/dL');
+rangebar('lipid5',236,0.8,0,10,0,0.5,'','mg/L');
+rangebar('lipid6',236,9,3,25,3,7,'','μmol');
+rangebar('horm1',236,720,100,1400,600,900,'','ng/dL');
+rangebar('horm2',236,14,2,30,10,20,'','μg/dL');
+rangebar('horm3',236,1.8,0.1,8,0.5,2.5,'','mIU/L');
+rangebar('horm4',236,52,5,100,40,60,'','ng/mL');
+rangebar('lon1',198,165,50,350,150,300,'','ng/mL');
+rangebar('lon2',198,210,10,700,200,400,'','μg/dL');
+rangebar('lon3',198,28,5,80,25,60,'','pmol/mg');
+rangebar('lon4',198,5.8,2,14,8,12,'','%');
+
+// GLUCOSE TREND
+(function(){const ctx=setup('gluc-trend',198,48);if(!ctx)return;const pts=[96,94,92,90,91,89,87,88,86,85,84,83],W=198,H=48,step=W/(pts.length-1),min=78,max=100;ctx.strokeStyle=C.rb;ctx.lineWidth=1.5;ctx.beginPath();pts.forEach((p,i)=>{const x=i*step,y=H-4-(p-min)/(max-min)*(H-8);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();ctx.lineTo((pts.length-1)*step,H);ctx.lineTo(0,H);ctx.closePath();ctx.fillStyle='rgba(29,78,216,.07)';ctx.fill();// optimal zone
+ctx.fillStyle='rgba(100,200,100,.1)';ctx.fillRect(0,H-4-(85-min)/(max-min)*(H-8),W,(85-70)/(max-min)*(H-8));})();
+
+// DARK TREND (col 3)
+(function(){const ctx=setup('dark-trend',252,62);if(!ctx)return;const W=252,H=62;const gluc=[96,94,91,89,87,86,84,84,83,82,82,81];const ins=[14,13,12,11,11,10,10,9,9,8,8,8];function drawL(pts,col,lo,hi){ctx.strokeStyle=col;ctx.lineWidth=1.8;ctx.lineCap='round';ctx.beginPath();pts.forEach((p,i)=>{const x=16+i*(W-32)/11,y=H-6-(p-lo)/(hi-lo)*(H-12);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();}drawL(gluc,C.gl,75,100);drawL(ins,C.rb,5,18);ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(12,H-4);ctx.lineTo(W-4,H-4);ctx.stroke();})();
+
+// GAUGE
+(function(){const ctx=setup('gauge-c',138,66);if(!ctx)return;const cx=69,cy=62,r=48;ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,0);ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=8;ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+.8*Math.PI);ctx.strokeStyle=C.gl;ctx.lineWidth=8;ctx.lineCap='round';ctx.stroke();const ang=Math.PI+.8*Math.PI;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(ang)*40,cy+Math.sin(ang)*40);ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=1.8;ctx.lineCap='round';ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,3.5,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.5)';ctx.fill();})();
+
+// RISK DONUT
+(function(){const ctx=setup('risk-donut',198,90);if(!ctx)return;const cx=99,cy=45,r=36,inn=20;const sl=[{p:.18,c:C.gr},{p:.34,c:C.gd},{p:.31,c:C.or},{p:.17,c:C.rb}];let a=-Math.PI/2;sl.forEach(s=>{const end=a+s.p*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a,end);ctx.closePath();ctx.fillStyle=s.c;ctx.fill();a=end;});ctx.beginPath();ctx.arc(cx,cy,inn,0,Math.PI*2);ctx.fillStyle=C.cd;ctx.fill();ctx.font='bold 9px Inter';ctx.fillStyle=C.rd;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Risk',cx,cy-4);ctx.font='6px Inter';ctx.fillStyle=C.tm;ctx.fillText('profile',cx,cy+5);})();
+
+// BIO AGE CHART
+(function(){const ctx=setup('bio-age',198,56);if(!ctx)return;const W=198,H=56;const ages=[25,30,35,40,45,50,55,60];const chron=[25,30,35,40,45,50,55,60];const bio=[24,29,33,37,41,45,48,52];const step=(W-20)/(ages.length-1);ctx.strokeStyle='rgba(160,90,50,.2)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(10,4);ctx.lineTo(10,H-10);ctx.lineTo(W-4,H-10);ctx.stroke();function drawL(pts,col,lo,hi){ctx.strokeStyle=col;ctx.lineWidth=1.6;ctx.setLineDash(col===C.tm?[3,3]:[]);ctx.beginPath();pts.forEach((p,i)=>{const x=10+i*step,y=H-10-(p-lo)/(hi-lo)*(H-18);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();ctx.setLineDash([]);}drawL(chron,C.tm,24,61);drawL(bio,C.gl,24,61);ctx.font='5.5px Inter';ctx.fillStyle=C.gl;ctx.textAlign='right';ctx.fillText('Bio age',W-5,8);ctx.fillStyle=C.tm;ctx.fillText('Chron.',W-5,18);})();
+
+// RADAR
+(function(){const ctx=setup('panel-radar',200,100);if(!ctx)return;const cx=100,cy=50,r=38;const labels=['CBC','Lipids','Hormones','Inflam.','Metabolic','Longevity'];const scores=[0.9,0.85,0.75,0.8,0.92,0.7];const n=labels.length;ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=0.8;for(let s=0.25;s<=1;s+=0.25){ctx.beginPath();labels.forEach((_,i)=>{const a=i/n*Math.PI*2-Math.PI/2;const x=cx+Math.cos(a)*r*s,y=cy+Math.sin(a)*r*s;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.closePath();ctx.stroke();}ctx.beginPath();scores.forEach((s,i)=>{const a=i/n*Math.PI*2-Math.PI/2;const x=cx+Math.cos(a)*r*s,y=cy+Math.sin(a)*r*s;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.closePath();ctx.fillStyle='rgba(29,78,216,.25)';ctx.fill();ctx.strokeStyle=C.rb;ctx.lineWidth=1.5;ctx.stroke();labels.forEach((l,i)=>{const a=i/n*Math.PI*2-Math.PI/2;const x=cx+Math.cos(a)*(r+12),y=cy+Math.sin(a)*(r+12);ctx.font='bold 6px Inter';ctx.fillStyle='rgba(255,255,255,.55)';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(l,x,y);});})();
+</script>
+</body>
+</html>

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AILIV — Meditation Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#1a0505;font-family:'Inter',sans-serif;min-width:1440px;}
+:root{--cr:#F5EFE6;--cd:#EDE4D3;--rd:#6B0A0A;--rm:#A31515;--rb:#C8281C;--or:#D45A1A;--ol:#E8821A;--gd:#C89628;--gl:#E8B840;--tx:#2C1810;--tm:#5A2A1A;}
+.page{width:1440px;margin:0 auto;display:grid;grid-template-columns:238px 222px 278px 260px 222px 220px;grid-template-rows:48px 30px auto;box-shadow:0 0 60px rgba(0,0,0,.6);}
+.hdr{grid-column:1/-1;background:var(--rd);display:flex;align-items:center;padding:0 18px;gap:16px;}
+.hdr-logo{font-size:26px;font-weight:900;color:#fff;letter-spacing:-.02em;}
+.hdr-logo em{font-style:normal;color:var(--ol);}
+.hdr-sub{font-size:8px;color:rgba(255,255,255,.4);letter-spacing:.18em;text-transform:uppercase;border-left:1px solid rgba(255,255,255,.15);padding-left:14px;}
+.hdr-r{margin-left:auto;font-size:7px;color:rgba(255,255,255,.22);letter-spacing:.14em;text-transform:uppercase;}
+.snav{grid-column:1/-1;background:#3d0707;display:flex;align-items:center;padding:0 18px;gap:2px;border-bottom:1px solid rgba(255,255,255,.06);}
+.snl{font-size:7.5px;font-weight:600;color:rgba(255,255,255,.38);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;padding:0 13px;height:30px;display:flex;align-items:center;border-radius:2px;transition:all .2s;}
+.snl:hover{color:rgba(255,255,255,.72);background:rgba(255,255,255,.06);}
+.snl.a{color:#fff;background:rgba(255,255,255,.11);}
+.snl-div{width:1px;height:14px;background:rgba(255,255,255,.1);margin:0 4px;}
+.p{padding:13px 12px;border-right:1px solid rgba(160,90,50,.12);overflow:hidden;position:relative;background:var(--cr);}
+.p.dk{background:var(--rd);color:#fff;border-right:none;}
+.p.cd{background:var(--cd);}
+.sl{font-size:6.8px;letter-spacing:.16em;text-transform:uppercase;opacity:.42;margin-bottom:4px;}
+.sl.w{opacity:.4;color:#fff;}
+.bd{font-size:6.7px;line-height:1.65;color:var(--tm);opacity:.85;}
+.bd.w{color:rgba(255,255,255,.65);opacity:1;}
+.hr{height:1px;background:rgba(160,90,50,.17);margin:8px 0;}
+.hr.w{background:rgba(255,255,255,.1);}
+.drop{width:118px;height:144px;background:var(--rb);border-radius:50% 50% 50% 50%/60% 60% 40% 40%;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;margin:10px auto;box-shadow:0 8px 30px rgba(200,40,28,.38);}
+.drop-in{transform:rotate(180deg);text-align:center;padding:12px 9px;}
+.d1{font-size:6px;color:rgba(255,255,255,.55);letter-spacing:.1em;text-transform:uppercase;}
+.d2{font-size:10px;font-weight:700;color:#fff;line-height:1.3;margin:4px 0;}
+.d3{font-size:6px;color:rgba(255,255,255,.45);}
+.fb{background:rgba(0,0,0,.22);border-radius:4px;padding:9px;margin:7px 0;}
+.fbl{font-size:6.5px;color:rgba(255,255,255,.42);text-transform:uppercase;letter-spacing:.1em;}
+.fbt{font-size:10px;font-weight:700;color:#fff;margin:2px 0 7px;}
+.fv{display:flex;gap:5px;}
+.fvi{background:var(--ol);border-radius:3px;padding:5px 8px;font-size:12px;font-weight:800;color:#fff;flex:1;text-align:center;line-height:1.2;}
+.fvi span{display:block;font-size:8px;font-weight:600;}
+.fvi.gd{background:var(--gd);}
+.fvi.gr{background:#388E3C;}
+.gi{display:flex;align-items:flex-start;gap:6px;margin:6px 0;}
+.gi-t{font-size:9px;font-weight:700;color:#fff;}
+.gi-d{font-size:6.4px;color:rgba(255,255,255,.6);line-height:1.5;}
+.tbdg{display:inline-flex;align-items:center;justify-content:center;width:33px;height:33px;border-radius:50%;font-size:7.5px;font-weight:800;background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.22);}
+.tbdg.r{background:var(--rb);border-color:var(--rb);}
+.tbdg.or{background:var(--or);border-color:var(--or);}
+.tbdg.gd{background:var(--gd);border-color:var(--gd);}
+.tbdg.gr{background:#388E3C;border-color:#388E3C;}
+/* BEFORE/AFTER ROW */
+.ba{display:flex;align-items:center;gap:4px;margin:4px 0;}
+.ba-l{font-size:6.5px;width:52px;color:var(--tx);font-weight:600;flex-shrink:0;}
+.ba-bars{flex:1;display:flex;flex-direction:column;gap:2px;}
+.ba-before{height:7px;border-radius:2px;background:rgba(160,90,50,.25);}
+.ba-after{height:7px;border-radius:2px;}
+.ba-v{font-size:7px;font-weight:700;width:30px;text-align:right;flex-shrink:0;}
+/* PICT */
+.pict{display:flex;flex-wrap:wrap;gap:2.5px;margin:4px 0;}
+.pi{width:10px;height:17px;background:var(--rm);border-radius:5px 5px 2px 2px;opacity:.75;}
+.pi.f{opacity:.14;}
+.pi.gd{background:var(--gd);}
+canvas{display:block;}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hdr">
+  <div class="hdr-logo">AI<em>LIV</em></div>
+  <div class="hdr-sub">Meditation Intelligence</div>
+  <div class="hdr-r">Silence · Recovery · Biomarker Optimization</div>
+</div>
+<div class="snav">
+  <a class="snl" href="/ailiv-bloodlife">Overview</a>
+  <div class="snl-div"></div>
+  <a class="snl" href="/ailiv-blood">Bloodwork</a>
+  <div class="snl-div"></div>
+  <a class="snl a" href="/ailiv-meditation">Meditation</a>
+  <div style="margin-left:auto;font-size:6.5px;color:rgba(255,255,255,.2);letter-spacing:.12em;">ailiv.health · meditation intelligence · may 2026</div>
+</div>
+
+<!-- COL 1 -->
+<div class="p">
+  <div style="font-size:8px;font-weight:700;color:var(--rd);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;">Silence rewrites your biology.</div>
+  <p class="bd" style="margin-bottom:8px;">Meditation is the most well-researched non-pharmaceutical intervention in longevity science. 10 minutes produces measurable changes in cortisol, HRV, and inflammation markers. AILIV tracks them all in real time.</p>
+  <div class="hr"></div>
+
+  <div class="sl">Practice adoption · USA</div>
+  <canvas id="map-c" width="214" height="82" style="border-radius:3px;margin-bottom:6px;"></canvas>
+
+  <div style="display:flex;gap:8px;margin-bottom:8px;">
+    <div><div style="font-size:32px;font-weight:900;color:var(--rd);">21%</div><div style="font-size:7px;color:var(--tm);">US adults meditate<br>regularly</div></div>
+    <div><div style="font-size:32px;font-weight:900;color:var(--or);">3×</div><div style="font-size:7px;color:var(--tm);">growth in practice<br>since 2012</div></div>
+  </div>
+
+  <div class="hr"></div>
+  <div class="sl">Only 10 minutes changes everything</div>
+
+  <div style="display:flex;gap:10px;margin:6px 0 8px;">
+    <div><div style="font-size:22px;font-weight:900;color:var(--gd);">10min</div><div style="font-size:6.5px;color:var(--tm);">cortisol begins<br>to drop measurably</div></div>
+    <div><div style="font-size:22px;font-weight:900;color:var(--ol);">20min</div><div style="font-size:6.5px;color:var(--tm);">HRV enters<br>optimal zone</div></div>
+    <div><div style="font-size:22px;font-weight:900;color:var(--rb);">8wks</div><div style="font-size:6.5px;color:var(--tm);">amygdala gray<br>matter reduces</div></div>
+  </div>
+
+  <div class="hr"></div>
+  <div class="sl">Years younger · biological age</div>
+  <div style="font-size:44px;font-weight:900;color:var(--rd);line-height:1;margin-bottom:3px;">7–12</div>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:8px;">years younger biological age in long-term meditators vs non-practitioners (Harvard Medical School, n=1,400)</div>
+
+  <div class="hr"></div>
+  <div class="sl">Practice frequency by level</div>
+  <canvas id="tri-c" width="214" height="72"></canvas>
+  <div style="display:flex;justify-content:space-between;margin-top:3px;padding:0 3px;">
+    <span style="font-size:6px;color:var(--tm);">Never</span>
+    <span style="font-size:6px;color:var(--tm);">Monthly</span>
+    <span style="font-size:6px;color:var(--tm);">Weekly</span>
+    <span style="font-size:6px;color:var(--tm);">Daily</span>
+  </div>
+  <div class="hr"></div>
+  <p class="bd">Daily 20-minute practice: telomere length preserved — 10% longer than non-practitioners, equivalent to slowing cellular aging by approximately one decade.</p>
+</div>
+
+<!-- COL 2 -->
+<div class="p cd">
+  <div class="sl">Biomarker improvements · 8-week MBSR</div>
+  <div style="font-size:8px;font-weight:700;color:var(--rd);margin-bottom:8px;">Measured clinical outcomes</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+    <div style="text-align:center;">
+      <canvas id="dn-hrv" width="90" height="90"></canvas>
+      <div style="font-size:7px;color:var(--tm);margin-top:2px;font-weight:600;">HRV improvement</div>
+      <div style="font-size:6px;color:var(--tm);">after 8 weeks</div>
+    </div>
+    <div style="text-align:center;">
+      <canvas id="dn-crt" width="90" height="90"></canvas>
+      <div style="font-size:7px;color:var(--tm);margin-top:2px;font-weight:600;">Cortisol reduction</div>
+      <div style="font-size:6px;color:var(--tm);">daily practitioners</div>
+    </div>
+    <div style="text-align:center;">
+      <canvas id="dn-slp" width="90" height="90"></canvas>
+      <div style="font-size:7px;color:var(--tm);margin-top:2px;font-weight:600;">Sleep quality</div>
+      <div style="font-size:6px;color:var(--tm);">REM improvement</div>
+    </div>
+    <div style="text-align:center;">
+      <canvas id="dn-crp" width="90" height="90"></canvas>
+      <div style="font-size:7px;color:var(--tm);margin-top:2px;font-weight:600;">CRP reduction</div>
+      <div style="font-size:6px;color:var(--tm);">inflammation marker</div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+  <div class="sl">Respiration rate · breaths per minute</div>
+  <canvas id="resp-c" width="198" height="52" style="margin-bottom:5px;"></canvas>
+  <div style="display:flex;justify-content:space-between;font-size:6.5px;color:var(--tm);">
+    <span>Stress state<br><b style="color:var(--rb);">18–22 bpm</b></span>
+    <span style="text-align:center;">Normal rest<br><b style="color:var(--or);">12–16 bpm</b></span>
+    <span style="text-align:right;">Deep meditation<br><b style="color:var(--gd);">4–6 bpm</b></span>
+  </div>
+
+  <div class="hr"></div>
+  <div class="sl">Systolic blood pressure reduction</div>
+  <div style="display:flex;align-items:center;gap:12px;margin:5px 0 8px;">
+    <div style="font-size:38px;font-weight:900;color:var(--rd);line-height:1;">−8</div>
+    <div><div style="font-size:9px;font-weight:700;color:var(--rd);">mmHg</div><div style="font-size:6.5px;color:var(--tm);">average systolic BP reduction<br>Transcendental Meditation<br>clinical trial · n=352</div></div>
+  </div>
+
+  <div class="hr"></div>
+  <div style="font-size:7px;color:var(--tm);margin-bottom:4px;"><b>1 in 3 meditators</b> see clinically significant HRV improvement within 4 weeks of daily practice</div>
+  <div class="pict" style="margin-bottom:3px;">
+    <div class="pi gd"></div><div class="pi gd"></div><div class="pi gd"></div><div class="pi gd"></div>
+    <div class="pi f"></div><div class="pi f"></div><div class="pi f"></div><div class="pi f"></div>
+    <div class="pi f"></div><div class="pi f"></div><div class="pi f"></div><div class="pi f"></div>
+  </div>
+
+  <div class="hr"></div>
+  <div class="sl">AILIV meditation coverage</div>
+  <canvas id="cov-c" width="198" height="46"></canvas>
+</div>
+
+<!-- COL 3 DARK -->
+<div class="p dk">
+  <div class="drop">
+    <div class="drop-in">
+      <div class="d1">Science proves</div>
+      <div class="d2">10 minutes<br>rewires your<br>NERVOUS SYSTEM</div>
+      <div class="d3">measurable in every session</div>
+    </div>
+  </div>
+
+  <div class="fb">
+    <div class="fbl">Session physiological changes</div>
+    <div class="fbt">Meditation facts</div>
+    <div class="fv">
+      <div class="fvi">Alpha<span>+40% waves</span></div>
+      <div class="fvi gd">Theta<span>+32% waves</span></div>
+    </div>
+  </div>
+
+  <div style="margin:8px 0 5px;">
+    <div style="font-size:8px;color:rgba(255,255,255,.55);">Do you know how much your</div>
+    <div style="font-size:15px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:5px;">breath pace controls<br>your stress<br>hormones?</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="font-size:24px;font-weight:900;color:var(--gl);">4–6</div>
+      <div style="font-size:6.5px;color:rgba(255,255,255,.45);">breaths per minute<br>during deep meditation<br>vs 12–16 at rest</div>
+    </div>
+  </div>
+
+  <div class="hr w"></div>
+
+  <!-- HRV TREND OVER WEEKS -->
+  <div style="font-size:7px;color:rgba(255,255,255,.42);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">HRV trend · 8 weeks MBSR practice</div>
+  <canvas id="hrv-trend" width="252" height="64" style="margin-bottom:3px;"></canvas>
+  <div style="display:flex;justify-content:space-between;font-size:5.8px;color:rgba(255,255,255,.3);">
+    <span>Week 1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:3px;">
+    <div style="display:flex;align-items:center;gap:3px;"><div style="width:10px;height:2px;background:var(--gl);"></div><span style="font-size:5.5px;color:rgba(255,255,255,.38);">Meditators</span></div>
+    <div style="display:flex;align-items:center;gap:3px;"><div style="width:10px;height:2px;background:rgba(255,255,255,.25);border-top:1px dashed rgba(255,255,255,.3);"></div><span style="font-size:5.5px;color:rgba(255,255,255,.38);">Control group</span></div>
+  </div>
+
+  <div class="hr w"></div>
+
+  <!-- GAUGE — Optimal HRV achievable -->
+  <div style="text-align:center;margin:5px 0;">
+    <div style="font-size:7px;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">Optimal HRV achievable · regular practice</div>
+    <canvas id="gauge-c" width="138" height="66" style="margin:0 auto;display:block;"></canvas>
+    <div style="font-size:34px;font-weight:900;color:var(--gl);line-height:1;margin-top:-4px;">+22%</div>
+    <div style="font-size:7px;color:rgba(255,255,255,.4);">average HRV gain · 8-week MBSR · n=412</div>
+  </div>
+
+  <div class="hr w"></div>
+
+  <!-- CORTISOL SESSION CHART -->
+  <div style="font-size:7px;color:rgba(255,255,255,.42);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">Cortisol during a 20-min session</div>
+  <canvas id="cort-sess" width="252" height="52" style="margin-bottom:3px;"></canvas>
+  <div style="display:flex;justify-content:space-between;font-size:5.8px;color:rgba(255,255,255,.3);">
+    <span>Start</span><span>5min</span><span>10min</span><span>15min</span><span>End</span>
+  </div>
+
+  <div class="hr w"></div>
+
+  <div style="font-size:7.5px;font-weight:700;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Meditation gives your body...</div>
+  <div class="gi">
+    <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M8.5 2C6.5 2 3.5 5.5 3.5 9a5 5 0 0010 0c0-3.5-3-7-5-7z" fill="#E74C3C"/></svg>
+    <div><div class="gi-t">Recovery</div><div class="gi-d">HRV increases +22% after 8 weeks MBSR — equivalent to reversing 5+ years of stress-induced HRV decline</div></div>
+  </div>
+  <div class="gi">
+    <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="6.5" fill="var(--ol)"/><path d="M8.5 5.5v3l2.5 1.2" stroke="white" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <div><div class="gi-t">Silence</div><div class="gi-d">Adrenaline drops −28%, norepinephrine −24% during deep practice. Stress hormones reset in minutes</div></div>
+  </div>
+  <div class="gi">
+    <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="6.5" stroke="#4CAF50" stroke-width="1.4"/><path d="M5 8.5l3 3 4.5-4.5" stroke="#4CAF50" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <div><div class="gi-t">Longevity</div><div class="gi-d">Telomere preservation equivalent to 10 years of slower cellular aging. CRP drops −36% in long-term practitioners</div></div>
+  </div>
+</div>
+
+<!-- COL 4 -->
+<div class="p">
+  <div style="font-size:8.5px;font-weight:700;color:var(--rd);margin-bottom:7px;">Before vs After · Biomarker Comparison</div>
+  <div class="sl">8 weeks daily practice · clinical measurements</div>
+
+  <!-- BEFORE/AFTER BARS -->
+  <div style="margin:8px 0;">
+    <div class="ba">
+      <div class="ba-l">HRV (ms)</div>
+      <div class="ba-bars">
+        <div class="ba-before" style="width:51%;"></div>
+        <div class="ba-after" style="width:68%;background:var(--gl);"></div>
+      </div>
+      <div class="ba-v" style="color:var(--gd);">+22%</div>
+    </div>
+    <div class="ba">
+      <div class="ba-l">Cortisol AM</div>
+      <div class="ba-bars">
+        <div class="ba-before" style="width:72%;"></div>
+        <div class="ba-after" style="width:52%;background:var(--gd);"></div>
+      </div>
+      <div class="ba-v" style="color:var(--gd);">−23%</div>
+    </div>
+    <div class="ba">
+      <div class="ba-l">CRP (inflam.)</div>
+      <div class="ba-bars">
+        <div class="ba-before" style="width:68%;"></div>
+        <div class="ba-after" style="width:42%;background:var(--or);"></div>
+      </div>
+      <div class="ba-v" style="color:var(--or);">−36%</div>
+    </div>
+    <div class="ba">
+      <div class="ba-l">Sleep REM %</div>
+      <div class="ba-bars">
+        <div class="ba-before" style="width:44%;"></div>
+        <div class="ba-after" style="width:56%;background:var(--ol);"></div>
+      </div>
+      <div class="ba-v" style="color:var(--ol);">+18%</div>
+    </div>
+    <div class="ba">
+      <div class="ba-l">Systolic BP</div>
+      <div class="ba-bars">
+        <div class="ba-before" style="width:66%;"></div>
+        <div class="ba-after" style="width:55%;background:var(--gd);"></div>
+      </div>
+      <div class="ba-v" style="color:var(--gd);">−8mmHg</div>
+    </div>
+    <div class="ba">
+      <div class="ba-l">Adrenaline</div>
+      <div class="ba-bars">
+        <div class="ba-before" style="width:70%;"></div>
+        <div class="ba-after" style="width:48%;background:#1D4ED8;"></div>
+      </div>
+      <div class="ba-v" style="color:#1D4ED8;">−28%</div>
+    </div>
+    <div class="ba">
+      <div class="ba-l">IL-6 (inflam.)</div>
+      <div class="ba-bars">
+        <div class="ba-before" style="width:65%;"></div>
+        <div class="ba-after" style="width:44%;background:var(--or);"></div>
+      </div>
+      <div class="ba-v" style="color:var(--or);">−24%</div>
+    </div>
+    <div class="ba">
+      <div class="ba-l">Resting HR</div>
+      <div class="ba-bars">
+        <div class="ba-before" style="width:60%;"></div>
+        <div class="ba-after" style="width:49%;background:var(--gd);"></div>
+      </div>
+      <div class="ba-v" style="color:var(--gd);">−5bpm</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px;font-size:6px;color:var(--tm);">
+      <div style="display:flex;align-items:center;gap:3px;"><div style="width:12px;height:7px;background:rgba(160,90,50,.25);border-radius:1px;"></div>Before</div>
+      <div style="display:flex;align-items:center;gap:3px;"><div style="width:12px;height:7px;background:var(--gd);border-radius:1px;"></div>After 8 weeks</div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+  <div style="font-size:8px;font-weight:700;color:var(--rd);margin-bottom:5px;">Brain waves during meditation</div>
+  <canvas id="brain-c" width="236" height="78" style="margin-bottom:5px;"></canvas>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:6.5px;color:var(--tm);">
+    <div style="display:flex;align-items:center;gap:2px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--rb);"></div>Beta (stress)</div>
+    <div style="display:flex;align-items:center;gap:2px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--gd);"></div>Alpha (calm)</div>
+    <div style="display:flex;align-items:center;gap:2px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--ol);"></div>Theta (deep)</div>
+    <div style="display:flex;align-items:center;gap:2px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--or);"></div>Delta (sleep)</div>
+  </div>
+
+  <div class="hr"></div>
+  <p class="bd">MBSR = Mindfulness-Based Stress Reduction. Results from multiple meta-analyses (n &gt; 2,000 participants). HRV gains equivalent to 5+ years of stress reduction. CRP reductions match low-dose statin effects on inflammation.</p>
+</div>
+
+<!-- COL 5 -->
+<div class="p cd">
+  <div class="sl">Practice duration effects</div>
+  <div style="font-size:8px;font-weight:700;color:var(--rd);margin-bottom:6px;">How daily minutes change your markers</div>
+  <canvas id="dur-c" width="198" height="72" style="margin-bottom:5px;"></canvas>
+  <div style="display:flex;justify-content:space-between;font-size:6px;color:var(--tm);margin-bottom:8px;">
+    <span>5min</span><span>10</span><span>15</span><span>20</span><span>30</span><span>45+</span>
+  </div>
+
+  <div class="hr"></div>
+  <div style="font-size:8px;font-weight:700;color:var(--rd);margin-bottom:5px;">Meditation type comparison</div>
+  <canvas id="type-c" width="198" height="84" style="margin-bottom:5px;"></canvas>
+
+  <div class="hr"></div>
+  <div style="font-size:8px;font-weight:700;color:var(--rd);margin-bottom:5px;">HRV by practice level</div>
+  <canvas id="level-c" width="198" height="56" style="margin-bottom:5px;"></canvas>
+  <div style="display:flex;justify-content:space-between;font-size:6.5px;color:var(--tm);">
+    <span>None</span><span>Beginner</span><span>Regular</span><span>Advanced</span>
+  </div>
+
+  <div class="hr"></div>
+  <div style="font-size:8px;font-weight:700;color:var(--rd);margin-bottom:5px;">Cortisol over time · daily practice</div>
+  <canvas id="cort-c" width="198" height="50" style="margin-bottom:5px;"></canvas>
+  <div style="display:flex;justify-content:space-between;font-size:6px;color:var(--tm);">
+    <span>Day 1</span><span>Week 2</span><span>Week 4</span><span>Week 8</span>
+  </div>
+  <div class="hr"></div>
+  <p class="bd">Transcendental Meditation and MBSR show the strongest evidence for HRV improvement. Loving-kindness meditation (Metta) shows superior results for CRP and IL-6 reduction. Even 5 minutes of box breathing measurably shifts HRV within a single session.</p>
+</div>
+
+<!-- COL 6 DARK -->
+<div class="p dk">
+  <div style="display:flex;justify-content:center;margin-bottom:7px;">
+    <div style="width:28px;height:28px;background:var(--gd);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="white" stroke-width="1.5" fill="none"/><path d="M8 5v3l2 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:7px;">
+    <div style="text-align:center;"><div style="font-size:11.5px;font-weight:800;color:#fff;">+22%</div><div style="font-size:5.5px;color:rgba(255,255,255,.34);text-transform:uppercase;letter-spacing:.07em;">HRV gain<br>8 weeks</div></div>
+    <div style="text-align:center;"><div style="font-size:11.5px;font-weight:800;color:#fff;">−23%</div><div style="font-size:5.5px;color:rgba(255,255,255,.34);text-transform:uppercase;letter-spacing:.07em;">Cortisol<br>reduction</div></div>
+    <div style="text-align:center;"><div style="font-size:11.5px;font-weight:800;color:#fff;">−36%</div><div style="font-size:5.5px;color:rgba(255,255,255,.34);text-transform:uppercase;letter-spacing:.07em;">CRP inflam.<br>long-term</div></div>
+    <div style="text-align:center;"><div style="font-size:11.5px;font-weight:800;color:#fff;">7–12yr</div><div style="font-size:5.5px;color:rgba(255,255,255,.34);text-transform:uppercase;letter-spacing:.07em;">Younger bio<br>age · Harvard</div></div>
+  </div>
+
+  <div class="hr w"></div>
+  <div style="font-size:7px;color:rgba(255,255,255,.38);">After knowing what silence does</div>
+  <div style="font-size:8px;font-weight:700;color:rgba(255,255,255,.72);margin-bottom:0;">are you ready to practice?</div>
+  <div style="font-size:24px;font-weight:900;color:var(--gl);line-height:1.05;margin:12px 0 5px;">START WITH<br>10 MINUTES.</div>
+  <div style="font-size:8.5px;color:rgba(255,255,255,.55);line-height:1.5;">Your biomarkers will<br>confirm it's working.</div>
+
+  <div class="hr w" style="margin:11px 0;"></div>
+
+  <!-- Practice types -->
+  <div style="font-size:7px;color:rgba(255,255,255,.35);margin-bottom:5px;">AILIV tracks these practice types</div>
+  <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;">
+    <div class="tbdg r" style="font-size:5.8px;width:36px;height:36px;">MBSR</div>
+    <div class="tbdg gd" style="font-size:5.8px;width:36px;height:36px;">TM</div>
+    <div class="tbdg or" style="font-size:5.8px;width:36px;height:36px;">Breath</div>
+    <div class="tbdg gr" style="font-size:5.8px;width:36px;height:36px;">Metta</div>
+    <div class="tbdg r" style="font-size:5.8px;width:36px;height:36px;">Body<br>Scan</div>
+    <div class="tbdg gd" style="font-size:5.8px;width:36px;height:36px;">Yoga<br>Nidra</div>
+  </div>
+
+  <div class="hr w"></div>
+
+  <!-- Radar for practice benefits -->
+  <canvas id="benefit-radar" width="200" height="100" style="display:block;margin:0 auto 8px;"></canvas>
+
+  <div class="hr w"></div>
+
+  <div style="display:flex;justify-content:center;margin:8px 0 7px;">
+    <div style="width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 34% 34%,#F0C850,#C89628,#6B0A0A);display:flex;align-items:center;justify-content:center;box-shadow:0 0 22px rgba(232,184,64,.32);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,.7)" stroke-width="1.5" fill="none"/><circle cx="12" cy="12" r="4" fill="rgba(255,255,255,.9)"/></svg>
+    </div>
+  </div>
+  <div style="font-size:16px;font-weight:800;color:#fff;text-align:center;margin-bottom:1px;">Be still.</div>
+  <div style="font-size:7px;color:rgba(255,255,255,.32);text-align:center;margin-bottom:8px;">Your body does the rest.</div>
+  <div class="hr w"></div>
+  <div style="font-size:17px;font-weight:900;color:#fff;text-align:center;margin-bottom:2px;">Give peace.</div>
+  <div style="font-size:7px;color:rgba(255,255,255,.22);text-align:center;letter-spacing:.12em;">ailiv.health · meditation</div>
+</div>
+
+</div><!-- /.page -->
+<script>
+const DPR=window.devicePixelRatio||1;
+const C={rb:'#1D4ED8',or:'#D45A1A',gd:'#C89628',ol:'#E8821A',rd:'#6B0A0A',rm:'#3B82F6',cr:'#F5EFE6',cd:'#EDE4D3',tm:'#5A2A1A',gl:'#22C55E',gr:'#22C55E'};
+function setup(id,w,h){const el=document.getElementById(id);if(!el)return null;el.width=w*DPR;el.height=h*DPR;el.style.width=w+'px';el.style.height=h+'px';const ctx=el.getContext('2d');ctx.scale(DPR,DPR);return ctx;}
+
+// MAP
+(function(){const ctx=setup('map-c',214,82);if(!ctx)return;ctx.fillStyle=C.cd;ctx.fillRect(0,0,214,82);ctx.beginPath();ctx.moveTo(28,18);ctx.lineTo(95,13);ctx.lineTo(163,16);ctx.lineTo(177,25);ctx.lineTo(181,40);ctx.lineTo(169,54);ctx.lineTo(153,66);ctx.lineTo(79,68);ctx.lineTo(56,64);ctx.lineTo(28,54);ctx.lineTo(20,38);ctx.closePath();ctx.fillStyle='rgba(160,80,50,.13)';ctx.fill();ctx.strokeStyle='rgba(160,80,50,.26)';ctx.lineWidth=0.8;ctx.stroke();[{x:65,y:32,c:C.rb,l:'21%'},{x:108,y:41,c:C.or,l:'18%'},{x:155,y:36,c:C.gd,l:'24%'},{x:84,y:52,c:C.ol,l:'19%'}].forEach(d=>{ctx.beginPath();ctx.arc(d.x,d.y,3.5,0,Math.PI*2);ctx.fillStyle=d.c;ctx.fill();ctx.font='bold 6px Inter';ctx.fillStyle='#2C1810';ctx.textAlign='left';ctx.fillText(d.l,d.x+5,d.y+2);});ctx.fillStyle='rgba(160,80,50,.1)';ctx.fillRect(22,58,17,12);ctx.fillRect(49,69,15,9);})();
+
+// TRIANGLES
+(function(){const ctx=setup('tri-c',214,72);if(!ctx)return;const cols=[C.rb,C.or,C.gd,C.ol],vals=[.79,.45,.28,.14],tw=46,H=72;vals.forEach((v,i)=>{const x=i*(tw+7)+5,bh=v*(H-12),by=H-7-bh;ctx.beginPath();ctx.moveTo(x+tw/2,by);ctx.lineTo(x+tw-5,H-7);ctx.lineTo(x+5,H-7);ctx.closePath();ctx.fillStyle=cols[i];ctx.globalAlpha=.85;ctx.fill();ctx.globalAlpha=1;ctx.font='bold 7px Inter';ctx.fillStyle=cols[i];ctx.textAlign='center';ctx.fillText(Math.round(v*100)+'%',x+tw/2,by-3);});})();
+
+// DONUTS
+function donut(id,pct,col,w,h,label){const ctx=setup(id,w,h);if(!ctx)return;const cx=w/2,cy=h/2,r=Math.min(w,h)/2-5;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(160,90,50,.12)';ctx.lineWidth=6;ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.abs(pct)/100*Math.PI*2);ctx.strokeStyle=col;ctx.lineWidth=6;ctx.lineCap='round';ctx.stroke();ctx.font=`bold ${Math.round(w*.2)}px Inter`;ctx.fillStyle=col;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText((pct>0?'+':'')+pct+'%',cx,cy);}
+donut('dn-hrv',22,C.gl,90,90);
+donut('dn-crt',-23,C.gd,90,90);
+donut('dn-slp',18,C.ol,90,90);
+donut('dn-crp',-36,C.rb,90,90);
+
+// RESPIRATION
+(function(){const ctx=setup('resp-c',198,52);if(!ctx)return;const W=198,H=52;const zones=[{x:0,w:.28,c:'rgba(29,78,216,.2)',l:'Stress'},{x:.28,w:.34,c:'rgba(212,90,26,.18)',l:'Normal'},{x:.62,w:.38,c:'rgba(200,160,40,.2)',l:'Meditation'}];zones.forEach(z=>{ctx.fillStyle=z.c;ctx.fillRect(z.x*W,0,z.w*W,H-10);});// Wave lines
+function wave(freq,amp,col,yc){ctx.strokeStyle=col;ctx.lineWidth=1.8;ctx.beginPath();for(let i=0;i<W;i++){const y=yc+Math.sin(i*freq)*amp;i===0?ctx.moveTo(i,y):ctx.lineTo(i,y);}ctx.stroke();}
+wave(0.28,12,C.rb,H/2-10);wave(0.18,9,C.or,H/2-4);wave(0.10,6,C.gd,H/2+4);
+ctx.strokeStyle='rgba(160,90,50,.2)';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(0,H-8);ctx.lineTo(W,H-8);ctx.stroke();[{x:.14,l:'~20 bpm'},{x:.45,l:'~14 bpm'},{x:.81,l:'~5 bpm'}].forEach(t=>{ctx.font='5.5px Inter';ctx.fillStyle=C.tm;ctx.textAlign='center';ctx.fillText(t.l,t.x*W,H-1);});})();
+
+// COVERAGE
+(function(){const ctx=setup('cov-c',198,46);if(!ctx)return;[{l:'AILIV',p:.92,c:C.rb},{l:'Calm',p:.55,c:C.or},{l:'Headspace',p:.42,c:C.gd},{l:'Wearables',p:.38,c:C.ol}].forEach((r,i)=>{const y=i*10+3;ctx.fillStyle='rgba(160,90,50,.1)';ctx.fillRect(38,y,156,8);ctx.fillStyle=r.c;ctx.fillRect(38,y,156*r.p,8);ctx.font='6.5px Inter';ctx.fillStyle=C.tm;ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(r.l,35,y+4);ctx.fillStyle=r.c;ctx.textAlign='left';ctx.fillText(Math.round(r.p*100)+'%',38+156*r.p+3,y+4);});})();
+
+// HRV TREND
+(function(){const ctx=setup('hrv-trend',252,64);if(!ctx)return;const W=252,H=64;const med=[42,44,46,48,51,54,57,61],ctrl=[42,43,43,44,44,45,45,45];const step=(W-28)/7;function drawL(pts,col,dash){ctx.strokeStyle=col;ctx.lineWidth=1.8;ctx.setLineDash(dash||[]);ctx.lineCap='round';ctx.beginPath();pts.forEach((p,i)=>{const x=14+i*step,y=H-6-(p-38)/28*(H-12);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();ctx.setLineDash([]);}drawL(med,C.gl);drawL(ctrl,'rgba(255,255,255,.28)',[3,3]);// area under med line
+ctx.beginPath();med.forEach((p,i)=>{const x=14+i*step,y=H-6-(p-38)/28*(H-12);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.lineTo(14+7*step,H-4);ctx.lineTo(14,H-4);ctx.closePath();ctx.fillStyle='rgba(232,184,64,.1)';ctx.fill();ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(12,H-4);ctx.lineTo(W-4,H-4);ctx.stroke();})();
+
+// GAUGE
+(function(){const ctx=setup('gauge-c',138,66);if(!ctx)return;const cx=69,cy=62,r=48;ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,0);ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=8;ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+.73*Math.PI);ctx.strokeStyle=C.gl;ctx.lineWidth=8;ctx.lineCap='round';ctx.stroke();const ang=Math.PI+.73*Math.PI;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(ang)*40,cy+Math.sin(ang)*40);ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=1.8;ctx.lineCap='round';ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,3.5,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.5)';ctx.fill();})();
+
+// CORTISOL SESSION
+(function(){const ctx=setup('cort-sess',252,52);if(!ctx)return;const W=252,H=52;const pts=[18,17.5,16.5,15.2,14.2,13.5,13.0,12.8,12.5,12.4,12.3,12.2];const step=(W-24)/(pts.length-1),lo=11,hi=20;ctx.strokeStyle=C.rb;ctx.lineWidth=1.8;ctx.lineCap='round';ctx.beginPath();pts.forEach((p,i)=>{const x=12+i*step,y=H-5-(p-lo)/(hi-lo)*(H-10);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();ctx.lineTo(12+(pts.length-1)*step,H-3);ctx.lineTo(12,H-3);ctx.closePath();ctx.fillStyle='rgba(29,78,216,.08)';ctx.fill();// optimal zone
+ctx.fillStyle='rgba(100,200,100,.1)';const optY=H-5-(14-lo)/(hi-lo)*(H-10);ctx.fillRect(12,optY,W-20,(14-12)/(hi-lo)*(H-10));ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(10,H-3);ctx.lineTo(W-4,H-3);ctx.stroke();})();
+
+// BRAIN WAVES
+(function(){const ctx=setup('brain-c',236,78);if(!ctx)return;const W=236,H=78;const waves=[{name:'Beta',freq:.32,amp:8,yc:16,col:C.rb,lo:0,hi:.35},{name:'Alpha',freq:.18,amp:10,yc:36,col:C.gd},{name:'Theta',freq:.10,amp:8,yc:56,col:C.ol},{name:'Delta',freq:.06,amp:6,yc:70,col:C.or}];
+waves.forEach(w=>{ctx.strokeStyle=w.col;ctx.lineWidth=1.5;ctx.globalAlpha=.9;ctx.beginPath();for(let i=0;i<W;i++){const y=w.yc+Math.sin(i*w.freq)*w.amp;i===0?ctx.moveTo(i,y):ctx.lineTo(i,y);}ctx.stroke();ctx.globalAlpha=1;ctx.font='bold 6px Inter';ctx.fillStyle=w.col;ctx.textAlign='left';ctx.fillText(w.name,3,w.yc-2);});})();
+
+// DURATION CHART
+(function(){const ctx=setup('dur-c',198,72);if(!ctx)return;const W=198,H=72;const pts={hrv:[2,8,14,18,22,26],crp:[1,4,8,14,20,28],slp:[1,3,6,9,12,16]};const mins=[5,10,15,20,30,45];const step=(W-20)/(mins.length-1);ctx.strokeStyle='rgba(160,90,50,.15)';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(14,4);ctx.lineTo(14,H-10);ctx.lineTo(W-4,H-10);ctx.stroke();[[pts.hrv,C.gl],[pts.crp,C.rb],[pts.slp,C.ol]].forEach(([data,col])=>{ctx.strokeStyle=col;ctx.lineWidth=1.8;ctx.lineCap='round';ctx.beginPath();data.forEach((v,i)=>{const x=14+i*step,y=H-10-v/30*(H-16);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();});ctx.font='5px Inter';ctx.fillStyle=C.tm;ctx.textAlign='center';[C.gl,C.rb,C.ol].forEach((c,i)=>{const labels=['HRV+','CRP−','Sleep+'];ctx.fillStyle=c;ctx.fillText(labels[i],W-16,H-10-(pts[Object.keys(pts)[i]][5]/30*(H-16))-4);});})();
+
+// MEDITATION TYPES HBAR
+(function(){const ctx=setup('type-c',198,84);if(!ctx)return;const types=[{n:'MBSR',hrv:.88,crp:.82,slp:.75},{n:'Trans. TM',hrv:.82,crp:.70,slp:.68},{n:'Loving-K.',hrv:.65,crp:.90,slp:.72},{n:'Breathwork',hrv:.90,crp:.60,slp:.65},{n:'Body Scan',hrv:.70,crp:.72,slp:.88}];const H=84,bh=12,gap=4;types.forEach((t,i)=>{const y=i*(bh+gap)+6;ctx.fillStyle='rgba(160,90,50,.08)';ctx.fillRect(44,y,150,bh);ctx.fillStyle=C.gl;ctx.fillRect(44,y,150*t.hrv,bh/3);ctx.fillStyle=C.rb;ctx.fillRect(44,y+bh/3,150*t.crp,bh/3);ctx.fillStyle=C.ol;ctx.fillRect(44,y+bh*2/3,150*t.slp,bh/3);ctx.font='bold 6px Inter';ctx.fillStyle=C.tm;ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(t.n,41,y+bh/2);});})();
+
+// HRV BY LEVEL BARS
+(function(){const ctx=setup('level-c',198,56);if(!ctx)return;const vals=[42,52,64,78],cols=[C.rb,C.or,C.gd,C.gl],W=198,H=56,bw=36,gap=10;vals.forEach((v,i)=>{const x=i*(bw+gap)+10,bh=v/82*(H-12);ctx.fillStyle=cols[i];ctx.fillRect(x,H-8-bh,bw,bh);ctx.font='bold 8px Inter';ctx.fillStyle=cols[i];ctx.textAlign='center';ctx.fillText(v+'ms',x+bw/2,H-bh-12);});})();
+
+// CORTISOL OVER TIME
+(function(){const ctx=setup('cort-c',198,50);if(!ctx)return;const W=198,H=50;const pts=[18.5,17.5,16.2,14.8,13.5,12.8,12.5,12.2];const step=(W-20)/(pts.length-1),lo=11,hi=20;ctx.strokeStyle=C.gd;ctx.lineWidth=1.8;ctx.lineCap='round';ctx.beginPath();pts.forEach((p,i)=>{const x=10+i*step,y=H-5-(p-lo)/(hi-lo)*(H-10);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();ctx.lineTo(10+(pts.length-1)*step,H-3);ctx.lineTo(10,H-3);ctx.closePath();ctx.fillStyle='rgba(200,160,40,.08)';ctx.fill();ctx.strokeStyle='rgba(160,90,50,.15)';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(8,H-3);ctx.lineTo(W-4,H-3);ctx.stroke();})();
+
+// BENEFIT RADAR
+(function(){const ctx=setup('benefit-radar',200,100);if(!ctx)return;const cx=100,cy=50,r=36;const labels=['HRV','Sleep','Cortisol','CRP','BP','Focus'];const scores=[.88,.75,.85,.90,.70,.80];const n=labels.length;ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=0.8;for(let s=0.25;s<=1;s+=0.25){ctx.beginPath();labels.forEach((_,i)=>{const a=i/n*Math.PI*2-Math.PI/2;const x=cx+Math.cos(a)*r*s,y=cy+Math.sin(a)*r*s;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.closePath();ctx.stroke();}ctx.beginPath();scores.forEach((s,i)=>{const a=i/n*Math.PI*2-Math.PI/2;const x=cx+Math.cos(a)*r*s,y=cy+Math.sin(a)*r*s;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.closePath();ctx.fillStyle='rgba(200,160,40,.22)';ctx.fill();ctx.strokeStyle=C.gd;ctx.lineWidth=1.5;ctx.stroke();labels.forEach((l,i)=>{const a=i/n*Math.PI*2-Math.PI/2;const x=cx+Math.cos(a)*(r+12),y=cy+Math.sin(a)*(r+12);ctx.font='bold 6px Inter';ctx.fillStyle='rgba(255,255,255,.5)';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(l,x,y);});})();
+</script>
+</body>
+</html>

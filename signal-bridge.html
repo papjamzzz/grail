@@ -9,6 +9,22 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* ── AI PANEL ── */
+  .ai-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; z-index:9999; }
+  .ai-overlay.open { display:flex; }
+  .ai-panel { background:#1a1410; border:1px solid #3a2a20; border-radius:12px; padding:2rem; width:min(680px,90vw); max-height:82vh; overflow-y:auto; position:relative; }
+  .ai-panel-title { font-family:'IBM Plex Mono',monospace; font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; color:#7a6a52; margin-bottom:1.2rem; }
+  .ai-verdict { font-size:0.85rem; line-height:1.75; color:#e8dcc8; margin-bottom:1.4rem; }
+  .ai-models { display:flex; flex-direction:column; gap:0.6rem; }
+  .ai-model-row { background:rgba(255,255,255,0.03); border:1px solid #2a1a10; border-radius:6px; padding:0.7rem 0.9rem; }
+  .ai-model-label { font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; color:#c8a040; margin-bottom:0.3rem; font-family:'IBM Plex Mono',monospace; }
+  .ai-model-text { font-size:0.78rem; line-height:1.6; color:#7a6a52; }
+  .ai-close { position:absolute; top:1rem; right:1rem; background:none; border:none; cursor:pointer; font-size:1rem; color:#7a6a52; }
+  .ai-close:hover { color:#e8dcc8; }
+  .ai-loading { text-align:center; padding:2rem; font-size:0.78rem; color:#7a6a52; letter-spacing:0.08em; }
+  .sb-ai-btn { background:none; border:1px solid rgba(26,20,10,0.25); color:#7a6a52; font-family:'IBM Plex Mono',monospace; font-size:0.62rem; letter-spacing:0.1em; padding:0.35rem 0.8rem; border-radius:4px; cursor:pointer; transition:all 0.2s; }
+  .sb-ai-btn:hover { border-color:#c8a040; color:#c8a040; }
+
   :root {
     --bg: #f4f0e8;
     --surface: #ede8de;
@@ -226,6 +242,7 @@
     <button class="state-tab" data-state="afternoon">Afternoon</button>
     <button class="state-tab" data-state="evening">Evening</button>
     <button class="state-tab" data-state="sleep">Sleep</button>
+    <button class="sb-ai-btn" onclick="openBridgeAI()">AI</button>
   </div>
   <div id="meta">
     <span id="state-label">06:00 – 12:00</span>
@@ -763,6 +780,59 @@ chordGroup.selectAll('.chord-path')
 
 breathe();
 
+// ════════════════════════════════════════════════════
+// AI SYNTHESIS
+// ════════════════════════════════════════════════════
+function openBridgeAI() {
+  document.getElementById('aiOverlay').classList.add('open');
+  runBridgeAI();
+}
+function closeBridgeAI() {
+  document.getElementById('aiOverlay').classList.remove('open');
+}
+
+async function runBridgeAI() {
+  const body = document.getElementById('aiBody');
+  body.innerHTML = '<div class="ai-loading">Routing through 3 AI models…</div>';
+
+  const state     = currentState;
+  const stateData = STATES[state];
+  const correlations = stateData.chords.map(([ai, wi, str]) => ({
+    appleLabel: APPLE[ai].label,
+    whoopLabel:  WHOOP[wi].label,
+    strength:    str
+  }));
+
+  const payload = { state, stateDesc: stateData.desc, correlations };
+
+  try {
+    const res  = await fetch('/api/bridge-analysis', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Analysis failed');
+
+    let html = `<div class="ai-verdict">${data.verdict.replace(/\n/g,'<br>')}</div>`;
+    if (data.results && Object.keys(data.results).length) {
+      html += '<div class="ai-models">';
+      for (const [model, text] of Object.entries(data.results)) {
+        html += `<div class="ai-model-row"><div class="ai-model-label">${model}</div><div class="ai-model-text">${String(text).replace(/\n/g,'<br>')}</div></div>`;
+      }
+      html += '</div>';
+    }
+    body.innerHTML = html;
+  } catch (err) {
+    body.innerHTML = `<div class="ai-loading" style="color:#c84040">Error: ${err.message}</div>`;
+  }
+}
+
 </script>
+
+<div id="aiOverlay" class="ai-overlay">
+  <div class="ai-panel">
+    <button class="ai-close" onclick="closeBridgeAI()">✕</button>
+    <div class="ai-panel-title">AI Synthesis · Signal Correlation Analysis</div>
+    <div id="aiBody"><div class="ai-loading">Routing through 3 AI models…</div></div>
+  </div>
+</div>
+
 </body>
 </html>

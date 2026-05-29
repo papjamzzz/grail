@@ -3,1219 +3,1084 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AILIV — Every Signal. One Profile.</title>
+<title>AILIV — Live Health Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { background: #04040A; }
-body {
-  font-family: 'IBM Plex Mono', monospace;
+html, body {
   background: #04040A;
-  color: rgba(201,169,110,0.85);
+  color: rgba(201,169,110,0.9);
+  font-family: 'IBM Plex Mono', monospace;
+  min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* ── Film grain over everything ── */
-body::after {
-  content: '';
-  position: fixed; inset: 0; z-index: 9000;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.055;
-}
-
-/* ── NAV ── */
-#nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
-  padding: 28px 52px;
+/* ── TOP BAR ── */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
-  transition: all 0.5s;
+  padding: 18px 36px;
+  background: linear-gradient(to bottom, rgba(4,4,10,0.96), transparent);
 }
-#nav.solid {
-  background: rgba(4,4,10,0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  padding: 18px 52px;
-  border-bottom: 1px solid rgba(201,169,110,0.08);
-}
-.nav-wordmark {
+.logo {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
-  font-weight: 300;
-  letter-spacing: 0.25em;
-  color: rgba(201,169,110,0.9);
-  text-decoration: none;
-  text-transform: uppercase;
-}
-.nav-wordmark em { font-style: italic; color: rgba(201,169,110,0.5); }
-.nav-enter {
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(201,169,110,0.5);
-  text-decoration: none;
-  border: 1px solid rgba(201,169,110,0.2);
-  padding: 9px 22px;
-  border-radius: 2px;
-  transition: all 0.2s;
-}
-.nav-enter:hover {
-  color: rgba(201,169,110,0.95);
-  border-color: rgba(201,169,110,0.5);
-  background: rgba(201,169,110,0.04);
-}
-
-/* ── SECTION BASE ── */
-section {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-/* ── SECTION 1: HERO ── */
-#s-hero {
-  height: 100vh;
-  flex-direction: column;
-}
-
-.orbital-wrap {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#orbital-svg {
-  width: min(90vw, 90vh);
-  height: min(90vw, 90vh);
-  overflow: visible;
-}
-
-.hero-text {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  pointer-events: none;
-}
-
-.hero-eyebrow {
-  font-size: 10px;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: rgba(201,169,110,0.4);
-  margin-bottom: 20px;
-}
-
-.hero-headline {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(52px, 8vw, 110px);
-  font-weight: 300;
-  line-height: 0.95;
-  letter-spacing: -0.01em;
-  color: rgba(201,169,110,0.92);
-}
-
-.hero-headline em {
-  font-style: italic;
-  color: rgba(201,169,110,0.45);
-}
-
-.hero-sub {
-  margin-top: 24px;
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  color: rgba(201,169,110,0.35);
-  text-transform: uppercase;
-}
-
-.scroll-cue {
-  position: absolute;
-  bottom: 36px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  color: rgba(201,169,110,0.25);
-  font-size: 9px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-}
-.scroll-cue-line {
-  width: 1px; height: 40px;
-  background: linear-gradient(to bottom, transparent, rgba(201,169,110,0.3));
-  animation: scrollDrop 2s ease infinite;
-}
-@keyframes scrollDrop {
-  0%,100%{opacity:0.3;transform:scaleY(0);transform-origin:top}
-  50%{opacity:1;transform:scaleY(1);transform-origin:top}
-}
-
-/* ── SECTION 2: BIOMARKERS ── */
-#s-biomarkers {
-  min-height: 200vh;
-  align-items: flex-start;
-  padding: 120px 0;
-}
-
-.bio-inner {
-  position: relative;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 40px;
-}
-
-.bio-section-label {
-  text-align: center;
-  margin-bottom: 80px;
-}
-
-.bio-section-label h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(42px, 5vw, 72px);
-  font-weight: 300;
-  color: rgba(201,169,110,0.85);
-  line-height: 1.1;
-}
-
-.bio-section-label h2 em {
-  font-style: italic;
-  color: rgba(201,169,110,0.4);
-}
-
-.bio-section-label p {
-  margin-top: 16px;
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  color: rgba(201,169,110,0.3);
-  text-transform: uppercase;
-}
-
-/* The spine */
-.bio-spine {
-  position: absolute;
-  left: 50%;
-  top: 200px;
-  bottom: 0;
-  width: 1px;
-  background: linear-gradient(to bottom, transparent, rgba(201,169,110,0.15) 10%, rgba(201,169,110,0.15) 90%, transparent);
-  transform: translateX(-50%);
-}
-
-/* Biomarker row */
-.bio-row {
-  display: grid;
-  grid-template-columns: 1fr 40px 1fr;
-  gap: 0 20px;
-  align-items: center;
-  margin-bottom: 28px;
-}
-
-.bio-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  opacity: 0;
-  transform: translateX(var(--tx, 40px));
-}
-
-.bio-item.left { justify-content: flex-end; --tx: -50px; }
-.bio-item.right { justify-content: flex-start; --tx: 50px; }
-
-.bio-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 0 8px currentColor;
-}
-.bio-dot.optimal  { background: #c8f060; color: #c8f060; }
-.bio-dot.border   { background: #f0a060; color: #f0a060; }
-.bio-dot.flagged  { background: #f06060; color: #f06060; }
-.bio-dot.dim      { background: rgba(201,169,110,0.3); color: rgba(201,169,110,0.3); }
-
-.bio-label {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: rgba(201,169,110,0.65);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.bio-value {
-  font-size: 10px;
-  color: rgba(201,169,110,0.35);
-  letter-spacing: 0.05em;
-}
-
-/* Spine connector dot */
-.bio-connector {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  border: 1px solid rgba(201,169,110,0.3);
-  margin: 0 auto;
-}
-
-/* Ring group headers */
-.ring-header {
-  text-align: center;
-  margin: 60px 0 36px;
-  position: relative;
-  z-index: 2;
-}
-.ring-header span {
-  font-size: 9px;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: rgba(201,169,110,0.25);
-  background: #04040A;
-  padding: 0 20px;
-}
-
-/* ── SECTION 3: SYSTEMS ── */
-#s-systems {
-  min-height: 120vh;
-  align-items: center;
-  padding: 80px 40px;
-}
-
-.systems-inner {
-  width: 100%;
-  max-width: 1200px;
-}
-
-.systems-header {
-  margin-bottom: 72px;
-}
-
-.systems-header h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(38px, 5vw, 68px);
-  font-weight: 300;
-  color: rgba(201,169,110,0.85);
-  line-height: 1.1;
-}
-
-.systems-header h2 em { font-style: italic; color: rgba(201,169,110,0.4); }
-
-.systems-header p {
-  margin-top: 14px;
-  font-size: 11px;
-  letter-spacing: 0.15em;
-  color: rgba(201,169,110,0.3);
-  text-transform: uppercase;
-}
-
-.systems-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.sys-card {
-  border: 1px solid rgba(201,169,110,0.1);
-  padding: 28px;
-  position: relative;
-  opacity: 0;
-  transform: translateY(40px);
-  transition: border-color 0.3s;
-}
-
-.sys-card:hover {
-  border-color: rgba(201,169,110,0.25);
-}
-
-.sys-card-accent {
-  position: absolute;
-  top: 0; left: 0;
-  width: 2px; height: 100%;
-}
-
-.sys-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
-  font-weight: 400;
-  color: rgba(201,169,110,0.85);
-  margin-bottom: 4px;
-}
-
-.sys-status {
-  font-size: 9px;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  margin-bottom: 20px;
-}
-.sys-status.optimal { color: #c8f060; }
-.sys-status.border  { color: #f0a060; }
-.sys-status.flagged { color: #f06060; }
-
-/* Mini bubble visualization */
-.sys-bubbles {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.sys-bubble {
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.sys-markers {
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  color: rgba(201,169,110,0.3);
-  line-height: 1.8;
-  text-transform: uppercase;
-}
-
-/* ── SECTION 4: SIGNAL BRIDGE ── */
-#s-signal {
-  min-height: 100vh;
-  flex-direction: column;
-  padding: 80px 52px;
-}
-
-.signal-inner {
-  width: 100%;
-  max-width: 1200px;
-}
-
-.signal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 60px;
-}
-
-.signal-header h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(36px, 4.5vw, 64px);
-  font-weight: 300;
-  color: rgba(201,169,110,0.85);
-  line-height: 1.1;
-}
-
-.signal-header h2 em { font-style: italic; color: rgba(201,169,110,0.4); }
-
-.signal-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: flex-end;
-}
-
-.sig-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: rgba(201,169,110,0.4);
-}
-
-.sig-legend-line {
-  width: 28px;
-  height: 2px;
-}
-
-.signal-chart-wrap {
-  position: relative;
-  width: 100%;
-  height: 280px;
-}
-
-#signal-svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.signal-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 16px;
-  font-size: 9px;
-  letter-spacing: 0.15em;
-  color: rgba(201,169,110,0.25);
-  text-transform: uppercase;
-}
-
-/* ── SECTION 5: CTA ── */
-#s-cta {
-  min-height: 100vh;
-  flex-direction: column;
-  text-align: center;
-  padding: 80px 40px;
-}
-
-.cta-orbital-wrap {
-  margin-bottom: 52px;
-  opacity: 0;
-}
-
-#cta-orbital-svg {
-  width: 280px;
-  height: 280px;
-  overflow: visible;
-}
-
-.cta-text h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(36px, 5vw, 70px);
-  font-weight: 300;
-  color: rgba(201,169,110,0.85);
-  line-height: 1.15;
-  margin-bottom: 20px;
-}
-
-.cta-text h2 em {
-  font-style: italic;
-  color: rgba(201,169,110,0.4);
-}
-
-.cta-text p {
-  font-size: 11px;
-  letter-spacing: 0.15em;
-  color: rgba(201,169,110,0.3);
-  text-transform: uppercase;
-  margin-bottom: 48px;
-}
-
-.cta-btn {
-  display: inline-block;
-  font-size: 11px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: rgba(201,169,110,0.7);
-  text-decoration: none;
-  border: 1px solid rgba(201,169,110,0.3);
-  padding: 16px 52px;
-  transition: all 0.25s;
-}
-
-.cta-btn:hover {
+  font-size: 22px; font-weight: 300; letter-spacing: 0.25em;
   color: rgba(201,169,110,1);
-  border-color: rgba(201,169,110,0.7);
-  background: rgba(201,169,110,0.04);
-  letter-spacing: 0.4em;
+}
+.logo span { color: rgba(96,212,200,1); }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(201,169,110,0.35); text-decoration: none; transition: color 0.3s;
+}
+.nav-links a:hover { color: rgba(201,169,110,0.9); }
+.nav-cta {
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 8px 22px; border: 1px solid rgba(201,169,110,0.3);
+  color: rgba(201,169,110,0.8); background: transparent;
+  text-decoration: none; transition: all 0.3s;
+}
+.nav-cta:hover { background: rgba(201,169,110,0.07); border-color: rgba(201,169,110,0.7); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 100px 20px 40px;
+}
+.hero-headline { text-align: center; margin-bottom: 52px; }
+.hero-headline h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 4.8vw, 64px); font-weight: 300;
+  letter-spacing: 0.1em; color: rgba(201,169,110,1); line-height: 1.22;
+}
+.hero-headline h1 em { font-style: italic; color: rgba(201,169,110,0.55); }
+.hero-sub {
+  font-size: 11px; letter-spacing: 0.24em; color: rgba(201,169,110,0.5);
+  margin-top: 18px; text-transform: uppercase;
 }
 
-.cta-fine {
-  margin-top: 32px;
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  color: rgba(201,169,110,0.2);
-  text-transform: uppercase;
+/* ── PANELS GRID — no boxes, free float ── */
+.panels-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: 220px 220px 175px 175px 260px;
+  gap: 8px;
+  max-width: 1400px; margin: 0 auto; width: 100%;
+  padding: 0 4px;
 }
 
-/* ── MISC ── */
-.divider {
-  width: 40px; height: 1px;
-  background: rgba(201,169,110,0.2);
-  margin: 0 auto;
+/* Panel — completely transparent, no borders */
+.panel {
+  position: relative;
+  overflow: hidden;
+  cursor: crosshair;
+  border-radius: 2px;
 }
 
-/* ── MOBILE ── */
-@media (max-width: 768px) {
-  #nav { padding: 20px 24px; }
-  #nav.solid { padding: 14px 24px; }
-  #s-signal { padding: 80px 24px; }
-  #s-cta { padding: 80px 24px; }
-  .systems-grid { grid-template-columns: 1fr; }
-  .signal-header { flex-direction: column; align-items: flex-start; gap: 24px; }
-  .signal-legend { align-items: flex-start; }
-  .bio-inner { padding: 0 20px; }
+/* Grid positions */
+.panel-orbital    { grid-column: 1/4; grid-row: 1/3; }
+.panel-ecg        { grid-column: 4/6; grid-row: 1/2; }
+.panel-recovery   { grid-column: 6/7; grid-row: 1/2; }
+.panel-sleep      { grid-column: 4/6; grid-row: 2/3; }
+.panel-hrv        { grid-column: 6/7; grid-row: 2/3; }
+.panel-roots      { grid-column: 1/4; grid-row: 3/5; }
+.panel-biomarkers { grid-column: 4/6; grid-row: 3/4; }
+.panel-glucose    { grid-column: 6/7; grid-row: 3/4; }
+.panel-signal     { grid-column: 4/6; grid-row: 4/5; }
+.panel-hrv2       { grid-column: 6/7; grid-row: 4/5; display:none; }
+.panel-change     { grid-column: 1/7; grid-row: 5/6; }
+
+/* Floating label — appears on hover */
+.panel-label {
+  position: absolute;
+  top: 7px; left: 10px;
+  z-index: 10;
+  pointer-events: none;
+  display: flex; align-items: center; gap: 6px;
+  opacity: 0;
+  transition: opacity 0.4s;
 }
+.panel:hover .panel-label { opacity: 1; }
+.panel-label-text {
+  font-size: 7.5px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(201,169,110,0.6);
+}
+.panel-label-status {
+  font-size: 7.5px; letter-spacing: 0.1em;
+  color: rgba(201,169,110,0.35);
+}
+.lsdot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: rgba(111,207,135,1);
+  box-shadow: 0 0 5px rgba(111,207,135,0.9);
+  animation: lsdotblink 1.5s infinite;
+}
+@keyframes lsdotblink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+/* Canvas fills entire panel — no chrome offset */
+canvas { display: block; width: 100%; height: 100%; position: absolute; inset: 0; }
+
+/* ── OPEN LINK (appears on panel hover) ── */
+.panel-open {
+  position: absolute; bottom: 10px; right: 12px; z-index: 10;
+  font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(201,169,110,0.0); text-decoration: none;
+  transition: color 0.35s, opacity 0.35s;
+  pointer-events: none; opacity: 0;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.panel:hover .panel-open { color: rgba(201,169,110,0.45); opacity: 1; pointer-events: auto; }
+.panel:hover .panel-open:hover { color: rgba(201,169,110,0.9); }
+
+/* ── SECTIONS BELOW ── */
+.section-tagline {
+  padding: 72px 40px; text-align: center;
+  max-width: 860px; margin: 0 auto;
+}
+.section-tagline h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 3.5vw, 48px); font-weight: 300; font-style: italic;
+  color: rgba(201,169,110,0.78); line-height: 1.35;
+}
+.section-tagline p {
+  font-size: 10px; letter-spacing: 0.2em; color: rgba(201,169,110,0.28);
+  margin-top: 18px; text-transform: uppercase;
+}
+.stats-row {
+  display: flex; justify-content: center; gap: 72px; padding: 40px;
+  border-top: 1px solid rgba(201,169,110,0.05);
+  border-bottom: 1px solid rgba(201,169,110,0.05);
+  max-width: 960px; margin: 0 auto 72px;
+}
+.stat { text-align: center; }
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 46px; font-weight: 300; color: rgba(201,169,110,1); line-height: 1;
+}
+.stat-label {
+  font-size: 8.5px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(201,169,110,0.28); margin-top: 6px;
+}
+.section-cta { text-align: center; padding: 72px 40px 96px; }
+.section-cta h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(22px, 3vw, 42px); font-weight: 300;
+  letter-spacing: 0.12em; color: rgba(201,169,110,1); margin-bottom: 30px;
+}
+.cta-btn {
+  display: inline-block; padding: 13px 44px;
+  border: 1px solid rgba(201,169,110,0.4);
+  color: rgba(201,169,110,1); font-size: 10px; letter-spacing: 0.25em;
+  text-transform: uppercase; text-decoration: none; transition: all 0.35s;
+}
+.cta-btn:hover { background: rgba(201,169,110,0.07); border-color: rgba(201,169,110,0.9); }
+.cta-sub { font-size: 8.5px; letter-spacing: 0.15em; color: rgba(201,169,110,0.2); margin-top: 18px; text-transform: uppercase; }
+footer {
+  border-top: 1px solid rgba(201,169,110,0.05);
+  padding: 28px 40px; display: flex; justify-content: space-between; align-items: center;
+}
+.foot-logo { font-family:'Cormorant Garamond',serif; font-size:15px; letter-spacing:0.25em; color:rgba(201,169,110,0.3); }
+.foot-logo span { color: rgba(96,212,200,0.45); }
+footer p { font-size: 8.5px; letter-spacing: 0.1em; color: rgba(201,169,110,0.16); }
 </style>
 </head>
 <body>
 
-<!-- Nav -->
-<nav id="nav">
-  <a href="/" class="nav-wordmark">AIL<em>IV</em></a>
-  <a href="/ailiv" class="nav-enter">Enter Platform →</a>
-</nav>
+<header class="topbar">
+  <div class="logo">A<span>I</span>LIV</div>
+  <nav class="nav-links">
+    <a href="#">Biomarkers</a>
+    <a href="#">Wearables</a>
+    <a href="#">Intelligence</a>
+    <a href="#">Science</a>
+  </nav>
+  <a href="#" class="nav-cta">Request Access</a>
+</header>
 
-<!-- ── S1: HERO ── -->
-<section id="s-hero">
-  <div class="orbital-wrap">
-    <svg id="orbital-svg" viewBox="-220 -220 440 440" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="glow-strong">
-          <feGaussianBlur stdDeviation="3" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-        <filter id="glow-soft">
-          <feGaussianBlur stdDeviation="6" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-        <radialGradient id="core-grad" cx="50%" cy="50%">
-          <stop offset="0%" stop-color="rgba(201,169,110,0.6)"/>
-          <stop offset="60%" stop-color="rgba(201,169,110,0.15)"/>
-          <stop offset="100%" stop-color="rgba(201,169,110,0)"/>
-        </radialGradient>
-      </defs>
-
-      <!-- Ring halos -->
-      <circle id="halo-4" cx="0" cy="0" r="188" fill="none" stroke="rgba(201,169,110,0.04)" stroke-width="32"/>
-      <circle id="halo-3" cx="0" cy="0" r="146" fill="none" stroke="rgba(201,169,110,0.05)" stroke-width="24"/>
-      <circle id="halo-2" cx="0" cy="0" r="106" fill="none" stroke="rgba(201,169,110,0.06)" stroke-width="18"/>
-      <circle id="halo-1" cx="0" cy="0" r="70"  fill="none" stroke="rgba(201,169,110,0.08)" stroke-width="12"/>
-
-      <!-- Rings -->
-      <g id="ring-group-4">
-        <circle cx="0" cy="0" r="188" fill="none" stroke="rgba(201,169,110,0.12)" stroke-width="0.5"/>
-      </g>
-      <g id="ring-group-3">
-        <circle cx="0" cy="0" r="146" fill="none" stroke="rgba(201,169,110,0.16)" stroke-width="0.5"/>
-      </g>
-      <g id="ring-group-2">
-        <circle cx="0" cy="0" r="106" fill="none" stroke="rgba(201,169,110,0.22)" stroke-width="0.5"/>
-      </g>
-      <g id="ring-group-1">
-        <circle cx="0" cy="0" r="70"  fill="none" stroke="rgba(201,169,110,0.30)" stroke-width="0.5"/>
-      </g>
-
-      <!-- Orb groups (populated by JS) -->
-      <g id="orbs-4"></g>
-      <g id="orbs-3"></g>
-      <g id="orbs-2"></g>
-      <g id="orbs-1"></g>
-
-      <!-- Center core -->
-      <circle cx="0" cy="0" r="28" fill="url(#core-grad)"/>
-      <circle id="core-orb" cx="0" cy="0" r="10" fill="rgba(201,169,110,0.5)" stroke="rgba(201,169,110,0.9)" stroke-width="0.8" filter="url(#glow-strong)"/>
-    </svg>
+<section class="hero">
+  <div class="hero-headline">
+    <h1>Your body runs <em>forty programs</em><br>simultaneously.</h1>
+    <p class="hero-sub">AILIV reads all of them &nbsp;·&nbsp; in real time &nbsp;·&nbsp; always</p>
   </div>
 
-  <div class="hero-text" id="hero-text">
-    <div class="hero-eyebrow" id="hero-eyebrow">40 Biomarkers · Every Wearable · All Your Labs</div>
-    <h1 class="hero-headline" id="hero-headline">
-      Every signal.<br><em>One profile.</em>
-    </h1>
-    <div class="hero-sub" id="hero-sub">AILIV — Biohacking Intelligence Platform</div>
-  </div>
+  <div class="panels-grid">
 
-  <div class="scroll-cue">
-    <div class="scroll-cue-line"></div>
-    Scroll
+    <div class="panel panel-orbital" id="panel-orbital">
+      <canvas id="c-orbital"></canvas>
+      <div class="panel-label"><span class="lsdot"></span><span class="panel-label-text">Biomarker Orbital</span><span class="panel-label-status">40 nodes · hover to identify</span></div>
+      <a class="panel-open" href="/grail" target="_blank">Open Grail →</a>
+    </div>
+
+    <div class="panel panel-ecg" id="panel-ecg">
+      <canvas id="c-ecg"></canvas>
+      <div class="panel-label"><span class="lsdot"></span><span class="panel-label-text">Cardiac Rhythm</span><span class="panel-label-status">58 bpm</span></div>
+      <a class="panel-open" href="/grail" target="_blank">Open →</a>
+    </div>
+
+    <div class="panel panel-recovery" id="panel-recovery">
+      <canvas id="c-recovery"></canvas>
+      <div class="panel-label"><span class="lsdot"></span><span class="panel-label-text">Recovery</span></div>
+      <a class="panel-open" href="/grail" target="_blank">Open →</a>
+    </div>
+
+    <div class="panel panel-sleep" id="panel-sleep">
+      <canvas id="c-sleep"></canvas>
+      <div class="panel-label"><span class="lsdot"></span><span class="panel-label-text">Sleep Architecture</span><span class="panel-label-status">7.4h</span></div>
+      <a class="panel-open" href="/grail" target="_blank">Open →</a>
+    </div>
+
+    <div class="panel panel-hrv" id="panel-hrv">
+      <canvas id="c-hrv"></canvas>
+      <div class="panel-label"><span class="lsdot"></span><span class="panel-label-text">HRV Trend</span><span class="panel-label-status">30d · hover bars</span></div>
+      <a class="panel-open" href="/grail" target="_blank">Open →</a>
+    </div>
+
+    <div class="panel panel-roots" id="panel-roots">
+      <canvas id="c-roots"></canvas>
+      <div class="panel-label"><span class="lsdot"></span><span class="panel-label-text">Root Cause Network</span><span class="panel-label-status">click nodes to isolate</span></div>
+      <a class="panel-open" href="/grail" target="_blank">Open →</a>
+    </div>
+
+    <div class="panel panel-biomarkers" id="panel-biomarkers">
+      <canvas id="c-biomarkers"></canvas>
+      <div class="panel-label"><span class="lsdot"></span><span class="panel-label-text">Biomarker Stream</span><span class="panel-label-status">hover to pause</span></div>
+      <a class="panel-open" href="/grail" target="_blank">Open →</a>
+    </div>
+
+    <div class="panel panel-glucose" id="panel-glucose">
+      <canvas id="c-glucose"></canvas>
+      <div class="panel-label"><span class="lsdot"></span><span class="panel-label-text">CGM</span><span class="panel-label-status">hover to scrub</span></div>
+      <a class="panel-open" href="/grail" target="_blank">Open →</a>
+    </div>
+
+    <div class="panel panel-signal" id="panel-signal">
+      <canvas id="c-signal"></canvas>
+      <div class="panel-label"><span class="lsdot"></span><span class="panel-label-text">Signal Bridge</span><span class="panel-label-status">Apple · WHOOP</span></div>
+      <a class="panel-open" href="/grail" target="_blank">Open →</a>
+    </div>
+
+    <div class="panel panel-change" id="panel-change">
+      <canvas id="c-change"></canvas>
+      <div class="panel-label"><span class="lsdot" style="background:rgba(201,144,64,1);box-shadow:0 0 6px rgba(201,144,64,0.9)"></span><span class="panel-label-text" style="color:rgba(201,144,64,0.8)">Change</span><span class="panel-label-status" style="color:rgba(201,144,64,0.45)">HRV · Cortisol · Recovery · hover to deepen</span></div>
+      <a class="panel-open" href="/meditation" target="_blank" style="color:rgba(88,222,131,0.0);" onmouseenter="this.style.color='rgba(88,222,131,0.9)'" onmouseleave="this.style.color='rgba(88,222,131,0.0)'">Open Change →</a>
+    </div>
+
   </div>
 </section>
 
-<!-- ── S2: BIOMARKERS ── -->
-<section id="s-biomarkers">
-  <div class="bio-inner">
-    <div class="bio-section-label">
-      <h2>Forty signals.<br><em>One organism.</em></h2>
-      <p>Your complete biomarker profile, live and continuous</p>
-    </div>
-
-    <div class="bio-spine"></div>
-
-    <!-- Ring 1 -->
-    <div class="ring-header"><span>Ring I — Core Vitals</span></div>
-    <div id="ring-1-rows"></div>
-
-    <!-- Ring 2 -->
-    <div class="ring-header"><span>Ring II — Metabolic &amp; Hormonal</span></div>
-    <div id="ring-2-rows"></div>
-
-    <!-- Ring 3 -->
-    <div class="ring-header"><span>Ring III — Deep Optimization</span></div>
-    <div id="ring-3-rows"></div>
-
-    <!-- Ring 4 -->
-    <div class="ring-header"><span>Ring IV — Longevity Markers</span></div>
-    <div id="ring-4-rows"></div>
-  </div>
+<section class="section-tagline">
+  <h2>"The body is the most complex<br>machine ever built.<br>AILIV is its operating system."</h2>
+  <p>40 biomarkers · 6 biological systems · every wearable · every lab</p>
 </section>
 
-<!-- ── S3: SYSTEMS ── -->
-<section id="s-systems">
-  <div class="systems-inner">
-    <div class="systems-header">
-      <h2>Six systems.<br><em>Complete intelligence.</em></h2>
-      <p>Every biomarker mapped to its biological origin</p>
-    </div>
-    <div class="systems-grid" id="systems-grid"></div>
-  </div>
+<div class="stats-row">
+  <div class="stat"><div class="stat-num" data-target="40">0</div><div class="stat-label">Biomarkers tracked</div></div>
+  <div class="stat"><div class="stat-num" data-target="22">0</div><div class="stat-label">Wearable integrations</div></div>
+  <div class="stat"><div class="stat-num" data-target="6">0</div><div class="stat-label">Biological systems</div></div>
+  <div class="stat"><div class="stat-num" data-target="30">0</div><div class="stat-label">Second sync interval</div></div>
+</div>
+
+<section class="section-cta">
+  <h2>Your biology, decoded.</h2>
+  <a href="#" class="cta-btn">Request Early Access</a>
+  <p class="cta-sub">ailiv.health · private beta · 2026</p>
 </section>
 
-<!-- ── S4: SIGNAL BRIDGE ── -->
-<section id="s-signal">
-  <div class="signal-inner">
-    <div class="signal-header">
-      <h2>Two sources.<br><em>One truth.</em></h2>
-      <div class="signal-legend">
-        <div class="sig-legend-item">
-          <div class="sig-legend-line" style="background:#7EB8D4;"></div>
-          Apple Watch
-        </div>
-        <div class="sig-legend-item">
-          <div class="sig-legend-line" style="background:#C9A96E;"></div>
-          WHOOP 4.0
-        </div>
-      </div>
-    </div>
-    <div class="signal-chart-wrap">
-      <svg id="signal-svg" viewBox="0 0 1200 280" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="line-glow">
-            <feGaussianBlur stdDeviation="2" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-          <linearGradient id="fill-apple" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#7EB8D4" stop-opacity="0.15"/>
-            <stop offset="100%" stop-color="#7EB8D4" stop-opacity="0"/>
-          </linearGradient>
-          <linearGradient id="fill-whoop" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#C9A96E" stop-opacity="0.12"/>
-            <stop offset="100%" stop-color="#C9A96E" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-
-        <!-- Grid lines -->
-        <line x1="0" y1="70"  x2="1200" y2="70"  stroke="rgba(201,169,110,0.06)" stroke-width="1"/>
-        <line x1="0" y1="140" x2="1200" y2="140" stroke="rgba(201,169,110,0.06)" stroke-width="1"/>
-        <line x1="0" y1="210" x2="1200" y2="210" stroke="rgba(201,169,110,0.06)" stroke-width="1"/>
-
-        <!-- Apple Watch HRV fill -->
-        <path id="apple-fill" d="M0,280 L0,200 C60,190 120,160 200,140 C280,120 340,100 440,90 C520,82 580,95 680,88 C760,82 820,70 920,78 C1000,84 1060,92 1200,85 L1200,280 Z"
-          fill="url(#fill-apple)" opacity="0"/>
-
-        <!-- WHOOP HRV fill -->
-        <path id="whoop-fill" d="M0,280 L0,210 C60,205 120,185 200,168 C280,152 340,130 440,118 C520,108 580,120 680,110 C760,102 820,90 920,98 C1000,104 1060,112 1200,105 L1200,280 Z"
-          fill="url(#fill-whoop)" opacity="0"/>
-
-        <!-- Apple Watch line -->
-        <path id="apple-line"
-          d="M0,200 C60,190 120,160 200,140 C280,120 340,100 440,90 C520,82 580,95 680,88 C760,82 820,70 920,78 C1000,84 1060,92 1200,85"
-          fill="none" stroke="#7EB8D4" stroke-width="1.8"
-          stroke-dasharray="1400" stroke-dashoffset="1400"
-          filter="url(#line-glow)"/>
-
-        <!-- WHOOP line -->
-        <path id="whoop-line"
-          d="M0,210 C60,205 120,185 200,168 C280,152 340,130 440,118 C520,108 580,120 680,110 C760,102 820,90 920,98 C1000,104 1060,112 1200,105"
-          fill="none" stroke="#C9A96E" stroke-width="1.8"
-          stroke-dasharray="1400" stroke-dashoffset="1400"
-          filter="url(#line-glow)"/>
-
-        <!-- Data point dots (Apple) -->
-        <g id="apple-dots" opacity="0">
-          <circle cx="200" cy="140" r="3" fill="#7EB8D4" filter="url(#line-glow)"/>
-          <circle cx="440" cy="90"  r="3" fill="#7EB8D4" filter="url(#line-glow)"/>
-          <circle cx="680" cy="88"  r="3" fill="#7EB8D4" filter="url(#line-glow)"/>
-          <circle cx="920" cy="78"  r="3" fill="#7EB8D4" filter="url(#line-glow)"/>
-        </g>
-
-        <!-- Data point dots (WHOOP) -->
-        <g id="whoop-dots" opacity="0">
-          <circle cx="200" cy="168" r="3" fill="#C9A96E" filter="url(#line-glow)"/>
-          <circle cx="440" cy="118" r="3" fill="#C9A96E" filter="url(#line-glow)"/>
-          <circle cx="680" cy="110" r="3" fill="#C9A96E" filter="url(#line-glow)"/>
-          <circle cx="920" cy="98"  r="3" fill="#C9A96E" filter="url(#line-glow)"/>
-        </g>
-
-        <!-- Labels -->
-        <text x="8" y="16" font-family="IBM Plex Mono" font-size="10" fill="rgba(201,169,110,0.25)" letter-spacing="2">HRV ms</text>
-        <text x="8" y="268" font-family="IBM Plex Mono" font-size="10" fill="rgba(201,169,110,0.2)" letter-spacing="2">6 weeks</text>
-      </svg>
-    </div>
-    <div class="signal-labels">
-      <span>6 weeks ago</span><span>4 weeks</span><span>2 weeks</span><span>Today</span>
-    </div>
-  </div>
-</section>
-
-<!-- ── S5: CTA ── -->
-<section id="s-cta">
-  <div class="cta-orbital-wrap" id="cta-orbital">
-    <svg id="cta-orbital-svg" viewBox="-140 -140 280 280" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="cta-core-g" cx="50%" cy="50%">
-          <stop offset="0%" stop-color="rgba(201,169,110,0.5)"/>
-          <stop offset="100%" stop-color="rgba(201,169,110,0)"/>
-        </radialGradient>
-      </defs>
-      <circle cx="0" cy="0" r="125" fill="none" stroke="rgba(201,169,110,0.06)" stroke-width="0.5"/>
-      <circle cx="0" cy="0" r="95"  fill="none" stroke="rgba(201,169,110,0.09)" stroke-width="0.5"/>
-      <circle cx="0" cy="0" r="65"  fill="none" stroke="rgba(201,169,110,0.13)" stroke-width="0.5"/>
-      <circle cx="0" cy="0" r="40"  fill="none" stroke="rgba(201,169,110,0.18)" stroke-width="0.5"/>
-      <circle cx="0" cy="0" r="22" fill="url(#cta-core-g)"/>
-      <circle id="cta-core" cx="0" cy="0" r="7" fill="rgba(201,169,110,0.6)" stroke="rgba(201,169,110,1)" stroke-width="0.6"/>
-      <g id="cta-orbs"></g>
-    </svg>
-  </div>
-  <div class="cta-text" id="cta-text-block">
-    <h2>Your biology is speaking.<br><em>Are you listening?</em></h2>
-    <p>40 biomarkers · Live · Continuous · Yours</p>
-    <a href="/ailiv" class="cta-btn">Enter AILIV</a>
-    <div class="cta-fine">No signup required to explore · Connect your wearable to go live</div>
-  </div>
-</section>
+<footer>
+  <div class="foot-logo">A<span>I</span>LIV</div>
+  <p>© 2026 AILIV · All rights reserved</p>
+  <p>ailiv.health</p>
+</footer>
 
 <script>
-gsap.registerPlugin(ScrollTrigger);
+// roundRect polyfill (Safari < 16)
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r) {
+    r=Math.min(r,w/2,h/2);
+    this.moveTo(x+r,y); this.lineTo(x+w-r,y);
+    this.arcTo(x+w,y,x+w,y+r,r); this.lineTo(x+w,y+h-r);
+    this.arcTo(x+w,y+h,x+w-r,y+h,r); this.lineTo(x+r,y+h);
+    this.arcTo(x,y+h,x,y+h-r,r); this.lineTo(x,y+r);
+    this.arcTo(x,y,x+r,y,r); this.closePath();
+  };
+}
+// ──────────────────────────────────────────
+// PANEL SYSTEM
+// ──────────────────────────────────────────
+const PIDS = ['orbital','ecg','recovery','sleep','hrv','roots','biomarkers','glucose','signal','change'];
+const PS = {};
+const mousePos = {};
+const PANEL_URLS = {
+  orbital:'/grail', ecg:'/grail', recovery:'/grail', sleep:'/grail', hrv:'/grail',
+  roots:'/grail', biomarkers:'/grail', glucose:'/grail', signal:'/grail', change:'/meditation'
+};
 
-// ── DATA ────────────────────────────────────────────────────────────────────
+PIDS.forEach(id => {
+  PS[id] = { active: 0.38, hovered: false };
+  mousePos[id] = { x: -1, y: -1 };
+  const el = document.getElementById('panel-'+id);
+  if (!el) return;
+  el.style.cursor = 'crosshair';
+  el.addEventListener('mouseenter', () => PS[id].hovered = true);
+  el.addEventListener('mouseleave', () => { PS[id].hovered = false; mousePos[id] = {x:-1,y:-1}; });
+  el.addEventListener('mousemove', e => {
+    const rect = el.getBoundingClientRect();
+    mousePos[id] = { x: (e.clientX - rect.left) * DPR, y: (e.clientY - rect.top) * DPR };
+  });
+});
 
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+function mkC(id) {
+  const canvas = document.getElementById('c-'+id);
+  if (!canvas) return null;
+  const parent = canvas.parentElement;
+  function rsz() {
+    const w = parent.offsetWidth, h = parent.offsetHeight;
+    canvas.width = w*DPR; canvas.height = h*DPR;
+    canvas.style.width = w+'px'; canvas.style.height = h+'px';
+  }
+  rsz();
+  window.addEventListener('resize', rsz);
+  return { canvas, ctx: canvas.getContext('2d'), get w(){return canvas.width;}, get h(){return canvas.height;} };
+}
+const C = {};
+PIDS.forEach(id => C[id] = mkC(id));
+
+// Color fns
+const G  = a => `rgba(111,207,135,${a})`;
+const Au = a => `rgba(201,169,110,${a})`;
+const O  = a => `rgba(240,160,96,${a})`;
+const R  = a => `rgba(240,96,96,${a})`;
+const B  = a => `rgba(96,168,240,${a})`;
+const T  = a => `rgba(96,212,200,${a})`;
+const V  = a => `rgba(180,130,220,${a})`;
+
+// ──────────────────────────────────────────
+// SHARED HELPERS
+// ──────────────────────────────────────────
+function tip(ctx, text, x, y, col, act) {
+  const a = Math.min(1, (act - 0.4) * 5);
+  if (a <= 0) return;
+  const pad = 7 * DPR, fh = 9 * DPR;
+  ctx.font = `${fh}px IBM Plex Mono`;
+  const tw = ctx.measureText(text).width;
+  const bw = tw + pad * 2, bh = fh + pad * 1.4;
+  let tx = x - bw / 2, ty = y - bh - 10 * DPR;
+  if (tx < 4) tx = 4;
+  if (ty < 4) ty = 4;
+  ctx.fillStyle = `rgba(4,4,10,${0.88 * a})`;
+  ctx.beginPath();
+  ctx.roundRect(tx, ty, bw, bh, 3 * DPR);
+  ctx.fill();
+  ctx.fillStyle = col(0.9 * a);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(text, tx + pad, ty + bh / 2);
+}
+
+let rootSelected = -1;
+let bioHovered = -1;
+// Click handlers (interactive, not navigate)
+document.getElementById('panel-roots')?.addEventListener('click', e => {
+  const rect = document.getElementById('panel-roots').getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * DPR, my = (e.clientY - rect.top) * DPR;
+  const s = C.roots; if (!s) return;
+  let hit = -1;
+  ROOT_NODES.forEach((n, i) => {
+    const nr = (n.system === 'leaf' ? n.r * 0.75 : n.r) * DPR * 1.2;
+    const dx = n.x * s.w - mx, dy = n.y * s.h - my;
+    if (Math.sqrt(dx*dx+dy*dy) < nr * 1.5) hit = i;
+  });
+  rootSelected = rootSelected === hit ? -1 : hit;
+});
+// Open-full click on the small open buttons (not the canvas)
+document.querySelectorAll('.panel-open').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    window.open(btn.dataset.url, '_blank');
+  });
+});
+
+// ──────────────────────────────────────────
+// ORBITAL
+// ──────────────────────────────────────────
 const RINGS = [
-  {
-    r: 70, id: 1,
-    nodes: [
-      { label: 'Resting HR',     status: 'optimal', val: '58 bpm' },
-      { label: 'HRV',            status: 'optimal', val: '72 ms'  },
-      { label: 'SpO₂',          status: 'optimal', val: '98%'    },
-      { label: 'Sleep',          status: 'border',  val: '6.4 hr' },
-      { label: 'Resp Rate',      status: 'optimal', val: '14/min' },
-      { label: 'VO₂ Max',        status: 'border',  val: '42 ml'  },
-      { label: 'Wrist Temp',     status: 'optimal', val: '36.4°'  },
-      { label: 'Glucose',        status: 'optimal', val: '88 mg'  },
-    ]
-  },
-  {
-    r: 106, id: 2,
-    nodes: [
-      { label: 'Active HR',      status: 'optimal', val: '142 bpm' },
-      { label: 'Testosterone',   status: 'border',  val: '480 ng'  },
-      { label: 'CRP',            status: 'optimal', val: '0.4 mg'  },
-      { label: 'Recovery',       status: 'optimal', val: '78%'     },
-      { label: 'Cortisol',       status: 'border',  val: '18 μg'   },
-      { label: 'Vitamin D',      status: 'flagged', val: '22 ng'   },
-      { label: 'Deep Sleep',     status: 'border',  val: '18%'     },
-      { label: 'REM Sleep',      status: 'optimal', val: '22%'     },
-      { label: 'Daily Steps',    status: 'optimal', val: '9,240'   },
-      { label: 'Systolic BP',    status: 'optimal', val: '118 mmHg'},
-      { label: 'Body Fat',       status: 'border',  val: '18.2%'   },
-      { label: 'Ferritin',       status: 'optimal', val: '88 ng'   },
-    ]
-  },
-  {
-    r: 146, id: 3,
-    nodes: [
-      { label: 'Magnesium',      status: 'border',  val: '1.8 mg'  },
-      { label: 'Omega-3 Index',  status: 'border',  val: '6.2%'    },
-      { label: 'Insulin Sens.',  status: 'optimal', val: '4.8'     },
-      { label: 'Uric Acid',      status: 'optimal', val: '4.8 mg'  },
-      { label: 'B12',            status: 'optimal', val: '620 pg'  },
-      { label: 'Zinc',           status: 'border',  val: '78 μg'   },
-      { label: 'Hydration',      status: 'optimal', val: '62%'     },
-      { label: 'Grip Strength',  status: 'optimal', val: '48 kg'   },
-      { label: 'Lactate Thresh', status: 'border',  val: '3.2 mM'  },
-      { label: 'Muscle Mass',    status: 'optimal', val: '42.8 kg' },
-    ]
-  },
-  {
-    r: 188, id: 4,
-    nodes: [
-      { label: 'Serum Albumin',  status: 'optimal', val: '4.4 g'   },
-      { label: 'ALT Enzyme',     status: 'optimal', val: '22 U/L'  },
-      { label: 'DHEA-S',         status: 'border',  val: '180 μg'  },
-      { label: 'Free Test.',     status: 'border',  val: '9.2 pg'  },
-      { label: 'IGF-1',          status: 'optimal', val: '188 ng'  },
-      { label: 'Homocysteine',   status: 'border',  val: '11 μmol' },
-      { label: 'ApoB',           status: 'border',  val: '88 mg'   },
-      { label: 'Fibrinogen',     status: 'optimal', val: '280 mg'  },
-      { label: 'NAD+',           status: 'flagged', val: '28 μM'   },
-      { label: 'TSH/Thyroid',    status: 'optimal', val: '1.8 mIU' },
-    ]
-  }
+  {count:8,  rf:0.20, spd:0.020},
+  {count:12, rf:0.32, spd:0.013},
+  {count:10, rf:0.44, spd:0.008},
+  {count:10, rf:0.55, spd:0.005},
 ];
-
-const SYSTEMS = [
-  {
-    name: 'Cardiovascular',
-    status: 'optimal',
-    color: '#f06060',
-    markers: ['Resting HR', 'HRV', 'SpO₂', 'Systolic BP', 'ApoB', 'Fibrinogen'],
-    bubbles: [
-      { s: 18, st: 'optimal' }, { s: 22, st: 'optimal' }, { s: 14, st: 'optimal' },
-      { s: 16, st: 'optimal' }, { s: 12, st: 'border'  }, { s: 10, st: 'optimal' }
-    ]
-  },
-  {
-    name: 'Metabolic',
-    status: 'border',
-    color: '#f0a060',
-    markers: ['Glucose', 'Insulin Sens.', 'Uric Acid', 'Body Fat', 'Cortisol', 'Omega-3'],
-    bubbles: [
-      { s: 20, st: 'optimal' }, { s: 16, st: 'optimal' }, { s: 14, st: 'optimal' },
-      { s: 18, st: 'border'  }, { s: 12, st: 'border'  }, { s: 10, st: 'border'  }
-    ]
-  },
-  {
-    name: 'Hormonal',
-    status: 'border',
-    color: '#c8a060',
-    markers: ['Testosterone', 'Free Test.', 'Cortisol', 'DHEA-S', 'IGF-1', 'TSH'],
-    bubbles: [
-      { s: 18, st: 'border'  }, { s: 16, st: 'border'  }, { s: 14, st: 'border'  },
-      { s: 20, st: 'optimal' }, { s: 12, st: 'optimal' }, { s: 10, st: 'border'  }
-    ]
-  },
-  {
-    name: 'Inflammatory',
-    status: 'optimal',
-    color: '#c8f060',
-    markers: ['CRP', 'Homocysteine', 'Fibrinogen', 'ALT Enzyme', 'Ferritin', 'ApoB'],
-    bubbles: [
-      { s: 22, st: 'optimal' }, { s: 14, st: 'border'  }, { s: 16, st: 'optimal' },
-      { s: 12, st: 'optimal' }, { s: 18, st: 'optimal' }, { s: 10, st: 'border'  }
-    ]
-  },
-  {
-    name: 'Recovery',
-    status: 'optimal',
-    color: '#60c8b0',
-    markers: ['HRV', 'Deep Sleep', 'REM Sleep', 'Recovery Score', 'Wrist Temp', 'Resp Rate'],
-    bubbles: [
-      { s: 24, st: 'optimal' }, { s: 16, st: 'border'  }, { s: 18, st: 'optimal' },
-      { s: 20, st: 'optimal' }, { s: 10, st: 'optimal' }, { s: 12, st: 'optimal' }
-    ]
-  },
-  {
-    name: 'Longevity',
-    status: 'border',
-    color: '#9060c8',
-    markers: ['NAD+', 'IGF-1', 'Telomere Act.', 'VO₂ Max', 'Vitamin D', 'B12'],
-    bubbles: [
-      { s: 20, st: 'flagged' }, { s: 16, st: 'optimal' }, { s: 14, st: 'border'  },
-      { s: 18, st: 'border'  }, { s: 22, st: 'flagged' }, { s: 12, st: 'optimal' }
-    ]
-  }
+const NCOLS = [[111,207,135],[240,160,96],[240,96,96],[96,168,240],[201,169,110],[96,212,200],[180,130,220],[200,200,90]];
+const ORB_LABELS = [
+  'Resting HR','HRV','SpO₂','Sleep','Resp Rate','VO₂ Max','Wrist Temp','Glucose',
+  'Active HR','Testosterone','CRP','Recovery','Cortisol','Vitamin D','Deep Sleep','REM Sleep',
+  'Daily Steps','Systolic BP','Body Fat','Ferritin',
+  'Magnesium','Omega-3','Insulin Sens','Uric Acid','B12','Zinc','Hydration','Grip Strength',
+  'Lactate Thr','Muscle Mass',
+  'Albumin','ALT','DHEA-S','Free T','IGF-1','Homocysteine','ApoB','Fibrinogen','NAD+','TSH'
 ];
-
-// ── HELPERS ─────────────────────────────────────────────────────────────────
-
-function statusColor(s) {
-  return s === 'optimal' ? '#c8f060' : s === 'border' ? '#f0a060' : '#f06060';
-}
-
-function makeSVGEl(tag, attrs) {
-  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
-  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-  return el;
-}
-
-// ── BUILD ORBITAL ────────────────────────────────────────────────────────────
-
-function buildOrbital(svgId, rings, scale = 1) {
-  RINGS.forEach(ring => {
-    const g = document.getElementById(`orbs-${ring.id}`) ||
-              document.querySelector(`#${svgId} #orbs-${ring.id}`);
-    if (!g) return;
-    ring.nodes.forEach((node, i) => {
-      const angle = (i / ring.nodes.length) * Math.PI * 2 - Math.PI / 2;
-      const r = ring.r * scale;
-      const x = Math.cos(angle) * r;
-      const y = Math.sin(angle) * r;
-      const col = statusColor(node.status);
-      const size = ring.id === 1 ? 4.5 : ring.id === 2 ? 4 : ring.id === 3 ? 3.5 : 3;
-
-      // Orb circle
-      const orb = makeSVGEl('circle', {
-        cx: x, cy: y, r: size,
-        fill: col,
-        opacity: ring.id === 1 ? '0.9' : ring.id === 2 ? '0.75' : ring.id === 3 ? '0.6' : '0.45',
-        filter: 'url(#glow-strong)'
-      });
-      g.appendChild(orb);
-    });
-  });
-}
-
-buildOrbital('orbital-svg', RINGS, 1);
-
-// Build CTA orbital (smaller, simplified)
-(function() {
-  const g = document.getElementById('cta-orbs');
-  if (!g) return;
-  const ctaRings = [
-    { r: 40, n: 8  },
-    { r: 65, n: 10 },
-    { r: 95, n: 10 },
-    { r: 125, n: 10 },
-  ];
-  ctaRings.forEach((ring, ri) => {
-    for (let i = 0; i < ring.n; i++) {
-      const angle = (i / ring.n) * Math.PI * 2;
-      const orb = makeSVGEl('circle', {
-        cx: Math.cos(angle) * ring.r,
-        cy: Math.sin(angle) * ring.r,
-        r: 2.5,
-        fill: `rgba(201,169,110,${0.7 - ri * 0.12})`,
-        filter: 'url(#glow-strong)'
-      });
-      g.appendChild(orb);
-    }
-  });
-})();
-
-// ── BUILD BIOMARKER ROWS ──────────────────────────────────────────────────────
-
+const ORB_VALS = [
+  '58 bpm','68 ms','98.2%','7.4 hr','14.2/min','52.4','37.1°C','88 mg/dL',
+  '128 bpm','641 ng/dL','0.4 mg/L','78%','18 μg/dL','38 ng/mL','18%','22%',
+  '9,420','118/76','14.2%','82 ng/mL',
+  '2.1 mg/dL','7.8%','8.4','4.8 mg/dL','412 pg/mL','88 μg/dL','62%','48 kg',
+  '4.2 mmol/L','38.4 kg',
+  '4.6 g/dL','24 U/L','182 μg/dL','14.8 pg/mL','210 ng/mL','8.2 μmol/L','78 mg/dL','3.1 g/L','42 μM','1.8 mIU/L'
+];
+const orbs = [];
+let ni=0;
 RINGS.forEach(ring => {
-  const container = document.getElementById(`ring-${ring.id}-rows`);
-  if (!container) return;
+  for (let i=0; i<ring.count; i++) {
+    orbs.push({ ring, angle:(i/ring.count)*Math.PI*2, phase:Math.random()*Math.PI*2,
+      col:NCOLS[ni%NCOLS.length], label:ORB_LABELS[ni]||'—', val:ORB_VALS[ni]||'—', px:0, py:0 });
+    ni++;
+  }
+});
 
-  const half = Math.ceil(ring.nodes.length / 2);
-  const left  = ring.nodes.slice(0, half);
-  const right = ring.nodes.slice(half);
-  const rows  = Math.max(left.length, right.length);
+function drawOrbital(t) {
+  const s=C.orbital; if(!s) return;
+  const {ctx,w,h}=s, act=PS.orbital.active;
+  ctx.clearRect(0,0,w,h);
+  const cx=w*.5, cy=h*.52, mr=Math.min(w,h)*.44;
+  const mx=mousePos.orbital.x, my=mousePos.orbital.y;
 
-  for (let i = 0; i < rows; i++) {
-    const row = document.createElement('div');
-    row.className = 'bio-row';
+  RINGS.forEach(r => {
+    ctx.beginPath(); ctx.arc(cx,cy,mr*r.rf,0,Math.PI*2);
+    ctx.strokeStyle=Au(0.07+act*0.12); ctx.lineWidth=0.5; ctx.stroke();
+  });
 
-    // Left item
-    const lDiv = document.createElement('div');
-    if (left[i]) {
-      const n = left[i];
-      lDiv.className = 'bio-item left';
-      lDiv.innerHTML = `
-        <span class="bio-value">${n.val}</span>
-        <span class="bio-label">${n.label}</span>
-        <div class="bio-dot ${n.status}"></div>
-      `;
+  let hovOrb = null;
+  orbs.forEach(n => {
+    n.angle += n.ring.spd*(0.2+act*0.8);
+    const r=mr*n.ring.rf;
+    const x=cx+Math.cos(n.angle)*r, y=cy+Math.sin(n.angle)*r;
+    n.px = x; n.py = y;
+    const pulse=Math.sin(t*.0018+n.phase)*.5+.5;
+    const sz=(2.8+pulse*3.2)*(0.5+act*.5);
+    const [cr,cg,cb]=n.col, al=(0.42+act*.55)*(0.6+pulse*.4);
+    // Check hover
+    const hovered = mx>0 && Math.sqrt((x-mx)**2+(y-my)**2) < sz*5;
+    if (hovered) hovOrb = n;
+    const szB = hovered ? sz*1.6 : sz;
+    const alB = hovered ? Math.min(1, al*1.5) : al;
+    const grd=ctx.createRadialGradient(x,y,0,x,y,szB*4);
+    grd.addColorStop(0,`rgba(${cr},${cg},${cb},${alB*.45})`);
+    grd.addColorStop(1,`rgba(${cr},${cg},${cb},0)`);
+    ctx.beginPath(); ctx.arc(x,y,szB*4,0,Math.PI*2); ctx.fillStyle=grd; ctx.fill();
+    ctx.beginPath(); ctx.arc(x,y,szB,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${cr},${cg},${cb},${alB})`; ctx.fill();
+  });
+
+  // Core
+  const cs=mr*.11, cp=Math.sin(t*.0013)*.5+.5;
+  const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,cs*3);
+  cg.addColorStop(0,Au(.35+act*.65)); cg.addColorStop(.4,Au(.18+act*.45)); cg.addColorStop(1,Au(0));
+  ctx.beginPath(); ctx.arc(cx,cy,cs*(1+cp*.14),0,Math.PI*2); ctx.fillStyle=cg; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx-cs*.22,cy-cs*.26,cs*.3,0,Math.PI*2);
+  ctx.fillStyle=Au(0.04+act*.3); ctx.fill();
+  if (act>.25) {
+    ctx.font=`${Math.floor(cs*.85)}px Cormorant Garamond`;
+    ctx.fillStyle=Au(.18+act*.72); ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('84',cx,cy);
+  }
+
+  // Tooltip for hovered orb
+  if (hovOrb && act > 0.4) {
+    const [cr,cg,cb]=hovOrb.col;
+    const col = a => `rgba(${cr},${cg},${cb},${a})`;
+    tip(ctx, `${hovOrb.label}  ${hovOrb.val}`, hovOrb.px, hovOrb.py, col, act);
+    document.getElementById('panel-orbital').style.cursor = 'pointer';
+  } else {
+    document.getElementById('panel-orbital').style.cursor = 'crosshair';
+  }
+}
+
+// ──────────────────────────────────────────
+// ECG
+// ──────────────────────────────────────────
+const ecgBuf=new Array(500).fill(.5);
+let ecgTk=0;
+function ecgSmp(t) {
+  const c=(t%110)/110;
+  if(c<.05)  return .5+Math.sin(c/.05*Math.PI)*.065;
+  if(c<.11)  return .5-Math.sin((c-.05)/.06*Math.PI)*.04;
+  if(c<.145) return .5+Math.sin((c-.11)/.035*Math.PI)*.44;
+  if(c<.195) return .5-Math.sin((c-.145)/.05*Math.PI)*.13;
+  if(c<.34)  return .5+Math.sin((c-.195)/.145*Math.PI)*.085;
+  return .5+(Math.random()-.5)*.008;
+}
+function drawECG(t) {
+  const s=C.ecg; if(!s) return;
+  const {ctx,w,h}=s, act=PS.ecg.active;
+  ecgTk+=2.2*(0.4+act*.6); ecgBuf.push(ecgSmp(ecgTk)); ecgBuf.shift();
+  ctx.clearRect(0,0,w,h);
+  const ga=0.06+act*.12;
+  for(let x=0;x<w;x+=w/10){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.strokeStyle=G(ga);ctx.lineWidth=.4;ctx.stroke();}
+  for(let y=0;y<h;y+=h/5){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.strokeStyle=G(ga);ctx.lineWidth=.4;ctx.stroke();}
+  const vis=Math.floor(w/1.7), si=ecgBuf.length-vis;
+  ctx.beginPath();
+  for(let i=0;i<vis;i++){const x=(i/vis)*w,y=h*(1-ecgBuf[si+i])*.78+h*.11; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.strokeStyle=G(.38+act*.58); ctx.lineWidth=1.8;
+  ctx.shadowColor=G(act*.7); ctx.shadowBlur=10*act; ctx.stroke(); ctx.shadowBlur=0;
+  ctx.beginPath(); ctx.moveTo(w-1,0); ctx.lineTo(w-1,h);
+  ctx.strokeStyle=G(act*.65); ctx.lineWidth=1; ctx.stroke();
+  if(act>.22){
+    ctx.font=`bold ${Math.floor(h*.3)}px IBM Plex Mono`;
+    ctx.fillStyle=G(.06+act*.16); ctx.textAlign='right'; ctx.textBaseline='bottom';
+    ctx.fillText('58',w-10,h-8);
+  }
+}
+
+// ──────────────────────────────────────────
+// RECOVERY
+// ──────────────────────────────────────────
+function drawRecovery(t) {
+  const s=C.recovery; if(!s) return;
+  const {ctx,w,h}=s, act=PS.recovery.active;
+  ctx.clearRect(0,0,w,h);
+  const cx=w*.5, cy=h*.55, r=Math.min(w,h)*.33, sc=.78;
+  const sa=Math.PI*.75, ea=sa+sc*Math.PI*1.5;
+  ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI*.75,Math.PI*2.25);
+  ctx.strokeStyle=G(.1+act*.12); ctx.lineWidth=5; ctx.lineCap='round'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,r,sa,ea);
+  ctx.strokeStyle=G(.52+act*.45); ctx.lineWidth=5; ctx.lineCap='round';
+  ctx.shadowColor=G(act*.75); ctx.shadowBlur=16*act; ctx.stroke(); ctx.shadowBlur=0;
+  ctx.font=`${Math.floor(r*.66)}px Cormorant Garamond`;
+  ctx.fillStyle=G(.45+act*.52); ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('78',cx,cy);
+  ctx.font=`${Math.floor(r*.18)}px IBM Plex Mono`;
+  ctx.fillStyle=G(.1+act*.35); ctx.fillText('%',cx,cy+r*.52);
+}
+
+// ──────────────────────────────────────────
+// SLEEP
+// ──────────────────────────────────────────
+const SEGS=[
+  {label:'AWAKE',pct:.05,col:[240,96,96]},
+  {label:'REM',  pct:.22,col:[96,168,240]},
+  {label:'LIGHT',pct:.43,col:[96,212,200]},
+  {label:'DEEP', pct:.30,col:[111,207,135]},
+];
+function drawSleep(t) {
+  const s=C.sleep; if(!s) return;
+  const {ctx,w,h}=s, act=PS.sleep.active;
+  ctx.clearRect(0,0,w,h);
+  const pad=14, lw=44;
+  const bh=Math.floor((h-pad*2-9*(SEGS.length-1))/SEGS.length);
+  const pw=w-pad*2-lw;
+  SEGS.forEach((seg,i) => {
+    const y=pad+i*(bh+9), [cr,cg,cb]=seg.col;
+    const al=.3+act*.62, bw=pw*seg.pct*(.65+act*.35);
+    ctx.fillStyle=`rgba(${cr},${cg},${cb},0.06)`;ctx.fillRect(pad+lw,y,pw,bh);
+    ctx.fillStyle=`rgba(${cr},${cg},${cb},${al})`;ctx.fillRect(pad+lw,y,bw,bh);
+    ctx.fillStyle=`rgba(${cr},${cg},${cb},${.55+act*.4})`;ctx.fillRect(pad+lw+bw-2,y,2,bh);
+    ctx.font='7.5px IBM Plex Mono';
+    ctx.fillStyle=`rgba(${cr},${cg},${cb},${.22+act*.55})`;
+    ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillText(seg.label,pad+lw-4,y+bh*.5);
+    ctx.textAlign='left';
+    ctx.fillStyle=`rgba(${cr},${cg},${cb},${.18+act*.45})`;
+    ctx.fillText(Math.round(seg.pct*100)+'%',pad+lw+bw+5,y+bh*.5);
+  });
+  ['22:00','00:00','02:00','04:00','06:00'].forEach((l,i)=>{
+    const x=pad+lw+(i/4)*pw;
+    ctx.beginPath();ctx.moveTo(x,pad-3);ctx.lineTo(x,h-pad+3);
+    ctx.strokeStyle=Au(.03+act*.06);ctx.lineWidth=.4;ctx.stroke();
+    ctx.font='7px IBM Plex Mono'; ctx.fillStyle=Au(.1+act*.22);
+    ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(l,x,h-pad+4);
+  });
+}
+
+// ──────────────────────────────────────────
+// HRV
+// ──────────────────────────────────────────
+const hrvB=Array.from({length:30},(_,i)=>40+Math.sin(i*.4)*18+Math.random()*14);
+function drawHRV(t) {
+  const s=C.hrv; if(!s) return;
+  const {ctx,w,h}=s, act=PS.hrv.active;
+  ctx.clearRect(0,0,w,h);
+  const pad=11, maxV=90, base=55;
+  const stride=(w-pad*2)/hrvB.length;
+  const bw=stride-1.5;
+  const by=h-pad-(base/maxV)*(h-pad*2);
+  const mx=mousePos.hrv.x;
+  const hovIdx = mx>0 ? Math.floor((mx-pad)/stride) : -1;
+  ctx.beginPath();ctx.moveTo(pad,by);ctx.lineTo(w-pad,by);
+  ctx.strokeStyle=Au(.05+act*.09);ctx.lineWidth=1;ctx.setLineDash([3,4]);ctx.stroke();ctx.setLineDash([]);
+  hrvB.forEach((val,i)=>{
+    const x=pad+i*stride, bh=(val/maxV)*(h-pad*2), y=h-pad-bh;
+    const above=val>base, hov=(i===hovIdx);
+    const bright = hov ? 1.0 : 0;
+    ctx.fillStyle=above?G(.42+act*.52+bright*.3):O(.42+act*.52+bright*.3); ctx.fillRect(x,y,bw,bh);
+    ctx.fillStyle=above?G(.65+act*.32+bright*.25):O(.65+act*.32+bright*.25); ctx.fillRect(x,y,bw,2);
+    if (hov && act>0.35) {
+      // Hover vertical line
+      ctx.beginPath(); ctx.moveTo(x+bw/2,pad); ctx.lineTo(x+bw/2,h-pad);
+      ctx.strokeStyle=Au(.15+act*.2); ctx.lineWidth=.5; ctx.setLineDash([2,3]); ctx.stroke(); ctx.setLineDash([]);
+      tip(ctx, `Day ${i+1}  ${Math.round(val)}ms`, x+bw/2, y, above?G:O, act);
+    }
+  });
+  if(act>.2){
+    ctx.font=`${Math.floor(h*.26)}px Cormorant Garamond`;
+    ctx.fillStyle=T(.1+act*.28); ctx.textAlign='right'; ctx.textBaseline='top';
+    ctx.fillText('68ms',w-pad,pad);
+  }
+}
+
+// ──────────────────────────────────────────
+// ROOT CAUSE NETWORK
+// ──────────────────────────────────────────
+const ROOT_NODES = [
+  // Central root causes
+  {id:0, label:'INFLAMMATION', x:.5, y:.5, r:22, col:[240,96,96], system:'core', val:'CRP 0.4'},
+  {id:1, label:'METABOLIC', x:.25, y:.35, r:18, col:[240,160,96], system:'metabolic', val:'Glucose 88'},
+  {id:2, label:'HORMONAL', x:.75, y:.35, r:18, col:[96,168,240], system:'hormonal', val:'T 641'},
+  {id:3, label:'SLEEP DEBT', x:.22, y:.68, r:16, col:[111,207,135], system:'sleep', val:'HRV 68'},
+  {id:4, label:'OXIDATIVE', x:.78, y:.68, r:15, col:[180,130,220], system:'longevity', val:'NAD+'},
+  {id:5, label:'VASCULAR', x:.5, y:.2, r:14, col:[96,212,200], system:'cardio', val:'BP 118/76'},
+  // Biomarker leaves
+  {id:6, label:'CRP', x:.42, y:.62, r:9, col:[240,96,96], system:'leaf', val:'0.4'},
+  {id:7, label:'Cortisol', x:.58, y:.62, r:9, col:[240,160,96], system:'leaf', val:'18'},
+  {id:8, label:'IGF-1', x:.72, y:.45, r:8, col:[96,168,240], system:'leaf', val:'210'},
+  {id:9, label:'ApoB', x:.38, y:.42, r:8, col:[96,168,240], system:'leaf', val:'78'},
+  {id:10,label:'Ferritin', x:.16, y:.5, r:8, col:[240,160,96], system:'leaf', val:'82'},
+  {id:11,label:'Hcy', x:.84, y:.52, r:8, col:[240,96,96], system:'leaf', val:'8.2'},
+  {id:12,label:'Vitamin D', x:.3, y:.22, r:9, col:[201,169,110], system:'leaf', val:'38'},
+  {id:13,label:'NAD+', x:.7, y:.22, r:8, col:[180,130,220], system:'leaf', val:'42'},
+  {id:14,label:'HRV', x:.12, y:.75, r:9, col:[111,207,135], system:'leaf', val:'68ms'},
+  {id:15,label:'Deep Sleep', x:.32, y:.82, r:8, col:[96,168,240], system:'leaf', val:'18%'},
+  {id:16,label:'VO₂ Max', x:.65, y:.82, r:9, col:[111,207,135], system:'leaf', val:'52.4'},
+  {id:17,label:'Testosterone', x:.88, y:.75, r:9, col:[96,168,240], system:'leaf', val:'641'},
+];
+const ROOT_EDGES = [
+  [0,6],[0,7],[0,11],[0,4],
+  [1,9],[1,10],[1,12],[1,3],
+  [2,8],[2,13],[2,17],[2,5],
+  [3,14],[3,15],[3,1],
+  [4,13],[4,11],
+  [5,9],[5,17],
+  [0,1],[0,2],[1,3],[2,4],[0,5],
+];
+// Animate nodes floating
+const rootAnims = ROOT_NODES.map(n => ({
+  ox: n.x, oy: n.y,
+  px: (Math.random()-.5)*.025, py: (Math.random()-.5)*.025,
+  phase: Math.random()*Math.PI*2
+}));
+
+function drawRoots(t) {
+  const s=C.roots; if(!s) return;
+  const {ctx,w,h}=s, act=PS.roots.active;
+  ctx.clearRect(0,0,w,h);
+  const mx=mousePos.roots.x, my=mousePos.roots.y;
+
+  // Update node positions (gentle float)
+  rootAnims.forEach((a,i) => {
+    const amp = .018*(0.3+act*.7);
+    ROOT_NODES[i].x = a.ox + Math.sin(t*.0007+a.phase)*a.px*10*amp*55;
+    ROOT_NODES[i].y = a.oy + Math.cos(t*.0009+a.phase)*a.py*10*amp*55;
+  });
+
+  // Detect hovered node
+  let hovNode = -1;
+  ROOT_NODES.forEach((n,i) => {
+    const nx=n.x*w, ny=n.y*h;
+    const nr=(n.system==='leaf'?n.r*.75:n.r)*DPR*1.1;
+    if (mx>0 && Math.sqrt((nx-mx)**2+(ny-my)**2) < nr*2.2) hovNode=i;
+  });
+  document.getElementById('panel-roots').style.cursor = hovNode>=0 ? 'pointer' : 'crosshair';
+
+  // Determine which edges are highlighted (selected or hovered node)
+  const focusNode = rootSelected>=0 ? rootSelected : hovNode;
+  const litEdges = new Set();
+  const litNodes = new Set();
+  if (focusNode>=0) {
+    litNodes.add(focusNode);
+    ROOT_EDGES.forEach(([ai,bi],ei) => {
+      if (ai===focusNode||bi===focusNode) { litEdges.add(ei); litNodes.add(ai); litNodes.add(bi); }
+    });
+  }
+
+  // Draw edges
+  ROOT_EDGES.forEach(([ai,bi],ei) => {
+    const A=ROOT_NODES[ai], B=ROOT_NODES[bi];
+    const ax=A.x*w, ay=A.y*h, bx=B.x*w, by=B.y*h;
+    const [cr,cg,cb]=A.col;
+    const lit = litEdges.has(ei);
+    const edgeAl = lit ? .55+act*.35 : (focusNode>=0 ? .03+act*.05 : .12+act*.18);
+    const lw = lit ? 1.5+act*1.0 : .8+act*.6;
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by);
+    ctx.strokeStyle=`rgba(${cr},${cg},${cb},${edgeAl})`;
+    ctx.lineWidth=lw; ctx.stroke();
+    if (act>.3 || lit) {
+      const progress=((t*.0006+ai*.3)%1);
+      const px=ax+(bx-ax)*progress, py=ay+(by-ay)*progress;
+      ctx.beginPath(); ctx.arc(px,py, lit?3:2, 0,Math.PI*2);
+      ctx.fillStyle=`rgba(${cr},${cg},${cb},${lit?act*.9:act*.5})`; ctx.fill();
+    }
+  });
+
+  // Draw nodes
+  let tipNode = null;
+  ROOT_NODES.forEach((n,i) => {
+    const x=n.x*w, y=n.y*h;
+    const [cr,cg,cb]=n.col;
+    const pulse=Math.sin(t*.0016+rootAnims[i].phase)*.5+.5;
+    const isLeaf=n.system==='leaf';
+    const isLit = litNodes.has(i);
+    const isHov = i===hovNode;
+    const scale = isHov ? 1.35 : isLit ? 1.2 : (focusNode>=0 ? 0.75 : 1.0);
+    const nr=(isLeaf?n.r*.75:n.r)*DPR*(0.75+act*.25)*(1+pulse*.14)*scale;
+    const al = isLeaf ?
+      (isLit ? .75+act*.25 : focusNode>=0 ? .12+act*.15 : .35+act*.55) :
+      (isLit ? .8+act*.2  : focusNode>=0 ? .12+act*.15 : .48+act*.48);
+    if (isHov) tipNode = n;
+    const gr=ctx.createRadialGradient(x,y,0,x,y,nr*3.5);
+    gr.addColorStop(0,`rgba(${cr},${cg},${cb},${al*.35})`);
+    gr.addColorStop(1,`rgba(${cr},${cg},${cb},0)`);
+    ctx.beginPath(); ctx.arc(x,y,nr*3.5,0,Math.PI*2); ctx.fillStyle=gr; ctx.fill();
+    ctx.beginPath(); ctx.arc(x,y,nr,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${cr},${cg},${cb},${al})`; ctx.fill();
+    ctx.beginPath(); ctx.arc(x-nr*.25,y-nr*.28,nr*.3,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${cr},${cg},${cb},${al*.5})`; ctx.fill();
+    if ((act>.3&&!isLeaf)||(isLit&&!isLeaf)) {
+      ctx.font=`${Math.floor(nr*.52)}px IBM Plex Mono`;
+      ctx.fillStyle=`rgba(${cr},${cg},${cb},${act*.85})`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(n.label,x,y);
+    }
+    if ((act>.5&&isLeaf)||(isLit&&isLeaf)) {
+      ctx.font=`${Math.floor(nr*.72)}px IBM Plex Mono`;
+      ctx.fillStyle=`rgba(${cr},${cg},${cb},${act*.7})`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(n.val,x,y+nr*1.9);
+    }
+  });
+
+  // Tooltip for hovered node
+  if (tipNode && act>0.35) {
+    const [cr,cg,cb]=tipNode.col;
+    const col = a=>`rgba(${cr},${cg},${cb},${a})`;
+    const x=tipNode.x*w, y=tipNode.y*h;
+    const label = rootSelected>=0 ? 'click to deselect' : 'click to isolate';
+    tip(ctx, `${tipNode.label}  ${tipNode.val}  ·  ${label}`, x, y, col, act);
+  }
+  if (rootSelected>=0 && act>0.35) {
+    ctx.font=`${8*DPR}px IBM Plex Mono`;
+    ctx.fillStyle=Au(.3+act*.3); ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText('CLICK NODE TO ISOLATE CONNECTIONS', w/2, h-4*DPR);
+  }
+}
+
+// ──────────────────────────────────────────
+// BIOMARKER STREAM
+// ──────────────────────────────────────────
+const BIOS=[
+  {label:'Resting HR', val:'58 bpm', st:'g'},
+  {label:'HRV', val:'68 ms', st:'g'},
+  {label:'SpO₂', val:'98.2%', st:'g'},
+  {label:'VO₂ Max', val:'52.4', st:'g'},
+  {label:'Testosterone', val:'641 ng/dL', st:'g'},
+  {label:'Glucose', val:'88 mg/dL', st:'g'},
+  {label:'CRP', val:'0.4 mg/L', st:'g'},
+  {label:'Vitamin D', val:'38 ng/mL', st:'o'},
+  {label:'Cortisol', val:'18 μg/dL', st:'o'},
+  {label:'Sleep', val:'7.4 hrs', st:'g'},
+  {label:'Deep Sleep', val:'18%', st:'o'},
+  {label:'Body Fat', val:'14.2%', st:'g'},
+  {label:'Ferritin', val:'82 ng/mL', st:'g'},
+  {label:'Magnesium', val:'2.1 mg/dL', st:'o'},
+  {label:'Homocysteine', val:'8.2 μmol/L', st:'g'},
+];
+let bioScr=0;
+function drawBiomarkers(t) {
+  const s=C.biomarkers; if(!s) return;
+  const {ctx,w,h}=s, act=PS.biomarkers.active;
+  ctx.clearRect(0,0,w,h);
+  const rh=(h-4)/5.5;
+  const my=mousePos.biomarkers.y;
+  const hovered = PS.biomarkers.hovered;
+  // Pause scroll on hover
+  if (!hovered) bioScr=(bioScr+.28*(0.25+act*.75))%(rh*BIOS.length);
+  const hovRow = my>0 ? Math.floor((my+bioScr-2)/(rh)) % BIOS.length : -1;
+  ctx.save(); ctx.beginPath(); ctx.rect(0,0,w,h); ctx.clip();
+  for(let loop=0;loop<2;loop++){
+    BIOS.forEach((bio,i)=>{
+      const y=i*rh-bioScr+loop*rh*BIOS.length+2;
+      if(y<-rh||y>h+rh) return;
+      const cf=bio.st==='g'?G:bio.st==='o'?O:R;
+      const isHov = (i===((hovRow+BIOS.length)%BIOS.length)) && hovered;
+      ctx.fillStyle=cf(isHov ? .06+act*.1 : .015+act*.04); ctx.fillRect(0,y,w,rh-1);
+      // Highlight bar on hover
+      if (isHov) { ctx.fillStyle=cf(.08+act*.08); ctx.fillRect(0,y,w*0.98*(bio.st==='g'?0.9:0.6),rh-1); }
+      ctx.beginPath(); ctx.arc(9,y+rh*.5, isHov?4:3, 0,Math.PI*2);
+      ctx.fillStyle=cf(isHov?.9+act*.1:.18+act*.65); ctx.fill();
+      ctx.font= isHov ? `bold ${8*DPR/DPR}px IBM Plex Mono` : '8px IBM Plex Mono';
+      ctx.fillStyle=Au(isHov?.9+act*.1:.5+act*.45); ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText(bio.label,19,y+rh*.5);
+      ctx.fillStyle=cf(isHov?.95:.55+act*.42); ctx.textAlign='right';
+      ctx.fillText(bio.val,w-8,y+rh*.5);
+    });
+  }
+  ctx.restore();
+  const ft=ctx.createLinearGradient(0,0,0,16); ft.addColorStop(0,'rgba(4,4,10,1)'); ft.addColorStop(1,'rgba(4,4,10,0)');
+  ctx.fillStyle=ft; ctx.fillRect(0,0,w,16);
+  const fb=ctx.createLinearGradient(0,h-16,0,h); fb.addColorStop(0,'rgba(4,4,10,0)'); fb.addColorStop(1,'rgba(4,4,10,1)');
+  ctx.fillStyle=fb; ctx.fillRect(0,h-16,w,16);
+  if (hovered) {
+    ctx.font=`${7*DPR}px IBM Plex Mono`; ctx.fillStyle=Au(.18+act*.22);
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText('SCROLL PAUSED — CLICK ANY ROW FOR FULL PROFILE', w/2, h-2);
+  }
+}
+
+// ──────────────────────────────────────────
+// GLUCOSE CGM
+// ──────────────────────────────────────────
+const glucPts=Array.from({length:240},(_,i)=>88+Math.sin(i*.045)*22+Math.sin(i*.18)*9+(Math.random()-.5)*3.5);
+let glucOff=0;
+function drawGlucose(t) {
+  const s=C.glucose; if(!s) return;
+  const {ctx,w,h}=s, act=PS.glucose.active;
+  ctx.clearRect(0,0,w,h);
+  glucOff=(glucOff+.36*(0.28+act*.72))%glucPts.length;
+  const off=Math.floor(glucOff);
+  const p={t:12,b:20,l:28,r:8}, minG=58, maxG=145;
+  const pw=w-p.l-p.r, ph=h-p.t-p.b;
+  const zy=p.t+(1-(99-minG)/(maxG-minG))*ph;
+  const zh=((99-70)/(maxG-minG))*ph;
+  ctx.fillStyle=G(.025+act*.05); ctx.fillRect(p.l,zy,pw,zh);
+  [70,90,110,130].forEach(v=>{
+    const y=p.t+(1-(v-minG)/(maxG-minG))*ph;
+    ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);
+    ctx.strokeStyle=Au(.025+act*.055);ctx.lineWidth=.4;ctx.stroke();
+    ctx.font='7px IBM Plex Mono'; ctx.fillStyle=Au(.1+act*.22);
+    ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillText(v,p.l-3,y);
+  });
+  const vis=Math.min(180,glucPts.length);
+  ctx.beginPath();
+  for(let i=0;i<vis;i++){
+    const idx=(off+i)%glucPts.length, x=p.l+(i/(vis-1))*pw;
+    const y=p.t+(1-(glucPts[idx]-minG)/(maxG-minG))*ph;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.lineTo(w-p.r,h-p.b); ctx.lineTo(p.l,h-p.b); ctx.closePath();
+  const fg=ctx.createLinearGradient(0,p.t,0,h-p.b);
+  fg.addColorStop(0,T(.12*act)); fg.addColorStop(1,T(0));
+  ctx.fillStyle=fg; ctx.fill();
+  ctx.beginPath();
+  for(let i=0;i<vis;i++){
+    const idx=(off+i)%glucPts.length, x=p.l+(i/(vis-1))*pw;
+    const y=p.t+(1-(glucPts[idx]-minG)/(maxG-minG))*ph;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle=T(.42+act*.55); ctx.lineWidth=1.8;
+  ctx.shadowColor=T(act*.6); ctx.shadowBlur=9*act; ctx.stroke(); ctx.shadowBlur=0;
+  const lv=glucPts[(off+vis-1)%glucPts.length];
+  const ldx=w-p.r, ldy=p.t+(1-(lv-minG)/(maxG-minG))*ph;
+  ctx.beginPath(); ctx.arc(ldx,ldy,3.5,0,Math.PI*2);
+  ctx.fillStyle=T(.5+act*.5); ctx.fill();
+
+  // Hover crosshair
+  const hmx=mousePos.glucose.x;
+  if (hmx>p.l && hmx<w-p.r && act>0.35) {
+    const fi=(hmx-p.l)/pw*(vis-1);
+    const i0=Math.floor(fi), i1=Math.min(vis-1,i0+1), frac=fi-i0;
+    const v0=glucPts[(off+i0)%glucPts.length], v1=glucPts[(off+i1)%glucPts.length];
+    const hv=v0+(v1-v0)*frac;
+    const hgy=p.t+(1-(hv-minG)/(maxG-minG))*ph;
+    ctx.beginPath(); ctx.moveTo(hmx,p.t); ctx.lineTo(hmx,h-p.b);
+    ctx.strokeStyle=T(.12+act*.18); ctx.lineWidth=.5; ctx.setLineDash([2,3]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(hmx,hgy,4*DPR,0,Math.PI*2);
+    ctx.fillStyle=T(.7+act*.3); ctx.shadowColor=T(act*.8); ctx.shadowBlur=8; ctx.fill(); ctx.shadowBlur=0;
+    tip(ctx, `${Math.round(hv)} mg/dL`, hmx, hgy, T, act);
+  }
+}
+
+// ──────────────────────────────────────────
+// SIGNAL BRIDGE
+// ──────────────────────────────────────────
+let sigTk=0;
+function drawSignal(t) {
+  const s=C.signal; if(!s) return;
+  const {ctx,w,h}=s, act=PS.signal.active;
+  ctx.clearRect(0,0,w,h);
+  sigTk+=1.2*(0.28+act*.72);
+  const m1=h*.3, m2=h*.7, a1=h*.18, a2=h*.16;
+  if(act>.18){
+    ctx.font='7.5px IBM Plex Mono'; ctx.textBaseline='top'; ctx.textAlign='left';
+    ctx.fillStyle=B(.18+act*.52); ctx.fillText('APPLE WATCH',7,3);
+    ctx.fillStyle=Au(.18+act*.52); ctx.fillText('WHOOP',7,h*.5+3);
+  }
+  ctx.beginPath();
+  for(let x=0;x<w;x++){
+    const p=(x/w)*Math.PI*9-sigTk*.07;
+    const y=m1+Math.sin(p)*a1*.55+Math.sin(p*2.1+1)*a1*.3+Math.sin(p*.6)*a1*.18;
+    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle=B(.4+act*.58); ctx.lineWidth=1.8;
+  ctx.shadowColor=B(act*.6); ctx.shadowBlur=9*act; ctx.stroke(); ctx.shadowBlur=0;
+  ctx.beginPath();
+  for(let x=0;x<w;x++){
+    const p=(x/w)*Math.PI*9-sigTk*.055;
+    const y=m2+Math.sin(p+.9)*a2*.5+Math.sin(p*1.8+2)*a2*.32+Math.sin(p*.55+1)*a2*.2;
+    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle=Au(.4+act*.58); ctx.lineWidth=1.8;
+  ctx.shadowColor=Au(act*.5); ctx.shadowBlur=8*act; ctx.stroke(); ctx.shadowBlur=0;
+  ctx.beginPath(); ctx.moveTo(0,h*.5); ctx.lineTo(w,h*.5);
+  ctx.strokeStyle=Au(.04+act*.07); ctx.lineWidth=.5; ctx.stroke();
+  if(act>.3){
+    ctx.font='7.5px IBM Plex Mono'; ctx.fillStyle=T(.28+act*.5);
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillText('r = 0.74',w-7,h*.5);
+  }
+}
+
+// ──────────────────────────────────────────
+// CHANGE — PARCHMENT ORBITAL (meditation aesthetic)
+// Adapted from meditation.html — same warm amber rings,
+// chaos→coherence as hover increases
+// ──────────────────────────────────────────
+const CGRPS = [
+  { name:'HRV',      count:60, rf:0.15, r:194, g:92,  b:23  },
+  { name:'RHR',      count:55, rf:0.23, r:181, g:107, b:33  },
+  { name:'Cortisol', count:50, rf:0.30, r:171, g:133, b:48  },
+  { name:'Resp',     count:45, rf:0.37, r:160, g:145, b:65  },
+  { name:'Recovery', count:40, rf:0.43, r:150, g:140, b:84  },
+  { name:'Sleep',    count:35, rf:0.48, r:140, g:132, b:100 },
+];
+
+const cPts = [];
+CGRPS.forEach((g, gi) => {
+  for (let i=0; i<g.count; i++) {
+    const angle = (i/g.count)*Math.PI*2 + gi*0.42;
+    cPts.push({
+      gi, angle, baseAngle: angle,
+      yBase: (Math.random()-0.5)*0.45,
+      rVar:  (Math.random()-0.5)*0.05,
+      spd:   0.006 + Math.random()*0.007,
+      phase: Math.random()*Math.PI*2,
+      n1:    Math.random()*2-1,
+      px:0, py:0, vx:0, vy:0,
+    });
+  }
+});
+
+function drawChange(t) {
+  const s=C.change; if(!s) return;
+  const {ctx,w,h}=s, act=PS.change.active;
+  ctx.clearRect(0,0,w,h);
+
+  const cx=w*0.5, cy=h*0.5;
+  // Hover = more coherent (calmer, more orbital) — matches meditation.html logic
+  const coh   = 0.06 + act*0.84;
+  const chaos = 1.0 - coh;
+  const scale = Math.min(w,h) * 0.46;
+  const ts    = t * 0.00078;
+
+  // Mouse attraction (like meditation.html)
+  const mx=mousePos.change.x, my=mousePos.change.y;
+  const mmx = mx>0 ? (mx-cx)/scale : -999;
+  const mmy = my>0 ? (my-cy)/scale : -999;
+
+  // Update particles
+  cPts.forEach(d => {
+    const g = CGRPS[d.gi];
+    d.angle += d.spd * (0.42 + chaos * 1.85);
+
+    // Helix Y-offset: at high coherence particles form elegant helical bands
+    const hp = d.baseAngle*3.5 + ts*0.28;
+    const helixY = Math.sin(hp)*coh*h*0.22 + Math.cos(hp*0.5)*coh*h*0.045;
+    const chaosY = d.yBase*chaos*h*0.35 + d.n1*chaos*0.08*h;
+
+    // Orbital radius — chaos adds spread
+    const r3 = (g.rf + d.rVar*chaos) * scale * 2.1;
+    const wob = Math.sin(ts*0.9+d.phase)*chaos*scale*0.016;
+
+    // 3D orbit projected to 2D (Z gives slight perspective depth)
+    const x3 = r3*Math.cos(d.angle) + wob;
+    const y3 = helixY + chaosY;
+    const z3 = r3*Math.sin(d.angle) + wob*0.7;
+    // Perspective: camera slightly above → z shifts y downward
+    const tx = x3;
+    const ty = y3 - z3*0.30;
+
+    // Mouse attraction (same as meditation.html)
+    const mdx = mmx - d.px/scale, mdy = mmy - d.py/scale;
+    const md2 = mdx*mdx + mdy*mdy;
+    if (mx>0 && md2 < 2.8) {
+      const pull = (1.0-md2/2.8)*0.025*scale;
+      d.vx += mdx*pull; d.vy += mdy*pull;
     }
 
-    // Connector
-    const cDiv = document.createElement('div');
-    cDiv.className = 'bio-connector';
-
-    // Right item
-    const rDiv = document.createElement('div');
-    if (right[i]) {
-      const n = right[i];
-      rDiv.className = 'bio-item right';
-      rDiv.innerHTML = `
-        <div class="bio-dot ${n.status}"></div>
-        <span class="bio-label">${n.label}</span>
-        <span class="bio-value">${n.val}</span>
-      `;
-    }
-
-    row.appendChild(lDiv);
-    row.appendChild(cDiv);
-    row.appendChild(rDiv);
-    container.appendChild(row);
-  }
-});
-
-// ── BUILD SYSTEMS GRID ───────────────────────────────────────────────────────
-
-const grid = document.getElementById('systems-grid');
-SYSTEMS.forEach(sys => {
-  const card = document.createElement('div');
-  card.className = 'sys-card';
-
-  const accent = document.createElement('div');
-  accent.className = 'sys-card-accent';
-  accent.style.background = sys.color;
-  accent.style.opacity = '0.6';
-
-  const bubblesHTML = sys.bubbles.map(b =>
-    `<div class="sys-bubble" style="width:${b.s}px;height:${b.s}px;background:${statusColor(b.st)};opacity:${b.st==='optimal'?0.7:0.5};box-shadow:0 0 8px ${statusColor(b.st)}40"></div>`
-  ).join('');
-
-  card.innerHTML = `
-    <div class="sys-name">${sys.name}</div>
-    <div class="sys-status ${sys.status}">${sys.status}</div>
-    <div class="sys-bubbles">${bubblesHTML}</div>
-    <div class="sys-markers">${sys.markers.join('  ·  ')}</div>
-  `;
-  card.insertBefore(accent, card.firstChild);
-  grid.appendChild(card);
-});
-
-// ── LENIS ───────────────────────────────────────────────────────────────────
-
-const lenis = new Lenis({
-  duration: 1.5,
-  easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-  smooth: true,
-});
-
-lenis.on('scroll', ScrollTrigger.update);
-gsap.ticker.add(time => { lenis.raf(time * 1000); });
-gsap.ticker.lagSmoothing(0);
-
-// ── GSAP ANIMATIONS ──────────────────────────────────────────────────────────
-
-// Nav solid on scroll
-lenis.on('scroll', ({ scroll }) => {
-  document.getElementById('nav').classList.toggle('solid', scroll > 60);
-});
-
-// ── Hero orbital rotation (continuous + scroll-driven scale) ──
-gsap.to(['#ring-group-1'], {
-  rotation: 360, duration: 80, repeat: -1, ease: 'none',
-  transformOrigin: '0px 0px',
-});
-gsap.to(['#ring-group-2'], {
-  rotation: -360, duration: 120, repeat: -1, ease: 'none',
-  transformOrigin: '0px 0px',
-});
-gsap.to(['#ring-group-3'], {
-  rotation: 360, duration: 180, repeat: -1, ease: 'none',
-  transformOrigin: '0px 0px',
-});
-gsap.to(['#ring-group-4'], {
-  rotation: -360, duration: 240, repeat: -1, ease: 'none',
-  transformOrigin: '0px 0px',
-});
-
-// Orb groups counter-rotate to stay in place while rings spin
-gsap.to(['#orbs-1'], { rotation: -360, duration: 80,  repeat: -1, ease: 'none', transformOrigin: '0px 0px' });
-gsap.to(['#orbs-2'], { rotation: 360,  duration: 120, repeat: -1, ease: 'none', transformOrigin: '0px 0px' });
-gsap.to(['#orbs-3'], { rotation: -360, duration: 180, repeat: -1, ease: 'none', transformOrigin: '0px 0px' });
-gsap.to(['#orbs-4'], { rotation: 360,  duration: 240, repeat: -1, ease: 'none', transformOrigin: '0px 0px' });
-
-// Core pulse
-gsap.to('#core-orb', {
-  r: 13, opacity: 0.9, duration: 2.2,
-  repeat: -1, yoyo: true, ease: 'sine.inOut',
-  attr: { r: 13 }
-});
-
-// Hero scale on scroll
-gsap.to('#orbital-svg', {
-  scale: 1.18,
-  ease: 'none',
-  scrollTrigger: {
-    trigger: '#s-hero',
-    start: 'top top',
-    end: 'bottom top',
-    scrub: 1.5,
-  }
-});
-
-// Hero text fades out on scroll
-gsap.to('#hero-text', {
-  opacity: 0, y: -40,
-  ease: 'none',
-  scrollTrigger: {
-    trigger: '#s-hero',
-    start: 'top top',
-    end: '40% top',
-    scrub: 1,
-  }
-});
-
-// Hero entrance
-gsap.from(['#hero-eyebrow', '#hero-headline', '#hero-sub'], {
-  y: 30, opacity: 0, duration: 1.4, stagger: 0.2, ease: 'power3.out', delay: 0.4
-});
-
-// ── Biomarker rows scroll in ──
-gsap.utils.toArray('.bio-item').forEach((el, i) => {
-  const isLeft = el.classList.contains('left');
-  gsap.to(el, {
-    opacity: 1,
-    x: 0,
-    duration: 0.7,
-    ease: 'power2.out',
-    scrollTrigger: {
-      trigger: el,
-      start: 'top 88%',
-      toggleActions: 'play none none none',
-    },
-    delay: (i % 4) * 0.04,
+    // Spring toward orbit target
+    d.vx += (tx-d.px)*0.016; d.vy += (ty-d.py)*0.016;
+    d.vx *= 0.86; d.vy *= 0.86;
+    d.px += d.vx; d.py += d.vy;
   });
-});
 
-// ── Systems cards ──
-gsap.utils.toArray('.sys-card').forEach((card, i) => {
-  gsap.to(card, {
-    opacity: 1, y: 0,
-    duration: 0.85,
-    ease: 'power3.out',
-    scrollTrigger: {
-      trigger: card,
-      start: 'top 85%',
-      toggleActions: 'play none none none',
-    },
-    delay: (i % 3) * 0.12,
+  // Draw particles
+  cPts.forEach(d => {
+    const g=CGRPS[d.gi];
+    const sx=cx+d.px, sy=cy+d.py;
+    const alpha=(0.32+act*0.55)*(0.55+coh*0.45);
+    const sz=Math.max(0.8, 1.4+coh*0.9);
+    ctx.beginPath(); ctx.arc(sx,sy,sz,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${g.r},${g.g},${g.b},${alpha})`; ctx.fill();
   });
-});
 
-// ── Signal Bridge lines draw in ──
-ScrollTrigger.create({
-  trigger: '#s-signal',
-  start: 'top 60%',
-  onEnter: () => {
-    gsap.to('#apple-fill', { opacity: 1, duration: 0.8, delay: 0.5 });
-    gsap.to('#whoop-fill', { opacity: 1, duration: 0.8, delay: 0.7 });
-    gsap.to('#apple-dots', { opacity: 1, duration: 0.4, delay: 1.6 });
-    gsap.to('#whoop-dots', { opacity: 1, duration: 0.4, delay: 1.8 });
+  // Center orb — amber flame (same as meditation.html)
+  const breath=Math.sin(ts*1.05)*0.5+0.5;
+  const or=Math.min(w,h)*0.038*(1+breath*0.09);
+  const og=ctx.createRadialGradient(cx,cy,0,cx,cy,or*4);
+  og.addColorStop(0,`rgba(201,144,64,${0.55+breath*0.3+act*0.15})`);
+  og.addColorStop(0.45,`rgba(180,100,30,${0.22+act*0.2})`);
+  og.addColorStop(1,'rgba(180,100,30,0)');
+  ctx.beginPath(); ctx.arc(cx,cy,or*4,0,Math.PI*2); ctx.fillStyle=og; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,or,0,Math.PI*2);
+  ctx.fillStyle=`rgba(201,144,64,${0.65+breath*0.2+act*0.1})`; ctx.fill();
+  // Highlight
+  ctx.beginPath(); ctx.arc(cx-or*0.25,cy-or*0.28,or*0.3,0,Math.PI*2);
+  ctx.fillStyle=`rgba(240,200,120,${0.3+act*0.2})`; ctx.fill();
+
+  // Hover label
+  if (act>0.5) {
+    const la=Math.min(1,(act-0.5)*2)*0.32;
+    ctx.font=`${8*DPR}px IBM Plex Mono`;
+    ctx.fillStyle=`rgba(201,144,64,${la})`;
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText('CHANGE · BIOMARKER MEDITATION INTELLIGENCE', cx, h-8*DPR);
   }
-});
+}
 
-gsap.to('#apple-line', {
-  strokeDashoffset: 0,
-  duration: 2.2,
-  ease: 'power2.inOut',
-  scrollTrigger: {
-    trigger: '#s-signal',
-    start: 'top 60%',
-    toggleActions: 'play none none none',
-  },
-  delay: 0.3,
-});
+// ──────────────────────────────────────────
+// MAIN LOOP
+// ──────────────────────────────────────────
+let prevT=0;
+function loop(t) {
+  requestAnimationFrame(loop);
+  if(t-prevT<14) return; prevT=t;
+  PIDS.forEach(id => {
+    const p=PS[id];
+    p.active+=(((p.hovered?1:.38)-p.active)*.065);
+  });
+  drawOrbital(t); drawECG(t); drawRecovery(t); drawSleep(t);
+  drawHRV(t); drawRoots(t); drawBiomarkers(t); drawGlucose(t); drawSignal(t); drawChange(t);
+}
+requestAnimationFrame(loop);
 
-gsap.to('#whoop-line', {
-  strokeDashoffset: 0,
-  duration: 2.4,
-  ease: 'power2.inOut',
-  scrollTrigger: {
-    trigger: '#s-signal',
-    start: 'top 60%',
-    toggleActions: 'play none none none',
-  },
-  delay: 0.6,
-});
-
-// ── CTA section ──
-gsap.to('#cta-orbital', {
-  opacity: 1, y: 0,
-  duration: 1.4,
-  ease: 'power3.out',
-  scrollTrigger: {
-    trigger: '#s-cta',
-    start: 'top 70%',
-    toggleActions: 'play none none none',
-  }
-});
-
-gsap.from('#cta-text-block', {
-  opacity: 0, y: 40,
-  duration: 1.2,
-  ease: 'power3.out',
-  scrollTrigger: {
-    trigger: '#s-cta',
-    start: 'top 60%',
-    toggleActions: 'play none none none',
-  },
-  delay: 0.3,
-});
-
-// CTA orbital rotation
-gsap.to('#cta-orbs', {
-  rotation: 360, duration: 60, repeat: -1, ease: 'none',
-  transformOrigin: '0px 0px',
-});
+// ──────────────────────────────────────────
+// STAT COUNTERS
+// ──────────────────────────────────────────
+function runCtrs() {
+  document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+    const target=+el.dataset.target, step=target/38; let cur=0;
+    const iv=setInterval(()=>{ cur=Math.min(cur+step,target); el.textContent=Math.round(cur); if(cur>=target)clearInterval(iv); },28);
+  });
+}
+const io=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting){runCtrs();io.disconnect();}});},{threshold:.3});
+document.querySelectorAll('.stats-row').forEach(el=>io.observe(el));
 </script>
 </body>
 </html>

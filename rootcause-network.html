@@ -38,6 +38,20 @@ body.dark {
   --node-bg: #0e0b14;
 }
 
+/* ── AI PANEL ── */
+.ai-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; z-index:9999; }
+.ai-overlay.open { display:flex; }
+.ai-panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:2rem; width:min(680px,90vw); max-height:82vh; overflow-y:auto; position:relative; }
+.ai-panel-title { font-family:'IBM Plex Mono',monospace; font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:1.2rem; }
+.ai-verdict { font-size:0.85rem; line-height:1.75; color:var(--text); margin-bottom:1.4rem; }
+.ai-models { display:flex; flex-direction:column; gap:0.6rem; }
+.ai-model-row { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:6px; padding:0.7rem 0.9rem; }
+.ai-model-label { font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:0.3rem; }
+.ai-model-text { font-size:0.78rem; line-height:1.6; color:var(--muted); }
+.ai-close { position:absolute; top:1rem; right:1rem; background:none; border:none; cursor:pointer; font-size:1rem; color:var(--muted); }
+.ai-close:hover { color:var(--text); }
+.ai-loading { text-align:center; padding:2rem; font-size:0.78rem; color:var(--muted); letter-spacing:0.08em; }
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
@@ -540,6 +554,7 @@ body.dark #guideOverlay { background: rgba(0,0,0,0.55); }
 
 <!-- ══ CORNER CONTROLS ══ -->
 <div id="corner-controls">
+  <button class="help-btn" onclick="openRootsAI()" title="AI synthesis" style="font-size:0.62rem;letter-spacing:0.08em;padding:0 10px;">AI</button>
   <button class="help-btn" onclick="openGuide()" title="User guide">?</button>
   <div class="theme-toggle" onclick="toggleTheme()">
     <span id="themeLabel">DARK</span>
@@ -1398,7 +1413,56 @@ function pollLiveData() {
 pollLiveData();
 setInterval(pollLiveData, 30000);
 
+// ════════════════════════════════════════════════════
+// AI SYNTHESIS
+// ════════════════════════════════════════════════════
+function openRootsAI() {
+  document.getElementById('aiOverlay').classList.add('open');
+  runRootsAI();
+}
+function closeRootsAI() {
+  document.getElementById('aiOverlay').classList.remove('open');
+}
+
+async function runRootsAI() {
+  const body = document.getElementById('aiBody');
+  body.innerHTML = '<div class="ai-loading">Routing through 3 AI models…</div>';
+
+  const payload = {
+    labs:          FLAGGED_LABS.map(n => ({ name: n.name, value: n.value, flag: n.flag })),
+    roots:         ROOT_CAUSES.map(n => ({ name: n.name, note: n.note })),
+    interventions: INTERVENTIONS.map(n => ({ name: n.name, note: n.note, urgency: n.urgency }))
+  };
+
+  try {
+    const res  = await fetch('/api/roots-analysis', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Analysis failed');
+
+    let html = `<div class="ai-verdict">${data.verdict.replace(/\n/g,'<br>')}</div>`;
+    if (data.results && Object.keys(data.results).length) {
+      html += '<div class="ai-models">';
+      for (const [model, text] of Object.entries(data.results)) {
+        html += `<div class="ai-model-row"><div class="ai-model-label">${model}</div><div class="ai-model-text">${String(text).replace(/\n/g,'<br>')}</div></div>`;
+      }
+      html += '</div>';
+    }
+    body.innerHTML = html;
+  } catch (err) {
+    body.innerHTML = `<div class="ai-loading" style="color:#c84040">Error: ${err.message}</div>`;
+  }
+}
+
 </script>
+<!-- AI Synthesis Overlay -->
+<div id="aiOverlay" class="ai-overlay">
+  <div class="ai-panel">
+    <button class="ai-close" onclick="closeRootsAI()">✕</button>
+    <div class="ai-panel-title">AI Synthesis · Root Priority Analysis</div>
+    <div id="aiBody"><div class="ai-loading">Routing through 3 AI models…</div></div>
+  </div>
+</div>
+
 <div id="ailiv-credit">© AILIV</div>
 <div id="live-indicator" title="Live wearable data connected">
   <span id="live-dot"></span>

@@ -94,6 +94,22 @@ def index():
 def ailiv_landing():
     return send_from_directory(BASE, 'ailiv-home.html')
 
+@app.route('/ailiv-hailo')
+def ailiv_hailo():
+    return send_from_directory(BASE, 'ailiv-hailo.html')
+
+@app.route('/ailiv-bloodlife')
+def ailiv_bloodlife():
+    return send_from_directory(BASE, 'ailiv-bloodlife.html')
+
+@app.route('/ailiv-blood')
+def ailiv_blood():
+    return send_from_directory(BASE, 'ailiv-blood.html')
+
+@app.route('/ailiv-meditation')
+def ailiv_meditation():
+    return send_from_directory(BASE, 'ailiv-meditation.html')
+
 @app.route('/cells')
 def cells():
     return send_from_directory(BASE, 'cells.html')
