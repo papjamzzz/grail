@@ -535,6 +535,148 @@ Specific and actionable. No generic advice."""
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# -------- Apple Health XML parser --------
+
+@app.route('/api/parse-apple-health', methods=['POST'])
+def parse_apple_health():
+    import xml.etree.ElementTree as ET
+    import zipfile, io
+    from collections import defaultdict
+    from datetime import datetime, timedelta
+
+    f = request.files.get('file')
+    if not f:
+        return jsonify({'ok': False, 'error': 'No file uploaded'}), 400
+
+    raw = f.read()
+    xml_data = None
+
+    if raw[:2] == b'PK':  # zip
+        try:
+            zf = zipfile.ZipFile(io.BytesIO(raw))
+            for name in zf.namelist():
+                if name.endswith('export.xml'):
+                    xml_data = zf.read(name)
+                    break
+        except Exception as e:
+            return jsonify({'ok': False, 'error': f'Zip error: {e}'}), 400
+    else:
+        xml_data = raw
+
+    if not xml_data:
+        return jsonify({'ok': False, 'error': 'Could not find export.xml'}), 400
+
+    TYPE_MAP = {
+        'HKQuantityTypeIdentifierRestingHeartRate':        'resting_hr',
+        'HKQuantityTypeIdentifierHeartRate':               'heart_rate',
+        'HKQuantityTypeIdentifierHeartRateVariabilitySDNN':'hrv',
+        'HKQuantityTypeIdentifierOxygenSaturation':        'spo2',
+        'HKQuantityTypeIdentifierRespiratoryRate':         'respiratory_rate',
+        'HKQuantityTypeIdentifierVO2Max':                  'vo2_max',
+        'HKQuantityTypeIdentifierBodyTemperature':         'temperature',
+        'HKQuantityTypeIdentifierBloodGlucose':            'glucose',
+        'HKQuantityTypeIdentifierStepCount':               'daily_steps',
+        'HKQuantityTypeIdentifierFlightsClimbed':          'flights_climbed',
+        'HKQuantityTypeIdentifierActiveEnergyBurned':      'active_calories',
+        'HKQuantityTypeIdentifierBasalEnergyBurned':       'resting_calories',
+        'HKQuantityTypeIdentifierAppleExerciseTime':       'exercise_minutes',
+        'HKQuantityTypeIdentifierAppleStandTime':          'stand_minutes',
+        'HKQuantityTypeIdentifierWalkingSpeed':            'walking_speed',
+        'HKQuantityTypeIdentifierWalkingHeartRateAverage': 'walking_hr',
+        'HKQuantityTypeIdentifierBodyMass':                'weight',
+        'HKQuantityTypeIdentifierBodyFatPercentage':       'body_fat',
+        'HKQuantityTypeIdentifierBloodPressureSystolic':   'systolic_bp',
+        'HKQuantityTypeIdentifierBloodPressureDiastolic':  'diastolic_bp',
+        'HKQuantityTypeIdentifierWaistCircumference':      'waist_cm',
+        'HKQuantityTypeIdentifierCardioFitnessMVO2':       'vo2_max',
+    }
+
+    SUM_FIELDS = {'daily_steps', 'flights_climbed', 'active_calories', 'resting_calories', 'exercise_minutes', 'stand_minutes'}
+    SLEEP_ASLEEP = {
+        'HKCategoryValueSleepAnalysisAsleep',
+        'HKCategoryValueSleepAnalysisAsleepCore',
+        'HKCategoryValueSleepAnalysisAsleepDeep',
+        'HKCategoryValueSleepAnalysisAsleepREM',
+    }
+
+    cutoff   = datetime.now() - timedelta(days=7)
+    today_str = datetime.now().strftime('%Y-%m-%d')
+
+    collected  = defaultdict(list)
+    sleep_secs = defaultdict(float)  # date -> total asleep seconds
+    deep_secs  = defaultdict(float)
+    rem_secs   = defaultdict(float)
+
+    def parse_dt(s):
+        try:
+            return datetime.strptime(s[:19], '%Y-%m-%d %H:%M:%S')
+        except Exception:
+            return None
+
+    try:
+        for event, elem in ET.iterparse(io.BytesIO(xml_data), events=('end',)):
+            if elem.tag == 'Record':
+                rtype = elem.get('type', '')
+                start_str = elem.get('startDate', '')
+                dt = parse_dt(start_str)
+                if dt and dt >= cutoff:
+                    # Sleep category
+                    if rtype == 'HKCategoryTypeIdentifierSleepAnalysis':
+                        val_str = elem.get('value', '')
+                        end_str = elem.get('endDate', '')
+                        end_dt = parse_dt(end_str)
+                        if val_str in SLEEP_ASLEEP and end_dt:
+                            dur = (end_dt - dt).total_seconds()
+                            date_key = dt.strftime('%Y-%m-%d')
+                            sleep_secs[date_key] += dur
+                            if val_str == 'HKCategoryValueSleepAnalysisAsleepDeep':
+                                deep_secs[date_key] += dur
+                            elif val_str == 'HKCategoryValueSleepAnalysisAsleepREM':
+                                rem_secs[date_key] += dur
+                    else:
+                        field = TYPE_MAP.get(rtype)
+                        if field:
+                            try:
+                                val = float(elem.get('value', ''))
+                            except (TypeError, ValueError):
+                                elem.clear(); continue
+                            if field == 'spo2' and val <= 1.0:
+                                val = val * 100
+                            if field == 'body_fat' and val <= 1.0:
+                                val = val * 100
+                            if field in SUM_FIELDS:
+                                if start_str[:10] == today_str:
+                                    collected[field].append(val)
+                            else:
+                                collected[field].append(val)
+            elem.clear()
+    except Exception as e:
+        return jsonify({'ok': False, 'error': f'XML parse error: {e}'}), 400
+
+    result = {}
+    for field, vals in collected.items():
+        if vals:
+            if field in SUM_FIELDS:
+                result[field] = round(sum(vals), 1)
+            else:
+                result[field] = round(sum(vals) / len(vals), 1)
+
+    # Sleep: use most recent date with data
+    if sleep_secs:
+        latest = max(sleep_secs.keys())
+        result['sleep_hours']   = round(sleep_secs[latest] / 3600, 2)
+        result['deep_sleep_min'] = round(deep_secs.get(latest, 0) / 60, 1)
+        result['rem_sleep_min']  = round(rem_secs.get(latest, 0) / 60, 1)
+
+    data = rjson(HEALTH_FILE, DEFAULT_HEALTH.copy())
+    for k, v in result.items():
+        data[k] = v
+    data['last_updated'] = time.strftime('%Y-%m-%dT%H:%M:%S')
+    wjson(HEALTH_FILE, data)
+
+    return jsonify({'ok': True, 'imported': result, 'count': len(result)})
+
+
 # -------- WHOOP helpers --------
 
 def whoop_token():

@@ -132,6 +132,16 @@ canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 .whoop-btn-dis { border-color: rgba(255,80,80,0.25); color: rgba(255,120,120,0.55); }
 .whoop-btn-dis:hover { border-color: rgba(255,80,80,0.6); color: rgba(255,120,120,0.9); }
 
+/* Apple Health drop zone */
+#ah-dropzone { border: 1px dashed rgba(201,169,110,0.25); border-radius: 4px; padding: 18px 12px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; margin: 6px 0; }
+#ah-dropzone:hover, #ah-dropzone.drag-over { border-color: rgba(201,169,110,0.65); background: rgba(201,169,110,0.04); }
+#ah-drop-icon { font-size: 22px; color: rgba(201,169,110,0.5); margin-bottom: 6px; }
+#ah-drop-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(201,169,110,0.65); }
+#ah-drop-sub { font-size: 9px; letter-spacing: 1px; color: rgba(201,169,110,0.35); margin-top: 5px; }
+#ah-status { font-size: 10px; letter-spacing: 1px; color: rgba(201,169,110,0.6); padding: 6px 0 2px; text-align: center; }
+#ah-status.ok { color: rgba(120,210,120,0.8); }
+#ah-status.err { color: rgba(255,100,100,0.8); }
+
 /* Toggle switch */
 .st-toggle { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
 .st-toggle input { opacity: 0; width: 0; height: 0; }
@@ -556,6 +566,17 @@ body.light-mode .log-submit { border-color: rgba(140,100,40,0.38); color: rgba(1
     <button class="whoop-btn whoop-btn-sync" id="whoop-sync-btn" style="display:none" onclick="whoopSync()">Sync Now</button>
     <button class="whoop-btn whoop-btn-dis" id="whoop-disconnect-btn" style="display:none" onclick="whoopDisconnect()">Disconnect</button>
   </div>
+  <div class="st-divider"></div>
+  <div class="st-section-label">Apple Health</div>
+  <div id="ah-dropzone">
+    <div id="ah-drop-inner">
+      <div id="ah-drop-icon">⌁</div>
+      <div id="ah-drop-label">Drop export.xml or .zip here</div>
+      <div id="ah-drop-sub">Health app → Profile → Export All Health Data</div>
+    </div>
+    <input type="file" id="ah-file-input" accept=".xml,.zip" style="display:none">
+  </div>
+  <div id="ah-status" style="display:none"></div>
   <span class="st-close" id="settings-close">Close</span>
 </div>
 
@@ -2368,6 +2389,47 @@ function whoopDisconnect() {
   fetch('/whoop/disconnect', { method: 'POST' })
     .then(() => whoopCheckStatus());
 }
+
+// ---- Apple Health import ----
+(function() {
+  const dz  = document.getElementById('ah-dropzone');
+  const inp = document.getElementById('ah-file-input');
+  const st  = document.getElementById('ah-status');
+
+  function setStatus(msg, cls) {
+    st.textContent = msg;
+    st.className = cls || '';
+    st.style.display = msg ? '' : 'none';
+  }
+
+  function uploadFile(file) {
+    if (!file) return;
+    setStatus('Parsing…', '');
+    const fd = new FormData();
+    fd.append('file', file);
+    fetch('/api/parse-apple-health', { method: 'POST', body: fd })
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok) {
+          setStatus(`Imported ${d.count} fields`, 'ok');
+        } else {
+          setStatus('Error: ' + (d.error || 'unknown'), 'err');
+        }
+      })
+      .catch(e => setStatus('Upload failed: ' + e.message, 'err'));
+  }
+
+  dz.addEventListener('click', () => inp.click());
+  inp.addEventListener('change', () => uploadFile(inp.files[0]));
+
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    uploadFile(e.dataTransfer.files[0]);
+  });
+})();
 
 // Check WHOOP status on page load + after OAuth redirect
 whoopCheckStatus();
