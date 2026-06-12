@@ -291,6 +291,149 @@
     transition: color 0.2s;
   }
   #back:hover { color: var(--gold); }
+
+  /* ─── RIGHT COLUMN (condition + narrative + events) ─── */
+  #right-col {
+    position: fixed;
+    top: 70px; right: 20px;
+    z-index: 10;
+    width: 232px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
+  }
+  #right-col::-webkit-scrollbar { width: 3px; }
+  #right-col::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  #condition-panel { position: static; width: auto; }
+
+  .panel-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    backdrop-filter: blur(12px);
+  }
+  .panel-card .label {
+    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 8px;
+  }
+
+  /* dominant zone chip in condition panel */
+  #zone-chip {
+    margin-top: 10px; display: flex; align-items: center; gap: 7px;
+    padding: 7px 9px; border-radius: 5px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  #zone-chip .zdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  #zone-chip .zname { font-size: 11px; color: var(--text); font-weight: 500; }
+  #zone-chip .zsub  { font-size: 9px; color: var(--text-dim); letter-spacing: 0.04em; }
+
+  /* ─── AI NARRATIVE ─── */
+  #narrative-text {
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: rgba(220,210,190,0.82);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+  }
+  #narrative-text b { color: var(--gold); font-weight: 500; }
+  .narrative-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold-dim); margin-bottom: 9px;
+  }
+  .narrative-tag::before {
+    content: ''; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--gold); box-shadow: 0 0 6px var(--gold);
+    animation: nblink 2.4s infinite;
+  }
+  @keyframes nblink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ─── EVENTS FEED ─── */
+  #events-list { display: flex; flex-direction: column; gap: 7px; }
+  .event-row {
+    display: flex; gap: 9px; align-items: flex-start;
+    padding: 8px 9px; border-radius: 5px;
+    background: rgba(255,255,255,0.025);
+    border-left: 2px solid var(--text-dim);
+  }
+  .event-row.risk    { border-left-color: #ef4444; }
+  .event-row.caution { border-left-color: #f59e0b; }
+  .event-row.good    { border-left-color: #22c55e; }
+  .event-icon { font-size: 11px; line-height: 1.3; flex-shrink: 0; }
+  .event-body { flex: 1; }
+  .event-title { font-size: 10.5px; color: var(--text); font-weight: 500; }
+  .event-sub   { font-size: 9px; color: var(--text-dim); margin-top: 1px; line-height: 1.35; }
+  .events-empty { font-size: 10px; color: var(--text-dim); font-style: italic; }
+
+  /* ─── NAMED ZONES LEGEND ─── */
+  #legend { flex-direction: column; gap: 8px; padding: 11px 16px; }
+  .legend-zones {
+    display: flex; align-items: stretch; gap: 0;
+    width: 360px; border-radius: 4px; overflow: hidden;
+  }
+  .lz {
+    flex: 1; padding: 5px 4px; text-align: center; cursor: default;
+    transition: flex 0.3s;
+  }
+  .lz .lz-name {
+    font-size: 8px; letter-spacing: 0.04em; text-transform: uppercase;
+    color: rgba(0,0,0,0.7); font-weight: 700; line-height: 1.1;
+  }
+  .lz .lz-desc {
+    font-size: 7px; color: rgba(0,0,0,0.55); margin-top: 1px;
+    text-transform: uppercase; letter-spacing: 0.02em;
+  }
+  .legend-caption {
+    display: flex; justify-content: space-between; width: 360px;
+  }
+
+  /* ─── DETAIL PANEL (click a biomarker) ─── */
+  #detail-panel {
+    position: fixed;
+    bottom: 70px; left: 50%; transform: translateX(-50%) translateY(12px);
+    z-index: 25;
+    width: 440px; max-width: calc(100vw - 40px);
+    background: rgba(8,8,18,0.96);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  #detail-panel.open { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+  .detail-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .detail-title { display: flex; align-items: center; gap: 9px; }
+  .detail-title .ddot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+  .detail-title .dname {
+    font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 400;
+    letter-spacing: 0.04em; color: var(--text);
+  }
+  .detail-status { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .detail-close {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: var(--text-dim); width: 24px; height: 24px; border-radius: 5px;
+    cursor: pointer; font-size: 12px; line-height: 1; transition: all 0.2s;
+  }
+  .detail-close:hover { color: var(--text); background: rgba(255,255,255,0.1); }
+  .detail-grid { display: grid; grid-template-columns: 1fr; gap: 11px; }
+  .detail-block .db-label {
+    font-size: 8.5px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--gold-dim); margin-bottom: 4px;
+  }
+  .detail-block .db-text { font-size: 12px; line-height: 1.5; color: rgba(220,210,190,0.82); }
+  .conf-wrap { display: flex; align-items: center; gap: 10px; }
+  .conf-bar-track {
+    flex: 1; height: 4px; background: rgba(255,255,255,0.08);
+    border-radius: 2px; overflow: hidden;
+  }
+  .conf-bar-fill { height: 100%; border-radius: 2px; background: var(--gold); transition: width 0.4s; }
+  .conf-val { font-size: 12px; color: var(--gold); font-weight: 500; min-width: 34px; text-align: right; }
 </style>
 </head>
 <body>
@@ -306,15 +449,34 @@
   </div>
 </div>
 
-<!-- CONDITION READOUT -->
-<div id="condition-panel">
-  <div class="label">Current Condition</div>
-  <div id="condition-score">72</div>
-  <div id="condition-text">strained but stable</div>
-  <div class="score-bar-wrap">
-    <div id="score-bar" style="width:72%; background: #eab308;"></div>
+<!-- RIGHT COLUMN -->
+<div id="right-col">
+  <div id="condition-panel">
+    <div class="label">Current Condition</div>
+    <div id="condition-score">72</div>
+    <div id="condition-text">strained but stable</div>
+    <div class="score-bar-wrap">
+      <div id="score-bar" style="width:72%; background: #eab308;"></div>
+    </div>
+    <div id="zone-chip">
+      <span class="zdot" id="zone-dot"></span>
+      <div>
+        <div class="zname" id="zone-name">—</div>
+        <div class="zsub" id="zone-sub">—</div>
+      </div>
+    </div>
+    <div class="mini-stats" id="mini-stats"></div>
   </div>
-  <div class="mini-stats" id="mini-stats"></div>
+
+  <div class="panel-card">
+    <div class="narrative-tag">AI Narrative</div>
+    <div id="narrative-text">—</div>
+  </div>
+
+  <div class="panel-card">
+    <div class="label">Active Alerts</div>
+    <div id="events-list"></div>
+  </div>
 </div>
 
 <!-- TRIGGER PANEL -->
@@ -323,17 +485,56 @@
   <div id="triggers-list"></div>
 </div>
 
-<!-- LEGEND -->
+<!-- LEGEND — NAMED ZONES -->
 <div id="legend">
-  <span class="legend-label">Stressed</span>
-  <div class="legend-gradient"></div>
-  <span class="legend-label">Optimal</span>
+  <div class="legend-zones">
+    <div class="lz" style="background:#6b21a8"><div class="lz-name">Purple</div><div class="lz-desc">Dysregulation</div></div>
+    <div class="lz" style="background:#dc2626"><div class="lz-name">Red</div><div class="lz-desc">Burnout Risk</div></div>
+    <div class="lz" style="background:#f97316"><div class="lz-name">Orange</div><div class="lz-desc">Recovery Deficit</div></div>
+    <div class="lz" style="background:#eab308"><div class="lz-name">Yellow</div><div class="lz-desc">Strain</div></div>
+    <div class="lz" style="background:#22c55e"><div class="lz-name">Green</div><div class="lz-desc">Optimal</div></div>
+  </div>
+  <div class="legend-caption">
+    <span class="legend-label">Systemic Dysregulation</span>
+    <span class="legend-label">Optimal Recovery</span>
+  </div>
 </div>
 
 <!-- TOOLTIP -->
 <div id="tooltip">
   <div class="t-label" id="tooltip-label"></div>
   <div class="t-val" id="tooltip-val"></div>
+</div>
+
+<!-- DETAIL PANEL (click a biomarker) -->
+<div id="detail-panel">
+  <div class="detail-head">
+    <div class="detail-title">
+      <span class="ddot" id="d-dot"></span>
+      <div>
+        <div class="dname" id="d-name">—</div>
+        <div class="detail-status" id="d-status">—</div>
+      </div>
+    </div>
+    <button class="detail-close" id="d-close">✕</button>
+  </div>
+  <div class="detail-grid">
+    <div class="detail-block">
+      <div class="db-label">Caused By</div>
+      <div class="db-text" id="d-cause">—</div>
+    </div>
+    <div class="detail-block">
+      <div class="db-label">Affects</div>
+      <div class="db-text" id="d-affects">—</div>
+    </div>
+    <div class="detail-block">
+      <div class="db-label">Confidence</div>
+      <div class="conf-wrap">
+        <div class="conf-bar-track"><div class="conf-bar-fill" id="d-conf-fill"></div></div>
+        <span class="conf-val" id="d-conf-val">—</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- BACK -->
@@ -352,16 +553,46 @@ const mockBioState = {
   overallScore: 72,
   condition: "strained but stable",
   triggers: [
-    { id: "sleep_debt",      label: "Sleep Debt",        value: 68, weight: 0.90, status: "caution",  x: -0.55, y:  0.30 },
-    { id: "hrv_drop",        label: "HRV Drop",          value: 82, weight: 1.00, status: "risk",     x:  0.25, y: -0.45 },
-    { id: "glucose",         label: "Glucose Variability",value: 45, weight: 0.60, status: "stable",   x:  0.50, y:  0.50 },
-    { id: "inflammation",    label: "Inflammation",      value: 70, weight: 0.85, status: "caution",  x: -0.30, y: -0.55 },
-    { id: "stress_load",     label: "Stress Load",       value: 75, weight: 0.80, status: "caution",  x:  0.10, y:  0.20 },
-    { id: "recovery",        label: "Recovery Score",    value: 55, weight: 0.70, status: "caution",  x: -0.20, y:  0.60 },
-    { id: "strain",          label: "Strain / Exertion", value: 40, weight: 0.50, status: "stable",   x:  0.60, y: -0.20 },
-    { id: "hydration",       label: "Hydration",         value: 30, weight: 0.40, status: "risk",     x: -0.60, y: -0.20 },
-    { id: "rhr_increase",    label: "Resting HR",        value: 60, weight: 0.65, status: "caution",  x:  0.00, y: -0.70 },
-    { id: "symptom_severity",label: "Symptom Severity",  value: 50, weight: 0.55, status: "caution",  x: -0.45, y:  0.05 },
+    { id: "sleep_debt",      label: "Sleep Debt",         value: 68, weight: 0.90, status: "caution", x: -0.55, y:  0.30,
+      cause: "Insufficient sleep duration across recent nights.",
+      affects: "Recovery capacity, cognition, HRV, hormonal balance.",
+      confidence: 92 },
+    { id: "hrv_drop",        label: "HRV Drop",           value: 82, weight: 1.00, status: "risk",    x:  0.25, y: -0.45,
+      cause: "Elevated autonomic (sympathetic) stress and fatigue.",
+      affects: "Cardiovascular recovery, readiness, stress resilience.",
+      confidence: 88 },
+    { id: "glucose",         label: "Glucose Variability",value: 45, weight: 0.60, status: "stable",  x:  0.50, y:  0.50,
+      cause: "Dietary load and reduced metabolic flexibility.",
+      affects: "Energy stability, inflammation, sleep depth.",
+      confidence: 74 },
+    { id: "inflammation",    label: "Inflammation",       value: 70, weight: 0.85, status: "caution", x: -0.30, y: -0.55,
+      cause: "Immune activation from training, illness, or tissue stress.",
+      affects: "Recovery rate, joint comfort, perceived fatigue.",
+      confidence: 70 },
+    { id: "stress_load",     label: "Stress Load",        value: 75, weight: 0.80, status: "caution", x:  0.10, y:  0.20,
+      cause: "Combined psychological and training stressors.",
+      affects: "Cortisol rhythm, sleep quality, HRV.",
+      confidence: 81 },
+    { id: "recovery",        label: "Recovery Score",     value: 55, weight: 0.70, status: "caution", x: -0.20, y:  0.60,
+      cause: "Cumulative strain outpacing restoration.",
+      affects: "Performance capacity, adaptation, injury risk.",
+      confidence: 85 },
+    { id: "strain",          label: "Strain / Exertion",  value: 40, weight: 0.50, status: "stable",  x:  0.60, y: -0.20,
+      cause: "Physical training and cardiovascular load.",
+      affects: "Muscle fatigue, recovery demand, sleep need.",
+      confidence: 79 },
+    { id: "hydration",       label: "Hydration",          value: 30, weight: 0.40, status: "risk",    x: -0.60, y: -0.20,
+      cause: "Fluid and electrolyte imbalance.",
+      affects: "Blood volume, thermoregulation, HRV, focus.",
+      confidence: 68 },
+    { id: "rhr_increase",    label: "Resting HR",         value: 60, weight: 0.65, status: "caution", x:  0.00, y: -0.70,
+      cause: "Autonomic load, oncoming illness, or under-recovery.",
+      affects: "Recovery, cardiovascular strain, readiness.",
+      confidence: 83 },
+    { id: "symptom_severity",label: "Symptom Severity",   value: 50, weight: 0.55, status: "caution", x: -0.45, y:  0.05,
+      cause: "Reported subjective symptoms and felt state.",
+      affects: "Overall condition, illness trajectory.",
+      confidence: 65 },
   ]
 };
 
@@ -662,6 +893,76 @@ function statusColor(status) {
   return '#22c55e';
 }
 
+// ─── Named risk zones (score → zone) ───
+function classifyZone(s) {
+  if (s >= 78) return { name: 'Green Zone',  desc: 'Optimal Recovery',        color: '#22c55e' };
+  if (s >= 64) return { name: 'Yellow Zone', desc: 'Accumulating Strain',     color: '#eab308' };
+  if (s >= 50) return { name: 'Orange Zone', desc: 'Recovery Deficit',        color: '#f97316' };
+  if (s >= 36) return { name: 'Red Zone',    desc: 'Burnout Risk',            color: '#dc2626' };
+  return              { name: 'Purple Zone', desc: 'Systemic Dysregulation',  color: '#6b21a8' };
+}
+
+// ─── AI narrative (rule-based; reads live state) ───
+function buildNarrative() {
+  const trs = bioState.triggers;
+  const contrib = trs.map(t => ({
+    t, c: (t.value / 100) * t.weight * (t.status === 'risk' ? 1.0 : t.status === 'caution' ? 0.6 : 0.15)
+  })).sort((a, b) => b.c - a.c);
+  const total = contrib.reduce((s, x) => s + x.c, 0) || 1;
+  const top   = contrib.slice(0, 2).filter(x => x.t.status !== 'stable');
+  const s     = bioState.overallScore;
+  const zone  = classifyZone(s);
+
+  if (top.length === 0) {
+    return `Your biological state is currently <b>balanced</b>. No single system is carrying meaningful load — recovery and strain are well matched. Maintaining current behaviors should hold this state.`;
+  }
+  const names = top.map(x => `<b>${x.t.label.toLowerCase()}</b>`);
+  const driverPhrase = names.length === 2 ? `${names[0]} and ${names[1]}` : names[0];
+  const topShare = Math.round((top.reduce((a, x) => a + x.c, 0) / total) * 100);
+
+  let outlook;
+  if (s >= 64)      outlook = `If current trends hold, recovery capacity should remain stable over the next 48 hours.`;
+  else if (s >= 50) outlook = `If current trends continue, projected recovery capacity may decline over the next 48 hours.`;
+  else              outlook = `Without intervention, projected recovery capacity is likely to deteriorate over the next 24–48 hours.`;
+
+  return `Your biological state is primarily being driven by ${driverPhrase}. ` +
+         `These account for roughly <b>${topShare}%</b> of the current burden, placing you in the <b>${zone.desc.toLowerCase()}</b> band. ` +
+         outlook;
+}
+function updateNarrative() {
+  document.getElementById('narrative-text').innerHTML = buildNarrative();
+}
+
+// ─── Biomarker events (weather-style alerts) ───
+function buildEvents() {
+  const evts = [];
+  bioState.triggers.forEach(t => {
+    if (t.status === 'risk') {
+      evts.push({ cls: 'risk', icon: '⚠', title: `${t.label} — Burnout Risk`, sub: t.affects, sev: 2, val: t.value });
+    } else if (t.status === 'caution' && t.value >= 60) {
+      evts.push({ cls: 'caution', icon: '●', title: `${t.label} — Accumulating Strain`, sub: t.affects, sev: 1, val: t.value });
+    }
+  });
+  evts.sort((a, b) => b.sev - a.sev || b.val - a.val);
+  return evts.slice(0, 4);
+}
+function updateEvents() {
+  const list = document.getElementById('events-list');
+  const evts = buildEvents();
+  if (evts.length === 0) {
+    list.innerHTML = `<div class="events-empty">All systems within stable range.</div>`;
+    return;
+  }
+  list.innerHTML = evts.map(e => `
+    <div class="event-row ${e.cls}">
+      <span class="event-icon">${e.icon}</span>
+      <div class="event-body">
+        <div class="event-title">${e.title}</div>
+        <div class="event-sub">${e.sub}</div>
+      </div>
+    </div>`).join('');
+}
+
 function updateConditionPanel() {
   // Recompute overall score from trigger values + statuses
   let score = 100;
@@ -683,6 +984,17 @@ function updateConditionPanel() {
   document.getElementById('condition-text').textContent  = condition;
   document.getElementById('score-bar').style.width       = s + '%';
   document.getElementById('score-bar').style.background  = barColor;
+
+  // Dominant zone chip
+  const zone = classifyZone(s);
+  const zdot = document.getElementById('zone-dot');
+  zdot.style.background = zone.color;
+  zdot.style.boxShadow  = '0 0 8px ' + zone.color;
+  document.getElementById('zone-name').textContent = zone.name;
+  document.getElementById('zone-sub').textContent  = zone.desc;
+
+  updateNarrative();
+  updateEvents();
 }
 
 // Build trigger slider rows
@@ -695,7 +1007,7 @@ bioState.triggers.forEach((tr, idx) => {
   row.className = 'trigger-row';
   row.innerHTML = `
     <div class="trigger-row-header">
-      <span class="trigger-name">
+      <span class="trigger-name" style="cursor:pointer">
         <span class="trigger-dot" id="dot-${tr.id}" style="background:${statusColor(tr.status)}"></span>
         ${tr.label}
       </span>
@@ -705,6 +1017,7 @@ bioState.triggers.forEach((tr, idx) => {
            data-id="${tr.id}">
   `;
   triggersList.appendChild(row);
+  row.querySelector('.trigger-name').addEventListener('click', () => openDetail(tr));
 
   // Mini stat in condition panel (top 4)
   if (idx < 4) {
@@ -760,7 +1073,7 @@ const ttLabel   = document.getElementById('tooltip-label');
 const ttVal     = document.getElementById('tooltip-val');
 
 bioState.triggers.forEach(tr => {
-  const geo = new THREE.SphereGeometry(0.06, 8, 8);
+  const geo = new THREE.SphereGeometry(0.14, 10, 10);
   const mat = new THREE.MeshBasicMaterial({ visible: false });
   const marker = new THREE.Mesh(geo, mat);
   marker.userData.trigger = tr;
@@ -784,9 +1097,43 @@ window.addEventListener('mousemove', e => {
     tooltip.style.display = 'block';
     tooltip.style.left    = (e.clientX + 14) + 'px';
     tooltip.style.top     = (e.clientY - 10) + 'px';
+    renderer.domElement.style.cursor = 'pointer';
   } else {
     tooltip.style.display = 'none';
+    renderer.domElement.style.cursor = 'default';
   }
+});
+
+// ============================================================
+// DETAIL PANEL — click a biomarker for the systems-biology read
+// ============================================================
+function statusWord(st) {
+  return st === 'risk' ? 'Burnout Risk' : st === 'caution' ? 'Accumulating Strain' : 'Stable';
+}
+function openDetail(tr) {
+  const col = statusColor(tr.status);
+  const dot = document.getElementById('d-dot');
+  dot.style.color = col; dot.style.background = col;
+  document.getElementById('d-name').textContent = tr.label;
+  const st = document.getElementById('d-status');
+  st.textContent = statusWord(tr.status); st.style.color = col;
+  document.getElementById('d-cause').textContent   = tr.cause   || '—';
+  document.getElementById('d-affects').textContent = tr.affects || '—';
+  document.getElementById('d-conf-fill').style.width = (tr.confidence || 0) + '%';
+  document.getElementById('d-conf-val').textContent  = (tr.confidence || 0) + '%';
+  document.getElementById('detail-panel').classList.add('open');
+}
+function closeDetail() { document.getElementById('detail-panel').classList.remove('open'); }
+document.getElementById('d-close').addEventListener('click', closeDetail);
+
+// Click on the surface (its trigger markers) opens the detail panel
+renderer.domElement.addEventListener('click', e => {
+  mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(markers);
+  if (hits.length > 0) openDetail(hits[0].object.userData.trigger);
+  else closeDetail();
 });
 
 // ============================================================
