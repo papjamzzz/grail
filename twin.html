@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AILIV — Digital Twin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #020408;
+  --grid: rgba(0,160,255,0.04);
+  --border: rgba(0,160,255,0.1);
+  --text: rgba(180,210,255,0.65);
+  --text-bright: rgba(210,230,255,0.92);
+  --text-dim: rgba(120,160,210,0.3);
+  --gold: rgba(201,169,110,0.85);
+  --c-nervous: #A78BFA;
+  --c-cardio: #F87171;
+  --c-immune: #22D3EE;
+  --c-endocrine: #FBBF24;
+  --c-metabolic: #34D399;
+  --c-musculo: #60A5FA;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Cormorant Garamond',serif;
+  width:100vw;height:100vh;
+  overflow:hidden;
+  position:relative;
+}
+
+/* scanlines */
+body::before{
+  content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.12) 2px,rgba(0,0,0,0.12) 3px);
+}
+/* grid */
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+
+/* ── Layout ─────────────────────────────── */
+#app{
+  position:relative;z-index:2;
+  display:grid;
+  grid-template-rows:48px 1fr 32px;
+  grid-template-columns:210px 1fr;
+  height:100vh;width:100vw;
+}
+
+/* ── Topbar ─────────────────────────────── */
+#topbar{
+  grid-column:1 / -1;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  border-bottom:1px solid var(--border);
+  background:rgba(2,4,14,0.94);
+  backdrop-filter:blur(8px);
+}
+.tb-brand{
+  font-family:'Cormorant Garamond',serif;
+  font-size:11px;letter-spacing:7px;text-transform:uppercase;
+  color:rgba(201,169,110,0.65);
+}
+.tb-brand span{color:rgba(201,169,110,0.3)}
+.tb-metrics{display:flex;gap:0}
+.tb-m{
+  display:flex;flex-direction:column;align-items:center;
+  padding:0 18px;border-right:1px solid var(--border);gap:1px;
+}
+.tb-m:first-child{border-left:1px solid var(--border)}
+.tb-ml{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim)}
+.tb-mv{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-bright);letter-spacing:1px}
+.tb-nav{display:flex;gap:0}
+.tb-nav a{
+  font-family:'JetBrains Mono',monospace;
+  font-size:8px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--text-dim);text-decoration:none;
+  padding:0 12px;border-left:1px solid var(--border);
+  height:48px;display:flex;align-items:center;
+  transition:color .2s,background .2s;
+}
+.tb-nav a:hover{color:var(--text-bright);background:rgba(0,160,255,0.04)}
+.tb-nav a.active{color:rgba(201,169,110,0.8);background:rgba(201,169,110,0.03)}
+
+/* ── Left panel ─────────────────────────── */
+#left{
+  border-right:1px solid var(--border);
+  background:rgba(1,4,14,0.7);
+  padding:18px 0;
+  overflow-y:auto;display:flex;flex-direction:column;gap:0;
+}
+#left::-webkit-scrollbar{width:2px}
+#left::-webkit-scrollbar-thumb{background:var(--border)}
+
+.lp-head{
+  font-family:'JetBrains Mono',monospace;
+  font-size:7px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--text-dim);
+  padding:0 16px 10px;
+  border-bottom:1px solid var(--border);margin-bottom:8px;
+}
+
+.sys-row{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 14px;cursor:pointer;
+  border-left:2px solid transparent;
+  transition:all .18s;position:relative;
+  user-select:none;
+}
+.sys-row:hover{background:rgba(0,160,255,0.04);border-left-color:rgba(0,160,255,0.25)}
+.sys-row.active{background:rgba(0,160,255,0.06);border-left-color:var(--sys-col,#60A5FA)}
+.sys-row-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:box-shadow .3s}
+.sys-row.active .sys-row-dot{box-shadow:0 0 7px var(--sys-col,#60A5FA)}
+.sys-row-info{flex:1;min-width:0}
+.sys-row-name{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-bright);line-height:1.2}
+.sys-row-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:8px;color:var(--text-dim);margin-top:2px;
+}
+.sys-row-bar{height:1px;background:rgba(255,255,255,0.05);margin-top:5px;border-radius:1px;overflow:hidden}
+.sys-row-fill{height:100%;border-radius:1px;transition:width 1.4s cubic-bezier(.16,1,.3,1)}
+
+/* ── Center ──────────────────────────────── */
+#center{
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 55% 75% at 50% 50%,rgba(0,50,100,0.1) 0%,transparent 70%);
+}
+
+#body-wrap{
+  position:relative;
+  height:calc(100vh - 82px);
+  width:auto;
+}
+
+#bodySvg{
+  height:100%;width:auto;
+  overflow:visible;
+}
+
+/* scanner sweep line */
+.scanner-line{
+  position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(0,200,255,0.35),transparent);
+  pointer-events:none;
+  animation:scan-sweep 5s ease-in-out infinite;
+  opacity:0.6;
+}
+@keyframes scan-sweep{
+  0%{top:-2px;opacity:0}
+  5%{opacity:0.6}
+  95%{opacity:0.3}
+  100%{top:100%;opacity:0}
+}
+
+/* HUD readout labels */
+.hud-label{
+  position:absolute;
+  font-family:'JetBrains Mono',monospace;
+  font-size:8px;letter-spacing:2px;text-transform:uppercase;
+  pointer-events:none;
+  display:flex;align-items:center;gap:5px;
+  white-space:nowrap;
+  transition:opacity .3s;
+}
+.hud-label.left-side{right:calc(100% + 2px);flex-direction:row-reverse}
+.hud-label.right-side{left:calc(100% + 2px)}
+.hud-line{height:1px;width:28px;opacity:0.3}
+.hud-text{opacity:0.5;line-height:1}
+.hud-score{opacity:0.8;font-size:9px}
+
+/* Tooltip */
+#twin-tip{
+  position:absolute;
+  background:rgba(2,6,20,0.97);
+  border:1px solid var(--border);
+  padding:11px 14px;min-width:160px;
+  pointer-events:none;opacity:0;
+  transition:opacity .12s;
+  z-index:100;
+}
+#twin-tip.on{opacity:1}
+.tt-sys{font-size:8px;letter-spacing:3px;text-transform:uppercase;margin-bottom:3px}
+.tt-score{font-family:'JetBrains Mono',monospace;font-size:26px;line-height:1}
+.tt-status{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);margin-top:2px}
+.tt-markers{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--text-dim);margin-top:5px}
+
+/* ── Status bar ─────────────────────────── */
+#statusbar{
+  grid-column:1 / -1;
+  display:flex;align-items:center;
+  border-top:1px solid var(--border);
+  background:rgba(1,3,12,0.94);
+  overflow:hidden;
+}
+.sb-item{
+  display:flex;align-items:center;gap:6px;
+  padding:0 14px;border-right:1px solid var(--border);
+  height:100%;flex-shrink:0;
+}
+.sb-l{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim)}
+.sb-v{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-bright)}
+.sb-dot{width:5px;height:5px;border-radius:50%;animation:blink 2.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+.sb-time{margin-left:auto;padding:0 14px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:2px;border-left:1px solid var(--border)}
+
+/* ── Detail panel ───────────────────────── */
+#detail{
+  position:fixed;top:48px;right:0;bottom:32px;
+  width:350px;
+  background:rgba(2,5,18,0.98);
+  border-left:1px solid var(--border);
+  transform:translateX(100%);
+  transition:transform .36s cubic-bezier(.16,1,.3,1);
+  z-index:500;
+  display:flex;flex-direction:column;
+  backdrop-filter:blur(20px);
+}
+#detail.open{transform:translateX(0)}
+
+.dp-hdr{padding:20px 20px 16px;border-bottom:1px solid var(--border);flex-shrink:0;position:relative}
+.dp-x{
+  position:absolute;top:14px;right:14px;
+  background:none;border:none;cursor:pointer;
+  color:var(--text-dim);font-size:16px;padding:4px;
+  transition:color .2s;line-height:1;
+}
+.dp-x:hover{color:var(--text-bright)}
+.dp-tag{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px}
+.dp-name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--text-bright);line-height:1.1;margin-bottom:10px}
+.dp-score-row{display:flex;align-items:baseline;gap:5px;margin-bottom:12px}
+.dp-score-n{font-family:'JetBrains Mono',monospace;font-size:40px;font-weight:300;line-height:1}
+.dp-score-d{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim)}
+.dp-score-st{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:3px;text-transform:uppercase;margin-left:4px}
+.dp-bar{height:2px;background:rgba(255,255,255,0.05);border-radius:1px;overflow:hidden}
+.dp-bar-fill{height:100%;border-radius:1px;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+.dp-desc{font-size:12px;font-style:italic;color:var(--text-dim);margin-top:10px;line-height:1.6}
+
+.dp-body{flex:1;overflow-y:auto;padding:16px 20px}
+.dp-body::-webkit-scrollbar{width:2px}
+.dp-body::-webkit-scrollbar-thumb{background:var(--border)}
+
+.dp-sec{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:4px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.dp-sec-wrap{margin-bottom:18px}
+
+/* Marker rows */
+.dp-mrow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.dp-mrow:last-child{border-bottom:none}
+.dp-mdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.dp-mname{font-size:11px;color:var(--text);flex:1;letter-spacing:.3px}
+.dp-mpct{font-family:'JetBrains Mono',monospace;font-size:9px;min-width:30px;text-align:right}
+.dp-mbar{width:44px;height:1px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;flex-shrink:0}
+.dp-mbar-fill{height:100%}
+
+/* Sparklines */
+.spark-wrap{margin-bottom:14px}
+.spark-hdr{display:flex;justify-content:space-between;margin-bottom:3px}
+.spark-name{font-size:9px;letter-spacing:1px;color:var(--text)}
+.spark-val{font-family:'JetBrains Mono',monospace;font-size:9px}
+canvas.spark{display:block;width:100%;height:36px}
+
+/* Risk / intervention rows */
+.dp-r-row{display:flex;gap:7px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.dp-r-row:last-child{border-bottom:none}
+.dp-r-icon{font-size:8px;flex-shrink:0;margin-top:2px;letter-spacing:0}
+.dp-r-text{font-size:11px;color:var(--text);line-height:1.55}
+
+/* AI button */
+.dp-ai-btn{
+  width:100%;padding:10px;background:none;
+  border:1px solid rgba(201,169,110,0.25);
+  color:rgba(201,169,110,0.7);
+  font-family:'Cormorant Garamond',serif;
+  font-size:11px;letter-spacing:4px;text-transform:uppercase;
+  cursor:pointer;transition:all .25s;margin-bottom:12px;
+}
+.dp-ai-btn:hover{border-color:rgba(201,169,110,0.6);color:rgba(201,169,110,1);background:rgba(201,169,110,0.03)}
+.dp-ai-btn:disabled{opacity:.35;cursor:not-allowed}
+.dp-ai-out{
+  font-family:'Cormorant Garamond',serif;
+  font-size:13px;font-style:italic;
+  color:rgba(201,169,110,0.75);line-height:1.75;
+  display:none;max-height:280px;overflow-y:auto;
+}
+.dp-ai-out.on{display:block}
+.dp-ai-out::-webkit-scrollbar{width:2px}
+.dp-ai-out::-webkit-scrollbar-thumb{background:rgba(201,169,110,0.15)}
+
+/* corner brackets */
+.crn{position:fixed;width:16px;height:16px;z-index:3;pointer-events:none}
+.crn-tl{top:50px;left:212px;border-top:1px solid rgba(0,160,255,0.25);border-left:1px solid rgba(0,160,255,0.25)}
+.crn-tr{top:50px;right:1px;border-top:1px solid rgba(0,160,255,0.25);border-right:1px solid rgba(0,160,255,0.25)}
+.crn-bl{bottom:34px;left:212px;border-bottom:1px solid rgba(0,160,255,0.25);border-left:1px solid rgba(0,160,255,0.25)}
+.crn-br{bottom:34px;right:1px;border-bottom:1px solid rgba(0,160,255,0.25);border-right:1px solid rgba(0,160,255,0.25)}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+<!-- Topbar -->
+<header id="topbar">
+  <div class="tb-brand">AILIV <span>·</span> Digital Twin</div>
+  <div class="tb-metrics">
+    <div class="tb-m"><div class="tb-ml">Twin Score</div><div class="tb-mv" id="tbScore">—</div></div>
+    <div class="tb-m"><div class="tb-ml">Systems</div><div class="tb-mv" id="tbSys">— / 6</div></div>
+    <div class="tb-m"><div class="tb-ml">Data Age</div><div class="tb-mv" id="tbAge">—</div></div>
+  </div>
+  <nav class="tb-nav">
+    <a href="/">Orbital</a>
+    <a href="/bodyfigure">Body</a>
+    <a href="/console">Console</a>
+    <a href="/twin" class="active">Twin</a>
+  </nav>
+</header>
+
+<!-- Left panel -->
+<aside id="left">
+  <div class="lp-head">Systems Monitor</div>
+  <div id="sysListEl"></div>
+</aside>
+
+<!-- Center body -->
+<main id="center">
+  <div id="body-wrap">
+    <div class="scanner-line"></div>
+    <svg id="bodySvg" viewBox="-70 0 380 570" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Edge glow for silhouette -->
+        <filter id="edge-glow" x="-18%" y="-6%" width="136%" height="112%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="b"/>
+          <feColorMatrix in="b" type="matrix"
+            values="0 0 0 0 0.05  0 0 0 0 0.62  0 0 0 0 1   0 0 0 1.8 0" result="tinted"/>
+          <feComposite in="tinted" in2="SourceGraphic" operator="out" result="glow"/>
+          <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+
+        <!-- Zone soft glow -->
+        <filter id="zone-glow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="7" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+
+        <!-- Radial gradients for each system zone -->
+        <radialGradient id="gn" cx="50%" cy="40%" r="55%">
+          <stop offset="0%" stop-color="#A78BFA" stop-opacity="0.65"/>
+          <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="gc" cx="42%" cy="50%" r="55%">
+          <stop offset="0%" stop-color="#F87171" stop-opacity="0.65"/>
+          <stop offset="100%" stop-color="#DC2626" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="gi" cx="50%" cy="50%" r="55%">
+          <stop offset="0%" stop-color="#22D3EE" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#0891B2" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="ge" cx="50%" cy="40%" r="55%">
+          <stop offset="0%" stop-color="#FBBF24" stop-opacity="0.65"/>
+          <stop offset="100%" stop-color="#D97706" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="gm" cx="55%" cy="50%" r="55%">
+          <stop offset="0%" stop-color="#34D399" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#059669" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="gk" cx="50%" cy="50%" r="55%">
+          <stop offset="0%" stop-color="#60A5FA" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Health status overlay gradients (blend over system zones) -->
+        <radialGradient id="g-green" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#34D399" stop-opacity="0.2"/>
+          <stop offset="100%" stop-color="#34D399" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-orange" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#FBBF24" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="#FBBF24" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-red" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#F87171" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#F87171" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- ══ Silhouette — hologram ghost ══ -->
+      <g id="silhouette" filter="url(#edge-glow)">
+        <!-- Head -->
+        <ellipse cx="120" cy="50" rx="36" ry="40"
+          fill="rgba(0,18,42,0.52)" stroke="rgba(0,190,255,0.5)" stroke-width="1.1"/>
+        <!-- Neck -->
+        <path d="M104,87 Q120,94 136,87 L134,108 Q120,114 106,108 Z"
+          fill="rgba(0,18,42,0.52)" stroke="rgba(0,190,255,0.4)" stroke-width="0.9"/>
+        <!-- Torso -->
+        <path d="M65,112 C52,125 48,154 50,180
+                 C48,208 50,236 52,262
+                 C54,290 65,308 75,314
+                 L77,342 L73,456 L75,524
+                 L97,524 L99,456 L103,342
+                 L107,322 L120,316 L133,322
+                 L137,342 L141,456 L143,524
+                 L165,524 L167,456 L163,342
+                 L165,314 C175,308 186,290 188,262
+                 C190,236 192,208 190,180
+                 C188,154 184,125 175,112
+                 C158,102 140,98 120,98
+                 C100,98 82,102 65,112 Z"
+          fill="rgba(0,18,42,0.52)" stroke="rgba(0,190,255,0.42)" stroke-width="1.1"/>
+        <!-- Left arm -->
+        <path d="M65,112 C52,127 40,158 34,192 C28,218 24,244 24,266 L40,270
+                 C40,250 44,226 50,202 C58,170 70,146 82,132 Z"
+          fill="rgba(0,18,42,0.52)" stroke="rgba(0,190,255,0.36)" stroke-width="0.9"/>
+        <!-- Right arm -->
+        <path d="M175,112 C188,127 200,158 206,192 C212,218 216,244 216,266 L200,270
+                 C200,250 196,226 190,202 C182,170 170,146 158,132 Z"
+          fill="rgba(0,18,42,0.52)" stroke="rgba(0,190,255,0.36)" stroke-width="0.9"/>
+        <!-- Left hand -->
+        <ellipse cx="32" cy="276" rx="12" ry="14"
+          fill="rgba(0,18,42,0.52)" stroke="rgba(0,190,255,0.34)" stroke-width="0.9"/>
+        <!-- Right hand -->
+        <ellipse cx="208" cy="276" rx="12" ry="14"
+          fill="rgba(0,18,42,0.52)" stroke="rgba(0,190,255,0.34)" stroke-width="0.9"/>
+        <!-- Left foot -->
+        <ellipse cx="88" cy="532" rx="18" ry="11"
+          fill="rgba(0,18,42,0.52)" stroke="rgba(0,190,255,0.32)" stroke-width="0.9"/>
+        <!-- Right foot -->
+        <ellipse cx="152" cy="532" rx="18" ry="11"
+          fill="rgba(0,18,42,0.52)" stroke="rgba(0,190,255,0.32)" stroke-width="0.9"/>
+      </g>
+
+      <!-- ══ System Zones ══ -->
+
+      <!-- Nervous System: brain dome + spine trace -->
+      <g id="zone-nervous" class="sys-zone" data-sys="nervous" style="cursor:pointer">
+        <ellipse cx="120" cy="44" rx="31" ry="35" fill="url(#gn)" opacity="0.42">
+          <animate attributeName="opacity" values="0.32;0.56;0.32" dur="3.4s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Neural threads -->
+        <path d="M120,88 Q122,130 120,190 Q118,250 120,312" fill="none"
+          stroke="#A78BFA" stroke-width="1.8" stroke-linecap="round"
+          stroke-dasharray="3,5" opacity="0.38">
+          <animate attributeName="stroke-dashoffset" values="0;-16" dur="1.2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.28;0.52;0.28" dur="3.4s" repeatCount="indefinite"/>
+        </path>
+        <!-- Synaptic glow hits -->
+        <circle cx="120" cy="44" r="18" fill="#A78BFA" opacity="0.06">
+          <animate attributeName="r" values="16;22;16" dur="3.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.04;0.12;0.04" dur="3.4s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Hit area -->
+        <ellipse cx="120" cy="44" rx="36" ry="40" fill="transparent" stroke="none"/>
+        <path d="M115,86 Q118,200 120,316" fill="none" stroke="transparent" stroke-width="16"/>
+      </g>
+
+      <!-- Cardiovascular: heart + vascular field -->
+      <g id="zone-cardiovascular" class="sys-zone" data-sys="cardiovascular" style="cursor:pointer">
+        <ellipse cx="112" cy="155" rx="25" ry="32" fill="url(#gc)" opacity="0.45">
+          <animate attributeName="opacity" values="0.38;0.65;0.38" dur="0.88s" repeatCount="indefinite" calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1"/>
+          <animate attributeName="ry" values="32;34;32" dur="0.88s" repeatCount="indefinite" calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1"/>
+        </ellipse>
+        <!-- Vascular spread -->
+        <ellipse cx="120" cy="158" rx="54" ry="62" fill="url(#gc)" opacity="0.1">
+          <animate attributeName="opacity" values="0.07;0.15;0.07" dur="0.88s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Aortic trace -->
+        <path d="M120,108 L120,175 Q120,192 108,200 Q96,208 92,226" fill="none"
+          stroke="#F87171" stroke-width="1" stroke-linecap="round" opacity="0.25">
+          <animate attributeName="opacity" values="0.15;0.38;0.15" dur="0.88s" repeatCount="indefinite"/>
+        </path>
+        <ellipse cx="112" cy="155" rx="30" ry="38" fill="transparent" stroke="none"/>
+      </g>
+
+      <!-- Immune: thymus + lymph nodes + spleen -->
+      <g id="zone-immune" class="sys-zone" data-sys="immune" style="cursor:pointer">
+        <ellipse cx="120" cy="130" rx="13" ry="10" fill="url(#gi)" opacity="0.38">
+          <animate attributeName="opacity" values="0.25;0.52;0.25" dur="4.2s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Neck nodes -->
+        <circle cx="101" cy="100" r="7" fill="#22D3EE" opacity="0.22">
+          <animate attributeName="opacity" values="0.14;0.36;0.14" dur="4.8s" repeatCount="indefinite"/>
+          <animate attributeName="r" values="6;8;6" dur="4.8s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="139" cy="100" r="7" fill="#22D3EE" opacity="0.22">
+          <animate attributeName="opacity" values="0.14;0.36;0.14" dur="4.5s" repeatCount="indefinite"/>
+          <animate attributeName="r" values="6;8;6" dur="4.5s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Axillary nodes -->
+        <circle cx="68" cy="162" r="8" fill="#22D3EE" opacity="0.18">
+          <animate attributeName="opacity" values="0.1;0.3;0.1" dur="5.5s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="172" cy="162" r="8" fill="#22D3EE" opacity="0.18">
+          <animate attributeName="opacity" values="0.1;0.3;0.1" dur="5.1s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Spleen -->
+        <ellipse cx="100" cy="218" rx="12" ry="16" fill="url(#gi)" opacity="0.3">
+          <animate attributeName="opacity" values="0.18;0.42;0.18" dur="3.8s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Inguinal nodes -->
+        <circle cx="108" cy="308" r="8" fill="#22D3EE" opacity="0.17">
+          <animate attributeName="opacity" values="0.1;0.28;0.1" dur="6s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="132" cy="308" r="8" fill="#22D3EE" opacity="0.17">
+          <animate attributeName="opacity" values="0.1;0.28;0.1" dur="5.6s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Hit rect -->
+        <rect x="60" y="88" width="120" height="238" fill="transparent" stroke="none"/>
+      </g>
+
+      <!-- Endocrine: pituitary + thyroid + adrenals + gonads -->
+      <g id="zone-endocrine" class="sys-zone" data-sys="endocrine" style="cursor:pointer">
+        <!-- Pituitary (brain) -->
+        <circle cx="118" cy="57" r="5" fill="#FBBF24" opacity="0.55">
+          <animate attributeName="opacity" values="0.38;0.75;0.38" dur="2.6s" repeatCount="indefinite"/>
+          <animate attributeName="r" values="4;7;4" dur="2.6s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Thyroid butterfly -->
+        <ellipse cx="112" cy="106" rx="8" ry="5" fill="url(#ge)" opacity="0.48">
+          <animate attributeName="opacity" values="0.32;0.62;0.32" dur="3.6s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="128" cy="106" rx="8" ry="5" fill="url(#ge)" opacity="0.48">
+          <animate attributeName="opacity" values="0.32;0.62;0.32" dur="3.6s" begin="0.3s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Adrenals -->
+        <ellipse cx="100" cy="226" rx="9" ry="6" fill="#FBBF24" opacity="0.38">
+          <animate attributeName="opacity" values="0.24;0.54;0.24" dur="4.4s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="140" cy="226" rx="9" ry="6" fill="#FBBF24" opacity="0.38">
+          <animate attributeName="opacity" values="0.24;0.54;0.24" dur="4.1s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Hormone threads -->
+        <path d="M118,62 Q116,80 114,98 M128,62 Q128,80 126,98" fill="none" stroke="#FBBF24" stroke-width="0.6" opacity="0.18" stroke-dasharray="2,4"/>
+        <!-- Gonads -->
+        <circle cx="111" cy="296" r="8" fill="url(#ge)" opacity="0.28">
+          <animate attributeName="opacity" values="0.16;0.38;0.16" dur="5.2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="129" cy="296" r="8" fill="url(#ge)" opacity="0.28">
+          <animate attributeName="opacity" values="0.16;0.38;0.16" dur="4.8s" repeatCount="indefinite"/>
+        </circle>
+        <rect x="90" y="44" width="60" height="270" fill="transparent" stroke="none"/>
+      </g>
+
+      <!-- Metabolic: liver + stomach + gut -->
+      <g id="zone-metabolic" class="sys-zone" data-sys="metabolic" style="cursor:pointer">
+        <!-- Liver -->
+        <ellipse cx="132" cy="207" rx="27" ry="22" fill="url(#gm)" opacity="0.38">
+          <animate attributeName="opacity" values="0.26;0.52;0.26" dur="4.6s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Stomach -->
+        <ellipse cx="106" cy="198" rx="18" ry="14" fill="url(#gm)" opacity="0.32">
+          <animate attributeName="opacity" values="0.2;0.44;0.2" dur="5.2s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Pancreas -->
+        <ellipse cx="114" cy="214" rx="20" ry="7" fill="#34D399" opacity="0.3"
+          transform="rotate(-16 114 214)">
+          <animate attributeName="opacity" values="0.18;0.42;0.18" dur="4s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Intestines -->
+        <ellipse cx="120" cy="252" rx="32" ry="30" fill="url(#gm)" opacity="0.2">
+          <animate attributeName="opacity" values="0.12;0.28;0.12" dur="6.5s" repeatCount="indefinite"/>
+        </ellipse>
+        <rect x="80" y="185" width="80" height="110" fill="transparent" stroke="none"/>
+      </g>
+
+      <!-- Musculoskeletal: skeleton overlay -->
+      <g id="zone-musculoskeletal" class="sys-zone" data-sys="musculoskeletal" style="cursor:pointer">
+        <!-- Skull ring -->
+        <ellipse cx="120" cy="50" rx="30" ry="34" fill="none" stroke="#60A5FA" stroke-width="0.9" opacity="0.22">
+          <animate attributeName="opacity" values="0.12;0.32;0.12" dur="5.4s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Spine -->
+        <path d="M120,110 Q121,140 120,200 Q119,260 120,312" fill="none"
+          stroke="#60A5FA" stroke-width="3.5" stroke-linecap="round" opacity="0.17">
+          <animate attributeName="opacity" values="0.1;0.26;0.1" dur="5.4s" repeatCount="indefinite"/>
+        </path>
+        <!-- Clavicles -->
+        <path d="M77,118 Q100,112 120,114 Q140,112 163,118" fill="none" stroke="#60A5FA" stroke-width="1" opacity="0.18">
+          <animate attributeName="opacity" values="0.1;0.26;0.1" dur="5.4s" repeatCount="indefinite"/>
+        </path>
+        <!-- Ribs left -->
+        <path d="M90,130 Q79,142 81,158 M90,146 Q77,158 79,174 M90,162 Q77,174 79,190"
+          fill="none" stroke="#60A5FA" stroke-width="0.8" opacity="0.18">
+          <animate attributeName="opacity" values="0.1;0.26;0.1" dur="5.4s" repeatCount="indefinite"/>
+        </path>
+        <!-- Ribs right -->
+        <path d="M150,130 Q161,142 159,158 M150,146 Q163,158 161,174 M150,162 Q163,174 161,190"
+          fill="none" stroke="#60A5FA" stroke-width="0.8" opacity="0.18">
+          <animate attributeName="opacity" values="0.1;0.26;0.1" dur="5.4s" repeatCount="indefinite"/>
+        </path>
+        <!-- Pelvis -->
+        <path d="M85,291 Q87,279 120,277 Q153,279 155,291 Q153,314 120,312 Q87,314 85,291 Z"
+          fill="none" stroke="#60A5FA" stroke-width="0.9" opacity="0.18">
+          <animate attributeName="opacity" values="0.1;0.26;0.1" dur="5.4s" repeatCount="indefinite"/>
+        </path>
+        <!-- Femurs -->
+        <line x1="107" y1="318" x2="92" y2="458" stroke="#60A5FA" stroke-width="3" opacity="0.16">
+          <animate attributeName="opacity" values="0.08;0.22;0.08" dur="5.4s" repeatCount="indefinite"/>
+        </line>
+        <line x1="133" y1="318" x2="148" y2="458" stroke="#60A5FA" stroke-width="3" opacity="0.16">
+          <animate attributeName="opacity" values="0.08;0.22;0.08" dur="5.4s" repeatCount="indefinite"/>
+        </line>
+        <!-- Humerus -->
+        <line x1="72" y1="122" x2="38" y2="252" stroke="#60A5FA" stroke-width="2" opacity="0.14">
+          <animate attributeName="opacity" values="0.07;0.2;0.07" dur="5.4s" repeatCount="indefinite"/>
+        </line>
+        <line x1="168" y1="122" x2="202" y2="252" stroke="#60A5FA" stroke-width="2" opacity="0.14">
+          <animate attributeName="opacity" values="0.07;0.2;0.07" dur="5.4s" repeatCount="indefinite"/>
+        </line>
+        <!-- Body-wide hit area -->
+        <path d="M65,112 C52,125 24,200 24,266 L40,270 C40,250 50,202 65,162
+                 L65,524 L165,524 L165,162 C180,202 200,250 200,270 L216,266
+                 C216,200 188,125 175,112 C158,102 82,102 65,112 Z"
+          fill="transparent" stroke="none"/>
+      </g>
+
+      <!-- HUD readout labels (SVG text, outside body) -->
+      <g id="hudLabels" font-family="'JetBrains Mono',monospace" font-size="7" letter-spacing="2">
+        <!-- Left side labels -->
+        <g id="hud-nervous" opacity="0.5">
+          <line x1="-68" y1="44" x2="84" y2="44" stroke="#A78BFA" stroke-width="0.5" stroke-dasharray="2,3"/>
+          <text x="-70" y="47" fill="#A78BFA" text-anchor="end" font-size="7">NERVOUS</text>
+          <text x="-70" y="57" fill="#A78BFA" text-anchor="end" font-size="8" id="hud-n-score">—</text>
+        </g>
+        <g id="hud-cardiovascular" opacity="0.5">
+          <line x1="-68" y1="155" x2="86" y2="155" stroke="#F87171" stroke-width="0.5" stroke-dasharray="2,3"/>
+          <text x="-70" y="152" fill="#F87171" text-anchor="end" font-size="7">CARDIO</text>
+          <text x="-70" y="162" fill="#F87171" text-anchor="end" font-size="8" id="hud-c-score">—</text>
+        </g>
+        <g id="hud-immune" opacity="0.5">
+          <line x1="-68" y1="210" x2="82" y2="210" stroke="#22D3EE" stroke-width="0.5" stroke-dasharray="2,3"/>
+          <text x="-70" y="207" fill="#22D3EE" text-anchor="end" font-size="7">IMMUNE</text>
+          <text x="-70" y="217" fill="#22D3EE" text-anchor="end" font-size="8" id="hud-i-score">—</text>
+        </g>
+        <!-- Right side labels -->
+        <g id="hud-endocrine" opacity="0.5">
+          <line x1="154" y1="106" x2="308" y2="106" stroke="#FBBF24" stroke-width="0.5" stroke-dasharray="2,3"/>
+          <text x="310" y="103" fill="#FBBF24" text-anchor="start" font-size="7">ENDOCRINE</text>
+          <text x="310" y="113" fill="#FBBF24" text-anchor="start" font-size="8" id="hud-e-score">—</text>
+        </g>
+        <g id="hud-metabolic" opacity="0.5">
+          <line x1="160" y1="218" x2="308" y2="218" stroke="#34D399" stroke-width="0.5" stroke-dasharray="2,3"/>
+          <text x="310" y="215" fill="#34D399" text-anchor="start" font-size="7">METABOLIC</text>
+          <text x="310" y="225" fill="#34D399" text-anchor="start" font-size="8" id="hud-m-score">—</text>
+        </g>
+        <g id="hud-musculoskeletal" opacity="0.5">
+          <line x1="168" y1="300" x2="308" y2="300" stroke="#60A5FA" stroke-width="0.5" stroke-dasharray="2,3"/>
+          <text x="310" y="297" fill="#60A5FA" text-anchor="start" font-size="7">MUSCULO</text>
+          <text x="310" y="307" fill="#60A5FA" text-anchor="start" font-size="8" id="hud-k-score">—</text>
+        </g>
+      </g>
+
+    </svg>
+    <div id="twin-tip"></div>
+  </div>
+</main>
+
+<!-- Status bar -->
+<footer id="statusbar">
+  <div class="sb-item">
+    <div class="sb-dot" id="liveDot" style="background:#34D399"></div>
+    <span class="sb-l">Live</span>
+  </div>
+  <div class="sb-item"><span class="sb-l">HR</span><span class="sb-v" id="sb-hr">—</span></div>
+  <div class="sb-item"><span class="sb-l">HRV</span><span class="sb-v" id="sb-hrv">—</span></div>
+  <div class="sb-item"><span class="sb-l">SpO₂</span><span class="sb-v" id="sb-spo2">—</span></div>
+  <div class="sb-item"><span class="sb-l">Glucose</span><span class="sb-v" id="sb-gluc">—</span></div>
+  <div class="sb-item"><span class="sb-l">Score</span><span class="sb-v" id="sb-sc">—</span></div>
+  <div class="sb-time" id="sb-time">—</div>
+</footer>
+
+</div><!-- #app -->
+
+<!-- Detail panel -->
+<div id="detail">
+  <div class="dp-hdr">
+    <button class="dp-x" onclick="closePanel()">×</button>
+    <div class="dp-tag" id="dp-tag">—</div>
+    <div class="dp-name" id="dp-name">—</div>
+    <div class="dp-score-row">
+      <div class="dp-score-n" id="dp-sn">—</div>
+      <div class="dp-score-d">/100</div>
+      <div class="dp-score-st" id="dp-st">—</div>
+    </div>
+    <div class="dp-bar"><div class="dp-bar-fill" id="dp-bf"></div></div>
+    <div class="dp-desc" id="dp-desc"></div>
+  </div>
+  <div class="dp-body" id="dp-body"></div>
+</div>
+
+<!-- Corners -->
+<div class="crn crn-tl"></div>
+<div class="crn crn-tr"></div>
+<div class="crn crn-bl"></div>
+<div class="crn crn-br"></div>
+
+<script>
+// ── Systems data ────────────────────────────────────────────────────────────
+const SYSTEMS = [
+  {
+    id:'nervous', name:'Nervous System', short:'Nervous', col:'#A78BFA',
+    hudId:'hud-nervous', hudScore:'hud-n-score',
+    desc:'Brain, spinal cord, peripheral nerves — command and control',
+    markers:['hrv','sleep','deep_sleep','rem_sleep','cortisol','nad'],
+    risks:[
+      'Chronic cortisol elevation shrinks hippocampal volume over time',
+      'HRV below 40ms signals dysregulated autonomic tone — recovery is impaired',
+    ],
+    interventions:[
+      'HRV biofeedback — 5 min daily at 0.1Hz resonance frequency (coherent breathing)',
+      'Sleep schedule consistent within ±30 min — the most powerful nervous system reset',
+      'Cold immersion 2 min at 15°C activates norepinephrine and vagal tone measurably',
+    ]
+  },
+  {
+    id:'cardiovascular', name:'Cardiovascular', short:'Cardio', col:'#F87171',
+    hudId:'hud-cardiovascular', hudScore:'hud-c-score',
+    desc:'Heart, vessels, blood pressure, circulation',
+    markers:['resting_hr','active_hr','spo2','sys_bp','resp_rate','apob','fibrinogen'],
+    risks:[
+      'Resting HR above 75 bpm carries 3× greater cardiovascular mortality in longitudinal data',
+      'ApoB above 90 mg/dL is active atherogenic particle load — the dominant risk marker',
+    ],
+    interventions:[
+      'Zone 2 cardio 150+ min/week — primary longevity driver for the cardiovascular system',
+      'DASH protocol: potassium, magnesium, fiber — reduces systolic BP by 8–14 mmHg',
+      '4×4 interval sessions weekly for VO₂ max — the strongest mortality predictor in medicine',
+    ]
+  },
+  {
+    id:'immune', name:'Immune System', short:'Immune', col:'#22D3EE',
+    hudId:'hud-immune', hudScore:'hud-i-score',
+    desc:'Inflammation, immune surveillance, lymphatic defense',
+    markers:['crp','vit_d','zinc','b12','ferritin'],
+    risks:[
+      'CRP above 1.0 mg/L is chronic low-grade inflammation — accelerates biological aging',
+      'Vitamin D below 40 ng/mL significantly impairs T-cell and NK-cell function',
+    ],
+    interventions:[
+      'Omega-3s 3–4g EPA+DHA daily reduce CRP by up to 30% in randomized trials',
+      'Vitamin D3 + K2 — target serum 60–80 ng/mL; most people need 5,000 IU/day',
+      'Time-restricted eating 16:8 reduces inflammatory cytokines (IL-6, TNF-α) measurably',
+    ]
+  },
+  {
+    id:'endocrine', name:'Endocrine System', short:'Endocrine', col:'#FBBF24',
+    hudId:'hud-endocrine', hudScore:'hud-e-score',
+    desc:'Hormones, glandular function, signaling cascades',
+    markers:['testosterone','free_t','dheas','igf1','cortisol','tsh'],
+    risks:[
+      'Low free testosterone despite normal total T indicates high SHBG — common in stress',
+      'TSH outside 0.5–2.0 mIU/L affects metabolism, mood, and cognitive speed significantly',
+    ],
+    interventions:[
+      'Compound resistance training 3–4×/week — strongest natural anabolic hormone stimulus',
+      'Deep sleep protection: testosterone synthesis occurs exclusively during slow-wave sleep',
+      'Boron 10mg + zinc 25mg daily — studied mechanisms for SHBG reduction and T support',
+    ]
+  },
+  {
+    id:'metabolic', name:'Metabolic System', short:'Metabolic', col:'#34D399',
+    hudId:'hud-metabolic', hudScore:'hud-m-score',
+    desc:'Glucose, insulin, liver function, energy processing',
+    markers:['glucose','insulin_s','alt','albumin','uric_acid','hydration'],
+    risks:[
+      'Fasting glucose above 100 mg/dL is pre-diabetic — fully reversible with diet and movement',
+      'ALT elevation signals hepatocyte stress — fructose, alcohol, and seed oils are primary drivers',
+    ],
+    interventions:[
+      'Post-meal walks 15–20 min — blunts glucose spikes more effectively than metformin in RCTs',
+      'Time-restricted eating compresses metabolic window, reduces insulin AUC by 30–40%',
+      'Berberine 500mg before largest meals — potent AMPK activator, evidence-based glycemic support',
+    ]
+  },
+  {
+    id:'musculoskeletal', name:'Musculoskeletal', short:'Musculo', col:'#60A5FA',
+    hudId:'hud-musculoskeletal', hudScore:'hud-k-score',
+    desc:'Muscle, bone, connective tissue, structural integrity',
+    markers:['grip','muscle_mass','body_fat','lactate','magnesium','omega3'],
+    risks:[
+      'Grip strength below 50th percentile predicts all-cause mortality better than blood pressure',
+      'Low muscle mass drives insulin resistance, metabolic dysfunction, and accelerated aging',
+    ],
+    interventions:[
+      'Progressive overload 3–4 days/week — compound movements are non-negotiable',
+      'Creatine monohydrate 5g/day — the most validated longevity-supportive supplement',
+      '1g protein per lb bodyweight spread across 4+ meals for maximal muscle protein synthesis',
+    ]
+  },
+];
+
+// ── Biomarker database ───────────────────────────────────────────────────────
+const BM = {
+  hrv:          {label:'HRV',                 unit:'ms',        pct:62},
+  sleep:        {label:'Sleep Duration',      unit:'hrs',       pct:58},
+  deep_sleep:   {label:'Deep Sleep',          unit:'%',         pct:55},
+  rem_sleep:    {label:'REM Sleep',           unit:'%',         pct:60},
+  cortisol:     {label:'Cortisol',            unit:'μg/dL',     pct:50},
+  nad:          {label:'NAD+',                unit:'μM',        pct:44},
+  resting_hr:   {label:'Resting HR',          unit:'bpm',       pct:68},
+  active_hr:    {label:'Active HR',           unit:'bpm',       pct:70},
+  spo2:         {label:'SpO₂',               unit:'%',         pct:88},
+  sys_bp:       {label:'Systolic BP',         unit:'mmHg',      pct:72},
+  resp_rate:    {label:'Resp. Rate',          unit:'brpm',      pct:66},
+  apob:         {label:'ApoB',               unit:'mg/dL',     pct:61},
+  fibrinogen:   {label:'Fibrinogen',          unit:'mg/dL',     pct:63},
+  crp:          {label:'CRP',                unit:'mg/L',      pct:74},
+  vit_d:        {label:'Vitamin D',           unit:'ng/mL',     pct:42},
+  zinc:         {label:'Zinc',               unit:'μg/dL',     pct:55},
+  b12:          {label:'B12',                unit:'pg/mL',     pct:68},
+  ferritin:     {label:'Ferritin',            unit:'ng/mL',     pct:58},
+  testosterone: {label:'Testosterone',        unit:'ng/dL',     pct:65},
+  free_t:       {label:'Free Testosterone',   unit:'pg/mL',     pct:60},
+  dheas:        {label:'DHEA-S',             unit:'μg/dL',     pct:52},
+  igf1:         {label:'IGF-1',              unit:'ng/mL',     pct:58},
+  tsh:          {label:'TSH / Thyroid',       unit:'mIU/L',     pct:71},
+  glucose:      {label:'Fasting Glucose',     unit:'mg/dL',     pct:63},
+  insulin_s:    {label:'Insulin Sensitivity', unit:'HOMA-IR',   pct:55},
+  alt:          {label:'ALT',                unit:'U/L',       pct:70},
+  albumin:      {label:'Albumin',            unit:'g/dL',      pct:75},
+  uric_acid:    {label:'Uric Acid',           unit:'mg/dL',     pct:64},
+  hydration:    {label:'Hydration',           unit:'%',         pct:58},
+  grip:         {label:'Grip Strength',       unit:'kg',        pct:66},
+  muscle_mass:  {label:'Muscle Mass',         unit:'kg',        pct:62},
+  body_fat:     {label:'Body Fat %',          unit:'%',         pct:60},
+  lactate:      {label:'Lactate Threshold',   unit:'bpm',       pct:64},
+  magnesium:    {label:'Magnesium',           unit:'mg/dL',     pct:48},
+  omega3:       {label:'Omega-3 Index',       unit:'%',         pct:52},
+};
+
+// ── State ────────────────────────────────────────────────────────────────────
+let activeSystem = null;
+let liveData = {};
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const stCol  = p => p>=68?'#34D399':p>=38?'#FBBF24':'#F87171';
+const stName = p => p>=68?'OPTIMAL':p>=38?'MODERATE':'CRITICAL';
+
+function sysScore(sys){
+  const pts = sys.markers.map(id=>(BM[id]||{pct:50}).pct);
+  return Math.round(pts.reduce((a,b)=>a+b,0)/pts.length);
+}
+function twinScore(){
+  return Math.round(SYSTEMS.reduce((a,s)=>a+sysScore(s),0)/SYSTEMS.length);
+}
+
+// ── Sparklines ───────────────────────────────────────────────────────────────
+function genHistory(pct,n=30){
+  const d=[];let v=pct+(Math.random()-.5)*18;
+  v=Math.max(12,Math.min(94,v));
+  for(let i=0;i<n;i++){
+    v+=(pct-v)*0.09+(Math.random()-.5)*7;
+    v=Math.max(12,Math.min(94,v));
+    d.push(v);
+  }
+  d.push(pct);return d;
+}
+
+function drawSpark(canvas,data,color){
+  const W=canvas.offsetWidth||288,H=canvas.offsetHeight||36;
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+  const mn=Math.min(...data)-4,mx=Math.max(...data)+4,rng=mx-mn;
+  const px=i=>(i/(data.length-1))*(W-4)+2;
+  const py=v=>H-((v-mn)/rng)*(H-6)-3;
+  const r=parseInt(color.slice(1,3),16),g=parseInt(color.slice(3,5),16),b=parseInt(color.slice(5,7),16);
+  // area
+  ctx.beginPath();ctx.moveTo(px(0),H);
+  data.forEach((v,i)=>ctx.lineTo(px(i),py(v)));
+  ctx.lineTo(px(data.length-1),H);ctx.closePath();
+  const gr=ctx.createLinearGradient(0,0,0,H);
+  gr.addColorStop(0,`rgba(${r},${g},${b},0.28)`);
+  gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+  ctx.fillStyle=gr;ctx.fill();
+  // line
+  ctx.beginPath();ctx.moveTo(px(0),py(data[0]));
+  data.forEach((v,i)=>{
+    if(!i)return;
+    const cpx=(px(i-1)+px(i))/2;
+    ctx.bezierCurveTo(cpx,py(data[i-1]),cpx,py(v),px(i),py(v));
+  });
+  ctx.strokeStyle=color;ctx.lineWidth=1.4;ctx.stroke();
+  // endpoint dot
+  ctx.beginPath();ctx.arc(px(data.length-1),py(data[data.length-1]),2.5,0,Math.PI*2);
+  ctx.fillStyle=color;ctx.fill();
+}
+
+// ── Zone highlighting ─────────────────────────────────────────────────────────
+function highlightZone(sysId, on){
+  const zone=document.getElementById('zone-'+sysId);
+  if(!zone)return;
+  const sys=SYSTEMS.find(s=>s.id===sysId);
+  const sc=sysScore(sys);
+  const c=stCol(sc);
+  if(on){
+    zone.style.filter=`drop-shadow(0 0 10px ${sys.col}) drop-shadow(0 0 20px ${c}44)`;
+    zone.style.opacity='1.0';
+    // dim HUD label
+    const hud=document.getElementById(sys.hudId);
+    if(hud)hud.style.opacity='1';
+  } else {
+    zone.style.filter='';zone.style.opacity='';
+    const hud=document.getElementById(sys.hudId);
+    if(hud)hud.style.opacity='0.5';
+  }
+}
+
+// ── Left sidebar ─────────────────────────────────────────────────────────────
+function renderSidebar(){
+  const el=document.getElementById('sysListEl');
+  el.innerHTML=SYSTEMS.map(sys=>{
+    const sc=sysScore(sys),c=stCol(sc),isAct=activeSystem===sys.id;
+    return`<div class="sys-row${isAct?' active':''}" data-sys="${sys.id}"
+      style="--sys-col:${sys.col}"
+      onclick="selectSystem('${sys.id}')"
+      onmouseenter="highlightZone('${sys.id}',true)"
+      onmouseleave="highlightZone('${sys.id}',${isAct})">
+      <div class="sys-row-dot" style="background:${c}"></div>
+      <div class="sys-row-info">
+        <div class="sys-row-name">${sys.short}</div>
+        <div class="sys-row-sub">${sc}/100 · ${stName(sc)}</div>
+        <div class="sys-row-bar">
+          <div class="sys-row-fill" style="width:${sc}%;background:${c}"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── HUD score labels ──────────────────────────────────────────────────────────
+function updateHUD(){
+  const map={
+    nervous:'hud-n-score',
+    cardiovascular:'hud-c-score',
+    immune:'hud-i-score',
+    endocrine:'hud-e-score',
+    metabolic:'hud-m-score',
+    musculoskeletal:'hud-k-score',
+  };
+  SYSTEMS.forEach(sys=>{
+    const el=document.getElementById(map[sys.id]);
+    if(el)el.textContent=sysScore(sys)+'/100';
+  });
+}
+
+// ── Detail panel ──────────────────────────────────────────────────────────────
+function selectSystem(sysId){
+  activeSystem=sysId;
+  const sys=SYSTEMS.find(s=>s.id===sysId);
+  const sc=sysScore(sys),c=stCol(sc);
+
+  document.getElementById('dp-tag').textContent=sys.id.toUpperCase();
+  document.getElementById('dp-tag').style.color=sys.col;
+  document.getElementById('dp-name').textContent=sys.name;
+  document.getElementById('dp-sn').textContent=sc;
+  document.getElementById('dp-sn').style.color=c;
+  document.getElementById('dp-st').textContent=stName(sc);
+  document.getElementById('dp-st').style.color=c;
+  document.getElementById('dp-bf').style.width=sc+'%';
+  document.getElementById('dp-bf').style.background=c;
+  document.getElementById('dp-desc').textContent=sys.desc;
+
+  // Build body HTML
+  let html='';
+
+  // Biomarkers
+  html+=`<div class="dp-sec-wrap">
+    <div class="dp-sec">Biomarkers · ${sys.markers.length} tracked</div>`;
+  sys.markers.forEach(id=>{
+    const bm=BM[id];if(!bm)return;
+    const bc=stCol(bm.pct);
+    html+=`<div class="dp-mrow">
+      <div class="dp-mdot" style="background:${bc};box-shadow:0 0 5px ${bc}88"></div>
+      <div class="dp-mname">${bm.label}</div>
+      <div class="dp-mbar"><div class="dp-mbar-fill" style="width:${bm.pct}%;background:${bc}"></div></div>
+      <div class="dp-mpct" style="color:${bc}">${bm.pct}%</div>
+    </div>`;
+  });
+  html+='</div>';
+
+  // Sparklines — top 3
+  html+=`<div class="dp-sec-wrap">
+    <div class="dp-sec">Trends · 30-day simulation</div>`;
+  sys.markers.slice(0,3).forEach(id=>{
+    const bm=BM[id];if(!bm)return;
+    const bc=stCol(bm.pct);
+    html+=`<div class="spark-wrap">
+      <div class="spark-hdr">
+        <span class="spark-name">${bm.label}</span>
+        <span class="spark-val" style="color:${bc}">${bm.pct}%</span>
+      </div>
+      <canvas class="spark" id="sp-${id}" height="36"></canvas>
+    </div>`;
+  });
+  html+='</div>';
+
+  // Risks
+  html+=`<div class="dp-sec-wrap">
+    <div class="dp-sec">Risk Factors</div>`;
+  sys.risks.forEach(r=>{
+    html+=`<div class="dp-r-row">
+      <div class="dp-r-icon" style="color:#F87171">▸</div>
+      <div class="dp-r-text">${r}</div>
+    </div>`;
+  });
+  html+='</div>';
+
+  // Interventions
+  html+=`<div class="dp-sec-wrap">
+    <div class="dp-sec">Interventions</div>`;
+  sys.interventions.forEach(r=>{
+    html+=`<div class="dp-r-row">
+      <div class="dp-r-icon" style="color:#34D399">◈</div>
+      <div class="dp-r-text">${r}</div>
+    </div>`;
+  });
+  html+='</div>';
+
+  // AI synthesis
+  html+=`<div class="dp-sec-wrap">
+    <div class="dp-sec">AI Synthesis</div>
+    <button class="dp-ai-btn" id="aiBtn" onclick="runAI('${sysId}')">Synthesize ${sys.name} Protocol</button>
+    <div class="dp-ai-out" id="aiOut"></div>
+  </div>`;
+
+  document.getElementById('dp-body').innerHTML=html;
+
+  // Draw sparklines
+  requestAnimationFrame(()=>{
+    sys.markers.slice(0,3).forEach(id=>{
+      const bm=BM[id];if(!bm)return;
+      const cv=document.getElementById('sp-'+id);
+      if(cv)drawSpark(cv,genHistory(bm.pct),stCol(bm.pct));
+    });
+  });
+
+  document.getElementById('detail').classList.add('open');
+  SYSTEMS.forEach(s=>highlightZone(s.id,s.id===sysId));
+  renderSidebar();
+}
+
+function closePanel(){
+  activeSystem=null;
+  document.getElementById('detail').classList.remove('open');
+  SYSTEMS.forEach(s=>highlightZone(s.id,false));
+  renderSidebar();
+}
+
+// ── AI synthesis ──────────────────────────────────────────────────────────────
+async function runAI(sysId){
+  const sys=SYSTEMS.find(s=>s.id===sysId);
+  const btn=document.getElementById('aiBtn');
+  const out=document.getElementById('aiOut');
+  btn.disabled=true;btn.textContent='Synthesizing…';
+  out.classList.add('on');out.style.display='block';
+  out.innerHTML='<em>Connecting to AILIV intelligence…</em>';
+  const sc=sysScore(sys);
+  const markerStr=sys.markers.map(id=>{
+    const bm=BM[id];return bm?`${bm.label}: ${bm.pct}/100`:null;
+  }).filter(Boolean).join(', ');
+  const q=`Analyze my ${sys.name} system specifically. Score: ${sc}/100. Biomarkers: ${markerStr}. ${sys.desc}. Give 3 precise interventions ranked by impact — name dosages, timing, mechanisms. Under 180 words.`;
+  try{
+    const r=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});
+    const d=await r.json();
+    out.innerHTML=d.ok?d.answer.replace(/\n/g,'<br>'):
+      `<em style="color:rgba(248,113,113,.6)">${d.error||'AILIV intelligence unavailable.'}</em>`;
+  }catch{
+    out.innerHTML='<em style="color:rgba(248,113,113,.6)">AILIV intelligence unavailable. Set ANTHROPIC_API_KEY in settings.</em>';
+  }
+  btn.disabled=false;btn.textContent=`Synthesize ${sys.name} Protocol`;
+}
+
+// ── Tooltip ───────────────────────────────────────────────────────────────────
+const tip=document.getElementById('twin-tip');
+const wrap=document.getElementById('body-wrap');
+
+document.getElementById('bodySvg').addEventListener('mousemove',e=>{
+  const r=wrap.getBoundingClientRect();
+  tip.style.left=(e.clientX-r.left+14)+'px';
+  tip.style.top=(e.clientY-r.top-14)+'px';
+});
+
+function showTip(sys){
+  const sc=sysScore(sys),c=stCol(sc);
+  tip.innerHTML=`<div class="tt-sys" style="color:${sys.col}">${sys.name}</div>
+    <div class="tt-score" style="color:${c}">${sc}</div>
+    <div class="tt-status">${stName(sc)} · ${sys.markers.length} markers</div>
+    <div class="tt-markers">${sys.markers.slice(0,3).map(id=>(BM[id]||{label:id}).label).join(' · ')}</div>`;
+  tip.classList.add('on');
+}
+function hideTip(){tip.classList.remove('on')}
+
+function attachZoneHandlers(){
+  SYSTEMS.forEach(sys=>{
+    const z=document.getElementById('zone-'+sys.id);
+    if(!z)return;
+    z.addEventListener('click',()=>selectSystem(sys.id));
+    z.addEventListener('mouseenter',()=>{highlightZone(sys.id,true);showTip(sys)});
+    z.addEventListener('mouseleave',()=>{highlightZone(sys.id,activeSystem===sys.id);hideTip()});
+  });
+}
+
+// ── Top/status bar ────────────────────────────────────────────────────────────
+function updateBars(){
+  const ts=twinScore();
+  document.getElementById('tbScore').textContent=ts;
+  document.getElementById('sb-sc').textContent=ts;
+  const green=SYSTEMS.filter(s=>sysScore(s)>=68).length;
+  document.getElementById('tbSys').textContent=`${green} / 6`;
+  const hr=liveData.heart_rate,hrv=liveData.hrv,spo2=liveData.spo2,gluc=liveData.glucose;
+  document.getElementById('sb-hr').textContent=hr?`${Math.round(hr)} bpm`:'—';
+  document.getElementById('sb-hrv').textContent=hrv?`${Math.round(hrv)} ms`:'—';
+  document.getElementById('sb-spo2').textContent=spo2?`${spo2}%`:'—';
+  document.getElementById('sb-gluc').textContent=gluc?`${Math.round(gluc)} mg/dL`:'—';
+}
+
+function tickClock(){
+  const t=new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('sb-time').textContent=t;
+}
+
+// ── Live data ─────────────────────────────────────────────────────────────────
+function applyLive(d){
+  liveData=d;
+  if(d.hrv!=null)         BM.hrv.pct         = Math.round(Math.max(5,Math.min(97,(d.hrv/100)*100)));
+  if(d.sleep_hours!=null) BM.sleep.pct        = Math.round(Math.max(5,Math.min(97,(d.sleep_hours/9)*100)));
+  if(d.resting_hr!=null)  BM.resting_hr.pct   = Math.round(Math.max(5,Math.min(97,Math.max(0,100-((d.resting_hr-40)/60)*100))));
+  if(d.heart_rate!=null)  BM.active_hr.pct    = Math.round(Math.max(5,Math.min(97,100-(Math.abs(d.heart_rate-65)/80)*100)));
+  if(d.spo2!=null)        BM.spo2.pct         = Math.round(Math.max(5,Math.min(97,((d.spo2-90)/10)*100)));
+  if(d.respiratory_rate)  BM.resp_rate.pct    = Math.round(Math.max(5,Math.min(97,Math.max(0,100-((d.respiratory_rate-10)/10)*100))));
+  if(d.glucose!=null)     BM.glucose.pct      = Math.round(Math.max(5,Math.min(97,Math.max(0,100-((d.glucose-70)/60)*100))));
+  if(d.testosterone!=null)BM.testosterone.pct = Math.round(Math.max(5,Math.min(97,(d.testosterone/1000)*100)));
+  if(d.crp!=null)         BM.crp.pct          = Math.round(Math.max(5,Math.min(97,Math.max(0,100-(d.crp/3)*100))));
+  if(d.last_updated)      document.getElementById('tbAge').textContent=d.last_updated;
+}
+
+async function fetchData(){
+  try{
+    const r=await fetch('/api/data');
+    const d=await r.json();
+    applyLive(d);
+    renderSidebar();updateHUD();updateBars();
+  }catch{}
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderSidebar();
+attachZoneHandlers();
+updateHUD();
+updateBars();
+fetchData();
+setInterval(fetchData,30000);
+setInterval(tickClock,1000);
+setInterval(updateBars,6000);
+tickClock();
+</script>
+</body>
+</html>

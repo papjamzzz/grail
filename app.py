@@ -78,6 +78,12 @@ def biodata():
     with open(path, 'r', encoding='utf-8') as f:
         return f.read(), 200, {'Content-Type': 'text/html; charset=utf-8'}
 
+@app.route('/twin')
+def twin():
+    path = os.path.join(BASE, 'twin.html')
+    with open(path, 'r', encoding='utf-8') as f:
+        return f.read(), 200, {'Content-Type': 'text/html; charset=utf-8'}
+
 @app.route('/api/ask', methods=['POST'])
 def api_ask():
     try:
