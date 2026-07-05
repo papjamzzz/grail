@@ -160,6 +160,25 @@ body {
   line-height: 1.9; pointer-events: none;
 }
 
+.chips {
+  position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 8px; z-index: 10;
+}
+.chip {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text2);
+  border: 1px solid var(--line);
+  padding: 7px 14px; border-radius: 999px;
+  cursor: pointer; user-select: none;
+  transition: opacity .25s, border-color .25s, color .25s;
+}
+.chip i { width: 8px; height: 8px; border-radius: 50%; display: block; transition: opacity .25s; }
+.chip.on { color: #FFF; border-color: rgba(255,255,255,0.35); }
+.chip:not(.on) { opacity: 0.38; }
+.chip:not(.on) i { opacity: 0.4; }
+.chip:hover { border-color: rgba(255,255,255,0.6); }
+
 .hint {
   position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%);
   font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
@@ -227,6 +246,18 @@ body {
         <div class="faqtext"><b>The cyan line inside</b> is HRV — highest in deep night, dipping after hard effort, rebounding as you recover.</div>
       </div>
       <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M4 6 Q 20 -2 36 6" fill="none" stroke="url(#sg)" stroke-width="5" stroke-linecap="round"/><defs><linearGradient id="sg"><stop offset="0" stop-color="var(--recovery)"/><stop offset=".5" stop-color="var(--energy)"/><stop offset="1" stop-color="var(--stress)"/></linearGradient></defs></svg></div>
+        <div class="faqtext"><b>The ring's daytime color</b> is your stress load — green is calm, amber is working, red is a spike worth noticing.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><circle cx="5" cy="6" r="3.5" fill="#E8850C"/><path d="M9 6 Q 22 4 37 6" fill="none" stroke="#E8850C" stroke-width="3" stroke-linecap="round" opacity=".8" style="stroke-dasharray:30;"/></svg></div>
+        <div class="faqtext"><b>Amber trails</b> are caffeine burning off — each dose fades over ~10 hours. If a trail reaches your sleep arc, that espresso is still in your blood at bedtime.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><b class="tabpill">Fuel</b></div>
+        <div class="faqtext"><b>The chips up top</b> switch layers on and off — Vitals, Fuel, Movement — so you can look at one story at a time.</div>
+      </div>
+      <div class="faqrow">
         <div class="faqicon"><b class="tabpill">Atlas →</b></div>
         <div class="faqtext"><b>Atlas</b> in the top bar jumps to the other view: how your systems relate to each other right now.</div>
       </div>
@@ -238,6 +269,12 @@ body {
   <div class="stage">
     <canvas id="ring"></canvas>
 
+    <div class="chips" id="chips">
+      <div class="chip on" data-layer="vitals"><i style="background:var(--hrv)"></i>Vitals</div>
+      <div class="chip on" data-layer="fuel"><i style="background:var(--energy)"></i>Fuel</div>
+      <div class="chip on" data-layer="movement"><i style="background:var(--inflam)"></i>Movement</div>
+    </div>
+
     <div class="headline">
       <h1>Your day, one orbit<span class="dot">.</span></h1>
       <p id="hlsub">Every rhythm your body runs — sleep, effort, fuel, recovery — on a single living clock.</p>
@@ -247,7 +284,9 @@ body {
         <span class="lg"><i style="background:var(--hrv)"></i>REM · HRV</span>
         <span class="lg"><i style="background:var(--inflam)"></i>Training</span>
         <span class="lg"><i style="background:var(--energy)"></i>Meals</span>
+        <span class="lg"><i style="background:#E8850C"></i>Caffeine</span>
         <span class="lg"><i style="background:var(--stress)"></i>Heart rate</span>
+        <span class="lg"><i style="background:linear-gradient(90deg,var(--recovery),var(--energy),var(--stress))"></i>Stress</span>
       </div>
     </div>
 
@@ -290,7 +329,38 @@ const DAY = {
   training: { s: 9.5,  e: 10.75, label:'Training — Zone 3 ride' },
   walk:     { s: 15.0, e: 15.6,  label:'Walk — easy movement' },
   meals:    [ { t: 8.0, label:'Breakfast' }, { t: 12.5, label:'Lunch' }, { t: 19.0, label:'Dinner' } ],
+  caffeine: [ { t: 7.75, dose: 120, label:'Coffee' }, { t: 15.75, dose: 80, label:'Espresso' } ],
 };
+const CAFF_HALFLIFE = 5.5, CAFF_COLOR = '#E8850C';
+
+/* active caffeine (mg) at time t — exponential decay, wraps midnight */
+function caffAt(t){
+  let mg = 0;
+  DAY.caffeine.forEach(c => {
+    let dt = t - c.t; if (dt < 0) dt += 24;
+    if (dt < 12) mg += c.dose * Math.pow(0.5, dt / CAFF_HALFLIFE);
+  });
+  return mg;
+}
+
+/* WHOOP-style stress score 0–3 across the day */
+function stressAt(t){
+  let s = 0.45;
+  s += 0.9 * gauss(t, 9.0, 1.1);      // morning load
+  s += 0.8 * gauss(t, 10.1, 0.5);     // training (physical)
+  s += 1.9 * gauss(t, 14.2, 0.7);     // afternoon meeting spike
+  s += 0.7 * gauss(t, 17.6, 0.9);     // late-day residue
+  s -= 0.3 * gauss(t, 3.2, 3.0);      // deep-night calm
+  return Math.max(0.05, Math.min(3, s));
+}
+/* stress score → green→amber→red */
+function stressColor(s){
+  const stops = [[0x14,0xA1,0x5A],[0xF5,0xB9,0x0A],[0xE1,0x1D,0x3C]];
+  const x = Math.max(0, Math.min(1, s/3)) * 2;
+  const i = Math.min(1, Math.floor(x)), f = x - i;
+  const a = stops[i], b = stops[i+1];
+  return `rgb(${a[0]+(b[0]-a[0])*f|0},${a[1]+(b[1]-a[1])*f|0},${a[2]+(b[2]-a[2])*f|0})`;
+}
 
 const inSleep = t => DAY.sleepStart <= t+24 && (t >= DAY.sleepStart || t < DAY.sleepEnd);
 const gauss = (t, m, w) => {
@@ -331,13 +401,19 @@ function stateAt(t){
   }
   if (t >= DAY.training.s && t < DAY.training.e) return { label:'Training', color:COL.inflam };
   if (t >= DAY.walk.s && t < DAY.walk.e)         return { label:'Walking',  color:COL.energy };
+  for (const c of DAY.caffeine)
+    if (Math.abs(t - c.t) < 0.2) return { label: c.label, color: CAFF_COLOR };
   for (const m of DAY.meals)
     if (Math.abs(t - m.t) < 0.3) return { label: m.label, color: COL.energy };
   if (t >= DAY.sleepEnd && t < DAY.sleepEnd + 0.5) return { label:'Waking', color:COL.sleep };
+  if (stressAt(t) > 1.7) return { label:'High stress', color: COL.stress };
   if (t >= 21.5) return { label:'Winding down', color:COL.sleep };
   if (t > DAY.training.e && t < DAY.training.e + 1.5) return { label:'Recovering', color:COL.recovery };
   return { label:'Awake — steady', color:COL.recovery };
 }
+
+/* ── layers ── */
+const LAYERS = { vitals: true, fuel: true, movement: true };
 
 /* ── canvas setup ── */
 const stage = document.querySelector('.stage');
@@ -426,6 +502,24 @@ function draw(now, dt){
   cx.beginPath(); cx.arc(OX, OY, Rb, 0, Math.PI*2); cx.stroke();
   cx.restore();
 
+  /* stress band — waking hours of the main ring, colored by load */
+  if (LAYERS.vitals){
+    const SEG = 240;
+    cx.save();
+    cx.lineWidth = 5; cx.lineCap = 'butt';
+    for (let i=0;i<SEG;i++){
+      const t = (i/SEG)*24;
+      if (inSleep(t)) continue;
+      const s = stressAt(t);
+      cx.strokeStyle = stressColor(s);
+      cx.globalAlpha = 0.30 + (s/3)*0.6;
+      cx.beginPath();
+      cx.arc(OX, OY, Rb, t2a(t), t2a(t + 24/SEG) + 0.004);
+      cx.stroke();
+    }
+    cx.restore();
+  }
+
   /* sleep arc + architecture */
   drawSpan(DAY.sleepStart, DAY.sleepEnd, Rb, 13, COL.sleep, 0.85, 22);
   DAY.stages.forEach(s => {
@@ -433,12 +527,44 @@ function draw(now, dt){
     if (s.type === 'rem')  drawSpan(s.s, s.e, Rb - 13, 4, COL.hrv, 0.9, 10);
   });
 
+  /* caffeine decay trails — just outside the ring, fading with half-life */
+  if (LAYERS.fuel){
+    DAY.caffeine.forEach((c,ci) => {
+      const STEPS = 90, SPAN = 10.5;
+      cx.save();
+      cx.lineCap = 'round';
+      for (let k=0;k<STEPS;k++){
+        const dt = (k/STEPS)*SPAN;
+        const decay = Math.pow(0.5, dt / CAFF_HALFLIFE);
+        const t1 = c.t + dt, t2 = c.t + dt + SPAN/STEPS;
+        cx.strokeStyle = CAFF_COLOR;
+        cx.globalAlpha = 0.75 * decay;
+        cx.lineWidth = 1.5 + 3.5 * decay;
+        cx.beginPath();
+        cx.arc(OX, OY, Rb + 17, t2a(t1), t2a(t2) + 0.003);
+        cx.stroke();
+      }
+      /* the shot itself */
+      const a = t2a(c.t);
+      const px = OX + Math.cos(a)*(Rb+17), py = OY + Math.sin(a)*(Rb+17);
+      const p = 0.5 + 0.5*Math.sin(now*0.0032 + ci*2.4);
+      cx.globalAlpha = 1;
+      cx.beginPath(); cx.arc(px, py, 4.5 + p*2, 0, Math.PI*2);
+      cx.fillStyle = CAFF_COLOR;
+      cx.shadowColor = CAFF_COLOR; cx.shadowBlur = 12 + p*8;
+      cx.fill();
+      cx.restore();
+    });
+  }
+
   /* training + walk flares */
-  drawSpan(DAY.training.s, DAY.training.e, Rb, 13, COL.inflam, 0.95, 30);
-  drawSpan(DAY.walk.s, DAY.walk.e, Rb, 9, COL.energy, 0.75, 14);
+  if (LAYERS.movement){
+    drawSpan(DAY.training.s, DAY.training.e, Rb, 13, COL.inflam, 0.95, 30);
+    drawSpan(DAY.walk.s, DAY.walk.e, Rb, 9, COL.energy, 0.75, 14);
+  }
 
   /* meal pulses */
-  DAY.meals.forEach((m,i) => {
+  if (LAYERS.fuel) DAY.meals.forEach((m,i) => {
     const a = t2a(m.t);
     const px = OX + Math.cos(a)*Rb, py = OY + Math.sin(a)*Rb;
     const p = 0.5 + 0.5*Math.sin(now*0.003 + i*2.1);
@@ -452,6 +578,7 @@ function draw(now, dt){
 
   /* heart-rate ribbon (outside) + HRV ribbon (inside) */
   const N = 288;
+  if (LAYERS.vitals){
   cx.save();
   cx.beginPath();
   for (let i=0;i<=N;i++){
@@ -479,6 +606,7 @@ function draw(now, dt){
   cx.shadowColor = COL.hrv; cx.shadowBlur = 8;
   cx.stroke();
   cx.restore();
+  }
 
   /* cursor */
   const ca = t2a(cursorT);
@@ -513,6 +641,16 @@ function draw(now, dt){
   cx.font = `700 ${R*0.066}px Inter`;
   cx.fillStyle = 'rgba(255,255,255,0.85)';
   cx.fillText(`HR ${Math.round(hrAt(cursorT))} · HRV ${Math.round(hrvAt(cursorT))}`, OX, OY + R*0.24);
+
+  /* third readout line: stress + active caffeine */
+  const sv = stressAt(cursorT);
+  const sName = sv > 1.7 ? 'HIGH' : sv > 0.9 ? 'MODERATE' : 'LOW';
+  const mg = caffAt(cursorT);
+  let line3 = `STRESS ${sName}`;
+  if (mg > 10) line3 += ` · CAFFEINE ${Math.round(mg)}MG`;
+  cx.font = `800 ${R*0.052}px Inter`;
+  cx.fillStyle = 'rgba(255,255,255,0.6)';
+  cx.fillText(line3, OX, OY + R*0.345);
 }
 
 /* ── scrubbing ── */
@@ -538,6 +676,15 @@ const endDrag = e => {
 };
 cv.addEventListener('pointerup', endDrag);
 cv.addEventListener('pointercancel', endDrag);
+
+/* ── layer chips ── */
+document.querySelectorAll('.chip').forEach(ch => {
+  ch.addEventListener('click', () => {
+    const key = ch.dataset.layer;
+    LAYERS[key] = !LAYERS[key];
+    ch.classList.toggle('on', LAYERS[key]);
+  });
+});
 
 /* ── FAQ overlay ── */
 const faq = document.getElementById('faq');
