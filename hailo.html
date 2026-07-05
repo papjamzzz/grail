@@ -354,14 +354,6 @@ body {
   text-transform: uppercase; color: var(--text3);
 }
 .wavenow b { display: block; font-size: 15px; color: #FFF; letter-spacing: -0.01em; }
-
-#dbg {
-  position: fixed; left: 10px; bottom: 8px; z-index: 60;
-  font-family: ui-monospace, Menlo, monospace;
-  font-size: 10px; color: #2EC76B;
-  background: rgba(0,0,0,0.6); padding: 3px 7px; border-radius: 5px;
-  pointer-events: none; letter-spacing: 0.02em;
-}
 </style>
 </head>
 <body>
@@ -502,8 +494,6 @@ body {
       </div>
     </div>
   </div>
-
-  <div id="dbg">starting…</div>
 
   <div class="wavebar">
     <canvas id="wave"></canvas>
@@ -850,7 +840,8 @@ function drawOrbit(now, dt){
   });
 
   /* center disc */
-  const cr = cR * breathe * (0.7 + 0.3*ease);
+  let cr = cR * breathe * (0.7 + 0.3*ease);
+  if (!(cr > 0.5)) cr = 0.5;            // guard against 0 / negative / NaN radius
   const grad = cx2d.createRadialGradient(ox, oy-cr*0.35, cr*0.1, ox, oy, cr);
   grad.addColorStop(0, shade(centerNode.color, 1.25));
   grad.addColorStop(1, centerNode.color);
@@ -874,7 +865,8 @@ function drawOrbit(now, dt){
   /* satellite discs */
   nodes.forEach(n => {
     const hot = hoverNode === n;
-    const r = n.r * (hot ? 1.12 : 1);
+    let r = n.r * (hot ? 1.12 : 1);
+    if (!(r > 0.3)) r = 0.3;             // guard against 0 / negative / NaN radius
     cx2d.save();
     cx2d.globalAlpha = n.alpha;
     cx2d.shadowColor = n.color; cx2d.shadowBlur = hot ? 34 : 18;
@@ -986,8 +978,6 @@ syncDOM('today');
 setTimeout(drift, 4000);
 
 let last = performance.now();
-let frames = 0;
-const dbg = document.getElementById('dbg');
 function loop(now){
   /* self-heal: if the stage size drifted (or was 0 at first paint), re-fit */
   const r = stage.getBoundingClientRect();
@@ -996,11 +986,6 @@ function loop(now){
   const dt = Math.min(0.05, (now-last)/1000); last = now;
   drawOrbit(now, dt);
   drawWave(now, dt);
-
-  frames++;
-  if (dbg && (frames % 15 === 0))
-    dbg.textContent = 'frames ' + frames + ' · canvas ' + Math.round(W) + '×' + Math.round(H) + ' · dpr ' + DPR;
-
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
