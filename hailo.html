@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAILO — Living Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #000000;
+  --panel:     #0A0A0C;
+  --line:      rgba(255,255,255,0.10);
+  --text:      #FFFFFF;
+  --text2:     #C9D0DC;
+  --text3:     #9AA4B2;
+
+  --sleep:     #2E5BE8;
+  --recovery:  #14A15A;
+  --stress:    #E11D3C;
+  --inflam:    #F43F7F;
+  --energy:    #F5B90A;
+  --hrv:       #12B5C9;
+  --blood:     #6B3BF0;
+  --neutral:   #FFFFFF;
+}
+
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 64px 1fr 128px;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  display: flex; align-items: center; gap: 40px;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--line);
+}
+.wordmark {
+  font-size: 26px; font-weight: 900; letter-spacing: -0.03em;
+}
+.tabs { display: flex; gap: 6px; }
+.tab {
+  font-size: 13px; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--text3);
+  padding: 8px 16px; border-radius: 999px;
+  cursor: pointer; user-select: none;
+  transition: color .25s, background .25s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: #000; background: #FFF; }
+.topmeta {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 14px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text2);
+}
+.livedot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--recovery);
+  animation: blink 2.4s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+/* ── MAIN ── */
+.main {
+  display: grid;
+  grid-template-columns: 64px 1fr 320px;
+  min-height: 0;
+}
+
+/* left rail */
+.rail {
+  border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; align-items: center;
+  padding-top: 26px; gap: 26px;
+}
+.rail svg { width: 21px; height: 21px; opacity: .45; cursor: pointer; transition: opacity .2s; }
+.rail svg:hover, .rail svg.on { opacity: 1; }
+
+/* stage */
+.stage { position: relative; min-width: 0; }
+#orbit { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.headline {
+  position: absolute; left: 36px; bottom: 30px; max-width: 380px;
+  pointer-events: none;
+}
+.headline h1 {
+  font-size: 44px; font-weight: 900; letter-spacing: -0.045em; line-height: 0.98;
+  transition: opacity .4s;
+}
+.headline h1 .dot { color: var(--inflam); }
+.headline p {
+  margin-top: 12px; font-size: 13.5px; line-height: 1.5; color: var(--text2);
+  font-weight: 500; max-width: 300px;
+}
+.gauge { margin-top: 18px; width: 250px; pointer-events: auto; }
+.gauge .glabel {
+  display: flex; justify-content: space-between;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text2); margin-bottom: 8px;
+}
+.gauge .track {
+  position: relative; height: 3px; border-radius: 2px;
+  background: rgba(255,255,255,0.14);
+}
+.gauge .zone {
+  position: absolute; top: 0; height: 100%;
+  left: 40%; width: 42%;
+  background: var(--inflam); border-radius: 2px; opacity: .85;
+}
+.gauge .marker {
+  position: absolute; top: 50%; width: 13px; height: 13px;
+  border-radius: 50%; background: #FFF;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.15);
+  transition: left 1.2s cubic-bezier(.4,0,.2,1);
+}
+
+.stagefoot {
+  position: absolute; right: 30px; bottom: 30px; text-align: right;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text3);
+  line-height: 1.9;
+}
+.stagefoot .vt {
+  color: #FFF; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,.4);
+  padding-bottom: 1px;
+}
+
+/* insight card */
+.insight {
+  position: absolute; z-index: 5; width: 230px;
+  background: rgba(10,10,14,0.92);
+  border: 1px solid var(--line);
+  border-radius: 10px; padding: 14px 16px;
+  backdrop-filter: blur(8px);
+  opacity: 0; pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity .22s, transform .22s;
+}
+.insight.show { opacity: 1; transform: translateY(0); }
+.insight .ilabel {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.insight .itext { font-size: 12.5px; line-height: 1.5; color: var(--text2); font-weight: 500; }
+
+/* right panel */
+.panel {
+  border-left: 1px solid var(--line);
+  padding: 28px 26px;
+  overflow-y: auto;
+}
+.ptitle {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text2);
+  margin-bottom: 16px;
+}
+.pgroup { margin-bottom: 30px; }
+.drv { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+.drv .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.drv .name { font-size: 13px; font-weight: 600; color: var(--text); }
+.drv .impact {
+  margin-left: auto; font-size: 11px; font-weight: 700; color: var(--text3);
+  letter-spacing: 0.02em;
+}
+.drv .bar {
+  height: 3px; border-radius: 2px; background: rgba(255,255,255,0.12);
+  margin-top: 6px; overflow: hidden;
+}
+.drv .bar i {
+  display: block; height: 100%; border-radius: 2px;
+  width: 0%; transition: width 1s cubic-bezier(.4,0,.2,1);
+}
+.drvwrap { flex: 1; min-width: 0; }
+.drvrow { display: flex; align-items: center; gap: 10px; }
+
+.bignum { margin-bottom: 28px; }
+.bignum .n {
+  font-size: 58px; font-weight: 900; letter-spacing: -0.04em; line-height: 1;
+}
+.bignum .l {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text2); margin-top: 6px;
+}
+
+/* ── TIMELINE VIEW ── */
+.tlview {
+  position: absolute; inset: 0; display: none;
+  grid-template-columns: 1fr 1fr; align-items: center;
+  padding: 0 60px;
+  background: var(--bg);
+}
+.tlview.show { display: grid; }
+.tlleft h1 {
+  font-size: 64px; font-weight: 900; letter-spacing: -0.05em; line-height: 0.96;
+  max-width: 420px;
+}
+.tlleft h1 .dot { color: var(--inflam); }
+.tlcard {
+  margin-top: 34px; max-width: 320px;
+  border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px;
+}
+.tlcard .glabel {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text2);
+}
+.tlcard .range { font-size: 34px; font-weight: 900; letter-spacing: -0.03em; margin: 6px 0 14px; }
+.tlcard p { font-size: 13px; line-height: 1.55; color: var(--text2); font-weight: 500; margin-top: 14px; }
+
+.tlright { position: relative; padding-left: 40px; max-height: 70vh; }
+.tlright::before {
+  content: ''; position: absolute; left: 5px; top: 8px; bottom: 8px;
+  width: 1px; background: rgba(255,255,255,0.15);
+}
+.tlitem {
+  position: relative; margin-bottom: 34px;
+  opacity: 0; transform: translateY(12px);
+  transition: opacity .5s, transform .5s;
+}
+.tlview.show .tlitem { opacity: 1; transform: none; }
+.tlitem .tdot {
+  position: absolute; left: -40px; top: 4px;
+  width: 11px; height: 11px; border-radius: 50%;
+}
+.tlitem .tdate {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text3);
+}
+.tlitem .tname { font-size: 16px; font-weight: 700; margin-top: 3px; }
+.tlitem .tval { font-size: 26px; font-weight: 900; letter-spacing: -0.03em; }
+
+/* ── BOTTOM WAVEFORM ── */
+.wavebar {
+  position: relative;
+  border-top: 1px solid var(--line);
+}
+#wave { position: absolute; inset: 0; width: 100%; height: 100%; }
+.wavelabel {
+  position: absolute; left: 28px; top: 14px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text2);
+}
+.wavenow {
+  position: absolute; right: 28px; top: 12px; text-align: right;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text3);
+}
+.wavenow b { display: block; font-size: 15px; color: #FFF; letter-spacing: -0.01em; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="wordmark">HAILO</div>
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-view="today">Today</div>
+      <div class="tab" data-view="sleep">Sleep</div>
+      <div class="tab" data-view="recovery">Recovery</div>
+      <div class="tab" data-view="effort">Effort</div>
+      <div class="tab" data-view="timeline">Timeline</div>
+    </div>
+    <div class="topmeta">
+      <span class="livedot"></span>
+      <span>Live</span>
+      <span id="topdate">—</span>
+      <span style="opacity:.6">Data from WHOOP</span>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="rail">
+      <svg class="on" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M3 11.5 12 4l9 7.5"/><path d="M6 10v9h12v-9"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8.5" stroke-dasharray="2 3"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M4 8h10M18 8h2M4 16h2M10 16h10"/><circle cx="16" cy="8" r="2"/><circle cx="8" cy="16" r="2"/></svg>
+    </div>
+
+    <div class="stage">
+      <canvas id="orbit"></canvas>
+
+      <div class="headline">
+        <h1 id="hl">Push your strain today<span class="dot">.</span></h1>
+        <p id="hlsub">Your body has the recovery budget for a hard training day.</p>
+        <div class="gauge" id="gauge">
+          <div class="glabel"><span>Target strain</span><span id="grange">12–16</span></div>
+          <div class="track">
+            <div class="zone"></div>
+            <div class="marker" id="gmark" style="left:52%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stagefoot">
+        HAILO ATLAS — LIVING SYSTEM<br>
+        <span id="footdate">—</span><br>
+        <span class="vt" id="viewtl">View timeline →</span>
+      </div>
+
+      <div class="insight" id="insight">
+        <div class="ilabel" id="ilabel">—</div>
+        <div class="itext" id="itext">—</div>
+      </div>
+
+      <div class="tlview" id="tlview">
+        <div class="tlleft">
+          <h1>Every day adds to the bigger story<span class="dot">.</span></h1>
+          <div class="tlcard">
+            <div class="glabel">Target strain</div>
+            <div class="range">12–16</div>
+            <div class="track" style="position:relative;height:3px;border-radius:2px;background:rgba(255,255,255,.14)">
+              <div class="zone" style="position:absolute;top:0;height:100%;left:40%;width:42%;background:var(--inflam);border-radius:2px"></div>
+              <div class="marker" id="gmark2" style="position:absolute;top:50%;width:13px;height:13px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 0 4px rgba(255,255,255,.15);left:52%"></div>
+            </div>
+            <p>Your body has the recovery budget for a hard training day.</p>
+          </div>
+        </div>
+        <div class="tlright" id="tlright"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="bignum">
+        <div class="n" id="pnum">87%</div>
+        <div class="l" id="pnuml">Recovery — Strong</div>
+      </div>
+      <div class="pgroup">
+        <div class="ptitle" id="pt1">Recovery drivers</div>
+        <div id="drivers"></div>
+      </div>
+      <div class="pgroup">
+        <div class="ptitle" id="pt2">Stressors</div>
+        <div id="stressors"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wavebar">
+    <canvas id="wave"></canvas>
+    <div class="wavelabel" id="wlabel">Data in motion — HRV, last 24h</div>
+    <div class="wavenow"><span id="wname">HRV now</span><b id="wval">68</b></div>
+  </div>
+
+</div>
+
+<script>
+/* ───────────────────────── HAILO LIVING ATLAS ───────────────────────── */
+
+const C = {
+  sleep: '#2E5BE8', recovery: '#14A15A', stress: '#E11D3C',
+  inflam: '#F43F7F', energy: '#F5B90A', hrv: '#12B5C9',
+  blood: '#6B3BF0', neutral: '#FFFFFF'
+};
+
+/* live values (drift over time) */
+const LIVE = {
+  recovery: 87, hrv: 68, strain: 14.6, rhr: 52,
+  sleepMin: 462, deepMin: 72, remMin: 108, energy: 78, temp: 0.2
+};
+
+const fmtSleep = m => `${Math.floor(m/60)}h ${String(Math.round(m%60)).padStart(2,'0')}m`;
+
+/* ── VIEW DEFINITIONS — each tab recenters the atlas ── */
+const VIEWS = {
+  today: {
+    center: { key:'recovery', label:'RECOVERY', color:C.recovery,
+      val:()=>Math.round(LIVE.recovery)+'%', sub:()=>LIVE.recovery>=67?'Strong':LIVE.recovery>=34?'Moderate':'Low' },
+    sats: [
+      { key:'sleep',  label:'SLEEP',  color:C.sleep,  rel:'support', a:-2.45, val:()=>fmtSleep(LIVE.sleepMin),
+        insight:'7h 42m with strong deep sleep. Last night is funding today’s recovery.' },
+      { key:'strain', label:'STRAIN', color:C.inflam, rel:'drain',   a:-0.62, val:()=>LIVE.strain.toFixed(1),
+        insight:'Moderate strain so far. You have room before you touch your target zone.' },
+      { key:'hrv',    label:'HRV',    color:C.hrv,    rel:'support', a: 2.55, val:()=>Math.round(LIVE.hrv),
+        insight:'HRV is holding above your 30-day baseline — your nervous system is balanced.' },
+      { key:'energy', label:'ENERGY', color:C.energy, rel:'neutral', a: 0.55, val:()=>LIVE.energy>=70?'High':'Steady',
+        insight:'Energy availability is high. Fuel before your session to keep it there.' },
+    ],
+    hl: 'Push your strain today', hlsub: 'Your body has the recovery budget for a hard training day.',
+    gauge: true,
+    num: ()=>Math.round(LIVE.recovery)+'%', numl: ()=>'Recovery — ' + (LIVE.recovery>=67?'Strong':'Moderate'),
+    pt1: 'Recovery drivers', pt2: 'Stressors',
+    drivers: [
+      { name:'Sleep duration', color:C.sleep,  impact:'High impact',   pct:88 },
+      { name:'Deep sleep',     color:C.blood,  impact:'High impact',   pct:76 },
+      { name:'HRV balance',    color:C.hrv,    impact:'Medium impact', pct:62 },
+    ],
+    stressors: [
+      { name:'Strain',       color:C.inflam, impact:'Medium impact', pct:52 },
+      { name:'Late bedtime', color:C.stress, impact:'Low impact',    pct:24 },
+    ],
+    wave: { key:'hrv', label:'Data in motion — HRV, last 24h', name:'HRV now', color:C.hrv, val:()=>Math.round(LIVE.hrv) }
+  },
+
+  sleep: {
+    center: { key:'sleep', label:'SLEEP', color:C.sleep,
+      val:()=>fmtSleep(LIVE.sleepMin), sub:()=>'Good' },
+    sats: [
+      { key:'deep', label:'DEEP', color:C.blood, rel:'support', a:-2.45, val:()=>fmtSleep(LIVE.deepMin),
+        insight:'Deep sleep at 16% of the night — right where physical repair happens.' },
+      { key:'rem',  label:'REM',  color:C.hrv,   rel:'support', a:-0.62, val:()=>fmtSleep(LIVE.remMin),
+        insight:'REM at 23%. Memory and mood consolidation are well covered.' },
+      { key:'latency', label:'LATENCY', color:C.energy, rel:'neutral', a:2.55, val:()=>'14m',
+        insight:'You fell asleep in 14 minutes — a healthy wind-down.' },
+      { key:'wake', label:'WAKE', color:C.inflam, rel:'drain', a:0.55, val:()=>'22m',
+        insight:'22 minutes awake, mostly early morning. Watch late fluids and light.' },
+    ],
+    hl: 'Protect tonight’s deep sleep', hlsub: 'In bed by 10:40 keeps your deep-sleep window intact.',
+    gauge: false,
+    num: ()=>fmtSleep(LIVE.sleepMin), numl: ()=>'Sleep — Good',
+    pt1: 'What helped', pt2: 'What hurt',
+    drivers: [
+      { name:'Consistent bedtime', color:C.sleep,  impact:'High impact',   pct:84 },
+      { name:'Cool room',          color:C.hrv,    impact:'Medium impact', pct:58 },
+    ],
+    stressors: [
+      { name:'Screen after 10pm', color:C.inflam, impact:'Medium impact', pct:46 },
+      { name:'Late meal',         color:C.stress, impact:'Low impact',    pct:20 },
+    ],
+    wave: { key:'sleep', label:'Data in motion — sleep stages, last night', name:'Time asleep', color:C.sleep, val:()=>fmtSleep(LIVE.sleepMin) }
+  },
+
+  recovery: {
+    center: { key:'recovery', label:'RECOVERY', color:C.recovery,
+      val:()=>Math.round(LIVE.recovery)+'%', sub:()=>'Strong' },
+    sats: [
+      { key:'hrv', label:'HRV', color:C.hrv, rel:'support', a:-2.45, val:()=>Math.round(LIVE.hrv),
+        insight:'HRV is your strongest recovery signal today.' },
+      { key:'rhr', label:'RHR', color:C.stress, rel:'support', a:-0.62, val:()=>Math.round(LIVE.rhr),
+        insight:'Resting heart rate of 52 — 2 beats under your baseline. A green flag.' },
+      { key:'sleep', label:'SLEEP', color:C.sleep, rel:'support', a:2.55, val:()=>fmtSleep(LIVE.sleepMin),
+        insight:'Sleep quality is doing the heavy lifting in today’s score.' },
+      { key:'temp', label:'SKIN TEMP', color:C.energy, rel:'neutral', a:0.55, val:()=>'+0.2°',
+        insight:'Skin temperature is within normal range — no sign of illness or strain debt.' },
+    ],
+    hl: 'Recovery is trending up', hlsub: 'Three green mornings in a row. Your training block is landing.',
+    gauge: false,
+    num: ()=>Math.round(LIVE.recovery)+'%', numl: ()=>'Recovery — Strong',
+    pt1: 'Recovery drivers', pt2: 'Watch list',
+    drivers: [
+      { name:'HRV trend',   color:C.hrv,      impact:'High impact',   pct:82 },
+      { name:'Resting HR',  color:C.stress,   impact:'High impact',   pct:74 },
+      { name:'Sleep debt',  color:C.sleep,    impact:'Medium impact', pct:55 },
+    ],
+    stressors: [
+      { name:'Training load 7d', color:C.inflam, impact:'Medium impact', pct:48 },
+    ],
+    wave: { key:'recovery', label:'Data in motion — recovery, last 14 days', name:'Recovery now', color:C.recovery, val:()=>Math.round(LIVE.recovery)+'%' }
+  },
+
+  effort: {
+    center: { key:'strain', label:'STRAIN', color:C.inflam,
+      val:()=>LIVE.strain.toFixed(1), sub:()=>'Moderate' },
+    sats: [
+      { key:'target', label:'TARGET', color:C.neutral, rel:'neutral', a:-2.45, val:()=>'12–16',
+        insight:'Today’s optimal strain window, sized to your recovery.' },
+      { key:'cal', label:'CALORIES', color:C.energy, rel:'support', a:-0.62, val:()=>'2,340',
+        insight:'Active burn is tracking with a hard training day.' },
+      { key:'avghr', label:'AVG HR', color:C.stress, rel:'support', a:2.55, val:()=>'118',
+        insight:'Average heart rate across today’s activity. Zone 2 dominant.' },
+      { key:'recovery', label:'RECOVERY', color:C.recovery, rel:'support', a:0.55, val:()=>Math.round(LIVE.recovery)+'%',
+        insight:'Strong recovery is what makes today’s target zone this high.' },
+    ],
+    hl: 'Room to push', hlsub: 'You’re at 14.6 of a 12–16 target. One quality session gets you there.',
+    gauge: true,
+    num: ()=>LIVE.strain.toFixed(1), numl: ()=>'Strain — Moderate',
+    pt1: 'Effort drivers', pt2: 'Budget',
+    drivers: [
+      { name:'Morning ride', color:C.inflam, impact:'High impact',   pct:78 },
+      { name:'Steps',        color:C.energy, impact:'Low impact',    pct:30 },
+    ],
+    stressors: [
+      { name:'Strain budget left', color:C.recovery, impact:'1.4 to target', pct:64 },
+    ],
+    wave: { key:'strain', label:'Data in motion — strain accumulation today', name:'Strain now', color:C.inflam, val:()=>LIVE.strain.toFixed(1) }
+  }
+};
+
+const TIMELINE = [
+  { date:'Apr 28 — Today', name:'Recovered',  val:()=>Math.round(LIVE.recovery)+'%', color:C.recovery },
+  { date:'Apr 27',         name:'High strain', val:()=>'16.2', color:C.inflam },
+  { date:'Apr 26',         name:'Good sleep',  val:()=>'7h 58m', color:C.sleep },
+  { date:'Apr 25',         name:'Fatigue',     val:()=>'Low',  color:C.blood },
+  { date:'Apr 24',         name:'HRV rebound', val:()=>'71',   color:C.hrv },
+];
+
+/* ───────────── state ───────────── */
+let view = 'today';
+let nodes = [];          // animated node objects
+let centerNode = null;
+let hoverNode = null;
+let pulses = [];
+let switchT = 1;         // 0→1 transition progress
+
+const stage = document.querySelector('.stage');
+const cv = document.getElementById('orbit');
+const cx2d = cv.getContext('2d');
+const wv = document.getElementById('wave');
+const wctx = wv.getContext('2d');
+let W=0, H=0, DPR = Math.min(window.devicePixelRatio||1, 2);
+
+function resize(){
+  const r = stage.getBoundingClientRect();
+  W = r.width; H = r.height;
+  cv.width = W*DPR; cv.height = H*DPR;
+  cx2d.setTransform(DPR,0,0,DPR,0,0);
+  const wr = wv.parentElement.getBoundingClientRect();
+  wv.width = wr.width*DPR; wv.height = wr.height*DPR;
+  wctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+/* build nodes for a view */
+function buildView(name){
+  const v = VIEWS[name];
+  centerNode = { ...v.center, x:0, y:0, r:0, alpha:0 };
+  nodes = v.sats.map(s => ({ ...s, angle:s.a, x:0, y:0, r:0, alpha:0, born:performance.now() }));
+  pulses = [];
+  switchT = 0;
+}
+
+/* DOM sync for a view */
+function syncDOM(name){
+  const v = VIEWS[name];
+  document.getElementById('hl').innerHTML = v.hl + '<span class="dot">.</span>';
+  document.getElementById('hlsub').textContent = v.hlsub;
+  document.getElementById('gauge').style.display = v.gauge ? 'block' : 'none';
+  document.getElementById('pnum').textContent = v.num();
+  document.getElementById('pnuml').textContent = v.numl();
+  document.getElementById('pt1').textContent = v.pt1;
+  document.getElementById('pt2').textContent = v.pt2;
+  document.getElementById('wlabel').textContent = v.wave.label;
+  document.getElementById('wname').textContent = v.wave.name;
+  document.getElementById('wval').textContent = v.wave.val();
+
+  const mk = d => `
+    <div class="drv">
+      <div class="drvwrap">
+        <div class="drvrow">
+          <span class="dot" style="background:${d.color}"></span>
+          <span class="name">${d.name}</span>
+          <span class="impact">${d.impact}</span>
+        </div>
+        <div class="bar"><i style="background:${d.color}" data-w="${d.pct}"></i></div>
+      </div>
+    </div>`;
+  document.getElementById('drivers').innerHTML = v.drivers.map(mk).join('');
+  document.getElementById('stressors').innerHTML = v.stressors.map(mk).join('');
+  requestAnimationFrame(()=> {
+    document.querySelectorAll('.bar i').forEach(el => el.style.width = el.dataset.w + '%');
+  });
+}
+
+/* tabs */
+document.getElementById('tabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab'); if (!t) return;
+  setView(t.dataset.view);
+});
+document.getElementById('viewtl').addEventListener('click', ()=> setView('timeline'));
+
+function setView(name){
+  view = name;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view===name));
+  const tl = document.getElementById('tlview');
+  if (name === 'timeline'){
+    buildTimeline();
+    tl.classList.add('show');
+    document.querySelector('.headline').style.opacity = 0;
+    document.querySelector('.stagefoot').style.opacity = 0;
+  } else {
+    tl.classList.remove('show');
+    document.querySelector('.headline').style.opacity = 1;
+    document.querySelector('.stagefoot').style.opacity = 1;
+    buildView(name);
+    syncDOM(name);
+  }
+}
+
+function buildTimeline(){
+  document.getElementById('tlright').innerHTML = TIMELINE.map((t,i)=>`
+    <div class="tlitem" style="transition-delay:${i*90}ms">
+      <span class="tdot" style="background:${t.color}"></span>
+      <div class="tdate">${t.date}</div>
+      <div class="tname">${t.name}</div>
+      <div class="tval" style="color:${t.color}">${t.val()}</div>
+    </div>`).join('');
+}
+
+/* ───────────── orbital render ───────────── */
+function drawOrbit(now, dt){
+  cx2d.clearRect(0,0,W,H);
+  if (view === 'timeline') return;
+
+  switchT = Math.min(1, switchT + dt*1.6);
+  const ease = 1 - Math.pow(1-switchT, 3);
+
+  const ox = W*0.5, oy = H*0.46;
+  const R = Math.min(W,H) * 0.30;               // satellite orbit radius
+  const cR = Math.min(W,H) * 0.135;             // center radius
+  const breathe = 1 + 0.018*Math.sin(now*0.0012);
+
+  /* orbit rings (dotted) */
+  cx2d.save();
+  cx2d.strokeStyle = 'rgba(255,255,255,0.16)';
+  cx2d.lineWidth = 1;
+  cx2d.setLineDash([1.5, 5]);
+  [R, R*1.28].forEach(r => {
+    cx2d.beginPath(); cx2d.arc(ox, oy, r, 0, Math.PI*2); cx2d.stroke();
+  });
+  cx2d.restore();
+
+  /* drifting specks on outer ring */
+  for (let i=0;i<7;i++){
+    const a = now*0.00006*(i%2?1:-1) + i*0.9;
+    const rr = i%2 ? R*1.28 : R;
+    cx2d.beginPath();
+    cx2d.arc(ox+Math.cos(a)*rr, oy+Math.sin(a)*rr, 2, 0, Math.PI*2);
+    cx2d.fillStyle = 'rgba(255,255,255,0.55)';
+    cx2d.fill();
+  }
+
+  /* place satellites */
+  nodes.forEach(n => {
+    n.angle += dt * 0.018;                       // slow orbital drift
+    n.x = ox + Math.cos(n.angle)*R;
+    n.y = oy + Math.sin(n.angle)*R;
+    n.r = (Math.min(W,H)*0.052) * ease;
+    n.alpha = ease;
+  });
+
+  /* connections */
+  nodes.forEach(n => {
+    const hot = hoverNode === n;
+    cx2d.save();
+    cx2d.globalAlpha = (hot ? 0.9 : 0.4) * ease;
+    cx2d.strokeStyle = hot ? n.color : 'rgba(255,255,255,0.7)';
+    cx2d.lineWidth = hot ? 2 : 1.3;
+    if (n.rel === 'neutral') cx2d.setLineDash([7,6]);
+    else if (n.rel === 'drain') cx2d.setLineDash([2,5]);
+    const dx = n.x-ox, dy = n.y-oy, d = Math.hypot(dx,dy);
+    const sx = ox + dx/d*(cR*breathe+6), sy = oy + dy/d*(cR*breathe+6);
+    const ex = n.x - dx/d*(n.r+6),      ey = n.y - dy/d*(n.r+6);
+    cx2d.beginPath(); cx2d.moveTo(sx,sy); cx2d.lineTo(ex,ey); cx2d.stroke();
+    cx2d.restore();
+  });
+
+  /* pulses along connections */
+  if (Math.random() < dt*1.4 && nodes.length){
+    const n = nodes[Math.floor(Math.random()*nodes.length)];
+    pulses.push({ n, t: n.rel==='drain' ? 1 : 0, dir: n.rel==='drain' ? -1 : 1 });
+  }
+  pulses = pulses.filter(p => p.t>=0 && p.t<=1);
+  pulses.forEach(p => {
+    p.t += p.dir * dt * 0.55;
+    const n = p.n;
+    const px = n.x + (ox-n.x)*p.t, py = n.y + (oy-n.y)*p.t;
+    cx2d.beginPath();
+    cx2d.arc(px, py, 2.6, 0, Math.PI*2);
+    cx2d.fillStyle = n.color;
+    cx2d.shadowColor = n.color; cx2d.shadowBlur = 10;
+    cx2d.globalAlpha = 0.95*ease;
+    cx2d.fill();
+    cx2d.shadowBlur = 0; cx2d.globalAlpha = 1;
+  });
+
+  /* center disc */
+  const cr = cR * breathe * (0.7 + 0.3*ease);
+  const grad = cx2d.createRadialGradient(ox, oy-cr*0.35, cr*0.1, ox, oy, cr);
+  grad.addColorStop(0, shade(centerNode.color, 1.25));
+  grad.addColorStop(1, centerNode.color);
+  cx2d.save();
+  cx2d.shadowColor = centerNode.color; cx2d.shadowBlur = 60*ease;
+  cx2d.beginPath(); cx2d.arc(ox, oy, cr, 0, Math.PI*2);
+  cx2d.fillStyle = grad; cx2d.fill();
+  cx2d.restore();
+
+  cx2d.textAlign = 'center';
+  cx2d.fillStyle = '#FFFFFF';
+  cx2d.font = `800 ${cr*0.185}px Inter`;
+  cx2d.fillText(centerNode.label, ox, oy - cr*0.38);
+  cx2d.font = `900 ${cr*0.52}px Inter`;
+  cx2d.fillText(centerNode.val(), ox, oy + cr*0.14);
+  cx2d.font = `700 ${cr*0.17}px Inter`;
+  cx2d.globalAlpha = 0.92;
+  cx2d.fillText(centerNode.sub(), ox, oy + cr*0.42);
+  cx2d.globalAlpha = 1;
+
+  /* satellite discs */
+  nodes.forEach(n => {
+    const hot = hoverNode === n;
+    const r = n.r * (hot ? 1.12 : 1);
+    cx2d.save();
+    cx2d.globalAlpha = n.alpha;
+    cx2d.shadowColor = n.color; cx2d.shadowBlur = hot ? 34 : 18;
+    const g = cx2d.createRadialGradient(n.x, n.y-r*0.3, r*0.1, n.x, n.y, r);
+    g.addColorStop(0, shade(n.color, 1.22));
+    g.addColorStop(1, n.color);
+    cx2d.beginPath(); cx2d.arc(n.x, n.y, r, 0, Math.PI*2);
+    cx2d.fillStyle = g; cx2d.fill();
+    cx2d.shadowBlur = 0;
+
+    cx2d.textAlign = 'center';
+    cx2d.fillStyle = '#FFF';
+    cx2d.font = `800 ${r*0.24}px Inter`;
+    cx2d.fillText(n.label, n.x, n.y - r*0.22);
+    cx2d.font = `900 ${r*0.36}px Inter`;
+    cx2d.fillText(n.val(), n.x, n.y + r*0.28);
+    cx2d.restore();
+  });
+}
+
+function shade(hex, f){
+  const n = parseInt(hex.slice(1),16);
+  const r = Math.min(255,((n>>16)&255)*f), g = Math.min(255,((n>>8)&255)*f), b = Math.min(255,(n&255)*f);
+  return `rgb(${r|0},${g|0},${b|0})`;
+}
+
+/* hover → insight card */
+const insight = document.getElementById('insight');
+cv.addEventListener('mousemove', e => {
+  const rect = cv.getBoundingClientRect();
+  const mx = e.clientX-rect.left, my = e.clientY-rect.top;
+  hoverNode = nodes.find(n => Math.hypot(mx-n.x, my-n.y) < n.r*1.2) || null;
+  if (hoverNode){
+    insight.classList.add('show');
+    document.getElementById('ilabel').textContent = hoverNode.label;
+    document.getElementById('ilabel').style.color = hoverNode.color;
+    document.getElementById('itext').textContent = hoverNode.insight;
+    const ix = Math.min(W-250, Math.max(12, hoverNode.x + hoverNode.r + 14));
+    insight.style.left = ix + 'px';
+    insight.style.top  = Math.max(12, hoverNode.y - 40) + 'px';
+    cv.style.cursor = 'pointer';
+  } else {
+    insight.classList.remove('show');
+    cv.style.cursor = 'default';
+  }
+});
+cv.addEventListener('mouseleave', ()=>{ hoverNode=null; insight.classList.remove('show'); });
+
+/* ───────────── waveform ───────────── */
+let wPhase = 0;
+function drawWave(now, dt){
+  const w = wv.parentElement.getBoundingClientRect().width;
+  const h = wv.parentElement.getBoundingClientRect().height;
+  wctx.clearRect(0,0,w,h);
+  const v = VIEWS[view === 'timeline' ? 'today' : view];
+  const col = v.wave.color;
+  wPhase += dt*0.55;
+
+  const bw = 3, gap = 3, n = Math.floor(w/(bw+gap));
+  for (let i=0;i<n;i++){
+    const x = i*(bw+gap);
+    const t = i/n;
+    const y1 = Math.sin(t*9 + wPhase)*0.5 + Math.sin(t*23 - wPhase*1.7)*0.3 + Math.sin(t*47 + wPhase*0.6)*0.2;
+    const env = 0.25 + 0.75*Math.pow(t, 1.6);           // grows to the right like vision A
+    const bh = Math.max(2, (0.5 + 0.5*y1) * (h-40) * env);
+    const a = 0.25 + 0.75*t;
+    wctx.fillStyle = col;
+    wctx.globalAlpha = a;
+    wctx.fillRect(x, h-14-bh, bw, bh);
+  }
+  wctx.globalAlpha = 1;
+
+  /* scan dot */
+  const sx = w * (0.5 + 0.5*Math.sin(now*0.00025));
+  wctx.beginPath();
+  wctx.arc(sx, h-14, 3.4, 0, Math.PI*2);
+  wctx.fillStyle = '#FFF';
+  wctx.shadowColor = '#FFF'; wctx.shadowBlur = 12;
+  wctx.fill();
+  wctx.shadowBlur = 0;
+}
+
+/* ───────────── live data drift ───────────── */
+function drift(){
+  LIVE.recovery = clamp(LIVE.recovery + rnd(1.4), 84, 91);
+  LIVE.hrv      = clamp(LIVE.hrv + rnd(1.8), 63, 72);
+  LIVE.strain   = clamp(LIVE.strain + Math.random()*0.14, 14.2, 15.9);   // strain only climbs
+  LIVE.rhr      = clamp(LIVE.rhr + rnd(0.8), 50, 54);
+  LIVE.energy   = clamp(LIVE.energy + rnd(2), 68, 86);
+  const v = VIEWS[view === 'timeline' ? 'today' : view];
+  document.getElementById('pnum').textContent = v.num();
+  document.getElementById('wval').textContent = v.wave.val();
+  const pct = 40 + ((LIVE.strain-12)/(16-12))*42;
+  document.getElementById('gmark').style.left = clamp(pct, 8, 92) + '%';
+  const g2 = document.getElementById('gmark2');
+  if (g2) g2.style.left = clamp(pct, 8, 92) + '%';
+  setTimeout(drift, 3500 + Math.random()*3500);
+}
+const rnd = s => (Math.random()-0.5)*2*s;
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+
+/* ───────────── date + boot ───────────── */
+const dstr = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+document.getElementById('topdate').textContent = dstr;
+document.getElementById('footdate').textContent = dstr;
+
+buildView('today');
+syncDOM('today');
+setTimeout(drift, 4000);
+
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.05, (now-last)/1000); last = now;
+  drawOrbit(now, dt);
+  drawWave(now, dt);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

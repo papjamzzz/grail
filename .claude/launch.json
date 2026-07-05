@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "grail-static",
+      "name": "grail",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "5567"],
-      "port": 5567
+      "runtimeArgs": ["app.py"],
+      "port": 5566
     }
   ]
 }
