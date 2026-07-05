@@ -978,8 +978,13 @@ buildView('today');
 syncDOM('today');
 setTimeout(drift, 4000);
 
+/* battery-safe loop: 30fps cap, fully paused when the page isn't visible */
 let last = performance.now();
+let rafId = null;
 function loop(now){
+  rafId = requestAnimationFrame(loop);
+  if (now - last < 31) return;                 // ~30fps cap
+
   /* self-heal: if the stage size drifted (or was 0 at first paint), re-fit */
   const r = stage.getBoundingClientRect();
   if (Math.abs(r.width - W) > 1 || Math.abs(r.height - H) > 1) resize();
@@ -987,9 +992,12 @@ function loop(now){
   const dt = Math.min(0.05, (now-last)/1000); last = now;
   drawOrbit(now, dt);
   drawWave(now, dt);
-  requestAnimationFrame(loop);
 }
-requestAnimationFrame(loop);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden){ cancelAnimationFrame(rafId); rafId = null; }
+  else if (rafId === null){ last = performance.now(); rafId = requestAnimationFrame(loop); }
+});
+rafId = requestAnimationFrame(loop);
 </script>
 </body>
 </html>

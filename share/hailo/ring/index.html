@@ -763,16 +763,22 @@ document.getElementById('footdate').textContent = dstr;
 if (!location.hostname.includes('vercel') && location.protocol !== 'file:')
   document.getElementById('atlaslink').href = '/hailo';
 
-/* ── loop ── */
+/* ── battery-safe loop: 30fps cap, fully paused when the page isn't visible ── */
 let last = performance.now();
+let rafId = null;
 function loop(now){
+  rafId = requestAnimationFrame(loop);
+  if (now - last < 31) return;                 // ~30fps cap
   const r = stage.getBoundingClientRect();
   if (Math.abs(r.width - W) > 1 || Math.abs(r.height - H) > 1) resize();
   const dt = Math.min(0.05, (now-last)/1000); last = now;
   draw(now, dt);
-  requestAnimationFrame(loop);
 }
-requestAnimationFrame(loop);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden){ cancelAnimationFrame(rafId); rafId = null; }
+  else if (rafId === null){ last = performance.now(); rafId = requestAnimationFrame(loop); }
+});
+rafId = requestAnimationFrame(loop);
 </script>
 </body>
 </html>
