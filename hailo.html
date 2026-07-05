@@ -74,6 +74,68 @@ body {
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
 
+.helpbtn {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.28);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: var(--text2);
+  cursor: pointer; user-select: none; letter-spacing: 0;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.helpbtn:hover { background: #FFF; color: #000; border-color: #FFF; }
+
+/* ── FAQ overlay ── */
+.faq {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.faq.show { opacity: 1; pointer-events: auto; }
+.faqcard {
+  position: relative;
+  width: 460px; max-width: calc(100vw - 40px);
+  max-height: 86vh; overflow-y: auto;
+  background: #0B0B0F;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 30px 30px 22px;
+  transform: translateY(10px) scale(.98);
+  transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.faq.show .faqcard { transform: none; }
+.faqclose {
+  position: absolute; top: 16px; right: 18px;
+  font-size: 24px; line-height: 1; color: var(--text3);
+  cursor: pointer; font-weight: 400;
+  transition: color .2s;
+}
+.faqclose:hover { color: #FFF; }
+.faqhead { font-size: 22px; font-weight: 900; letter-spacing: -0.03em; }
+.faqsub { font-size: 13px; color: var(--text2); font-weight: 500; margin: 6px 0 22px; line-height: 1.5; }
+.faqrow { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 17px; }
+.faqicon {
+  flex: none; width: 40px; height: 20px;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.faqicon svg { width: 40px; height: 12px; overflow: visible; }
+.faqicon .disc { width: 16px; height: 16px; border-radius: 50%; display: block; }
+.faqicon .disc.sm { width: 12px; height: 12px; }
+.faqicon .disc.xs { width: 8px; height: 8px; }
+.faqicon .tabpill {
+  font-size: 9.5px; font-weight: 800; color: #000; background: #FFF;
+  padding: 3px 8px; border-radius: 999px; letter-spacing: 0.01em;
+}
+.faqtext { font-size: 13px; line-height: 1.5; color: var(--text2); font-weight: 500; }
+.faqtext b { color: #FFF; font-weight: 700; }
+.faqfoot {
+  margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line);
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3); text-align: center;
+}
+
 /* ── MAIN ── */
 .main {
   display: grid;
@@ -280,6 +342,50 @@ body {
       <span>Live</span>
       <span id="topdate">—</span>
       <span style="opacity:.6">Data from WHOOP</span>
+      <div class="helpbtn" id="helpbtn" title="How to read this">?</div>
+    </div>
+  </div>
+
+  <div class="faq" id="faq">
+    <div class="faqcard">
+      <div class="faqclose" id="faqclose">×</div>
+      <div class="faqhead">How to read your Atlas</div>
+      <div class="faqsub">Every day, your body tells one connected story. Here’s the key.</div>
+
+      <div class="faqrow">
+        <div class="faqicon"><span class="disc" style="background:var(--recovery)"></span></div>
+        <div class="faqtext"><b>The center</b> is today’s headline system. Everything around it either lifts it up or pulls it down.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><span class="disc sm" style="background:var(--sleep)"></span></div>
+        <div class="faqtext"><b>Orbiting orbs</b> are the drivers — sleep, HRV, strain, energy. <b>Hover any orb</b> for what it means today.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><line x1="2" y1="6" x2="38" y2="6" stroke="#fff" stroke-width="2"/></svg></div>
+        <div class="faqtext"><b>Solid line</b> — this driver is <b>supporting</b> the center. A steady pulse flows inward.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><line x1="2" y1="6" x2="38" y2="6" stroke="#fff" stroke-width="2" stroke-dasharray="2 5"/></svg></div>
+        <div class="faqtext"><b>Fine dashed line</b> — this driver is <b>draining</b> the center. Its pulse flows outward, away.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><line x1="2" y1="6" x2="38" y2="6" stroke="#fff" stroke-width="2" stroke-dasharray="7 6"/></svg></div>
+        <div class="faqtext"><b>Wide dashed line</b> — <b>neutral</b> context. Related, but not helping or hurting right now.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><span class="disc xs" style="background:#fff;box-shadow:0 0 8px #fff"></span></div>
+        <div class="faqtext"><b>Travelling dots</b> are live signal moving between systems — the atlas is breathing, not a snapshot.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><b class="tabpill">Today</b></div>
+        <div class="faqtext"><b>The tabs</b> re-center the whole atlas on a different system. <b>Timeline</b> shows the story day by day.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><rect x="4" y="7" width="2.5" height="4" fill="var(--hrv)"/><rect x="9" y="4" width="2.5" height="7" fill="var(--hrv)"/><rect x="14" y="6" width="2.5" height="5" fill="var(--hrv)"/><rect x="19" y="2" width="2.5" height="9" fill="var(--hrv)"/><rect x="24" y="5" width="2.5" height="6" fill="var(--hrv)"/><rect x="29" y="1" width="2.5" height="10" fill="var(--hrv)"/></svg></div>
+        <div class="faqtext"><b>The waveform</b> along the bottom is the same signal over the last 24 hours — motion, not just a number.</div>
+      </div>
+
+      <div class="faqfoot">Prototype on simulated data · Tap anywhere to close</div>
     </div>
   </div>
 
@@ -565,6 +671,15 @@ function syncDOM(name){
     document.querySelectorAll('.bar i').forEach(el => el.style.width = el.dataset.w + '%');
   });
 }
+
+/* FAQ overlay */
+const faq = document.getElementById('faq');
+const openFaq = ()=> faq.classList.add('show');
+const closeFaq = ()=> faq.classList.remove('show');
+document.getElementById('helpbtn').addEventListener('click', openFaq);
+document.getElementById('faqclose').addEventListener('click', closeFaq);
+faq.addEventListener('click', e => { if (e.target === faq) closeFaq(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFaq(); });
 
 /* tabs */
 document.getElementById('tabs').addEventListener('click', e => {
