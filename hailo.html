@@ -149,8 +149,39 @@ body {
   display: flex; flex-direction: column; align-items: center;
   padding-top: 26px; gap: 26px;
 }
-.rail svg { width: 21px; height: 21px; opacity: .45; cursor: pointer; transition: opacity .2s; }
-.rail svg:hover, .rail svg.on { opacity: 1; }
+.railbtn {
+  position: relative;
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .2s;
+}
+.railbtn svg { width: 21px; height: 21px; opacity: .45; transition: opacity .2s; }
+.railbtn:hover svg, .railbtn.on svg { opacity: 1; }
+.railbtn.on { background: rgba(255,255,255,0.08); }
+/* tooltip */
+.railbtn::after {
+  content: attr(data-label);
+  position: absolute; left: calc(100% + 12px); top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  white-space: nowrap;
+  background: #15151B; color: #FFF;
+  border: 1px solid var(--line);
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.01em;
+  padding: 7px 11px; border-radius: 7px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .18s, transform .18s;
+  z-index: 40;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+.railbtn::before {
+  content: ''; position: absolute; left: calc(100% + 6px); top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent; border-right-color: #15151B;
+  opacity: 0; transition: opacity .18s; z-index: 41;
+}
+.railbtn:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
+.railbtn:hover::before { opacity: 1; }
 
 /* stage */
 .stage { position: relative; min-width: 0; }
@@ -391,10 +422,18 @@ body {
 
   <div class="main">
     <div class="rail">
-      <svg class="on" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M3 11.5 12 4l9 7.5"/><path d="M6 10v9h12v-9"/></svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8.5" stroke-dasharray="2 3"/></svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg>
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M4 8h10M18 8h2M4 16h2M10 16h10"/><circle cx="16" cy="8" r="2"/><circle cx="8" cy="16" r="2"/></svg>
+      <div class="railbtn on" data-view="today" data-label="Overview — today’s headline system">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M3 11.5 12 4l9 7.5"/><path d="M6 10v9h12v-9"/></svg>
+      </div>
+      <div class="railbtn" data-view="recovery" data-label="Systems — how your body is balancing">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8.5" stroke-dasharray="2 3"/></svg>
+      </div>
+      <div class="railbtn" data-view="effort" data-label="Effort — strain &amp; today’s target zone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg>
+      </div>
+      <div class="railbtn" data-view="timeline" data-label="Timeline — your story day by day">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M4 8h10M18 8h2M4 16h2M10 16h10"/><circle cx="16" cy="8" r="2"/><circle cx="8" cy="16" r="2"/></svg>
+      </div>
     </div>
 
     <div class="stage">
@@ -688,9 +727,15 @@ document.getElementById('tabs').addEventListener('click', e => {
 });
 document.getElementById('viewtl').addEventListener('click', ()=> setView('timeline'));
 
+/* left rail navigation */
+document.querySelectorAll('.railbtn').forEach(b => {
+  b.addEventListener('click', ()=> setView(b.dataset.view));
+});
+
 function setView(name){
   view = name;
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view===name));
+  document.querySelectorAll('.railbtn').forEach(b => b.classList.toggle('on', b.dataset.view===name));
   const tl = document.getElementById('tlview');
   if (name === 'timeline'){
     buildTimeline();

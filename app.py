@@ -100,7 +100,11 @@ def ailiv_hailo():
 
 @app.route('/hailo')
 def hailo():
-    return send_from_directory(BASE, 'hailo.html')
+    resp = send_from_directory(BASE, 'hailo.html')
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
 
 @app.route('/ailiv-bloodlife')
 def ailiv_bloodlife():
