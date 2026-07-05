@@ -207,6 +207,9 @@ body {
       <span id="topdate">—</span>
       <span style="opacity:.6">Data from WHOOP</span>
       <a class="atlaslink" id="atlaslink" href="/">Atlas →</a>
+      <div class="helpbtn" id="modebtn" title="Switch to rolling last 24 hours">
+        <svg id="modeicon" viewBox="0 0 24 24" width="13" height="13"></svg>
+      </div>
       <div class="helpbtn" id="helpbtn" title="How to read this">?</div>
     </div>
   </div>
@@ -219,11 +222,15 @@ body {
 
       <div class="faqrow">
         <div class="faqicon"><span class="disc" style="background:#fff;box-shadow:0 0 10px #fff"></span></div>
-        <div class="faqtext"><b>The bright cursor</b> travels the ring, replaying your day. The center shows the time, what your body was doing, and your HR &amp; HRV at that moment.</div>
+        <div class="faqtext"><b>The bright cursor is right now.</b> The ring fills in behind it as your day is written — everything ahead is still blank. The center shows the time, state, and HR &amp; HRV at the cursor.</div>
       </div>
       <div class="faqrow">
         <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M4 6 Q 20 -2 36 6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M31 2 l5 4 -6 2" fill="#fff"/></svg></div>
-        <div class="faqtext"><b>Drag anywhere on the ring</b> to travel time yourself. Let go and the replay resumes on its own.</div>
+        <div class="faqtext"><b>Drag anywhere on the ring</b> to look back through your day. Let go and the cursor glides home to now.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><b class="tabpill">◐</b></div>
+        <div class="faqtext"><b>The ◐ button</b> up top switches views: <b>Today so far</b> (default), or the <b>rolling last 24 hours</b> — where the dimmed stretch ahead of the cursor is yesterday closing the circle.</div>
       </div>
       <div class="faqrow">
         <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M4 6 Q 20 -4 36 6" fill="none" stroke="var(--sleep)" stroke-width="4" stroke-linecap="round"/></svg></div>
@@ -232,10 +239,6 @@ body {
       <div class="faqrow">
         <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M6 8 Q 20 0 34 8" fill="none" stroke="var(--inflam)" stroke-width="4" stroke-linecap="round"/></svg></div>
         <div class="faqtext"><b>Hot pink flares</b> are training. <b style="color:var(--energy)">Yellow arcs</b> are lighter movement, like a walk.</div>
-      </div>
-      <div class="faqrow">
-        <div class="faqicon"><span class="disc sm" style="background:var(--energy);box-shadow:0 0 8px var(--energy)"></span></div>
-        <div class="faqtext"><b>Pulsing gold dots</b> are meals — fuel landing on the clock.</div>
       </div>
       <div class="faqrow">
         <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M2 8 Q 8 6 14 7 Q 22 8 26 2 Q 31 8 38 7" fill="none" stroke="var(--stress)" stroke-width="1.8"/></svg></div>
@@ -276,14 +279,13 @@ body {
     </div>
 
     <div class="headline">
-      <h1>Your day, one orbit<span class="dot">.</span></h1>
-      <p id="hlsub">Every rhythm your body runs — sleep, effort, fuel, recovery — on a single living clock.</p>
+      <h1 id="hl">Today, so far<span class="dot">.</span></h1>
+      <p id="hlsub">Your day writes itself onto the ring as you live it. The rest is still unwritten.</p>
       <div class="legend">
         <span class="lg"><i style="background:var(--sleep)"></i>Sleep</span>
         <span class="lg"><i style="background:var(--blood)"></i>Deep</span>
         <span class="lg"><i style="background:var(--hrv)"></i>REM · HRV</span>
         <span class="lg"><i style="background:var(--inflam)"></i>Training</span>
-        <span class="lg"><i style="background:var(--energy)"></i>Meals</span>
         <span class="lg"><i style="background:#E8850C"></i>Caffeine</span>
         <span class="lg"><i style="background:var(--stress)"></i>Heart rate</span>
         <span class="lg"><i style="background:linear-gradient(90deg,var(--recovery),var(--energy),var(--stress))"></i>Stress</span>
@@ -292,6 +294,7 @@ body {
 
     <div class="stagefoot">
       HAILO ATLAS — LIVING SYSTEM<br>
+      <span id="written" style="color:#FFF">—</span><br>
       <span id="footdate">—</span>
     </div>
 
@@ -328,7 +331,6 @@ const DAY = {
   ],
   training: { s: 9.5,  e: 10.75, label:'Training — Zone 3 ride' },
   walk:     { s: 15.0, e: 15.6,  label:'Walk — easy movement' },
-  meals:    [ { t: 8.0, label:'Breakfast' }, { t: 12.5, label:'Lunch' }, { t: 19.0, label:'Dinner' } ],
   caffeine: [ { t: 7.75, dose: 120, label:'Coffee' }, { t: 15.75, dose: 80, label:'Espresso' } ],
 };
 const CAFF_HALFLIFE = 5.5, CAFF_COLOR = '#E8850C';
@@ -374,7 +376,6 @@ function hrAt(t){
   hr -= 12 * (gauss(t, 3.2, 3.4));                         // night trough
   hr += 86 * gauss(t, 10.12, 0.42);                        // training
   hr += 26 * gauss(t, 15.3, 0.30);                         // walk
-  DAY.meals.forEach(m => hr += 6 * gauss(t, m.t + 0.4, 0.35));
   hr += 2.2 * Math.sin(t * 2.1) + 1.4 * Math.sin(t * 5.3); // texture
   return hr;
 }
@@ -403,8 +404,6 @@ function stateAt(t){
   if (t >= DAY.walk.s && t < DAY.walk.e)         return { label:'Walking',  color:COL.energy };
   for (const c of DAY.caffeine)
     if (Math.abs(t - c.t) < 0.2) return { label: c.label, color: CAFF_COLOR };
-  for (const m of DAY.meals)
-    if (Math.abs(t - m.t) < 0.3) return { label: m.label, color: COL.energy };
   if (t >= DAY.sleepEnd && t < DAY.sleepEnd + 0.5) return { label:'Waking', color:COL.sleep };
   if (stressAt(t) > 1.7) return { label:'High stress', color: COL.stress };
   if (t >= 21.5) return { label:'Winding down', color:COL.sleep };
@@ -437,8 +436,18 @@ const a2t = a => {
   return ((t % 24) + 24) % 24;
 };
 
+/* ── view mode ──
+   'today'   — the day so far; everything past now is unwritten
+   'rolling' — full last 24h; ahead of the cursor is yesterday, dimmed */
+let mode = 'today';
+const YDIM = 0.38;               // alpha factor for "yesterday" in rolling mode
+function nowT(){
+  const d = new Date();
+  return d.getHours() + d.getMinutes()/60 + d.getSeconds()/3600;
+}
+
 /* ── state ── */
-let cursorT = 7.08;              // start the story at wake
+let cursorT = nowT();            // cursor lives at the real clock
 let playing = true;
 let resumeAt = 0;
 let dragging = false;
@@ -448,17 +457,36 @@ function fmtTime(t){
   return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
 }
 
-/* arc helper for spans that may wrap midnight */
-function drawSpan(s, e, r, w, color, alpha, glow){
+/* low-level arc stroke */
+function strokeArc(s, e, r, w, color, alpha, glow){
+  if (e - s < 0.001) return;
   cx.save();
   cx.globalAlpha = alpha;
   cx.strokeStyle = color;
   cx.lineWidth = w;
   cx.lineCap = 'round';
   if (glow){ cx.shadowColor = color; cx.shadowBlur = glow; }
-  const a1 = t2a(s), a2 = t2a(e < s ? e + 24 : e);
-  cx.beginPath(); cx.arc(OX, OY, r, a1, a2); cx.stroke();
+  cx.beginPath(); cx.arc(OX, OY, r, t2a(s), t2a(e)); cx.stroke();
   cx.restore();
+}
+
+/* mode-aware span: wraps midnight, clips to now (today) or dims yesterday (rolling) */
+function drawSpan(s, e, r, w, color, alpha, glow){
+  const tNow = nowT();
+  const parts = e >= s ? [[s, e]] : [[s, 24], [0, e]];
+  parts.forEach(([a, b]) => {
+    if (mode === 'today'){
+      if (a >= tNow) return;                       // fully unwritten
+      strokeArc(a, Math.min(b, tNow), r, w, color, alpha, glow);
+    } else {
+      if (b <= tNow)      strokeArc(a, b, r, w, color, alpha, glow);
+      else if (a >= tNow) strokeArc(a, b, r, w, color, alpha*YDIM, glow*0.5);
+      else {
+        strokeArc(a, tNow, r, w, color, alpha, glow);
+        strokeArc(tNow, b, r, w, color, alpha*YDIM, glow*0.5);
+      }
+    }
+  });
 }
 
 let OX=0, OY=0, R=0;
@@ -470,8 +498,13 @@ function draw(now, dt){
   const breathe = 1 + 0.008*Math.sin(now*0.0012);
   const Rb = R * breathe;
 
-  /* playback */
-  if (playing && !dragging) cursorT = (cursorT + dt * 24/90) % 24;   // full day ≈ 90s
+  /* cursor lives at the real clock; glide back after a scrub */
+  const tNow = nowT();
+  if (playing && !dragging){
+    let d = tNow - cursorT;
+    if (d > 12) d -= 24; if (d < -12) d += 24;
+    cursorT = ((cursorT + d * Math.min(1, dt*4)) % 24 + 24) % 24;
+  }
   if (!playing && !dragging && now > resumeAt) playing = true;
 
   /* hour ticks */
@@ -510,9 +543,11 @@ function draw(now, dt){
     for (let i=0;i<SEG;i++){
       const t = (i/SEG)*24;
       if (inSleep(t)) continue;
+      if (mode === 'today' && t > tNow) continue;          // unwritten
       const s = stressAt(t);
+      const dim = (mode === 'rolling' && t > tNow) ? YDIM : 1;
       cx.strokeStyle = stressColor(s);
-      cx.globalAlpha = 0.30 + (s/3)*0.6;
+      cx.globalAlpha = (0.30 + (s/3)*0.6) * dim;
       cx.beginPath();
       cx.arc(OX, OY, Rb, t2a(t), t2a(t + 24/SEG) + 0.004);
       cx.stroke();
@@ -537,18 +572,22 @@ function draw(now, dt){
         const dt = (k/STEPS)*SPAN;
         const decay = Math.pow(0.5, dt / CAFF_HALFLIFE);
         const t1 = c.t + dt, t2 = c.t + dt + SPAN/STEPS;
+        const tt = t1 % 24;
+        if (mode === 'today' && tt > tNow) continue;       // unwritten
+        const dim = (mode === 'rolling' && tt > tNow) ? YDIM : 1;
         cx.strokeStyle = CAFF_COLOR;
-        cx.globalAlpha = 0.75 * decay;
+        cx.globalAlpha = 0.75 * decay * dim;
         cx.lineWidth = 1.5 + 3.5 * decay;
         cx.beginPath();
         cx.arc(OX, OY, Rb + 17, t2a(t1), t2a(t2) + 0.003);
         cx.stroke();
       }
       /* the shot itself */
+      if (mode === 'today' && c.t > tNow){ cx.restore(); return; }
       const a = t2a(c.t);
       const px = OX + Math.cos(a)*(Rb+17), py = OY + Math.sin(a)*(Rb+17);
       const p = 0.5 + 0.5*Math.sin(now*0.0032 + ci*2.4);
-      cx.globalAlpha = 1;
+      cx.globalAlpha = (mode === 'rolling' && c.t > tNow) ? YDIM : 1;
       cx.beginPath(); cx.arc(px, py, 4.5 + p*2, 0, Math.PI*2);
       cx.fillStyle = CAFF_COLOR;
       cx.shadowColor = CAFF_COLOR; cx.shadowBlur = 12 + p*8;
@@ -563,49 +602,37 @@ function draw(now, dt){
     drawSpan(DAY.walk.s, DAY.walk.e, Rb, 9, COL.energy, 0.75, 14);
   }
 
-  /* meal pulses */
-  if (LAYERS.fuel) DAY.meals.forEach((m,i) => {
-    const a = t2a(m.t);
-    const px = OX + Math.cos(a)*Rb, py = OY + Math.sin(a)*Rb;
-    const p = 0.5 + 0.5*Math.sin(now*0.003 + i*2.1);
-    cx.save();
-    cx.beginPath(); cx.arc(px, py, 5 + p*2.5, 0, Math.PI*2);
-    cx.fillStyle = COL.energy;
-    cx.shadowColor = COL.energy; cx.shadowBlur = 14 + p*10;
-    cx.fill();
-    cx.restore();
-  });
-
   /* heart-rate ribbon (outside) + HRV ribbon (inside) */
   const N = 288;
-  if (LAYERS.vitals){
-  cx.save();
-  cx.beginPath();
-  for (let i=0;i<=N;i++){
-    const t = (i/N)*24, a = t2a(t);
-    const rr = Rb + 34 + ((hrAt(t)-48)/110) * 30;
-    const x = OX + Math.cos(a)*rr, y = OY + Math.sin(a)*rr;
-    i ? cx.lineTo(x,y) : cx.moveTo(x,y);
+  function ribbon(radiusFn, from, to, color, alpha){
+    if (to - from < 0.02) return;
+    cx.save();
+    cx.beginPath();
+    const i0 = Math.round(from/24*N), i1 = Math.round(to/24*N);
+    for (let i=i0;i<=i1;i++){
+      const t = (i/N)*24, a = t2a(t);
+      const rr = radiusFn(t);
+      const x = OX + Math.cos(a)*rr, y = OY + Math.sin(a)*rr;
+      i===i0 ? cx.moveTo(x,y) : cx.lineTo(x,y);
+    }
+    cx.strokeStyle = color; cx.globalAlpha = alpha; cx.lineWidth = 1.6;
+    cx.shadowColor = color; cx.shadowBlur = 8;
+    cx.stroke();
+    cx.restore();
   }
-  cx.closePath();
-  cx.strokeStyle = COL.stress; cx.globalAlpha = 0.5; cx.lineWidth = 1.6;
-  cx.shadowColor = COL.stress; cx.shadowBlur = 8;
-  cx.stroke();
-  cx.restore();
+  const hrR  = t => Rb + 34 + ((hrAt(t)-48)/110) * 30;
+  const hrvR = t => Rb - 34 - ((hrvAt(t)-30)/60) * 26;
 
-  cx.save();
-  cx.beginPath();
-  for (let i=0;i<=N;i++){
-    const t = (i/N)*24, a = t2a(t);
-    const rr = Rb - 34 - ((hrvAt(t)-30)/60) * 26;
-    const x = OX + Math.cos(a)*rr, y = OY + Math.sin(a)*rr;
-    i ? cx.lineTo(x,y) : cx.moveTo(x,y);
-  }
-  cx.closePath();
-  cx.strokeStyle = COL.hrv; cx.globalAlpha = 0.45; cx.lineWidth = 1.6;
-  cx.shadowColor = COL.hrv; cx.shadowBlur = 8;
-  cx.stroke();
-  cx.restore();
+  if (LAYERS.vitals){
+    if (mode === 'today'){
+      ribbon(hrR,  0, tNow, COL.stress, 0.5);
+      ribbon(hrvR, 0, tNow, COL.hrv,    0.45);
+    } else {
+      ribbon(hrR,  0, tNow, COL.stress, 0.5);
+      ribbon(hrR,  tNow, 24, COL.stress, 0.5*YDIM);
+      ribbon(hrvR, 0, tNow, COL.hrv,    0.45);
+      ribbon(hrvR, tNow, 24, COL.hrv,   0.45*YDIM);
+    }
   }
 
   /* cursor */
@@ -660,14 +687,20 @@ function pointerT(e){
   const x = e.clientX - rect.left - OX, y = e.clientY - rect.top - OY;
   return a2t(Math.atan2(y, x));
 }
+/* in today mode you can't scrub into the unwritten future */
+function clampWritten(t){
+  if (mode !== 'today') return t;
+  const n = nowT();
+  return t > n ? n : t;
+}
 cv.addEventListener('pointerdown', e => {
   dragging = true; playing = false;
   cv.classList.add('grabbing');
   cv.setPointerCapture(e.pointerId);
-  cursorT = pointerT(e);
+  cursorT = clampWritten(pointerT(e));
   hint.classList.add('gone');
 });
-cv.addEventListener('pointermove', e => { if (dragging) cursorT = pointerT(e); });
+cv.addEventListener('pointermove', e => { if (dragging) cursorT = clampWritten(pointerT(e)); });
 const endDrag = e => {
   if (!dragging) return;
   dragging = false;
@@ -676,6 +709,34 @@ const endDrag = e => {
 };
 cv.addEventListener('pointerup', endDrag);
 cv.addEventListener('pointercancel', endDrag);
+
+/* ── mode toggle: today so far ↔ rolling last 24h ── */
+const modebtn = document.getElementById('modebtn');
+const modeicon = document.getElementById('modeicon');
+const MODE_ICONS = {
+  today:   '<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5 a 8.5 8.5 0 0 1 0 17 Z" fill="currentColor"/>',
+  rolling: '<path d="M20 12a8 8 0 1 1-2.3-5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20.5 3.5v4h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+};
+function updateWritten(){
+  const el = document.getElementById('written');
+  el.textContent = mode === 'today'
+    ? Math.round(nowT()/24*100) + '% of today written'
+    : 'Rolling 24-hour window';
+}
+function setMode(m){
+  mode = m;
+  modeicon.innerHTML = MODE_ICONS[m];
+  modebtn.title = m === 'today' ? 'Switch to rolling last 24 hours' : 'Switch to today so far';
+  document.getElementById('hl').innerHTML =
+    (m === 'today' ? 'Today, so far' : 'Your last 24 hours') + '<span class="dot">.</span>';
+  document.getElementById('hlsub').textContent = m === 'today'
+    ? 'Your day writes itself onto the ring as you live it. The rest is still unwritten.'
+    : 'Behind the cursor is today; ahead of it, yesterday closes the circle.';
+  updateWritten();
+}
+modebtn.addEventListener('click', () => setMode(mode === 'today' ? 'rolling' : 'today'));
+setInterval(updateWritten, 30000);
+setMode('today');
 
 /* ── layer chips ── */
 document.querySelectorAll('.chip').forEach(ch => {
