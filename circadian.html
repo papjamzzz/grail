@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAILO — Circadian Ring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #000000;
+  --line:      rgba(255,255,255,0.10);
+  --text:      #FFFFFF;
+  --text2:     #C9D0DC;
+  --text3:     #9AA4B2;
+
+  --sleep:     #2E5BE8;
+  --recovery:  #14A15A;
+  --stress:    #E11D3C;
+  --inflam:    #F43F7F;
+  --energy:    #F5B90A;
+  --hrv:       #12B5C9;
+  --blood:     #6B3BF0;
+}
+
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app { height: 100vh; display: grid; grid-template-rows: 64px 1fr; }
+
+/* ── TOP BAR ── */
+.topbar {
+  display: flex; align-items: center; gap: 22px;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--line);
+}
+.wordmark { font-size: 26px; font-weight: 900; letter-spacing: -0.03em; }
+.pagename {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text2);
+  padding-left: 22px; border-left: 1px solid var(--line);
+}
+.topmeta {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 14px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text2);
+}
+.livedot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--recovery);
+  animation: blink 2.4s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+.atlaslink {
+  color: #FFF; cursor: pointer; text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.4); padding-bottom: 1px;
+}
+.atlaslink:hover { border-bottom-color: #FFF; }
+
+/* ── STAGE ── */
+.stage { position: relative; min-height: 0; }
+#ring { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+#ring.grabbing { cursor: grabbing; }
+
+.headline {
+  position: absolute; left: 36px; bottom: 34px; max-width: 380px;
+  pointer-events: none;
+}
+.headline h1 {
+  font-size: 44px; font-weight: 900; letter-spacing: -0.045em; line-height: 0.98;
+}
+.headline h1 .dot { color: var(--energy); }
+.headline p {
+  margin-top: 12px; font-size: 13.5px; line-height: 1.5; color: var(--text2);
+  font-weight: 500; max-width: 300px;
+}
+.legend {
+  margin-top: 18px; display: flex; flex-wrap: wrap; gap: 12px 16px; max-width: 340px;
+}
+.lg { display: flex; align-items: center; gap: 7px;
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text2);
+}
+.lg i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+
+.stagefoot {
+  position: absolute; right: 30px; bottom: 34px; text-align: right;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text3);
+  line-height: 1.9; pointer-events: none;
+}
+
+.hint {
+  position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text2);
+  display: flex; align-items: center; gap: 10px;
+  opacity: 1; transition: opacity .8s;
+  pointer-events: none;
+}
+.hint.gone { opacity: 0; }
+.hint .pulse {
+  width: 9px; height: 9px; border-radius: 50%; background: #FFF;
+  animation: hintpulse 1.6s ease-in-out infinite;
+}
+@keyframes hintpulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.7);opacity:.4} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="wordmark">HAILO</div>
+    <div class="pagename">Circadian Ring</div>
+    <div class="topmeta">
+      <span class="livedot"></span>
+      <span>Live</span>
+      <span id="topdate">—</span>
+      <span style="opacity:.6">Data from WHOOP</span>
+      <a class="atlaslink" id="atlaslink" href="/">Atlas →</a>
+    </div>
+  </div>
+
+  <div class="stage">
+    <canvas id="ring"></canvas>
+
+    <div class="headline">
+      <h1>Your day, one orbit<span class="dot">.</span></h1>
+      <p id="hlsub">Every rhythm your body runs — sleep, effort, fuel, recovery — on a single living clock.</p>
+      <div class="legend">
+        <span class="lg"><i style="background:var(--sleep)"></i>Sleep</span>
+        <span class="lg"><i style="background:var(--blood)"></i>Deep</span>
+        <span class="lg"><i style="background:var(--hrv)"></i>REM · HRV</span>
+        <span class="lg"><i style="background:var(--inflam)"></i>Training</span>
+        <span class="lg"><i style="background:var(--energy)"></i>Meals</span>
+        <span class="lg"><i style="background:var(--stress)"></i>Heart rate</span>
+      </div>
+    </div>
+
+    <div class="stagefoot">
+      HAILO ATLAS — LIVING SYSTEM<br>
+      <span id="footdate">—</span>
+    </div>
+
+    <div class="hint" id="hint"><span class="pulse"></span> Drag the ring to travel your day</div>
+  </div>
+
+</div>
+
+<script>
+/* ───────────────────── HAILO CIRCADIAN RING ─────────────────────
+   24 hours as one living clock. Midnight at top. A cursor replays
+   the day; grab the ring to scrub time yourself. */
+
+const COL = {
+  sleep:'#2E5BE8', recovery:'#14A15A', stress:'#E11D3C',
+  inflam:'#F43F7F', energy:'#F5B90A', hrv:'#12B5C9', blood:'#6B3BF0'
+};
+
+/* ── the day (simulated; same shape WHOOP provides) ──
+   times in decimal hours, 0–24, sleep wraps midnight */
+const DAY = {
+  sleepStart: 23.33, sleepEnd: 7.08,
+  stages: [              // within-sleep architecture
+    { s: 23.33, e: 23.75, type:'light' },
+    { s: 23.75, e: 0.85,  type:'deep'  },
+    { s: 0.85,  e: 1.45,  type:'rem'   },
+    { s: 1.45,  e: 2.6,   type:'deep'  },
+    { s: 2.6,   e: 3.3,   type:'rem'   },
+    { s: 3.3,   e: 4.4,   type:'light' },
+    { s: 4.4,   e: 5.2,   type:'rem'   },
+    { s: 5.2,   e: 6.1,   type:'light' },
+    { s: 6.1,   e: 6.75,  type:'rem'   },
+    { s: 6.75,  e: 7.08,  type:'light' },
+  ],
+  training: { s: 9.5,  e: 10.75, label:'Training — Zone 3 ride' },
+  walk:     { s: 15.0, e: 15.6,  label:'Walk — easy movement' },
+  meals:    [ { t: 8.0, label:'Breakfast' }, { t: 12.5, label:'Lunch' }, { t: 19.0, label:'Dinner' } ],
+};
+
+const inSleep = t => DAY.sleepStart <= t+24 && (t >= DAY.sleepStart || t < DAY.sleepEnd);
+const gauss = (t, m, w) => {
+  let d = Math.abs(t - m); d = Math.min(d, 24 - d);       // wrap distance
+  return Math.exp(-(d*d)/(2*w*w));
+};
+
+/* heart rate across the day */
+function hrAt(t){
+  let hr = 62;
+  hr -= 12 * (gauss(t, 3.2, 3.4));                         // night trough
+  hr += 86 * gauss(t, 10.12, 0.42);                        // training
+  hr += 26 * gauss(t, 15.3, 0.30);                         // walk
+  DAY.meals.forEach(m => hr += 6 * gauss(t, m.t + 0.4, 0.35));
+  hr += 2.2 * Math.sin(t * 2.1) + 1.4 * Math.sin(t * 5.3); // texture
+  return hr;
+}
+/* HRV across the day */
+function hrvAt(t){
+  let v = 48;
+  v += 24 * gauss(t, 3.5, 3.2);                            // night peak
+  v -= 16 * gauss(t, 11.2, 1.1);                           // post-training dip
+  v += 8  * gauss(t, 21.5, 1.6);                           // evening rebound
+  v += 1.6 * Math.sin(t * 3.1);
+  return v;
+}
+/* what's happening at time t */
+function stateAt(t){
+  if (inSleep(t)){
+    const st = DAY.stages.find(s => {
+      const tt = (t < 12 ? t + 24 : t), ss = (s.s < 12 ? s.s + 24 : s.s), ee = (s.e < 12 ? s.e + 24 : s.e);
+      return tt >= ss && tt < ee;
+    });
+    const names = { deep:'Deep sleep', rem:'REM sleep', light:'Light sleep' };
+    const cols  = { deep:COL.blood, rem:COL.hrv, light:COL.sleep };
+    const type = st ? st.type : 'light';
+    return { label: names[type], color: cols[type] };
+  }
+  if (t >= DAY.training.s && t < DAY.training.e) return { label:'Training', color:COL.inflam };
+  if (t >= DAY.walk.s && t < DAY.walk.e)         return { label:'Walking',  color:COL.energy };
+  for (const m of DAY.meals)
+    if (Math.abs(t - m.t) < 0.3) return { label: m.label, color: COL.energy };
+  if (t >= DAY.sleepEnd && t < DAY.sleepEnd + 0.5) return { label:'Waking', color:COL.sleep };
+  if (t >= 21.5) return { label:'Winding down', color:COL.sleep };
+  if (t > DAY.training.e && t < DAY.training.e + 1.5) return { label:'Recovering', color:COL.recovery };
+  return { label:'Awake — steady', color:COL.recovery };
+}
+
+/* ── canvas setup ── */
+const stage = document.querySelector('.stage');
+const cv = document.getElementById('ring');
+const cx = cv.getContext('2d');
+let W=0, H=0, DPR = Math.min(window.devicePixelRatio||1, 2);
+function resize(){
+  const r = stage.getBoundingClientRect();
+  W = r.width; H = r.height;
+  cv.width = Math.max(1, W*DPR); cv.height = Math.max(1, H*DPR);
+  cx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize);
+window.addEventListener('load', resize);
+resize();
+
+/* time ↔ angle: midnight at top, clockwise */
+const t2a = t => (t/24) * Math.PI*2 - Math.PI/2;
+const a2t = a => {
+  let t = ((a + Math.PI/2) / (Math.PI*2)) * 24;
+  return ((t % 24) + 24) % 24;
+};
+
+/* ── state ── */
+let cursorT = 7.08;              // start the story at wake
+let playing = true;
+let resumeAt = 0;
+let dragging = false;
+
+function fmtTime(t){
+  const h = Math.floor(t), m = Math.floor((t-h)*60);
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+
+/* arc helper for spans that may wrap midnight */
+function drawSpan(s, e, r, w, color, alpha, glow){
+  cx.save();
+  cx.globalAlpha = alpha;
+  cx.strokeStyle = color;
+  cx.lineWidth = w;
+  cx.lineCap = 'round';
+  if (glow){ cx.shadowColor = color; cx.shadowBlur = glow; }
+  const a1 = t2a(s), a2 = t2a(e < s ? e + 24 : e);
+  cx.beginPath(); cx.arc(OX, OY, r, a1, a2); cx.stroke();
+  cx.restore();
+}
+
+let OX=0, OY=0, R=0;
+
+function draw(now, dt){
+  cx.clearRect(0,0,W,H);
+  OX = W*0.5; OY = H*0.485;
+  R = Math.min(W,H) * 0.315;
+  const breathe = 1 + 0.008*Math.sin(now*0.0012);
+  const Rb = R * breathe;
+
+  /* playback */
+  if (playing && !dragging) cursorT = (cursorT + dt * 24/90) % 24;   // full day ≈ 90s
+  if (!playing && !dragging && now > resumeAt) playing = true;
+
+  /* hour ticks */
+  for (let h=0; h<24; h++){
+    const a = t2a(h);
+    const major = h % 6 === 0;
+    const r1 = Rb + 26, r2 = Rb + (major ? 40 : 33);
+    cx.beginPath();
+    cx.moveTo(OX + Math.cos(a)*r1, OY + Math.sin(a)*r1);
+    cx.lineTo(OX + Math.cos(a)*r2, OY + Math.sin(a)*r2);
+    cx.strokeStyle = major ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.18)';
+    cx.lineWidth = major ? 1.6 : 1;
+    cx.stroke();
+    if (major){
+      cx.font = '800 11px Inter';
+      cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      cx.fillStyle = 'rgba(255,255,255,0.85)';
+      cx.fillText(String(h).padStart(2,'0'),
+        OX + Math.cos(a)*(Rb+56), OY + Math.sin(a)*(Rb+56));
+    }
+  }
+
+  /* base ring */
+  cx.save();
+  cx.strokeStyle = 'rgba(255,255,255,0.14)';
+  cx.lineWidth = 1;
+  cx.setLineDash([1.5,5]);
+  cx.beginPath(); cx.arc(OX, OY, Rb, 0, Math.PI*2); cx.stroke();
+  cx.restore();
+
+  /* sleep arc + architecture */
+  drawSpan(DAY.sleepStart, DAY.sleepEnd, Rb, 13, COL.sleep, 0.85, 22);
+  DAY.stages.forEach(s => {
+    if (s.type === 'deep') drawSpan(s.s, s.e, Rb, 13, COL.blood, 0.95, 16);
+    if (s.type === 'rem')  drawSpan(s.s, s.e, Rb - 13, 4, COL.hrv, 0.9, 10);
+  });
+
+  /* training + walk flares */
+  drawSpan(DAY.training.s, DAY.training.e, Rb, 13, COL.inflam, 0.95, 30);
+  drawSpan(DAY.walk.s, DAY.walk.e, Rb, 9, COL.energy, 0.75, 14);
+
+  /* meal pulses */
+  DAY.meals.forEach((m,i) => {
+    const a = t2a(m.t);
+    const px = OX + Math.cos(a)*Rb, py = OY + Math.sin(a)*Rb;
+    const p = 0.5 + 0.5*Math.sin(now*0.003 + i*2.1);
+    cx.save();
+    cx.beginPath(); cx.arc(px, py, 5 + p*2.5, 0, Math.PI*2);
+    cx.fillStyle = COL.energy;
+    cx.shadowColor = COL.energy; cx.shadowBlur = 14 + p*10;
+    cx.fill();
+    cx.restore();
+  });
+
+  /* heart-rate ribbon (outside) + HRV ribbon (inside) */
+  const N = 288;
+  cx.save();
+  cx.beginPath();
+  for (let i=0;i<=N;i++){
+    const t = (i/N)*24, a = t2a(t);
+    const rr = Rb + 34 + ((hrAt(t)-48)/110) * 30;
+    const x = OX + Math.cos(a)*rr, y = OY + Math.sin(a)*rr;
+    i ? cx.lineTo(x,y) : cx.moveTo(x,y);
+  }
+  cx.closePath();
+  cx.strokeStyle = COL.stress; cx.globalAlpha = 0.5; cx.lineWidth = 1.6;
+  cx.shadowColor = COL.stress; cx.shadowBlur = 8;
+  cx.stroke();
+  cx.restore();
+
+  cx.save();
+  cx.beginPath();
+  for (let i=0;i<=N;i++){
+    const t = (i/N)*24, a = t2a(t);
+    const rr = Rb - 34 - ((hrvAt(t)-30)/60) * 26;
+    const x = OX + Math.cos(a)*rr, y = OY + Math.sin(a)*rr;
+    i ? cx.lineTo(x,y) : cx.moveTo(x,y);
+  }
+  cx.closePath();
+  cx.strokeStyle = COL.hrv; cx.globalAlpha = 0.45; cx.lineWidth = 1.6;
+  cx.shadowColor = COL.hrv; cx.shadowBlur = 8;
+  cx.stroke();
+  cx.restore();
+
+  /* cursor */
+  const ca = t2a(cursorT);
+  const cxp = OX + Math.cos(ca)*Rb, cyp = OY + Math.sin(ca)*Rb;
+  cx.save();
+  cx.strokeStyle = 'rgba(255,255,255,0.22)';
+  cx.lineWidth = 1;
+  cx.beginPath(); cx.moveTo(OX, OY); cx.lineTo(cxp, cyp); cx.stroke();
+  cx.restore();
+
+  const st = stateAt(cursorT);
+  cx.save();
+  cx.beginPath(); cx.arc(cxp, cyp, 8, 0, Math.PI*2);
+  cx.fillStyle = '#FFF';
+  cx.shadowColor = st.color; cx.shadowBlur = 26;
+  cx.fill();
+  cx.beginPath(); cx.arc(cxp, cyp, 13, 0, Math.PI*2);
+  cx.strokeStyle = st.color; cx.globalAlpha = 0.8; cx.lineWidth = 2;
+  cx.stroke();
+  cx.restore();
+
+  /* center readout */
+  cx.textAlign = 'center'; cx.textBaseline = 'middle';
+  cx.fillStyle = '#FFF';
+  cx.font = `900 ${R*0.30}px Inter`;
+  cx.fillText(fmtTime(cursorT), OX, OY - R*0.10);
+
+  cx.font = `800 ${R*0.088}px Inter`;
+  cx.fillStyle = st.color;
+  cx.fillText(st.label.toUpperCase(), OX, OY + R*0.12);
+
+  cx.font = `700 ${R*0.066}px Inter`;
+  cx.fillStyle = 'rgba(255,255,255,0.85)';
+  cx.fillText(`HR ${Math.round(hrAt(cursorT))} · HRV ${Math.round(hrvAt(cursorT))}`, OX, OY + R*0.24);
+}
+
+/* ── scrubbing ── */
+const hint = document.getElementById('hint');
+function pointerT(e){
+  const rect = cv.getBoundingClientRect();
+  const x = e.clientX - rect.left - OX, y = e.clientY - rect.top - OY;
+  return a2t(Math.atan2(y, x));
+}
+cv.addEventListener('pointerdown', e => {
+  dragging = true; playing = false;
+  cv.classList.add('grabbing');
+  cv.setPointerCapture(e.pointerId);
+  cursorT = pointerT(e);
+  hint.classList.add('gone');
+});
+cv.addEventListener('pointermove', e => { if (dragging) cursorT = pointerT(e); });
+const endDrag = e => {
+  if (!dragging) return;
+  dragging = false;
+  cv.classList.remove('grabbing');
+  resumeAt = performance.now() + 2600;      // pause, then resume the replay
+};
+cv.addEventListener('pointerup', endDrag);
+cv.addEventListener('pointercancel', endDrag);
+
+/* ── dates + atlas link ── */
+const dstr = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+document.getElementById('topdate').textContent = dstr;
+document.getElementById('footdate').textContent = dstr;
+if (!location.hostname.includes('vercel') && location.protocol !== 'file:')
+  document.getElementById('atlaslink').href = '/hailo';
+
+/* ── loop ── */
+let last = performance.now();
+function loop(now){
+  const r = stage.getBoundingClientRect();
+  if (Math.abs(r.width - W) > 1 || Math.abs(r.height - H) > 1) resize();
+  const dt = Math.min(0.05, (now-last)/1000); last = now;
+  draw(now, dt);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -106,6 +106,14 @@ def hailo():
     resp.headers['Expires'] = '0'
     return resp
 
+@app.route('/ring')
+def circadian_ring():
+    resp = send_from_directory(BASE, 'circadian.html')
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
+
 @app.route('/ailiv-bloodlife')
 def ailiv_bloodlife():
     return send_from_directory(BASE, 'ailiv-bloodlife.html')
