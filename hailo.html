@@ -354,6 +354,14 @@ body {
   text-transform: uppercase; color: var(--text3);
 }
 .wavenow b { display: block; font-size: 15px; color: #FFF; letter-spacing: -0.01em; }
+
+#dbg {
+  position: fixed; left: 10px; bottom: 8px; z-index: 60;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 10px; color: #2EC76B;
+  background: rgba(0,0,0,0.6); padding: 3px 7px; border-radius: 5px;
+  pointer-events: none; letter-spacing: 0.02em;
+}
 </style>
 </head>
 <body>
@@ -494,6 +502,8 @@ body {
       </div>
     </div>
   </div>
+
+  <div id="dbg">starting…</div>
 
   <div class="wavebar">
     <canvas id="wave"></canvas>
@@ -661,13 +671,14 @@ let W=0, H=0, DPR = Math.min(window.devicePixelRatio||1, 2);
 function resize(){
   const r = stage.getBoundingClientRect();
   W = r.width; H = r.height;
-  cv.width = W*DPR; cv.height = H*DPR;
+  cv.width = Math.max(1, W*DPR); cv.height = Math.max(1, H*DPR);
   cx2d.setTransform(DPR,0,0,DPR,0,0);
   const wr = wv.parentElement.getBoundingClientRect();
-  wv.width = wr.width*DPR; wv.height = wr.height*DPR;
+  wv.width = Math.max(1, wr.width*DPR); wv.height = Math.max(1, wr.height*DPR);
   wctx.setTransform(DPR,0,0,DPR,0,0);
 }
 window.addEventListener('resize', resize);
+window.addEventListener('load', resize);
 resize();
 
 /* build nodes for a view */
@@ -975,10 +986,21 @@ syncDOM('today');
 setTimeout(drift, 4000);
 
 let last = performance.now();
+let frames = 0;
+const dbg = document.getElementById('dbg');
 function loop(now){
+  /* self-heal: if the stage size drifted (or was 0 at first paint), re-fit */
+  const r = stage.getBoundingClientRect();
+  if (Math.abs(r.width - W) > 1 || Math.abs(r.height - H) > 1) resize();
+
   const dt = Math.min(0.05, (now-last)/1000); last = now;
   drawOrbit(now, dt);
   drawWave(now, dt);
+
+  frames++;
+  if (dbg && (frames % 15 === 0))
+    dbg.textContent = 'frames ' + frames + ' · canvas ' + Math.round(W) + '×' + Math.round(H) + ' · dpr ' + DPR;
+
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
