@@ -66,6 +66,67 @@ body {
 }
 .atlaslink:hover { border-bottom-color: #FFF; }
 
+.helpbtn {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.28);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: var(--text2);
+  cursor: pointer; user-select: none; letter-spacing: 0;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.helpbtn:hover { background: #FFF; color: #000; border-color: #FFF; }
+
+/* ── FAQ overlay ── */
+.faq {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.faq.show { opacity: 1; pointer-events: auto; }
+.faqcard {
+  position: relative;
+  width: 470px; max-width: calc(100vw - 40px);
+  max-height: 86vh; overflow-y: auto;
+  background: #0B0B0F;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 30px 30px 22px;
+  transform: translateY(10px) scale(.98);
+  transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.faq.show .faqcard { transform: none; }
+.faqclose {
+  position: absolute; top: 16px; right: 18px;
+  font-size: 24px; line-height: 1; color: var(--text3);
+  cursor: pointer; font-weight: 400;
+  transition: color .2s;
+}
+.faqclose:hover { color: #FFF; }
+.faqhead { font-size: 22px; font-weight: 900; letter-spacing: -0.03em; }
+.faqsub { font-size: 13px; color: var(--text2); font-weight: 500; margin: 6px 0 22px; line-height: 1.5; }
+.faqrow { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 17px; }
+.faqicon {
+  flex: none; width: 40px; height: 20px;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.faqicon svg { width: 40px; height: 12px; overflow: visible; }
+.faqicon .disc { width: 16px; height: 16px; border-radius: 50%; display: block; }
+.faqicon .disc.sm { width: 11px; height: 11px; }
+.faqicon .tabpill {
+  font-size: 9.5px; font-weight: 800; color: #000; background: #FFF;
+  padding: 3px 8px; border-radius: 999px; letter-spacing: 0.01em; white-space: nowrap;
+}
+.faqtext { font-size: 13px; line-height: 1.5; color: var(--text2); font-weight: 500; }
+.faqtext b { color: #FFF; font-weight: 700; }
+.faqfoot {
+  margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line);
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3); text-align: center;
+}
+
 /* ── STAGE ── */
 .stage { position: relative; min-height: 0; }
 #ring { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
@@ -127,6 +188,50 @@ body {
       <span id="topdate">—</span>
       <span style="opacity:.6">Data from WHOOP</span>
       <a class="atlaslink" id="atlaslink" href="/">Atlas →</a>
+      <div class="helpbtn" id="helpbtn" title="How to read this">?</div>
+    </div>
+  </div>
+
+  <div class="faq" id="faq">
+    <div class="faqcard">
+      <div class="faqclose" id="faqclose">×</div>
+      <div class="faqhead">How to read your Ring</div>
+      <div class="faqsub">Your whole day on one clock — midnight at the top, noon at the bottom.</div>
+
+      <div class="faqrow">
+        <div class="faqicon"><span class="disc" style="background:#fff;box-shadow:0 0 10px #fff"></span></div>
+        <div class="faqtext"><b>The bright cursor</b> travels the ring, replaying your day. The center shows the time, what your body was doing, and your HR &amp; HRV at that moment.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M4 6 Q 20 -2 36 6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M31 2 l5 4 -6 2" fill="#fff"/></svg></div>
+        <div class="faqtext"><b>Drag anywhere on the ring</b> to travel time yourself. Let go and the replay resumes on its own.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M4 6 Q 20 -4 36 6" fill="none" stroke="var(--sleep)" stroke-width="4" stroke-linecap="round"/></svg></div>
+        <div class="faqtext"><b>The blue arc</b> is sleep. <b style="color:var(--blood)">Purple stretches</b> inside it are deep sleep; the <b style="color:var(--hrv)">cyan dashes</b> just inside are REM.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M6 8 Q 20 0 34 8" fill="none" stroke="var(--inflam)" stroke-width="4" stroke-linecap="round"/></svg></div>
+        <div class="faqtext"><b>Hot pink flares</b> are training. <b style="color:var(--energy)">Yellow arcs</b> are lighter movement, like a walk.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><span class="disc sm" style="background:var(--energy);box-shadow:0 0 8px var(--energy)"></span></div>
+        <div class="faqtext"><b>Pulsing gold dots</b> are meals — fuel landing on the clock.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M2 8 Q 8 6 14 7 Q 22 8 26 2 Q 31 8 38 7" fill="none" stroke="var(--stress)" stroke-width="1.8"/></svg></div>
+        <div class="faqtext"><b>The red line outside</b> the ring is your heart rate — watch it swell where you trained and sink while you slept.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M2 5 Q 10 8 18 6 Q 28 3 38 6" fill="none" stroke="var(--hrv)" stroke-width="1.8"/></svg></div>
+        <div class="faqtext"><b>The cyan line inside</b> is HRV — highest in deep night, dipping after hard effort, rebounding as you recover.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><b class="tabpill">Atlas →</b></div>
+        <div class="faqtext"><b>Atlas</b> in the top bar jumps to the other view: how your systems relate to each other right now.</div>
+      </div>
+
+      <div class="faqfoot">Prototype on simulated data · Tap anywhere to close</div>
     </div>
   </div>
 
@@ -433,6 +538,15 @@ const endDrag = e => {
 };
 cv.addEventListener('pointerup', endDrag);
 cv.addEventListener('pointercancel', endDrag);
+
+/* ── FAQ overlay ── */
+const faq = document.getElementById('faq');
+const openFaq = ()=> faq.classList.add('show');
+const closeFaq = ()=> faq.classList.remove('show');
+document.getElementById('helpbtn').addEventListener('click', openFaq);
+document.getElementById('faqclose').addEventListener('click', closeFaq);
+faq.addEventListener('click', e => { if (e.target === faq) closeFaq(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFaq(); });
 
 /* ── dates + atlas link ── */
 const dstr = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
