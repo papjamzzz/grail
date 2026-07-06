@@ -193,6 +193,38 @@ body {
   animation: hintpulse 1.6s ease-in-out infinite;
 }
 @keyframes hintpulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.7);opacity:.4} }
+
+/* ── tapped-moment detail card ── */
+.moment {
+  position: absolute; z-index: 20; width: 234px;
+  background: rgba(10,10,14,0.94);
+  border: 1px solid var(--line);
+  border-radius: 12px; padding: 15px 16px 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  opacity: 0; pointer-events: none;
+  transform: translateY(6px) scale(.97);
+  transform-origin: center left;
+  transition: opacity .2s, transform .2s;
+}
+.moment.show { opacity: 1; pointer-events: auto; transform: none; }
+.moment .mclose {
+  position: absolute; top: 9px; right: 12px;
+  font-size: 19px; line-height: 1; color: var(--text3);
+  cursor: pointer; font-weight: 400;
+}
+.moment .mclose:hover { color: #FFF; }
+.moment .mtime { font-size: 26px; font-weight: 900; letter-spacing: -0.03em; }
+.moment .mstate {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+  margin-top: 2px;
+}
+.moment .mstats {
+  font-size: 11px; font-weight: 700; color: var(--text2);
+  letter-spacing: 0.02em; margin: 11px 0;
+  padding: 9px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.moment .msentence { font-size: 12.5px; line-height: 1.5; color: var(--text2); font-weight: 500; }
 </style>
 </head>
 <body>
@@ -298,7 +330,15 @@ body {
       <span id="footdate">—</span>
     </div>
 
-    <div class="hint" id="hint"><span class="pulse"></span> Drag the ring to travel your day</div>
+    <div class="hint" id="hint"><span class="pulse"></span> Drag to travel your day · tap to hold a moment</div>
+
+    <div class="moment" id="moment">
+      <div class="mclose" id="mclose">×</div>
+      <div class="mtime" id="mtime">—</div>
+      <div class="mstate" id="mstate">—</div>
+      <div class="mstats" id="mstats">—</div>
+      <div class="msentence" id="msentence">—</div>
+    </div>
   </div>
 
 </div>
@@ -451,6 +491,8 @@ let cursorT = nowT();            // cursor lives at the real clock
 let playing = true;
 let resumeAt = 0;
 let dragging = false;
+let pinned = false;              // a moment is held open
+let pinnedT = 0;
 
 function fmtTime(t){
   const h = Math.floor(t), m = Math.floor((t-h)*60);
@@ -498,14 +540,18 @@ function draw(now, dt){
   const breathe = 1 + 0.008*Math.sin(now*0.0012);
   const Rb = R * breathe;
 
-  /* cursor lives at the real clock; glide back after a scrub */
+  /* cursor lives at the real clock; glide back after a scrub; hold when pinned */
   const tNow = nowT();
-  if (playing && !dragging){
-    let d = tNow - cursorT;
-    if (d > 12) d -= 24; if (d < -12) d += 24;
-    cursorT = ((cursorT + d * Math.min(1, dt*4)) % 24 + 24) % 24;
+  if (pinned && !dragging){
+    cursorT = clampWritten(pinnedT);
+  } else {
+    if (playing && !dragging){
+      let d = tNow - cursorT;
+      if (d > 12) d -= 24; if (d < -12) d += 24;
+      cursorT = ((cursorT + d * Math.min(1, dt*4)) % 24 + 24) % 24;
+    }
+    if (!playing && !dragging && now > resumeAt) playing = true;
   }
-  if (!playing && !dragging && now > resumeAt) playing = true;
 
   /* hour ticks */
   for (let h=0; h<24; h++){
@@ -653,6 +699,11 @@ function draw(now, dt){
   cx.beginPath(); cx.arc(cxp, cyp, 13, 0, Math.PI*2);
   cx.strokeStyle = st.color; cx.globalAlpha = 0.8; cx.lineWidth = 2;
   cx.stroke();
+  if (pinned){                                   // held-moment: static outer ring
+    cx.beginPath(); cx.arc(cxp, cyp, 19, 0, Math.PI*2);
+    cx.strokeStyle = st.color; cx.globalAlpha = 0.35; cx.lineWidth = 1.5;
+    cx.stroke();
+  }
   cx.restore();
 
   /* center readout */
@@ -693,22 +744,85 @@ function clampWritten(t){
   const n = nowT();
   return t > n ? n : t;
 }
+let downX = 0, downY = 0, downTime = 0, moved = 0;
 cv.addEventListener('pointerdown', e => {
-  dragging = true; playing = false;
+  dragging = true; playing = false; pinned = false;
+  hideMoment();
   cv.classList.add('grabbing');
   cv.setPointerCapture(e.pointerId);
+  downX = e.clientX; downY = e.clientY; downTime = performance.now(); moved = 0;
   cursorT = clampWritten(pointerT(e));
   hint.classList.add('gone');
 });
-cv.addEventListener('pointermove', e => { if (dragging) cursorT = clampWritten(pointerT(e)); });
+cv.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  moved = Math.max(moved, Math.hypot(e.clientX - downX, e.clientY - downY));
+  cursorT = clampWritten(pointerT(e));
+});
 const endDrag = e => {
   if (!dragging) return;
   dragging = false;
   cv.classList.remove('grabbing');
-  resumeAt = performance.now() + 2600;      // pause, then resume the replay
+  const quick = performance.now() - downTime < 450;
+  if (moved < 8 && quick){                    // a TAP → hold this moment
+    pinned = true; pinnedT = cursorT; playing = false;
+    showMoment(cursorT);
+  } else {                                     // a DRAG → resume live after a beat
+    resumeAt = performance.now() + 2600;
+  }
 };
 cv.addEventListener('pointerup', endDrag);
 cv.addEventListener('pointercancel', endDrag);
+
+/* ── tapped-moment card ── */
+const momentEl = document.getElementById('moment');
+function momentSentence(t, st, hr, hrv, sv, mg){
+  if (inSleep(t)){
+    if (st.label === 'Deep sleep') return 'Deep sleep — your body’s hardest repair window. HRV is climbing here.';
+    if (st.label === 'REM sleep')  return 'REM — dreaming and filing away the day. HRV riding high.';
+    return 'Light sleep — drifting between stages, easy to stir.';
+  }
+  if (st.label === 'Training') return `Peak effort. Heart rate ${hr}, strain climbing — this is the work.`;
+  if (st.label === 'Walking')  return 'Easy movement — keeping things ticking without a cost.';
+  if (st.label === 'Coffee' || st.label === 'Espresso') return 'Caffeine in. From here it rides your bloodstream for hours.';
+  if (st.label === 'Waking')   return 'Waking up — HRV settling, the day begins.';
+  if (sv > 1.7) return `Stress spike. HR up at ${hr}, HRV dipped to ${hrv}${mg > 10 ? `, ${mg}mg of caffeine still on board` : ''}. Your sharpest edge of the day.`;
+  if (mg > 40)  return `${mg}mg of caffeine still active — alert now, but this is what reaches bedtime if it’s late.`;
+  if (st.label === 'Winding down') return 'Winding down. HRV rebuilding for the night ahead.';
+  if (st.label === 'Recovering')   return 'Recovering from effort — heart rate falling, HRV on its way back.';
+  return 'Steady and awake — body balanced, nothing pulling on you.';
+}
+function showMoment(t){
+  const st = stateAt(t);
+  const hr = Math.round(hrAt(t)), hrv = Math.round(hrvAt(t));
+  const sv = stressAt(t), mg = Math.round(caffAt(t));
+  const sName = sv > 1.7 ? 'HIGH' : sv > 0.9 ? 'MODERATE' : 'LOW';
+  document.getElementById('mtime').textContent = fmtTime(t);
+  const state = document.getElementById('mstate');
+  state.textContent = st.label.toUpperCase();
+  state.style.color = st.color;
+  let stats = `HR ${hr} · HRV ${hrv} · STRESS ${sName}`;
+  if (mg > 10) stats += ` · ${mg}MG`;
+  document.getElementById('mstats').textContent = stats;
+  document.getElementById('msentence').textContent = momentSentence(t, st, hr, hrv, sv, mg);
+
+  /* place the card just outside the tapped point, clamped to the stage */
+  const a = t2a(t);
+  const px = OX + Math.cos(a) * R, py = OY + Math.sin(a) * R;
+  const rect = stage.getBoundingClientRect();
+  const cardW = 234, cardH = 150;
+  let left = px < OX ? px - cardW - 18 : px + 18;
+  let top  = py - cardH / 2;
+  left = Math.max(12, Math.min(rect.width  - cardW - 12, left));
+  top  = Math.max(12, Math.min(rect.height - cardH - 12, top));
+  momentEl.style.left = left + 'px';
+  momentEl.style.top  = top + 'px';
+  momentEl.classList.add('show');
+}
+function hideMoment(){ momentEl.classList.remove('show'); }
+document.getElementById('mclose').addEventListener('click', () => {
+  pinned = false; hideMoment(); resumeAt = performance.now() + 400;
+});
 
 /* ── mode toggle: today so far ↔ rolling last 24h ── */
 const modebtn = document.getElementById('modebtn');
