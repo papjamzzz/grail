@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAILO — The Night</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #000000;
+  --line:      rgba(255,255,255,0.10);
+  --text:      #FFFFFF;
+  --text2:     #C9D0DC;
+  --text3:     #9AA4B2;
+
+  --deep:      #6B3BF0;   /* deep sleep — the valleys */
+  --rem:       #12B5C9;   /* REM — the bright ridges */
+  --light:     #2E5BE8;   /* light sleep — the hills */
+  --wake:      #F5B90A;   /* brief wakes — amber surfacings */
+  --hr:        #E11D3C;   /* heart rate — ember line */
+  --hrv:       #14A15A;   /* HRV — recovery line */
+}
+
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app { height: 100vh; display: grid; grid-template-rows: 64px 1fr; }
+
+/* ── TOP BAR ── */
+.topbar {
+  display: flex; align-items: center; gap: 22px;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--line);
+}
+.wordmark { font-size: 26px; font-weight: 900; letter-spacing: -0.03em; }
+.pagename {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text2);
+  padding-left: 22px; border-left: 1px solid var(--line);
+}
+.topmeta {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 14px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text2);
+}
+.livedot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--hrv);
+  animation: blink 2.4s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+.navlink {
+  color: #FFF; cursor: pointer; text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.4); padding-bottom: 1px;
+}
+.navlink:hover { border-bottom-color: #FFF; }
+
+.helpbtn {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.28);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: var(--text2);
+  cursor: pointer; user-select: none;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.helpbtn:hover { background: #FFF; color: #000; border-color: #FFF; }
+
+/* ── STAGE ── */
+.stage { position: relative; min-height: 0; }
+#night { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+#night.grabbing { cursor: grabbing; }
+
+/* caption / readout block */
+.storybox {
+  position: absolute; left: 36px; bottom: 36px; max-width: 430px;
+  pointer-events: none;
+}
+.storytime {
+  font-size: 12px; font-weight: 800; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text2); margin-bottom: 8px;
+  transition: opacity .5s;
+}
+.storytitle {
+  font-size: 42px; font-weight: 900; letter-spacing: -0.045em; line-height: 1.0;
+  transition: opacity .5s;
+}
+.storytitle .dot { color: var(--rem); }
+.storytext {
+  margin-top: 12px; font-size: 14px; line-height: 1.55; color: var(--text2);
+  font-weight: 500; max-width: 360px;
+  transition: opacity .5s;
+}
+.storybox.fading .storytime,
+.storybox.fading .storytitle,
+.storybox.fading .storytext { opacity: 0; }
+
+.readout {
+  margin-top: 14px; display: flex; gap: 18px;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text2);
+}
+.readout b { color: #FFF; }
+
+/* stats + footer */
+.stagefoot {
+  position: absolute; right: 30px; bottom: 36px; text-align: right;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text3);
+  line-height: 2.0; pointer-events: none;
+}
+.stagefoot b { color: #FFF; font-weight: 800; }
+
+/* legend */
+.legend {
+  position: absolute; left: 36px; top: 24px;
+  display: flex; flex-wrap: wrap; gap: 10px 16px; max-width: 480px;
+  pointer-events: none;
+}
+.lg {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text2);
+}
+.lg i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+
+/* replay + hint */
+.replaybtn {
+  position: absolute; right: 30px; top: 24px;
+  display: none; align-items: center; gap: 9px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #FFF; border: 1px solid rgba(255,255,255,0.3);
+  padding: 9px 16px; border-radius: 999px; cursor: pointer; user-select: none;
+  transition: background .2s, border-color .2s;
+}
+.replaybtn:hover { background: rgba(255,255,255,0.1); border-color: #FFF; }
+.replaybtn.show { display: inline-flex; }
+
+.hint {
+  position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text2);
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0; transition: opacity .8s; pointer-events: none;
+}
+.hint.show { opacity: 1; }
+.hint .pulse {
+  width: 9px; height: 9px; border-radius: 50%; background: #FFF;
+  animation: hintpulse 1.6s ease-in-out infinite;
+}
+@keyframes hintpulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.7);opacity:.4} }
+
+/* ── FAQ overlay ── */
+.faq {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.62); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+}
+.faq.show { opacity: 1; pointer-events: auto; }
+.faqcard {
+  position: relative; width: 470px; max-width: calc(100vw - 40px);
+  max-height: 86vh; overflow-y: auto;
+  background: #0B0B0F; border: 1px solid var(--line); border-radius: 16px;
+  padding: 30px 30px 22px;
+  transform: translateY(10px) scale(.98);
+  transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.faq.show .faqcard { transform: none; }
+.faqclose {
+  position: absolute; top: 16px; right: 18px;
+  font-size: 24px; line-height: 1; color: var(--text3); cursor: pointer;
+  transition: color .2s;
+}
+.faqclose:hover { color: #FFF; }
+.faqhead { font-size: 22px; font-weight: 900; letter-spacing: -0.03em; }
+.faqsub { font-size: 13px; color: var(--text2); font-weight: 500; margin: 6px 0 22px; line-height: 1.5; }
+.faqrow { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 17px; }
+.faqicon {
+  flex: none; width: 40px; height: 20px;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.faqicon svg { width: 40px; height: 14px; overflow: visible; }
+.faqicon .disc { width: 12px; height: 12px; border-radius: 50%; display: block; }
+.faqtext { font-size: 13px; line-height: 1.5; color: var(--text2); font-weight: 500; }
+.faqtext b { color: #FFF; font-weight: 700; }
+.faqfoot {
+  margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line);
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3); text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="wordmark">HAILO</div>
+    <div class="pagename">The Night</div>
+    <div class="topmeta">
+      <span class="livedot"></span>
+      <span>Last night</span>
+      <span id="topdate">—</span>
+      <span style="opacity:.6">Data from WHOOP</span>
+      <a class="navlink" id="atlaslink" href="/">Atlas →</a>
+      <a class="navlink" id="ringlink" href="/ring">Ring →</a>
+      <div class="helpbtn" id="helpbtn" title="How to read this">?</div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <canvas id="night"></canvas>
+
+    <div class="legend">
+      <span class="lg"><i style="background:var(--deep)"></i>Deep — valleys</span>
+      <span class="lg"><i style="background:var(--rem)"></i>REM — ridges</span>
+      <span class="lg"><i style="background:var(--light)"></i>Light — hills</span>
+      <span class="lg"><i style="background:var(--wake)"></i>Wake</span>
+      <span class="lg"><i style="background:var(--hr)"></i>Heart rate</span>
+      <span class="lg"><i style="background:var(--hrv)"></i>HRV</span>
+    </div>
+
+    <div class="replaybtn" id="replaybtn">▶&nbsp; Replay the night</div>
+
+    <div class="storybox" id="storybox">
+      <div class="storytime" id="storytime">23:20</div>
+      <div class="storytitle" id="storytitle">Lights out<span class="dot">.</span></div>
+      <div class="storytext" id="storytext">The night begins.</div>
+      <div class="readout" id="readout" style="display:none">
+        <span><b id="ro-stage">—</b></span>
+        <span>HR <b id="ro-hr">—</b></span>
+        <span>HRV <b id="ro-hrv">—</b></span>
+      </div>
+    </div>
+
+    <div class="stagefoot" id="stagefoot">
+      HAILO ATLAS — LIVING SYSTEM<br>
+      <span id="stats">—</span><br>
+      <span id="footdate">—</span>
+    </div>
+
+    <div class="hint" id="hint"><span class="pulse"></span> Drag across the night to explore</div>
+  </div>
+
+  <div class="faq" id="faq">
+    <div class="faqcard">
+      <div class="faqclose" id="faqclose">×</div>
+      <div class="faqhead">How to read your Night</div>
+      <div class="faqsub">Last night's sleep, drawn as a landscape — from lights-out on the left to waking on the right.</div>
+
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 14"><path d="M2 12 Q 8 12 11 6 Q 14 1 20 1 Q 26 1 29 7 Q 32 12 38 12" fill="none" stroke="var(--rem)" stroke-width="2"/></svg></div>
+        <div class="faqtext"><b>The terrain is your sleep architecture.</b> <b style="color:var(--rem)">Bright cyan ridges</b> are REM — the mind dreaming and filing memory. <b style="color:var(--deep)">Purple valleys</b> are deep sleep — the body's repair. <b style="color:var(--light)">Blue hills</b> are light sleep between them.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><span class="disc" style="background:var(--wake);box-shadow:0 0 8px var(--wake)"></span></div>
+        <div class="faqtext"><b>Amber spikes</b> are brief awakenings. Everyone has them — most you'll never remember.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><span class="disc" style="background:#fff;box-shadow:0 0 10px #fff"></span></div>
+        <div class="faqtext"><b>The traveler</b> is you, crossing the night. It replays once like a film with the story below — then the night is yours to <b>drag and explore</b>.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 14"><path d="M2 3 Q 12 10 20 11 Q 30 12 38 8" fill="none" stroke="var(--hr)" stroke-width="1.8" opacity=".8"/></svg></div>
+        <div class="faqtext"><b>The ember line</b> is your heart rate sinking through the night — lowest in the deepest hours.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 14"><path d="M2 11 Q 12 4 20 3 Q 30 2 38 5" fill="none" stroke="var(--hrv)" stroke-width="1.8" opacity=".8"/></svg></div>
+        <div class="faqtext"><b>The green line</b> is HRV climbing as you recover — it peaks in the deepest valley.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 14"><path d="M22 2 a 5.5 5.5 0 1 0 5 8 a 4.5 4.5 0 1 1 -5 -8" fill="#fff" opacity=".8"/></svg></div>
+        <div class="faqtext"><b>The moon</b> hangs over the deepest hour of your night.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><b style="font-size:9.5px;font-weight:800;color:#000;background:#FFF;padding:3px 8px;border-radius:999px;white-space:nowrap">Ring →</b></div>
+        <div class="faqtext"><b>Atlas</b> and <b>Ring</b> in the top bar jump to the other views — systems right now, and the whole day as a clock.</div>
+      </div>
+
+      <div class="faqfoot">Prototype on simulated data · Tap anywhere to close</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ───────────────────── HAILO — THE NIGHT ─────────────────────
+   Last night's sleep as a living landscape. Deep sleep sinks into
+   valleys, REM rises into bright ridges. A traveler replays the
+   night once with story captions, then it becomes an instrument. */
+
+const COL = {
+  deep:'#6B3BF0', rem:'#12B5C9', light:'#2E5BE8', wake:'#F5B90A',
+  hr:'#E11D3C', hrv:'#14A15A'
+};
+
+/* ── the night (simulated; same night the Ring shows) ──
+   t is hours since lights-out at 23:20. Duration 7.75h → wake 07:05. */
+const ONSET = 23 + 20/60;
+const DUR   = 7.75;
+
+const STAGES = [                     // [start, end, stage] in t-hours
+  [0.00, 0.42, 'light'],
+  [0.42, 1.52, 'deep' ],
+  [1.52, 2.12, 'rem'  ],
+  [2.12, 3.27, 'deep' ],
+  [3.27, 3.97, 'rem'  ],
+  [3.97, 4.22, 'light'],
+  [4.22, 4.29, 'wake' ],
+  [4.29, 5.07, 'light'],
+  [5.07, 5.87, 'rem'  ],
+  [5.87, 6.77, 'light'],
+  [6.77, 7.42, 'rem'  ],
+  [7.42, 7.75, 'light'],
+];
+const ELEV = { wake: 1.0, rem: 0.82, light: 0.48, deep: 0.16 };
+
+function stageAt(t){
+  for (const [s,e,st] of STAGES) if (t >= s && t < e) return st;
+  return 'light';
+}
+/* smooth elevation: blend stage elevations near boundaries (~7 min) */
+function elevAt(t){
+  const BL = 0.12;
+  let v = ELEV[stageAt(t)];
+  for (const [s,e,st] of STAGES){
+    if (Math.abs(t - s) < BL && s > 0){
+      const prev = ELEV[stageAt(s - 0.001)];
+      const k = (t - (s - BL)) / (2*BL);
+      const m = k*k*(3-2*k);
+      if (t >= s - BL && t <= s + BL) v = prev + (ELEV[st] - prev) * m;
+    }
+  }
+  /* organic ridge texture */
+  v += 0.020*Math.sin(t*9.1) + 0.012*Math.sin(t*23.7 + 1.4) + 0.008*Math.sin(t*47.3);
+  return Math.max(0.05, Math.min(1.05, v));
+}
+const gauss = (t,m,w) => Math.exp(-((t-m)*(t-m))/(2*w*w));
+
+/* overnight physiology */
+function hrAt(t){
+  let hr = 58 - 8*gauss(t, 3.4, 2.2);            // sink to the trough
+  hr += 2.5*(stageAt(t)==='rem' ? 1 : 0);        // REM lifts HR
+  hr += 9*gauss(t, 4.25, 0.06);                  // the wake blip
+  hr += (t > 6.6) ? (t-6.6)*3.4 : 0;             // morning rise
+  hr += 0.7*Math.sin(t*5.2);
+  return hr;
+}
+function hrvAt(t){
+  let v = 55 + 22*gauss(t, 2.7, 1.9);            // climbs with deep sleep
+  v -= 5*(stageAt(t)==='rem' ? 1 : 0);
+  v -= 8*gauss(t, 4.25, 0.09);
+  v += 0.9*Math.sin(t*3.4);
+  return v;
+}
+
+/* clock formatting */
+function clockAt(t){
+  let mins = Math.round((ONSET + t) * 60) % (24*60);
+  const hh = Math.floor(mins/60), mm = mins % 60;
+  return String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
+}
+
+/* ── the story ── */
+const STORY = [
+  { t: 0.00, title: 'Lights out',          text: 'The night begins.' },
+  { t: 0.42, title: 'First descent',       text: 'You sink into deep sleep — the body’s repair window opens.' },
+  { t: 1.52, title: 'The first ridge',     text: 'REM rises — the mind begins to dream.' },
+  { t: 2.55, title: 'The deepest valley',  text: 'Your deepest sleep of the night. HRV climbs toward its peak.' },
+  { t: 4.22, title: 'A brief surfacing',   text: 'Four minutes awake. Perfectly normal — you won’t remember it.' },
+  { t: 5.07, title: 'The ridges widen',    text: 'Longer REM now — the night shifts from repairing the body to filing the mind.' },
+  { t: 7.42, title: 'Coming up',           text: 'Sleep lightens as morning approaches.' },
+  { t: 7.70, title: 'You surface',         text: '7h 45m banked. Recovery: strong.' },
+];
+
+/* stage totals for the stats line */
+function fmtDur(h){
+  const m = Math.round(h*60);
+  return m >= 60 ? `${Math.floor(m/60)}h ${String(m%60).padStart(2,'0')}m` : `${m}m`;
+}
+const totals = {};
+STAGES.forEach(([s,e,st]) => totals[st] = (totals[st]||0) + (e-s));
+
+/* ── canvas setup ── */
+const stage = document.querySelector('.stage');
+const cv = document.getElementById('night');
+const cx = cv.getContext('2d');
+let W=0, H=0, DPR = Math.min(window.devicePixelRatio||1, 2);
+function resize(){
+  const r = stage.getBoundingClientRect();
+  W = r.width; H = r.height;
+  cv.width = Math.max(1, W*DPR); cv.height = Math.max(1, H*DPR);
+  cx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize);
+window.addEventListener('load', resize);
+resize();
+
+/* layout: time → x, elevation → y */
+const PADL = 80, PADR = 80;
+const t2x = t => PADL + (t/DUR) * (W - PADL - PADR);
+const x2t = x => Math.max(0, Math.min(DUR, ((x - PADL) / (W - PADL - PADR)) * DUR));
+function terrainY(t){
+  const base = H * 0.82, band = H * 0.44;
+  return base - elevAt(t) * band;
+}
+function skyY(v, lo, hi){          // physiology ribbons live in the sky band
+  const top = H * 0.16, bh = H * 0.16;
+  return top + (1 - (v - lo) / (hi - lo)) * bh;
+}
+
+/* stars (precomputed) */
+const STARS = Array.from({length: 70}, (_,i) => ({
+  x: Math.random(), y: Math.random()*0.55,
+  r: 0.6 + Math.random()*1.1, p: Math.random()*Math.PI*2,
+  s: 0.4 + Math.random()*0.8
+}));
+
+/* deepest point of the night (for the moon) */
+let deepestT = 2.55;
+(() => {
+  let best = 2; for (let t=0.3; t<DUR; t+=0.02){ const e = elevAt(t); if (e < best){ best = e; deepestT = t; } }
+})();
+
+/* ── state ── */
+let mode = 'replay';            // 'replay' | 'explore'
+let curT = 0;                   // traveler position (t-hours)
+const REPLAY_SECS = 52;
+let dragging = false;
+let storyIdx = -1;
+let trail = [];
+
+const storybox  = document.getElementById('storybox');
+const stTime    = document.getElementById('storytime');
+const stTitle   = document.getElementById('storytitle');
+const stText    = document.getElementById('storytext');
+const readout   = document.getElementById('readout');
+const hint      = document.getElementById('hint');
+const replaybtn = document.getElementById('replaybtn');
+
+function setStory(i){
+  if (i === storyIdx) return;
+  storyIdx = i;
+  const s = STORY[i];
+  storybox.classList.add('fading');
+  setTimeout(() => {
+    stTime.textContent  = clockAt(s.t);
+    stTitle.innerHTML   = s.title + '<span class="dot">.</span>';
+    stText.textContent  = s.text;
+    storybox.classList.remove('fading');
+  }, 300);
+}
+
+function stageName(st){
+  return { deep:'Deep sleep', rem:'REM', light:'Light sleep', wake:'Awake' }[st];
+}
+
+function enterExplore(){
+  mode = 'explore';
+  readout.style.display = 'flex';
+  stText.style.display = 'none';
+  replaybtn.classList.add('show');
+  hint.classList.add('show');
+  setTimeout(() => hint.classList.remove('show'), 5000);
+}
+
+function startReplay(){
+  mode = 'replay';
+  curT = 0; storyIdx = -1; trail = [];
+  readout.style.display = 'none';
+  stText.style.display = '';
+  replaybtn.classList.remove('show');
+  hint.classList.remove('show');
+  setStory(0);
+}
+
+replaybtn.addEventListener('click', startReplay);
+
+/* explore-mode readout refresh */
+function updateReadout(){
+  const st = stageAt(curT);
+  stTime.textContent = clockAt(curT);
+  stTitle.innerHTML  = stageName(st) + '<span class="dot" style="color:' + COL[st] + '">.</span>';
+  document.getElementById('ro-stage').textContent = stageName(st).toUpperCase();
+  document.getElementById('ro-stage').style.color = COL[st];
+  document.getElementById('ro-hr').textContent  = Math.round(hrAt(curT));
+  document.getElementById('ro-hrv').textContent = Math.round(hrvAt(curT));
+}
+
+/* ── drawing ── */
+function draw(now, dt){
+  cx.clearRect(0,0,W,H);
+
+  /* advance the traveler */
+  if (mode === 'replay' && !dragging){
+    curT += dt * (DUR / REPLAY_SECS);
+    if (curT >= DUR){ curT = DUR; enterExplore(); updateReadout(); }
+    /* fire story captions */
+    for (let i = STORY.length-1; i >= 0; i--){
+      if (curT >= STORY[i].t){ setStory(i); break; }
+    }
+  }
+
+  /* stars */
+  STARS.forEach(s => {
+    const tw = 0.35 + 0.35*Math.sin(now*0.0011*s.s + s.p);
+    cx.beginPath();
+    cx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+    cx.fillStyle = `rgba(255,255,255,${tw})`;
+    cx.fill();
+  });
+
+  /* moon — a thin crescent over the deepest hour */
+  const mx = t2x(deepestT), my = H*0.13;
+  cx.save();
+  cx.globalAlpha = 0.75;
+  cx.beginPath(); cx.arc(mx, my, 15, 0, Math.PI*2);
+  cx.fillStyle = '#E8ECF4';
+  cx.shadowColor = '#E8ECF4'; cx.shadowBlur = 22;
+  cx.fill();
+  cx.shadowBlur = 0;
+  cx.globalCompositeOperation = 'destination-out';
+  cx.beginPath(); cx.arc(mx + 7, my - 4, 13.5, 0, Math.PI*2); cx.fill();
+  cx.restore();
+
+  /* physiology ribbons in the sky */
+  const N = 300;
+  function ribbon(fn, lo, hi, color, alpha){
+    cx.save();
+    cx.beginPath();
+    for (let i=0;i<=N;i++){
+      const t = (i/N)*DUR;
+      const x = t2x(t), y = skyY(fn(t), lo, hi);
+      i ? cx.lineTo(x,y) : cx.moveTo(x,y);
+    }
+    cx.strokeStyle = color; cx.globalAlpha = alpha; cx.lineWidth = 1.6;
+    cx.shadowColor = color; cx.shadowBlur = 8;
+    cx.stroke();
+    cx.restore();
+  }
+  /* smooth the stage-driven steps so the ribbons flow instead of stair-stepping */
+  const hrS  = t => (hrAt(Math.max(0,t-0.09)) + hrAt(t) + hrAt(Math.min(DUR,t+0.09))) / 3;
+  const hrvS = t => (hrvAt(Math.max(0,t-0.09)) + hrvAt(t) + hrvAt(Math.min(DUR,t+0.09))) / 3;
+  ribbon(hrS,  46, 70, COL.hr,  0.4);
+  ribbon(hrvS, 48, 82, COL.hrv, 0.4);
+
+  /* ── the terrain ── */
+  /* fill: sampled silhouette down to the floor */
+  cx.save();
+  cx.beginPath();
+  cx.moveTo(t2x(0), H);
+  for (let i=0;i<=N;i++){
+    const t = (i/N)*DUR;
+    cx.lineTo(t2x(t), terrainY(t));
+  }
+  cx.lineTo(t2x(DUR), H);
+  cx.closePath();
+  const fillGrad = cx.createLinearGradient(0, H*0.35, 0, H);
+  fillGrad.addColorStop(0, 'rgba(46,91,232,0.20)');
+  fillGrad.addColorStop(0.5, 'rgba(30,40,90,0.14)');
+  fillGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  cx.fillStyle = fillGrad;
+  cx.fill();
+  cx.restore();
+
+  /* ridge line, colored by stage with soft blends */
+  for (let i=0;i<N;i++){
+    const t1 = (i/N)*DUR, t2 = ((i+1)/N)*DUR;
+    const st = stageAt((t1+t2)/2);
+    cx.save();
+    cx.strokeStyle = COL[st];
+    cx.lineWidth = st === 'wake' ? 2.6 : 2.2;
+    cx.shadowColor = COL[st];
+    cx.shadowBlur = st === 'deep' ? 18 : st === 'rem' ? 22 : 12;
+    cx.globalAlpha = 0.95;
+    cx.beginPath();
+    cx.moveTo(t2x(t1), terrainY(t1));
+    cx.lineTo(t2x(t2), terrainY(t2));
+    cx.stroke();
+    cx.restore();
+  }
+
+  /* under-glow: a soft aura hugging the ridge, stage-colored */
+  for (let i=0;i<N;i+=4){
+    const t = (i/N)*DUR;
+    const st = stageAt(t);
+    cx.save();
+    cx.globalAlpha = 0.05;
+    cx.fillStyle = COL[st];
+    cx.beginPath();
+    cx.arc(t2x(t), terrainY(t)+10, 22, 0, Math.PI*2);
+    cx.fill();
+    cx.restore();
+  }
+
+  /* hour ticks along the floor */
+  for (let h = Math.ceil(ONSET); h < ONSET + DUR; h++){
+    const t = h - ONSET;
+    if (t < 0.15 || t > DUR - 0.15) continue;
+    const x = t2x(t);
+    cx.strokeStyle = 'rgba(255,255,255,0.15)';
+    cx.lineWidth = 1;
+    cx.beginPath(); cx.moveTo(x, H-34); cx.lineTo(x, H-26); cx.stroke();
+    cx.fillStyle = 'rgba(255,255,255,0.5)';
+    cx.font = '800 10px Inter';
+    cx.textAlign = 'center';
+    cx.fillText(String(h % 24).padStart(2,'0'), x, H-14);
+  }
+
+  /* traveler trail */
+  trail.push({ t: curT, a: 1 });
+  if (trail.length > 34) trail.shift();
+  trail.forEach((p, i) => {
+    p.a *= 0.94;
+    const x = t2x(p.t), y = terrainY(p.t);
+    cx.beginPath();
+    cx.arc(x, y, 2.4 * (i/trail.length), 0, Math.PI*2);
+    cx.fillStyle = `rgba(255,255,255,${0.4 * p.a * (i/trail.length)})`;
+    cx.fill();
+  });
+
+  /* traveler */
+  const tx = t2x(curT), ty = terrainY(curT);
+  const stNow = stageAt(curT);
+  const breathe = 1 + 0.12*Math.sin(now*0.004);
+  cx.save();
+  cx.beginPath(); cx.arc(tx, ty, 7*breathe, 0, Math.PI*2);
+  cx.fillStyle = '#FFF';
+  cx.shadowColor = COL[stNow]; cx.shadowBlur = 30;
+  cx.fill();
+  cx.beginPath(); cx.arc(tx, ty, 13*breathe, 0, Math.PI*2);
+  cx.strokeStyle = COL[stNow]; cx.globalAlpha = 0.7; cx.lineWidth = 1.8;
+  cx.stroke();
+  cx.restore();
+
+  /* time flag above the traveler */
+  cx.save();
+  cx.textAlign = 'center';
+  cx.font = '900 15px Inter';
+  cx.fillStyle = '#FFF';
+  cx.fillText(clockAt(curT), tx, ty - 30);
+  cx.restore();
+
+  if (mode === 'explore') updateReadout();
+}
+
+/* ── scrubbing ── */
+function pointerT(e){
+  const rect = cv.getBoundingClientRect();
+  return x2t(e.clientX - rect.left);
+}
+cv.addEventListener('pointerdown', e => {
+  dragging = true;
+  cv.classList.add('grabbing');
+  cv.setPointerCapture(e.pointerId);
+  if (mode === 'replay'){ enterExplore(); }   // grabbing interrupts the film
+  curT = pointerT(e);
+  updateReadout();
+});
+cv.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  curT = pointerT(e);
+  updateReadout();
+});
+const endDrag = () => { dragging = false; cv.classList.remove('grabbing'); };
+cv.addEventListener('pointerup', endDrag);
+cv.addEventListener('pointercancel', endDrag);
+
+/* ── FAQ ── */
+const faq = document.getElementById('faq');
+document.getElementById('helpbtn').addEventListener('click', () => faq.classList.add('show'));
+document.getElementById('faqclose').addEventListener('click', () => faq.classList.remove('show'));
+faq.addEventListener('click', e => { if (e.target === faq) faq.classList.remove('show'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') faq.classList.remove('show'); });
+
+/* ── boot ── */
+const dstr = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+document.getElementById('topdate').textContent = dstr;
+document.getElementById('footdate').textContent = dstr;
+document.getElementById('stats').innerHTML =
+  `<b>${fmtDur(DUR - (totals.wake||0))}</b> asleep · <b>${fmtDur(totals.deep||0)}</b> deep · <b>${fmtDur(totals.rem||0)}</b> REM · <b>${fmtDur(totals.wake||0)}</b> awake`;
+if (!location.hostname.includes('vercel') && location.protocol !== 'file:'){
+  document.getElementById('atlaslink').href = '/hailo';
+}
+setStory(0);
+
+/* ── battery-safe loop: 30fps cap, fully paused when hidden ── */
+let last = performance.now();
+let rafId = null;
+function loop(now){
+  rafId = requestAnimationFrame(loop);
+  if (now - last < 31) return;
+  const r = stage.getBoundingClientRect();
+  if (Math.abs(r.width - W) > 1 || Math.abs(r.height - H) > 1) resize();
+  const dt = Math.min(0.05, (now-last)/1000); last = now;
+  draw(now, dt);
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden){ cancelAnimationFrame(rafId); rafId = null; }
+  else if (rafId === null){ last = performance.now(); rafId = requestAnimationFrame(loop); }
+});
+rafId = requestAnimationFrame(loop);
+</script>
+</body>
+</html>

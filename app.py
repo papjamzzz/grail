@@ -114,6 +114,14 @@ def circadian_ring():
     resp.headers['Expires'] = '0'
     return resp
 
+@app.route('/night')
+def the_night():
+    resp = send_from_directory(BASE, 'night.html')
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
+
 @app.route('/ailiv-bloodlife')
 def ailiv_bloodlife():
     return send_from_directory(BASE, 'ailiv-bloodlife.html')
