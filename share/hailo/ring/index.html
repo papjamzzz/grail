@@ -353,6 +353,11 @@ const COL = {
   sleep:'#2E5BE8', recovery:'#14A15A', stress:'#E11D3C',
   inflam:'#F43F7F', energy:'#F5B90A', hrv:'#12B5C9', blood:'#6B3BF0'
 };
+/* '#RRGGBB' + alpha -> 'rgba(...)' */
+function hexA(hex, a){
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
 
 /* ── the day (simulated; same shape WHOOP provides) ──
    times in decimal hours, 0–24, sleep wraps midnight */
@@ -500,7 +505,10 @@ function fmtTime(t){
   return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
 }
 
-/* low-level arc stroke */
+/* subtle perspective tilt — the ring reads as a disc viewed at a slight angle */
+const TILT = 0.90;
+
+/* low-level arc stroke (drawn as a tilted ellipse for depth) */
 function strokeArc(s, e, r, w, color, alpha, glow){
   if (e - s < 0.001) return;
   cx.save();
@@ -509,7 +517,7 @@ function strokeArc(s, e, r, w, color, alpha, glow){
   cx.lineWidth = w;
   cx.lineCap = 'round';
   if (glow){ cx.shadowColor = color; cx.shadowBlur = glow; }
-  cx.beginPath(); cx.arc(OX, OY, r, t2a(s), t2a(e)); cx.stroke();
+  cx.beginPath(); cx.ellipse(OX, OY, r, r*TILT, 0, t2a(s), t2a(e)); cx.stroke();
   cx.restore();
 }
 
@@ -538,8 +546,10 @@ function draw(now, dt){
   cx.clearRect(0,0,W,H);
   OX = W*0.5; OY = H*0.485;
   R = Math.min(W,H) * 0.315;
-  const breathe = 1 + 0.008*Math.sin(now*0.0012);
+  const breathPhase = Math.sin(now*0.00105);
+  const breathe = 1 + 0.016*breathPhase;
   const Rb = R * breathe;
+  const breathGlow = 0.5 + 0.5*breathPhase;         // 0..1, in sync with the ring's own breathing
 
   /* cursor lives at the real clock; glide back after a scrub; hold when pinned */
   const tNow = nowT();
@@ -554,14 +564,26 @@ function draw(now, dt){
     if (!playing && !dragging && now > resumeAt) playing = true;
   }
 
-  /* hour ticks */
+  /* current state, hoisted up front — drives the ambient glow and the cursor beat */
+  const st = stateAt(cursorT);
+
+  /* ambient depth glow — soft halo behind the whole disc, breathing with it */
+  const amb = cx.createRadialGradient(OX, OY, Rb*0.15, OX, OY, Rb*1.55);
+  amb.addColorStop(0, hexA(st.color, 0.10 + 0.05*breathGlow));
+  amb.addColorStop(1, hexA(st.color, 0));
+  cx.save();
+  cx.fillStyle = amb;
+  cx.fillRect(0, 0, W, H);
+  cx.restore();
+
+  /* hour ticks (tilted with the disc; numbers stay upright and legible) */
   for (let h=0; h<24; h++){
     const a = t2a(h);
     const major = h % 6 === 0;
     const r1 = Rb + 26, r2 = Rb + (major ? 40 : 33);
     cx.beginPath();
-    cx.moveTo(OX + Math.cos(a)*r1, OY + Math.sin(a)*r1);
-    cx.lineTo(OX + Math.cos(a)*r2, OY + Math.sin(a)*r2);
+    cx.moveTo(OX + Math.cos(a)*r1, OY + Math.sin(a)*r1*TILT);
+    cx.lineTo(OX + Math.cos(a)*r2, OY + Math.sin(a)*r2*TILT);
     cx.strokeStyle = major ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.18)';
     cx.lineWidth = major ? 1.6 : 1;
     cx.stroke();
@@ -570,7 +592,7 @@ function draw(now, dt){
       cx.textAlign = 'center'; cx.textBaseline = 'middle';
       cx.fillStyle = 'rgba(255,255,255,0.85)';
       cx.fillText(String(h).padStart(2,'0'),
-        OX + Math.cos(a)*(Rb+56), OY + Math.sin(a)*(Rb+56));
+        OX + Math.cos(a)*(Rb+56), OY + Math.sin(a)*(Rb+56)*TILT);
     }
   }
 
@@ -579,7 +601,7 @@ function draw(now, dt){
   cx.strokeStyle = 'rgba(255,255,255,0.14)';
   cx.lineWidth = 1;
   cx.setLineDash([1.5,5]);
-  cx.beginPath(); cx.arc(OX, OY, Rb, 0, Math.PI*2); cx.stroke();
+  cx.beginPath(); cx.ellipse(OX, OY, Rb, Rb*TILT, 0, 0, Math.PI*2); cx.stroke();
   cx.restore();
 
   /* stress band — waking hours of the main ring, colored by load */
@@ -596,7 +618,7 @@ function draw(now, dt){
       cx.strokeStyle = stressColor(s);
       cx.globalAlpha = (0.30 + (s/3)*0.6) * dim;
       cx.beginPath();
-      cx.arc(OX, OY, Rb, t2a(t), t2a(t + 24/SEG) + 0.004);
+      cx.ellipse(OX, OY, Rb, Rb*TILT, 0, t2a(t), t2a(t + 24/SEG) + 0.004);
       cx.stroke();
     }
     cx.restore();
@@ -626,13 +648,13 @@ function draw(now, dt){
         cx.globalAlpha = 0.75 * decay * dim;
         cx.lineWidth = 1.5 + 3.5 * decay;
         cx.beginPath();
-        cx.arc(OX, OY, Rb + 17, t2a(t1), t2a(t2) + 0.003);
+        cx.ellipse(OX, OY, Rb + 17, (Rb+17)*TILT, 0, t2a(t1), t2a(t2) + 0.003);
         cx.stroke();
       }
       /* the shot itself */
       if (mode === 'today' && c.t > tNow){ cx.restore(); return; }
       const a = t2a(c.t);
-      const px = OX + Math.cos(a)*(Rb+17), py = OY + Math.sin(a)*(Rb+17);
+      const px = OX + Math.cos(a)*(Rb+17), py = OY + Math.sin(a)*(Rb+17)*TILT;
       const p = 0.5 + 0.5*Math.sin(now*0.0032 + ci*2.4);
       cx.globalAlpha = (mode === 'rolling' && c.t > tNow) ? YDIM : 1;
       cx.beginPath(); cx.arc(px, py, 4.5 + p*2, 0, Math.PI*2);
@@ -659,7 +681,7 @@ function draw(now, dt){
     for (let i=i0;i<=i1;i++){
       const t = (i/N)*24, a = t2a(t);
       const rr = radiusFn(t);
-      const x = OX + Math.cos(a)*rr, y = OY + Math.sin(a)*rr;
+      const x = OX + Math.cos(a)*rr, y = OY + Math.sin(a)*rr*TILT;
       i===i0 ? cx.moveTo(x,y) : cx.lineTo(x,y);
     }
     cx.strokeStyle = color; cx.globalAlpha = alpha; cx.lineWidth = 1.6;
@@ -682,22 +704,31 @@ function draw(now, dt){
     }
   }
 
-  /* cursor */
+  /* cursor — the bead sits on the tilted disc, but reads as a round, floating marker */
   const ca = t2a(cursorT);
-  const cxp = OX + Math.cos(ca)*Rb, cyp = OY + Math.sin(ca)*Rb;
+  const cxp = OX + Math.cos(ca)*Rb, cyp = OY + Math.sin(ca)*Rb*TILT;
   cx.save();
   cx.strokeStyle = 'rgba(255,255,255,0.22)';
   cx.lineWidth = 1;
   cx.beginPath(); cx.moveTo(OX, OY); cx.lineTo(cxp, cyp); cx.stroke();
   cx.restore();
 
-  const st = stateAt(cursorT);
+  /* heartbeat pulse — the bead actually beats at the person's current HR */
+  const beatHz = Math.max(30, hrAt(cursorT)) / 60;
+  const beatPulse = Math.pow(Math.max(0, Math.sin(now*0.001 * beatHz * Math.PI*2)), 3); // sharp thump, 0..1
+  const dotR = 8 + beatPulse*3.5;
+
   cx.save();
-  cx.beginPath(); cx.arc(cxp, cyp, 8, 0, Math.PI*2);
-  cx.fillStyle = '#FFF';
-  cx.shadowColor = st.color; cx.shadowBlur = 26;
+  /* soft shadow beneath the bead — lifts it off the ring plane */
+  cx.beginPath(); cx.ellipse(cxp, cyp + 3, dotR*1.3, dotR*0.55, 0, 0, Math.PI*2);
+  cx.fillStyle = 'rgba(0,0,0,0.35)';
   cx.fill();
-  cx.beginPath(); cx.arc(cxp, cyp, 13, 0, Math.PI*2);
+
+  cx.beginPath(); cx.arc(cxp, cyp, dotR, 0, Math.PI*2);
+  cx.fillStyle = '#FFF';
+  cx.shadowColor = st.color; cx.shadowBlur = 22 + beatPulse*20;
+  cx.fill();
+  cx.beginPath(); cx.arc(cxp, cyp, 13 + beatPulse*2, 0, Math.PI*2);
   cx.strokeStyle = st.color; cx.globalAlpha = 0.8; cx.lineWidth = 2;
   cx.stroke();
   if (pinned){                                   // held-moment: static outer ring
@@ -851,7 +882,7 @@ function setMode(m){
 }
 modebtn.addEventListener('click', () => setMode(mode === 'today' ? 'rolling' : 'today'));
 setInterval(updateWritten, 30000);
-setMode('today');
+setMode('rolling');
 
 /* ── layer chips ── */
 document.querySelectorAll('.chip').forEach(ch => {
