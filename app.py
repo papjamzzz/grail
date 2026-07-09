@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify, send_from_directory, redirect, make_response
-import json, os, time, requests as req, base64, re, urllib.parse, secrets
+from flask import Flask, request, jsonify, send_from_directory, redirect, make_response, Response
+import json, os, time, requests as req, base64, re, urllib.parse, secrets, io
+import qrcode
 # routes: / /cells /bodyfigure /console /whoop/* /lumi /sloany
 DEPLOY_VERSION = "2026-05-02-v4"
 
@@ -14,6 +15,11 @@ if os.path.exists(_env_path):
                 os.environ[_k.strip()] = _v.strip()
 
 app = Flask(__name__)
+
+# In-memory live feed from the Pulse watchOS app (separate from the /ingest
+# biomarker snapshot model — this is a fast-polling raw BPM stream, not
+# persisted, resets on restart)
+WATCH_LIVE = {"heart_rate": None, "ts": 0}
 
 BASE = os.path.dirname(__file__)
 HEALTH_FILE  = os.path.join(BASE, 'health_data.json')
@@ -269,6 +275,71 @@ def ingest():
 @app.route('/api/data')
 def api_data():
     return jsonify(rjson(HEALTH_FILE, DEFAULT_HEALTH.copy()))
+
+# --- Pulse: live Apple Watch BPM stream (iPhone companion -> here) ---
+@app.route('/watch/live', methods=['POST'])
+def watch_live_ingest():
+    body = request.get_json(force=True, silent=True) or {}
+    try:
+        hr = float(body.get('heart_rate'))
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "error": "heart_rate required"}), 400
+    WATCH_LIVE['heart_rate'] = hr
+    WATCH_LIVE['ts'] = time.time()
+    return jsonify({"ok": True})
+
+@app.route('/watch/live')
+def watch_live_poll():
+    age = time.time() - WATCH_LIVE['ts'] if WATCH_LIVE['ts'] else None
+    return jsonify({
+        "heart_rate": WATCH_LIVE['heart_rate'],
+        "age_seconds": round(age, 1) if age is not None else None,
+        "live": age is not None and age < 10
+    })
+
+@app.route('/live')
+def live_view():
+    return """
+<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grail — Live</title>
+<style>
+  body{background:#04040A;color:#f0f2ff;font-family:'Cormorant Garamond',Georgia,serif;
+       display:flex;flex-direction:column;align-items:center;justify-content:center;
+       height:100vh;margin:0;gap:24px}
+  #bpm{font-size:18vw;font-weight:600;color:rgba(201,169,110,1);line-height:1;
+       text-shadow:0 0 40px rgba(201,169,110,.5)}
+  #status{font-size:20px;letter-spacing:2px;text-transform:uppercase;color:#5a6080}
+  #status.live{color:#7be08a}
+  img{border-radius:12px;opacity:.9}
+</style></head>
+<body>
+  <div id="bpm">--</div>
+  <div id="status">connecting…</div>
+  <img src="/live/qr.png" width="160" height="160">
+  <script>
+    async function poll(){
+      try{
+        const r = await fetch('/watch/live'); const d = await r.json();
+        document.getElementById('bpm').textContent = d.heart_rate ? Math.round(d.heart_rate) : '--';
+        const s = document.getElementById('status');
+        s.textContent = d.live ? 'live' : (d.heart_rate ? 'stale' : 'waiting for watch');
+        s.className = d.live ? 'live' : '';
+      }catch(e){}
+    }
+    poll(); setInterval(poll, 1000);
+  </script>
+</body></html>
+"""
+
+@app.route('/live/qr.png')
+def live_qr():
+    url = request.url_root.rstrip('/') + '/live'
+    img = qrcode.make(url)
+    buf = io.BytesIO()
+    img.save(buf, format='PNG')
+    buf.seek(0)
+    return Response(buf.read(), mimetype='image/png')
 
 # Symptom log
 @app.route('/log/symptom', methods=['POST'])
