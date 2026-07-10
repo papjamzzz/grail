@@ -162,8 +162,8 @@ Shows: status dot (green/orange/red) + label → system name → value → unit 
 - [x] Apple Health export parsing (endpoint ready, parser not built yet)
 
 ## What's Next (ideas queue)
-- [ ] Apple Health XML parser — drop export file, nodes go live
-- [ ] Apple Shortcuts shortcut for live /ingest push from Watch
+- ~~Apple Health XML parser — drop export file, nodes go live~~ — OUT OF SCOPE (2026-07-10): a separate company is building all device/biomarker backend syncing. Don't build this here.
+- ~~Apple Shortcuts shortcut for live /ingest push from Watch~~ — OUT OF SCOPE (2026-07-10): same as above, not ours to build.
 - [ ] Third click on node = full 5i synthesis just for that biomarker
 - [ ] Timeline view — score over days
 - [ ] Connecting nodes with visible tendrils (when two markers correlate)
