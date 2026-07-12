@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HAILO+ — Health Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* same palette as /hailo — this is the same product, a different layout idea */
+  --bg:        #000000;
+  --panel:     #0A0A0C;
+  --line:      rgba(255,255,255,0.10);
+  --text:      #FFFFFF;
+  --text2:     #C9D0DC;
+  --text3:     #9AA4B2;
+
+  --sleep:     #2E5BE8;
+  --recovery:  #14A15A;
+  --stress:    #E11D3C;
+  --energy:    #F5B90A;
+  --heart:     #12B5C9;
+  --blood:     #6B3BF0;
+}
+
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  padding-bottom: 88px;
+}
+
+.wrap { max-width: 520px; margin: 0 auto; padding: 0 20px; }
+
+/* ── Top bar ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 0 6px;
+}
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; letter-spacing: 0.5px; }
+.brand svg { flex-shrink: 0; }
+.points {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 999px; padding: 7px 14px; font-weight: 700; font-size: 14px;
+}
+.points .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--energy); }
+
+/* ── Welcome ── */
+.welcome { padding: 14px 0 6px; }
+.welcome h1 { font-size: 30px; font-weight: 800; line-height: 1.15; }
+.welcome h1 b { font-weight: 900; }
+.welcome .dot-accent { color: var(--blood); }
+.welcome p { color: var(--text3); font-size: 15px; margin-top: 4px; }
+
+/* ── Timeline (decorative — see NOTE) ── */
+.timeline {
+  margin-top: 18px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 18px; padding: 16px 18px 12px; position: relative; overflow: hidden;
+}
+.timeline .here { color: var(--blood); font-size: 11px; font-weight: 800; letter-spacing: 1.2px; }
+.timeline .date { font-size: 15px; font-weight: 700; margin-top: 2px; }
+.mtn { height: 70px; margin-top: 12px; }
+.tl-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3);
+  letter-spacing: 0.5px; margin-top: 4px; }
+.tl-note {
+  font-size: 10px; color: var(--text3); opacity: 0.7; margin-top: 8px;
+  border-top: 1px dashed var(--line); padding-top: 6px;
+}
+
+/* ── Hex flower ── */
+.hexwrap { position: relative; margin: 30px auto 0; width: 320px; height: 420px; }
+.hex {
+  position: absolute; width: 148px; height: 128px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; cursor: pointer; transition: transform .2s ease;
+  transform: scale(0.80);   /* inset so neighbor hexes don't collide — see findings #6 */
+}
+.hex:active { transform: scale(0.76); }
+.hex .icn { font-size: 22px; line-height: 1; margin-bottom: 2px; }
+.hex .lbl { font-size: 11px; font-weight: 700; letter-spacing: 1px; opacity: 0.85; }
+.hex .val { font-size: 30px; font-weight: 800; line-height: 1.05; }
+.hex .sub { font-size: 12px; font-weight: 600; opacity: 0.85; }
+
+.h-sleep    { top: 0;    left: 86px;  background: var(--sleep); }
+.h-heart    { top: 100px; left: 0;    background: var(--heart); }
+.h-recovery { top: 100px; left: 172px; background: var(--recovery); }
+.h-blood    { top: 200px; left: 0;    background: var(--blood); }
+.h-energy   { top: 200px; left: 86px;  background: var(--energy); color: #1a1400; }
+.h-stress   { top: 200px; left: 172px; background: var(--stress); }
+
+.h-center {
+  position: absolute; top: 100px; left: 86px; width: 148px; height: 128px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: #000; border: 1px solid var(--line);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 0 14px;
+  transform: scale(0.86);
+}
+.h-center .flame { font-size: 22px; }
+.h-center .streak-n { color: var(--energy); font-weight: 800; font-size: 13px; letter-spacing: 0.5px; margin-top: 2px; }
+.h-center .streak-sub { color: var(--text3); font-size: 10px; margin-top: 4px; line-height: 1.3; }
+
+/* ── Insight card ── */
+.insight {
+  margin-top: 28px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 18px; padding: 20px; position: relative; overflow: hidden;
+}
+.insight .tag { display: flex; align-items: center; gap: 6px; color: var(--blood);
+  font-size: 11px; font-weight: 800; letter-spacing: 1px; }
+.insight h3 { font-size: 19px; font-weight: 800; margin-top: 8px; line-height: 1.3; }
+.insight p { color: var(--text3); font-size: 13.5px; margin-top: 8px; line-height: 1.5; max-width: 78%; }
+
+/* ── Bottom nav ── */
+.nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(5,5,8,0.92); backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+}
+.nav a { display: flex; flex-direction: column; align-items: center; gap: 4px;
+  color: var(--text3); text-decoration: none; font-size: 10px; font-weight: 600; }
+.nav a.active { color: var(--blood); }
+.nav .plus {
+  width: 46px; height: 46px; border-radius: 50%; background: var(--blood);
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  font-size: 24px; font-weight: 400; margin-top: -18px; box-shadow: 0 6px 18px rgba(107,59,240,0.5);
+}
+
+/* ── Findings banner (dev-only, strip before showing Christian) ── */
+.findings {
+  margin-top: 30px; border: 1px dashed rgba(255,255,255,0.25); border-radius: 14px;
+  padding: 16px 18px; font-size: 12.5px; color: var(--text3); line-height: 1.6;
+}
+.findings b { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="#F5B90A"/></svg>
+      HAILO+
+    </div>
+    <div class="points"><span class="dot"></span><span id="pts">--</span></div>
+  </div>
+
+  <div class="welcome">
+    <h1>Welcome back,<br><b>Jeremiah</b><span class="dot-accent">.</span></h1>
+    <p>Here's your health atlas.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="here">YOU ARE HERE</div>
+    <div class="date" id="tl-date">—</div>
+    <svg class="mtn" viewBox="0 0 480 70" preserveAspectRatio="none">
+      <polyline points="0,60 40,20 80,45 120,10 160,35 200,25 240,5 280,30 320,15 360,40 400,20 440,32 480,12"
+        fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+    </svg>
+    <div class="tl-labels"><span>JAN</span><span>MAR</span><span>MAY</span><span>JUL</span><span>SEP</span><span>NOV</span><span>DEC</span></div>
+    <div class="tl-note">⚠ decorative — Grail has no daily historical score yet, so this can't encode anything real until that exists</div>
+  </div>
+
+  <div class="hexwrap">
+    <div class="hex h-sleep">
+      <div class="icn">🌙</div><div class="lbl">SLEEP</div>
+      <div class="val" id="v-sleep">--</div><div class="sub" id="s-sleep">--</div>
+    </div>
+    <div class="hex h-heart">
+      <div class="icn">♥</div><div class="lbl">HEART</div>
+      <div class="val" id="v-heart">--</div><div class="sub" id="s-heart">--</div>
+    </div>
+    <div class="hex h-recovery">
+      <div class="icn">🌿</div><div class="lbl">RECOVERY</div>
+      <div class="val" id="v-recovery">--</div><div class="sub" id="s-recovery">--</div>
+    </div>
+    <div class="h-center">
+      <div class="flame">🔥</div>
+      <div class="streak-n" id="streak-n">-- DAY STREAK</div>
+      <div class="streak-sub">⚠ not backed by real data yet — no session/visit tracking exists in Grail</div>
+    </div>
+    <div class="hex h-blood">
+      <div class="icn">💧</div><div class="lbl">BLOODWORK</div>
+      <div class="val" id="v-blood">--</div><div class="sub" id="s-blood">--</div>
+    </div>
+    <div class="hex h-energy">
+      <div class="icn">☀</div><div class="lbl">ENERGY</div>
+      <div class="val" id="v-energy">--</div><div class="sub" id="s-energy">--</div>
+    </div>
+    <div class="hex h-stress">
+      <div class="icn">⚡</div><div class="lbl">STRESS</div>
+      <div class="val" id="v-stress">--</div><div class="sub" id="s-stress">--</div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="tag">💡 TODAY'S INSIGHT</div>
+    <h3 id="ins-head">—</h3>
+    <p id="ins-body">—</p>
+  </div>
+
+  <div class="findings" id="findings"></div>
+
+</div>
+
+<div class="nav">
+  <a class="active" href="/hailo-plus"><span>⬡</span>ATLAS</a>
+  <a href="#"><span>📈</span>TIMELINE</a>
+  <div class="plus">+</div>
+  <a href="#"><span>💡</span>INSIGHTS</a>
+  <a href="/"><span>👤</span>PROFILE</a>
+</div>
+
+<script>
+/* Same 40-node model as the orbital view (index.html) — pct/min/max
+   pulled from the live NODES array so this isn't a parallel fake
+   dataset. Six categories are AVERAGES of member nodes — this is an
+   invented aggregation (Grail has no defined "Sleep score" vs
+   "Recovery score" hierarchy), which is finding #2 below. */
+const NODES = {
+  rhr:72, hrv:78, spo2:88, sleep:68, resp:74, vo2:80, temp:75, glucose:82,
+  cardio:70, testosterone:80, crp:85, recovery:81, cortisol:65, vitaminD:72,
+  deepSleep:70, rem:75, steps:68, bp:76, bodyFat:72, ferritin:68, magnesium:73,
+  omega3:65, insulin:77, uricAcid:72, b12:74, zinc:70, hydration:78, grip:72,
+  lactate:76, muscleMass:74, albumin:76, alt:78, dhea:70, freeTesto:73,
+  igf1:74, homocysteine:75, apoB:78, fibrinogen:72, nad:71, thyroid:76,
+};
+const GROUPS = {
+  sleep:     ['sleep','deepSleep','rem','resp'],
+  heart:     ['rhr','hrv','cardio','bp'],
+  recovery:  ['recovery','spo2','lactate','temp'],
+  blood:     ['testosterone','crp','vitaminD','ferritin','b12','albumin','alt','dhea','apoB','thyroid','homocysteine','freeTesto'],
+  energy:    ['vo2','steps','grip','muscleMass','hydration','insulin','glucose','omega3'],
+  stress:    ['cortisol','uricAcid','hrv','magnesium'],
+};
+function avg(ids){ return Math.round(ids.reduce((s,id)=>s+NODES[id],0)/ids.length); }
+function label(pct, inverse){
+  // ⚠ finding #3: this reuses Grail's green/orange/red thresholds, but the
+  // MOCKUP used category-fixed tile colors, not status colors — meaning a
+  // bad score would still sit on a "good-looking" colored tile. Fixed here:
+  // the SUBLABEL carries real status; tile color stays category-coded like
+  // the mockup so you can see the conflict directly (open the ? this causes).
+  const v = inverse ? 100 - pct : pct;
+  if (v >= 68) return 'Good';
+  if (v >= 38) return 'Moderate';
+  return 'Attention';
+}
+
+const scores = {};
+for (const [cat, ids] of Object.entries(GROUPS)) scores[cat] = avg(ids);
+
+document.getElementById('v-sleep').textContent = scores.sleep;
+document.getElementById('s-sleep').textContent = label(scores.sleep);
+document.getElementById('v-heart').textContent = scores.heart;
+document.getElementById('s-heart').textContent = label(scores.heart);
+document.getElementById('v-recovery').textContent = scores.recovery;
+document.getElementById('s-recovery').textContent = label(scores.recovery);
+document.getElementById('v-blood').textContent = scores.blood;
+document.getElementById('s-blood').textContent = label(scores.blood);
+document.getElementById('v-energy').textContent = scores.energy;
+document.getElementById('s-energy').textContent = label(scores.energy);
+document.getElementById('v-stress').textContent = scores.stress;
+// stress is framed as "lower pressure is better" in the mockup's moderate/good language;
+// same underlying pct, inverse reading — another undefined-scale example (finding #3).
+document.getElementById('s-stress').textContent = label(scores.stress, true);
+
+document.getElementById('pts').textContent = 55;
+document.getElementById('streak-n').textContent = '12 DAY STREAK';
+
+const today = new Date();
+document.getElementById('tl-date').textContent = today.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+
+const ranked = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+const names = { sleep:'sleep', heart:'heart', recovery:'recovery', blood:'bloodwork', energy:'energy', stress:'stress' };
+document.getElementById('ins-head').textContent =
+  `Your ${names[ranked[0][0]]} and ${names[ranked[1][0]]} are working together.`;
+document.getElementById('ins-body').textContent =
+  'Keep your evening routine consistent to maintain your momentum.';
+
+document.getElementById('findings').innerHTML =
+  `<b>Live build, real data — 5 things this surfaced that the screenshot couldn't:</b><br><br>
+  1. Hex grid is fixed at 6. Try adding a 7th metric (VO₂ Max already exists as its own node) — there's nowhere for it to go without redrawing the whole flower.<br><br>
+  2. The 6 category scores are an invented aggregation — Grail's real model is 40 flat nodes with no "Sleep score" vs "Recovery score" hierarchy. Averaging is a real design decision, not a neutral one (e.g. Recovery here quietly includes SpO₂ and body temp).<br><br>
+  3. Stress reads "backwards" from the others (lower pressure = better) but sits on a red tile either way — a user can't tell good-68 from bad-68 without reading the word.<br><br>
+  4. Bloodwork is averaging 12 lab values that update a few times a year, presented with the same daily-fresh weight as Sleep, which updated last night.<br><br>
+  5. Streak (12 days) and points (55) have no backing data anywhere in Grail — pure UI placeholders right now.`;
+</script>
+</body>
+</html>

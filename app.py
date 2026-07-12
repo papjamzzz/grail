@@ -112,6 +112,17 @@ def hailo():
     resp.headers['Expires'] = '0'
     return resp
 
+@app.route('/hailo-plus')
+def hailo_plus():
+    # Working build of Christian's hex-flower HAILO+ mockup, wired to the
+    # same 40-node scoring model as the orbital view. Internal comparison
+    # artifact — see the on-page findings panel. Not linked from nav yet.
+    resp = send_from_directory(BASE, 'hailo-plus.html')
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
+
 @app.route('/ring')
 def circadian_ring():
     resp = send_from_directory(BASE, 'circadian.html')
