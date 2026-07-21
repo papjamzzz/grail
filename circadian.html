@@ -23,6 +23,7 @@
   --energy:    #F5B90A;
   --hrv:       #12B5C9;
   --blood:     #6B3BF0;
+  --eating:    #B4E23C;
 }
 
 html, body { height: 100%; }
@@ -290,6 +291,10 @@ body {
         <div class="faqtext"><b>Amber trails</b> are caffeine burning off — each dose fades over ~10 hours. If a trail reaches your sleep arc, that espresso is still in your blood at bedtime.</div>
       </div>
       <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M4 6 Q 20 -2 36 6" fill="none" stroke="var(--eating)" stroke-width="4" stroke-linecap="round"/></svg></div>
+        <div class="faqtext"><b>The lime band</b> just outside the main ring is your eating window — 2:00 PM to 8:00 PM, a 6-hour intermittent fasting window.</div>
+      </div>
+      <div class="faqrow">
         <div class="faqicon"><b class="tabpill">Fuel</b></div>
         <div class="faqtext"><b>The chips up top</b> switch layers on and off — Vitals, Fuel, Movement — so you can look at one story at a time.</div>
       </div>
@@ -320,6 +325,7 @@ body {
         <span class="lg"><i style="background:var(--hrv)"></i>REM · HRV</span>
         <span class="lg"><i style="background:var(--inflam)"></i>Training</span>
         <span class="lg"><i style="background:#E8850C"></i>Caffeine</span>
+        <span class="lg"><i style="background:var(--eating)"></i>Eating window</span>
         <span class="lg"><i style="background:var(--stress)"></i>Heart rate</span>
         <span class="lg"><i style="background:linear-gradient(90deg,var(--recovery),var(--energy),var(--stress))"></i>Stress</span>
       </div>
@@ -351,7 +357,8 @@ body {
 
 const COL = {
   sleep:'#2E5BE8', recovery:'#14A15A', stress:'#E11D3C',
-  inflam:'#F43F7F', energy:'#F5B90A', hrv:'#12B5C9', blood:'#6B3BF0'
+  inflam:'#F43F7F', energy:'#F5B90A', hrv:'#12B5C9', blood:'#6B3BF0',
+  eating:'#B4E23C'
 };
 
 /* ── the day (simulated; same shape WHOOP provides) ──
@@ -373,6 +380,7 @@ const DAY = {
   training: { s: 9.5,  e: 10.75, label:'Training — Zone 3 ride' },
   walk:     { s: 15.0, e: 15.6,  label:'Walk — easy movement' },
   caffeine: [ { t: 7.75, dose: 120, label:'Coffee' }, { t: 15.75, dose: 80, label:'Espresso' } ],
+  eating:   { s: 14,   e: 20,    label:'Eating window' },   // intermittent fasting: 6hr window, 2pm-8pm
 };
 const CAFF_HALFLIFE = 5.5, CAFF_COLOR = '#E8850C';
 
@@ -449,6 +457,7 @@ function stateAt(t){
   if (stressAt(t) > 1.7) return { label:'High stress', color: COL.stress };
   if (t >= 21.5) return { label:'Winding down', color:COL.sleep };
   if (t > DAY.training.e && t < DAY.training.e + 1.5) return { label:'Recovering', color:COL.recovery };
+  if (t >= DAY.eating.s && t < DAY.eating.e) return { label:'Eating window', color:COL.eating };
   return { label:'Awake — steady', color:COL.recovery };
 }
 
@@ -608,6 +617,11 @@ function draw(now, dt){
     if (s.type === 'deep') drawSpan(s.s, s.e, Rb, 13, COL.blood, 0.95, 16);
     if (s.type === 'rem')  drawSpan(s.s, s.e, Rb - 13, 4, COL.hrv, 0.9, 10);
   });
+
+  /* eating window — thin band between the main ring and the caffeine trail */
+  if (LAYERS.fuel){
+    drawSpan(DAY.eating.s, DAY.eating.e, Rb + 10.5, 5, COL.eating, 0.85, 14);
+  }
 
   /* caffeine decay trails — just outside the ring, fading with half-life */
   if (LAYERS.fuel){
