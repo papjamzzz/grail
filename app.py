@@ -273,19 +273,29 @@ def ingest():
     data = rjson(HEALTH_FILE, DEFAULT_HEALTH.copy())
     fields = list(DEFAULT_HEALTH.keys())
     fields.remove('last_updated')
+    accepted, rejected = [], []
     for f in fields:
         if f in body and body[f] is not None:
             try:
                 data[f] = float(body[f])
+                accepted.append(f)
             except (ValueError, TypeError):
-                pass
-    # Full ISO, matching every other writer in this file. A bare '%H:%M' can't
-    # distinguish ten minutes ago from last Tuesday, and index.html slices the
-    # first 10 chars expecting a date.
-    data['last_updated'] = time.strftime('%Y-%m-%dT%H:%M:%S')
-    wjson(HEALTH_FILE, data)
-    print(f"[AILIV] Ingest: {body}")
-    return jsonify({"ok": True, "data": data})
+                rejected.append(f)          # present but not a number (e.g. empty string)
+    unknown = [k for k in body if k not in fields and k != 'last_updated']
+
+    # Only claim freshness if something actually landed. Stamping the time on a
+    # post that set nothing makes /api/data advertise fresh data that never
+    # arrived — and makes a silently-broken sender look like it is working.
+    if accepted:
+        # Full ISO, matching every other writer in this file. A bare '%H:%M'
+        # can't distinguish ten minutes ago from last Tuesday, and index.html
+        # slices the first 10 chars expecting a date.
+        data['last_updated'] = time.strftime('%Y-%m-%dT%H:%M:%S')
+        wjson(HEALTH_FILE, data)
+
+    print(f"[AILIV] Ingest accepted={accepted} rejected={rejected} unknown={unknown}")
+    return jsonify({"ok": bool(accepted), "accepted": accepted,
+                    "rejected": rejected, "unknown": unknown, "data": data})
 
 def _data_age_seconds(stamp):
     """Seconds since `stamp`, or None if it can't be read as a real datetime.
