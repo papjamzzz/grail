@@ -263,7 +263,11 @@ body {
       </div>
       <div class="faqrow">
         <div class="faqicon"><span class="disc" style="background:#7CFC00;box-shadow:0 0 10px #7CFC00"></span></div>
-        <div class="faqtext"><b style="color:#7CFC00">A green HR with a ● LIVE tag is a real measurement</b> — your current heart rate from Apple Health, with how long ago it was taken. Everything else on this ring — HRV, sleep stages, stress, caffeine — is a <b>modelled generic day</b>, not your data. Scrub away from now and the readout says <b>MODELLED — not measured</b>. Real history needs a database this doesn't have yet.</div>
+        <div class="faqtext"><b style="color:#7CFC00">A green HR with a ● LIVE tag is a real measurement</b> — your current heart rate from Apple Health, with how long ago it was taken. Everything else on this ring — HRV, sleep stages, stress, caffeine — is a <b>modelled generic day</b>, not your data. Scrub away from now and the readout says <b>MODELLED — not measured</b>.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M2 8 L14 6 L26 8 L38 4" fill="none" stroke="#7CFC00" stroke-width="2"/><circle cx="2" cy="8" r="2" fill="#7CFC00"/><circle cx="14" cy="6" r="2" fill="#7CFC00"/><circle cx="26" cy="8" r="2" fill="#7CFC00"/><circle cx="38" cy="4" r="2" fill="#7CFC00"/></svg></div>
+        <div class="faqtext"><b style="color:#7CFC00">The green dots on the HR band are your actual synced readings</b> from the last 24 hours — one per sync, not a smooth curve. Dots connect with a line when synced closely together; a gap wider than 10 hours means a sync was missed, and stays a real, honest gap rather than a guessed line.</div>
       </div>
       <div class="faqrow">
         <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M4 6 Q 20 -2 36 6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M31 2 l5 4 -6 2" fill="#fff"/></svg></div>
@@ -543,6 +547,46 @@ function fmtAge(s){
   return `${Math.round(s/3600)}h ago`;
 }
 
+/* ── real 24h history ─────────────────────────────────────────────────────
+   Real synced readings from /api/data/history, plotted as literal points and
+   straight connecting segments -- NOT resampled through hrAt()/ribbon()'s
+   continuous sampler. A gap between two readings wider than
+   REAL_CONNECT_MAX_HOURS means an actual outage (a sync was missed), so it
+   stays visually disconnected rather than interpolated across data we don't
+   have. 10h matches Grail's own /api/data staleness threshold (MAX_FRESH_SECONDS
+   server-side) so "connected" and "fresh" mean the same thing everywhere.
+   Points are placed relative to `nowT()`, not calendar-day boundaries — a
+   reading from yesterday evening still lands at its correct angle on the
+   clock face. Known edge case: in "Today so far" mode, in the first few hours
+   after midnight, a genuinely-real reading from just before midnight can sit
+   past the cursor and read as part of the dimmed "unwritten" arc rather than
+   the written one — a real but narrow display quirk, not fabricated data;
+   it self-corrects as the new day writes forward past it.               */
+const REAL_CONNECT_MAX_HOURS = 10;
+let REAL_HISTORY = [];   // [{ t: hour-of-day 0..24 (now-anchored), hoursAgo, heart_rate }], oldest first
+
+async function pollHistory(){
+  try {
+    const r = await fetch('/api/data/history?hours=24', { cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    if (!d.ok || !Array.isArray(d.readings)) { REAL_HISTORY = []; return; }
+    const now = Date.now(), anchor = nowT();
+    REAL_HISTORY = d.readings
+      .filter(row => typeof row.heart_rate === 'number')
+      .map(row => {
+        const hoursAgo = (now - new Date(row.ts).getTime()) / 3600000;
+        return { t: ((anchor - hoursAgo) % 24 + 24) % 24, hoursAgo, heart_rate: row.heart_rate };
+      })
+      .filter(p => p.hoursAgo >= -0.05 && p.hoursAgo <= 24)   // small forward slack for clock skew
+      .sort((a, b) => b.hoursAgo - a.hoursAgo);                // oldest (largest hoursAgo) first
+  } catch (e) {
+    REAL_HISTORY = [];   // DB hiccup or offline — degrade to modelled-only, never throw
+  }
+}
+pollHistory();
+setInterval(pollHistory, 60000);
+
 /* ── state ── */
 let cursorT = nowT();            // cursor lives at the real clock
 let playing = true;
@@ -730,6 +774,37 @@ function draw(now, dt){
   }
   const hrR  = t => Rb + 34 + ((hrAt(t)-48)/110) * 30;
   const hrvR = t => Rb - 34 - ((hrvAt(t)-30)/60) * 26;
+  // Same value->radius scale as hrR, but for a real number instead of hrAt(t) —
+  // real readings sit in the same visual band the modelled curve occupies.
+  const hrRadiusForValue = v => Rb + 34 + ((v-48)/110) * 30;
+
+  // Real points/segments, drawn distinctly from the modelled ribbon (below),
+  // never through it. Genuine gaps between syncs stay visually disconnected.
+  function plotRealHR(){
+    if (!REAL_HISTORY.length) return;
+    cx.save();
+    cx.strokeStyle = 'rgba(124,252,0,0.75)';
+    cx.lineWidth = 2;
+    cx.shadowColor = '#7CFC00'; cx.shadowBlur = 6;
+    for (let i = 1; i < REAL_HISTORY.length; i++){
+      const prev = REAL_HISTORY[i-1], curr = REAL_HISTORY[i];   // prev is older
+      if ((prev.hoursAgo - curr.hoursAgo) > REAL_CONNECT_MAX_HOURS) continue;
+      const a1 = t2a(prev.t), r1 = hrRadiusForValue(prev.heart_rate);
+      const a2 = t2a(curr.t), r2 = hrRadiusForValue(curr.heart_rate);
+      cx.beginPath();
+      cx.moveTo(OX + Math.cos(a1)*r1, OY + Math.sin(a1)*r1);
+      cx.lineTo(OX + Math.cos(a2)*r2, OY + Math.sin(a2)*r2);
+      cx.stroke();
+    }
+    REAL_HISTORY.forEach(p => {
+      const a = t2a(p.t), r = hrRadiusForValue(p.heart_rate);
+      const x = OX + Math.cos(a)*r, y = OY + Math.sin(a)*r;
+      cx.beginPath(); cx.arc(x, y, 3.2, 0, Math.PI*2);
+      cx.fillStyle = '#7CFC00';
+      cx.fill();
+    });
+    cx.restore();
+  }
 
   if (LAYERS.vitals){
     if (mode === 'today'){
@@ -741,6 +816,7 @@ function draw(now, dt){
       ribbon(hrvR, 0, tNow, COL.hrv,    0.45);
       ribbon(hrvR, tNow, 24, COL.hrv,   0.45*YDIM);
     }
+    plotRealHR();
   }
 
   /* cursor */

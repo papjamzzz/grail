@@ -2,6 +2,11 @@ from flask import Flask, request, jsonify, send_from_directory, redirect, make_r
 import json, os, time, requests as req, base64, re, urllib.parse, secrets, io
 import qrcode
 from datetime import datetime
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+except ImportError:
+    psycopg2 = None   # local dev without the driver installed; history endpoints degrade cleanly
 # routes: / /cells /bodyfigure /console /whoop/* /lumi /sloany
 DEPLOY_VERSION = "2026-05-02-v4"
 
@@ -60,6 +65,91 @@ DEFAULT_HEALTH = {
     "vitamin_d": None, "ferritin": None, "cortisol": None,
     "last_updated": None
 }
+
+# ------- Postgres: real ingest history for the Circadian Ring ---------------
+# health_data.json / /api/data only ever hold the LATEST snapshot -- that's
+# fine for "what is true right now" but the Ring needs an actual 24h time
+# series, which a single overwritten blob can never provide. This is a
+# separate, additive store: every accepted /ingest also becomes one row here.
+# Degrades to a no-op everywhere if DATABASE_URL isn't set (local dev) or the
+# DB is briefly unreachable -- never lets a DB hiccup break /ingest itself.
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+def db_conn():
+    if not (psycopg2 and DATABASE_URL):
+        return None
+    try:
+        return psycopg2.connect(DATABASE_URL, connect_timeout=5)
+    except Exception as e:
+        print(f"[AILIV] db_conn failed: {e}")
+        return None
+
+def db_init():
+    conn = db_conn()
+    if not conn:
+        print("[AILIV] DATABASE_URL not set (or psycopg2 missing) — history disabled, /api/data snapshot still works")
+        return
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS readings (
+                        id SERIAL PRIMARY KEY,
+                        ts TIMESTAMPTZ NOT NULL DEFAULT now(),
+                        data JSONB NOT NULL
+                    );
+                    CREATE INDEX IF NOT EXISTS readings_ts_idx ON readings (ts);
+                """)
+        print("[AILIV] readings table ready")
+    except Exception as e:
+        print(f"[AILIV] db_init failed: {e}")
+    finally:
+        conn.close()
+
+db_init()
+
+def db_insert_reading(fields):
+    """fields: dict of metric name -> float, already validated by /ingest. No-op if DB unavailable."""
+    conn = db_conn()
+    if not conn:
+        return
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute("INSERT INTO readings (data) VALUES (%s)", [json.dumps(fields)])
+    except Exception as e:
+        print(f"[AILIV] db_insert_reading failed: {e}")
+    finally:
+        conn.close()
+
+def db_history(hours):
+    """Returns a list of {ts (ISO), **fields} within the window, oldest first,
+    or None if the database is unavailable (distinct from an empty list, which
+    means the DB works but nothing was recorded in that window)."""
+    conn = db_conn()
+    if not conn:
+        return None
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    "SELECT ts, data FROM readings "
+                    "WHERE ts > now() - (%s || ' hours')::interval "
+                    "ORDER BY ts ASC",
+                    [hours],
+                )
+                rows = cur.fetchall()
+        out = []
+        for r in rows:
+            item = dict(r['data'])
+            item['ts'] = r['ts'].isoformat()
+            out.append(item)
+        return out
+    except Exception as e:
+        print(f"[AILIV] db_history failed: {e}")
+        return None
+    finally:
+        conn.close()
 
 # ------- helpers -------
 
@@ -292,10 +382,25 @@ def ingest():
         # slices the first 10 chars expecting a date.
         data['last_updated'] = time.strftime('%Y-%m-%dT%H:%M:%S')
         wjson(HEALTH_FILE, data)
+        # Additive: also log this as its own row so a real 24h history exists.
+        # health_data.json above still holds only the latest snapshot, unchanged.
+        db_insert_reading({f: data[f] for f in accepted})
 
     print(f"[AILIV] Ingest accepted={accepted} rejected={rejected} unknown={unknown}")
     return jsonify({"ok": bool(accepted), "accepted": accepted,
                     "rejected": rejected, "unknown": unknown, "data": data})
+
+@app.route('/api/data/history')
+def api_data_history():
+    try:
+        hours = float(request.args.get('hours', 24))
+    except (TypeError, ValueError):
+        hours = 24.0
+    hours = max(1.0, min(hours, 24 * 30))   # clamp 1h..30d against abuse
+    rows = db_history(hours)
+    if rows is None:
+        return jsonify({"ok": False, "error": "no database configured", "hours": hours, "readings": []})
+    return jsonify({"ok": True, "hours": hours, "readings": rows})
 
 # Tied to the iPhone "Grail Sync" Shortcut automations: 00:00 / 08:00 / 12:00 / 18:00
 # daily, so the widest normal gap is 8h (midnight -> 8am). Anything past this means a
