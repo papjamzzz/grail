@@ -238,7 +238,10 @@ body {
       <span class="livedot"></span>
       <span>Live</span>
       <span id="topdate">—</span>
-      <span style="opacity:.6">Data from WHOOP</span>
+      <!-- Was "Data from WHOOP" — untrue: WHOOP has never been connected
+           (/whoop/status returns connected:false). Real HR arrives from Apple
+           Health via the iPhone Shortcut; every other curve here is modelled. -->
+      <span style="opacity:.6" id="topsource">HR from Apple Health · rest modelled</span>
       <a class="atlaslink" id="atlaslink" href="/">Atlas →</a>
       <a class="atlaslink" href="/night">Night →</a>
       <div class="helpbtn" id="modebtn" title="Switch to rolling last 24 hours">
@@ -257,6 +260,10 @@ body {
       <div class="faqrow">
         <div class="faqicon"><span class="disc" style="background:#fff;box-shadow:0 0 10px #fff"></span></div>
         <div class="faqtext"><b>The bright cursor is right now.</b> The ring fills in behind it as your day is written — everything ahead is still blank. The center shows the time, state, and HR &amp; HRV at the cursor.</div>
+      </div>
+      <div class="faqrow">
+        <div class="faqicon"><span class="disc" style="background:#7CFC00;box-shadow:0 0 10px #7CFC00"></span></div>
+        <div class="faqtext"><b style="color:#7CFC00">A green HR with a ● LIVE tag is a real measurement</b> — your current heart rate from Apple Health, with how long ago it was taken. Everything else on this ring — HRV, sleep stages, stress, caffeine — is a <b>modelled generic day</b>, not your data. Scrub away from now and the readout says <b>MODELLED — not measured</b>. Real history needs a database this doesn't have yet.</div>
       </div>
       <div class="faqrow">
         <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M4 6 Q 20 -2 36 6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M31 2 l5 4 -6 2" fill="#fff"/></svg></div>
@@ -496,6 +503,46 @@ function nowT(){
   return d.getHours() + d.getMinutes()/60 + d.getSeconds()/3600;
 }
 
+/* ── live data ──────────────────────────────────────────────────────────────
+   Every curve on this ring (hrAt, hrvAt, stressAt, …) is a MODELLED generic day,
+   not measurement. The one thing that can be real is the present moment: an
+   iPhone Shortcut posts current Apple Health values to /ingest a few times a day.
+   So we poll /api/data and, only when the cursor is sitting at ~now and the
+   reading is actually fresh, show that real number and say so. Everywhere else
+   the readout is explicitly marked as modelled. Never let a modelled value read
+   as if it were measured.                                                     */
+const LIVE = { hr: null, ageSec: null, stale: true };
+const LIVE_CURSOR_TOLERANCE_H = 1 / 6;   // cursor within 10 min of now counts as "now"
+
+async function pollLive(){
+  try {
+    const r = await fetch('/api/data', { cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    const hr = parseFloat(d.heart_rate);
+    LIVE.hr     = Number.isFinite(hr) ? hr : null;
+    LIVE.ageSec = (typeof d.age_seconds === 'number') ? d.age_seconds : null;
+    LIVE.stale  = (d.stale !== false);
+  } catch (e) {
+    LIVE.hr = null; LIVE.ageSec = null; LIVE.stale = true;   // degrade to modelled
+  }
+}
+pollLive();
+setInterval(pollLive, 30000);
+
+/* True only when the cursor is at the present moment AND a genuinely fresh
+   reading exists. Scrub away from now and this goes false — the past is modelled. */
+function liveHRAvailable(t){
+  return LIVE.hr !== null && !LIVE.stale
+      && Math.abs(t - nowT()) <= LIVE_CURSOR_TOLERANCE_H;
+}
+function fmtAge(s){
+  if (s === null) return '';
+  if (s < 90)   return `${Math.round(s)}s ago`;
+  if (s < 5400) return `${Math.round(s/60)}m ago`;
+  return `${Math.round(s/3600)}h ago`;
+}
+
 /* ── state ── */
 let cursorT = nowT();            // cursor lives at the real clock
 let playing = true;
@@ -732,8 +779,30 @@ function draw(now, dt){
   cx.fillText(st.label.toUpperCase(), OX, OY + R*0.12);
 
   cx.font = `700 ${R*0.066}px Inter`;
+  const isLive = liveHRAvailable(cursorT);
+  // Real reading when we have one for right now; otherwise the modelled curve,
+  // and the label says which. HRV is always modelled — Apple computes it on its
+  // own schedule and it is not in the ingest payload.
+  const hrShown = isLive ? LIVE.hr : hrAt(cursorT);
+  // Colour ONLY the HR green when it is live. HRV sits on the same line but is
+  // always modelled, so tinting the whole string would claim it is measured too.
+  const hrTxt  = `HR ${Math.round(hrShown)}`;
+  const hrvTxt = ` · HRV ${Math.round(hrvAt(cursorT))}`;
+  const wHr = cx.measureText(hrTxt).width;
+  const xStart = OX - (wHr + cx.measureText(hrvTxt).width) / 2;
+  const prevAlign = cx.textAlign;
+  cx.textAlign = 'left';
+  cx.fillStyle = isLive ? '#7CFC00' : 'rgba(255,255,255,0.85)';
+  cx.fillText(hrTxt, xStart, OY + R*0.24);
   cx.fillStyle = 'rgba(255,255,255,0.85)';
-  cx.fillText(`HR ${Math.round(hrAt(cursorT))} · HRV ${Math.round(hrvAt(cursorT))}`, OX, OY + R*0.24);
+  cx.fillText(hrvTxt, xStart + wHr, OY + R*0.24);
+  cx.textAlign = prevAlign;
+
+  cx.font = `700 ${R*0.040}px Inter`;
+  cx.fillStyle = isLive ? 'rgba(124,252,0,0.85)' : 'rgba(255,255,255,0.42)';
+  cx.fillText(isLive ? `● LIVE HR · ${fmtAge(LIVE.ageSec)} · HRV modelled`
+                     : 'MODELLED — not measured',
+              OX, OY + R*0.305);
 
   /* third readout line: stress + active caffeine */
   const sv = stressAt(cursorT);
@@ -743,7 +812,7 @@ function draw(now, dt){
   if (mg > 10) line3 += ` · CAFFEINE ${Math.round(mg)}MG`;
   cx.font = `800 ${R*0.052}px Inter`;
   cx.fillStyle = 'rgba(255,255,255,0.6)';
-  cx.fillText(line3, OX, OY + R*0.345);
+  cx.fillText(line3, OX, OY + R*0.375);   // pushed down to clear the provenance line above
 }
 
 /* ── scrubbing ── */
