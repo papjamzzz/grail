@@ -239,9 +239,11 @@ body {
       <span>Live</span>
       <span id="topdate">—</span>
       <!-- Was "Data from WHOOP" — untrue: WHOOP has never been connected
-           (/whoop/status returns connected:false). Real HR arrives from Apple
-           Health via the iPhone Shortcut; every other curve here is modelled. -->
-      <span style="opacity:.6" id="topsource">HR from Apple Health · rest modelled</span>
+           (/whoop/status returns connected:false). Real values arrive from Apple
+           Health via the iPhone Shortcut; green vs white on the ring itself is
+           the only "is this real" signal now — deliberately no on-canvas
+           "modelled" text, per Jeremiah. -->
+      <span style="opacity:.6" id="topsource">Data from Apple Health</span>
       <a class="atlaslink" id="atlaslink" href="/">Atlas →</a>
       <a class="atlaslink" href="/night">Night →</a>
       <div class="helpbtn" id="modebtn" title="Switch to rolling last 24 hours">
@@ -885,17 +887,23 @@ function draw(now, dt){
   cx.textAlign = prevAlign;
 
   // Provenance line: real readings say LIVE (<10min old) or RECORDED (older,
-  // still real, held from whenever it landed) with their actual age; a metric
-  // with no real reading at this point says so plainly.
+  // still real, held from whenever it landed) with their actual age. A metric
+  // with NO real reading gets no tag at all here -- per Jeremiah, nothing on
+  // the ring should ever say "modelled"; the number just stays white above,
+  // color alone carries that meaning. If nothing is real right now, this
+  // whole line is empty and simply isn't drawn.
   function tag(metric, label, real){
-    if (!real) return `${label} MODELLED`;
+    if (!real) return null;
     const ageS = real.hoursAgo * 3600;
     return `${label} ${ageS < LIVE_TAG_MAX_SECONDS ? 'LIVE' : 'RECORDED'} · ${fmtAge(ageS)}`;
   }
-  const provenance = `${tag('heart_rate','HR',hrReal)} · ${tag('hrv','HRV',hrvReal)}`;
-  cx.font = `700 ${R*0.040}px Inter`;
-  cx.fillStyle = (hrReal || hrvReal) ? 'rgba(124,252,0,0.85)' : 'rgba(255,255,255,0.42)';
-  cx.fillText(provenance, OX, OY + R*0.305);
+  const provenance = [tag('heart_rate','HR',hrReal), tag('hrv','HRV',hrvReal)]
+    .filter(Boolean).join(' · ');
+  if (provenance){
+    cx.font = `700 ${R*0.040}px Inter`;
+    cx.fillStyle = 'rgba(124,252,0,0.85)';
+    cx.fillText(provenance, OX, OY + R*0.305);
+  }
 
   /* third readout line: stress + active caffeine */
   const sv = stressAt(cursorT);
