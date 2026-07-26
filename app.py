@@ -226,6 +226,20 @@ def hailo_plus():
     resp.headers['Expires'] = '0'
     return resp
 
+@app.route('/plus')
+def plus():
+    # HAILO+ mobile scroll narrative built from Christian's mockups: an Atlas
+    # home (hex flower) then a six-step sleep story you swipe up through.
+    # PROTOTYPE — all sample data. There is no real sleep ingest yet (Apple
+    # stores sleep as stage intervals, a different pipeline from the point
+    # values currently syncing), so nothing here is a real reading and the
+    # page says so on every screen.
+    resp = send_from_directory(BASE, 'plus.html')
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
+
 @app.route('/ring')
 def circadian_ring():
     resp = send_from_directory(BASE, 'circadian.html')

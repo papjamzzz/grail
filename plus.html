@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#0B0718">
+<title>HAILO+ — Sleep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   HAILO+ — mobile-first scroll narrative.
+
+   Seven full-height screens you swipe up through: an Atlas home
+   (hex flower) then a six-step sleep story. Built from Christian's
+   mockups.
+
+   PROTOTYPE — every number here is invented sample data. There is no
+   real sleep ingest yet (Apple stores sleep as stage intervals, which
+   needs a different pipeline from the point-value metrics currently
+   syncing). Marked on-screen with a SAMPLE chip so it can never be
+   mistaken for a real reading.
+
+   Scrolling: CSS scroll-snap, no JS gesture handling — native inertia
+   on iOS, which is the only way this feels right on a phone. Snap is
+   `proximity`, not `mandatory`, so the two content-heavy screens can
+   scroll internally instead of fighting the snap.
+   ═══════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0B0718;
+  --bg2:     #150C2E;
+  --bg3:     #1C1140;
+  --card:    rgba(255,255,255,0.055);
+  --card2:   rgba(255,255,255,0.085);
+  --line:    rgba(255,255,255,0.10);
+  --line2:   rgba(255,255,255,0.16);
+
+  --txt:     #FFFFFF;
+  --txt2:    #C4BBE0;
+  --txt3:    #8C82AD;
+
+  --purple:  #8B5CF6;
+  --purple2: #A78BFA;
+  --cyan:    #22D3EE;
+  --green:   #34D399;
+  --blue:    #60A5FA;
+  --amber:   #FBBF24;
+  --rose:    #FB7185;
+  --lime:    #A3E635;
+  --moon:    #FDE68A;
+}
+
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* ── device shell: full-bleed on phone, framed column on desktop ── */
+.phone {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+@supports not (height: 100dvh) { .phone { height: 100vh; } }
+
+@media (min-width: 780px) {
+  body {
+    display: grid; place-items: center;
+    background:
+      radial-gradient(1000px 700px at 50% -10%, #1E1240 0%, transparent 60%),
+      #06040F;
+  }
+  .phone {
+    width: 428px;
+    height: min(92vh, 940px);
+    border-radius: 46px;
+    border: 1px solid rgba(255,255,255,0.14);
+    box-shadow: 0 40px 120px rgba(0,0,0,0.7), 0 0 0 10px rgba(255,255,255,0.02);
+  }
+}
+
+/* ── scroll container ── */
+.scroller {
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroller::-webkit-scrollbar { display: none; }
+
+.screen {
+  position: relative;
+  min-height: 100%;
+  scroll-snap-align: start;
+  display: flex; flex-direction: column;
+  padding: 70px 20px 96px;      /* clears the fixed app bar + tab bar */
+}
+
+/* ── app bar ── */
+.appbar {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 40;
+  height: 58px; padding: 0 18px;
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(to bottom, rgba(11,7,24,0.94), rgba(11,7,24,0));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: none;
+}
+.brand { display: flex; align-items: center; gap: 7px; font-weight: 800; font-size: 14.5px; letter-spacing: .01em; }
+.brand .spark { color: var(--purple2); font-size: 13px; }
+.sample {
+  margin-left: auto;
+  font-size: 8.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--amber);
+  border: 1px solid rgba(251,191,36,0.4);
+  border-radius: 999px; padding: 4px 9px;
+  white-space: nowrap;
+}
+.pts {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 800; color: var(--txt2);
+}
+.pts i { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); display: block; }
+
+/* ── tab bar ── */
+.tabbar {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 40;
+  height: 78px; padding: 0 8px 14px;
+  display: flex; align-items: flex-end; justify-content: space-around;
+  background: linear-gradient(to top, rgba(11,7,24,0.97) 55%, rgba(11,7,24,0));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--txt3); cursor: pointer; user-select: none;
+  background: none; border: 0; padding: 6px 0;
+}
+.tab.on { color: var(--txt); }
+.tab svg { width: 20px; height: 20px; }
+.tab.add {
+  flex: 0 0 52px;
+}
+.tab.add .plus {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: linear-gradient(150deg, var(--purple2), var(--purple));
+  display: grid; place-items: center;
+  box-shadow: 0 8px 22px rgba(139,92,246,0.45);
+  margin-bottom: -2px;
+}
+
+/* ── shared type ── */
+.step {
+  font-size: 9.5px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--purple2); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.step b { color: var(--txt3); font-weight: 800; }
+h1.big { font-size: 34px; font-weight: 900; letter-spacing: -.035em; line-height: 1.05; }
+h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height: 1.08; }
+.lede { margin-top: 12px; font-size: 14px; line-height: 1.55; color: var(--txt2); font-weight: 500; }
+.micro { font-size: 9.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--txt3); }
+.sec { margin: 16px 0 8px; }   /* section label spacing (was inline, moved so .dense can win) */
+
+/* ── dense variant ───────────────────────────────────────────────────
+   Three screens carry more content than an iPhone viewport holds, so
+   their CTA was sliding under the tab bar. Measured overflow was 39 /
+   96 / 50px; this trims roughly that much without touching the four
+   screens that already fit, which look right as they are. */
+.screen.dense { padding-top: 64px; padding-bottom: 88px; }
+.screen.dense h2.big { font-size: 24px; }
+.screen.dense .lede { margin-top: 8px; font-size: 12.5px; line-height: 1.5; }
+.screen.dense .sec { margin: 12px 0 7px; }
+.screen.dense .behrow,
+.screen.dense .priorow { padding: 9px 11px; }
+.screen.dense .beh, .screen.dense .prio { gap: 7px; }
+.screen.dense .note { padding: 10px; margin-top: 9px; }
+.screen.dense .cta { padding: 14px; }
+.screen.dense .four .f { padding: 9px 6px; }
+.screen.dense .quad .q { padding: 9px 6px; }
+.screen.dense .card { padding: 12px; }
+.screen.dense .outlook { padding: 12px; }
+/* consistency heatmap: square cells were ~44px tall on a phone (7 columns
+   across the card), which alone pushed this screen past the viewport.
+   Fixed-height bars read the same and reclaim ~80px. */
+.screen.dense .grid7 { gap: 3px; margin-top: 6px; }
+.screen.dense .grid7 i { aspect-ratio: auto; height: 22px; border-radius: 4px; }
+.screen.dense .pent .p .v { font-size: 14px; }
+.screen.dense .pent .p svg { width: 14px; height: 14px; margin-bottom: 2px; }
+
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 16px; padding: 14px;
+}
+.row { display: flex; align-items: center; gap: 12px; }
+
+.cta {
+  margin-top: auto;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  background: linear-gradient(140deg, var(--purple2), var(--purple));
+  color: #FFF; font-weight: 800; font-size: 13px; letter-spacing: .1em; text-transform: uppercase;
+  border: 0; border-radius: 14px; padding: 16px;
+  cursor: pointer; width: 100%;
+  box-shadow: 0 10px 26px rgba(139,92,246,0.35);
+}
+.cta:active { transform: translateY(1px); }
+
+/* ── screen 0 · atlas home ── */
+.hello h1 { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height: 1.15; }
+.hello h1 .accent { color: var(--purple2); }
+.hello p { color: var(--txt3); font-size: 13.5px; margin-top: 3px; font-weight: 500; }
+
+.months {
+  margin: 16px 0 14px; padding: 11px 12px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+}
+.months .mhead { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 9px; }
+.months .mhead .d { font-size: 12.5px; font-weight: 800; }
+.mstrip { display: flex; justify-content: space-between; }
+.mstrip span {
+  font-size: 8.5px; font-weight: 800; letter-spacing: .04em; color: var(--txt3);
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+}
+.mstrip span i { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.16); display: block; }
+.mstrip span.on { color: var(--txt); }
+.mstrip span.on i { background: var(--purple2); box-shadow: 0 0 8px var(--purple2); }
+
+/* hex flower */
+.flower { position: relative; width: 100%; aspect-ratio: 1 / 0.98; margin: 4px 0 14px; }
+.hex {
+  position: absolute; width: 29.5%; aspect-ratio: 1 / 1.12;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px; text-align: center; padding: 4px;
+  cursor: pointer;
+}
+.hex .hv { font-size: 21px; font-weight: 900; letter-spacing: -.03em; line-height: 1; }
+.hex .hl { font-size: 7px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; opacity: .85; }
+.hex .hs { font-size: 7.5px; font-weight: 700; opacity: .62; }
+.hex svg { width: 15px; height: 15px; margin-bottom: 2px; }
+/* honeycomb placement: centre + six around */
+/* slightly narrower than the geometric packing so a hairline gap shows
+   between tiles, the way the mockup renders them */
+.hex.c  { left: 35.25%; top: 32%; }
+.hex.n  { left: 35.25%; top: 2%;  }
+.hex.ne { left: 64.5%;  top: 17%; }
+.hex.se { left: 64.5%;  top: 47%; }
+.hex.s  { left: 35.25%; top: 62%; }
+.hex.sw { left: 6%;     top: 47%; }
+.hex.nw { left: 6%;     top: 17%; }
+
+.insight {
+  display: flex; gap: 12px; align-items: center;
+  background: linear-gradient(120deg, rgba(139,92,246,0.20), rgba(139,92,246,0.05));
+  border: 1px solid rgba(167,139,250,0.28);
+  border-radius: 16px; padding: 12px; margin-top: auto;
+}
+.insight .txt { flex: 1; min-width: 0; }
+.insight .txt .t { font-size: 8.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--purple2); }
+.insight .txt .b { font-size: 12.5px; font-weight: 700; line-height: 1.4; margin-top: 4px; }
+.insight .txt .s { font-size: 11px; color: var(--txt3); line-height: 1.4; margin-top: 3px; font-weight: 500; }
+.insight .thumb { width: 62px; height: 52px; border-radius: 11px; overflow: hidden; flex: none; }
+
+/* ── hero illustration screens ── */
+.hero-art { position: absolute; left: 0; right: 0; bottom: 0; height: 58%; z-index: 0; pointer-events: none; }
+/* backdrop behind real content — kept faint so tiles stay readable */
+.hero-art[data-art="glow"] { height: 34%; opacity: .45; }
+/* lift content above the artwork — but NOT the artwork itself, or this
+   would override its absolute positioning and drop it into the flex flow */
+.screen > *:not(.hero-art) { position: relative; z-index: 1; }
+.swipe {
+  margin-top: auto; text-align: center;
+  font-size: 9.5px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--txt2);
+  text-shadow: 0 2px 10px rgba(0,0,0,.85);   /* sits over the artwork */
+  padding-bottom: 6px;
+}
+.swipe .chev { display: block; margin: 9px auto 0; animation: bob 1.9s ease-in-out infinite; }
+@keyframes bob { 0%,100%{ transform: translateY(0); opacity:.55 } 50%{ transform: translateY(6px); opacity:1 } }
+
+/* ── score ring ── */
+.scorewrap { display: flex; align-items: center; gap: 16px; margin: 4px 0 14px; }
+.ring { position: relative; width: 122px; height: 122px; flex: none; }
+.ring .lbl {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 1px;
+}
+.ring .lbl .n { font-size: 38px; font-weight: 900; letter-spacing: -.04em; line-height: 1; }
+.ring .lbl .t { font-size: 8px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; color: var(--txt3); }
+.ring .lbl .q { font-size: 9.5px; font-weight: 800; color: var(--purple2); letter-spacing: .06em; }
+
+.sidestats { flex: 1; display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+.sidestat { display: flex; align-items: center; gap: 9px; }
+.sidestat .dial { width: 30px; height: 30px; flex: none; }
+.sidestat .v { font-size: 15px; font-weight: 800; letter-spacing: -.02em; line-height: 1.05; }
+.sidestat .k { font-size: 8.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--txt3); }
+.sidestat .g { font-size: 9px; font-weight: 700; color: var(--txt3); }
+
+.quad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.quad .q {
+  background: var(--card); border: 1px solid var(--line); border-radius: 13px;
+  padding: 10px 6px; text-align: center;
+}
+.quad .q .v { font-size: 17px; font-weight: 900; letter-spacing: -.03em; }
+.quad .q .k { font-size: 7.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--txt3); margin-top: 3px; }
+.quad .q svg { width: 13px; height: 13px; margin-bottom: 3px; }
+
+.weekdots { display: flex; gap: 3px; justify-content: center; margin-top: 5px; }
+.weekdots i { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.18); display: block; }
+.weekdots i.on { background: var(--green); }
+
+.note {
+  display: flex; gap: 11px; align-items: flex-start;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; padding: 12px; margin-top: 12px;
+}
+.note .ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: none; }
+.note .h { font-size: 8.5px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; color: var(--txt3); }
+.note .b { font-size: 12.5px; font-weight: 700; line-height: 1.45; margin-top: 3px; }
+.note .arw { margin-left: auto; align-self: center; color: var(--txt3); flex: none; }
+
+/* ── stage legend + hypnogram ── */
+.stages { display: flex; flex-direction: column; gap: 7px; margin: 12px 0; }
+.stg { display: flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 700; }
+.stg i { width: 8px; height: 8px; border-radius: 50%; display: block; flex: none; }
+.stg .nm { flex: 1; }
+.stg .tm { color: var(--txt2); font-weight: 700; }
+.stg .pc { color: var(--txt3); font-size: 10.5px; font-weight: 700; width: 34px; text-align: right; }
+
+.axis { display: flex; justify-content: space-between; margin-top: 5px; }
+.axis span { font-size: 8.5px; font-weight: 700; color: var(--txt3); letter-spacing: .04em; }
+
+/* ── behaviours ── */
+.beh { display: flex; flex-direction: column; gap: 8px; }
+.behrow {
+  display: flex; align-items: center; gap: 11px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 13px; padding: 11px 12px;
+}
+.behrow .ic { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; flex: none; }
+.behrow .nm { font-size: 12.5px; font-weight: 700; }
+.behrow .sb { font-size: 10.5px; color: var(--txt3); font-weight: 500; margin-top: 2px; }
+.badge {
+  margin-left: auto; flex: none;
+  font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  border-radius: 999px; padding: 4px 8px; white-space: nowrap;
+}
+.badge.bad  { color: var(--rose);  background: rgba(251,113,133,0.14); }
+.badge.warn { color: var(--amber); background: rgba(251,191,36,0.14); }
+.badge.good { color: var(--green); background: rgba(52,211,153,0.14); }
+
+/* ── big picture ── */
+.pent { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.pent .p { text-align: center; }
+.pent .p .v { font-size: 15px; font-weight: 900; letter-spacing: -.03em; }
+.pent .p .k { font-size: 6.8px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--txt3); margin-top: 2px; }
+.pent .p .g { font-size: 7.5px; font-weight: 700; color: var(--txt3); margin-top: 1px; }
+.pent .p svg { width: 15px; height: 15px; margin-bottom: 3px; }
+
+.grid7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px; }
+.grid7 i { aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,0.09); display: block; }
+.grid7 i.l1 { background: rgba(52,211,153,0.30); }
+.grid7 i.l2 { background: rgba(52,211,153,0.58); }
+.grid7 i.l3 { background: var(--green); }
+.dayhdr { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.dayhdr span { font-size: 7.5px; font-weight: 800; color: var(--txt3); text-align: center; }
+
+.four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.four .f { background: var(--card); border: 1px solid var(--line); border-radius: 13px; padding: 11px 6px; text-align: center; }
+.four .f svg { width: 17px; height: 17px; }
+.four .f .k { font-size: 7.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; margin-top: 5px; }
+.four .f .s { font-size: 7.5px; color: var(--txt3); font-weight: 600; margin-top: 2px; }
+
+/* ── recommendations ── */
+.prio { display: flex; flex-direction: column; gap: 8px; }
+.priorow {
+  display: flex; align-items: center; gap: 11px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 13px; padding: 11px 12px;
+}
+.priorow .ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: none; }
+.priorow .nm { font-size: 12.5px; font-weight: 700; }
+.priorow .sb { font-size: 10.5px; color: var(--txt3); font-weight: 500; margin-top: 2px; line-height: 1.35; }
+
+.outlook { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+.outlook .top { display: flex; align-items: flex-end; justify-content: space-between; }
+.outlook .top .v { font-size: 32px; font-weight: 900; letter-spacing: -.04em; line-height: 1; }
+.outlook .top .s { font-size: 11px; color: var(--txt2); font-weight: 600; text-align: right; line-height: 1.4; }
+.bars { display: flex; gap: 4px; align-items: flex-end; height: 34px; margin-top: 11px; }
+.bars i { flex: 1; border-radius: 3px 3px 0 0; background: rgba(139,92,246,0.30); display: block; }
+.bars i.hi { background: var(--purple2); }
+
+/* progress rail down the right edge */
+.rail {
+  position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+  z-index: 45; display: flex; flex-direction: column; gap: 6px;
+  pointer-events: none;
+}
+.rail i {
+  width: 3px; height: 14px; border-radius: 2px;
+  background: rgba(255,255,255,0.16); display: block;
+  transition: background .3s, height .3s;
+}
+.rail i.on { background: var(--purple2); height: 22px; }
+@media (min-width: 780px) { .rail { right: 10px; } }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <div class="appbar">
+    <div class="brand"><span class="spark">✦</span> HAILO+</div>
+    <div class="sample">Sample data</div>
+    <div class="pts" style="margin-left:12px"><i></i>55</div>
+  </div>
+
+  <div class="rail" id="rail"></div>
+
+  <div class="scroller" id="scroller">
+
+    <!-- ════════ 0 · ATLAS HOME ════════ -->
+    <section class="screen" data-name="Atlas">
+      <div class="hello">
+        <h1>Welcome back,<br><span class="accent">Christian</span>.</h1>
+        <p>Here's how your health is trending.</p>
+      </div>
+
+      <div class="months">
+        <div class="mhead">
+          <span class="micro">This year</span>
+          <span class="d">July 8, 2026</span>
+        </div>
+        <div class="mstrip">
+          <span><i></i>JAN</span><span><i></i>FEB</span><span><i></i>MAR</span>
+          <span><i></i>APR</span><span><i></i>MAY</span><span><i></i>JUN</span>
+          <span class="on"><i></i>JUL</span><span><i></i>AUG</span><span><i></i>SEP</span>
+          <span><i></i>OCT</span><span><i></i>NOV</span><span><i></i>DEC</span>
+        </div>
+      </div>
+
+      <div class="flower">
+        <!-- centre: streak -->
+        <div class="hex c" style="background:linear-gradient(150deg,#7C3AED,#5B21B6)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 L4 14h7l-1 8 9-12h-7z"/></svg>
+          <div class="hv" style="font-size:15px">7-DAY</div>
+          <div class="hl">Streak</div>
+          <div class="hs">Keep going</div>
+        </div>
+        <!-- north: sleep -->
+        <div class="hex n" style="background:linear-gradient(150deg,rgba(96,165,250,.30),rgba(96,165,250,.10));border:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <div class="hv" style="color:#60A5FA">82</div>
+          <div class="hl">Sleep</div>
+          <div class="hs">Good</div>
+        </div>
+        <!-- north-east: recovery -->
+        <div class="hex ne" style="background:linear-gradient(150deg,rgba(52,211,153,.30),rgba(52,211,153,.10))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>
+          <div class="hv" style="color:#34D399">78</div>
+          <div class="hl">Recovery</div>
+          <div class="hs">Good</div>
+        </div>
+        <!-- south-east: stress -->
+        <div class="hex se" style="background:linear-gradient(150deg,rgba(251,191,36,.30),rgba(251,191,36,.10))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 L4 14h7l-1 8 9-12h-7z"/></svg>
+          <div class="hv" style="color:#FBBF24">68</div>
+          <div class="hl">Stress</div>
+          <div class="hs">Moderate</div>
+        </div>
+        <!-- south: energy -->
+        <div class="hex s" style="background:linear-gradient(150deg,rgba(251,146,60,.30),rgba(251,146,60,.10))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FB923C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <div class="hv" style="color:#FB923C">75</div>
+          <div class="hl">Energy</div>
+          <div class="hs">Good</div>
+        </div>
+        <!-- south-west: blood oxygen -->
+        <div class="hex sw" style="background:linear-gradient(150deg,rgba(129,140,248,.30),rgba(129,140,248,.10))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7s6 6.3 6 10.3a6 6 0 0 1-12 0c0-4 6-10.3 6-10.3z"/></svg>
+          <div class="hv" style="color:#818CF8">71</div>
+          <div class="hl">Blood O₂</div>
+          <div class="hs">Good</div>
+        </div>
+        <!-- north-west: hrv -->
+        <div class="hex nw" style="background:linear-gradient(150deg,rgba(34,211,238,.30),rgba(34,211,238,.10))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2.5-7 4 14 3-9 2.5 2H22"/></svg>
+          <div class="hv" style="color:#22D3EE">64</div>
+          <div class="hl">HRV</div>
+          <div class="hs">Balanced</div>
+        </div>
+      </div>
+
+      <div class="insight">
+        <div class="txt">
+          <div class="t">Today's insight</div>
+          <div class="b">Your sleep and recovery are working together.</div>
+          <div class="s">Keep your evening routine consistent to hold your momentum.</div>
+        </div>
+        <div class="thumb" id="thumbArt"></div>
+      </div>
+    </section>
+
+    <!-- ════════ 1 · ENTER SLEEP ════════ -->
+    <section class="screen" data-name="Enter">
+      <div class="hero-art" data-art="full"></div>
+      <div class="step"><b>01</b> Enter sleep</div>
+      <h1 class="big">Sleep is<br>your<br>superpower.</h1>
+      <p class="lede">On nights with 7.5+ hours of deep sleep, your next-day performance improves across all metrics.</p>
+      <div class="swipe">
+        Swipe to explore
+        <svg class="chev" width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l8 8 8-8"/></svg>
+      </div>
+    </section>
+
+    <!-- ════════ 2 · SLEEP OVERVIEW ════════ -->
+    <section class="screen" data-name="Overview">
+      <div class="step"><b>02</b> Sleep overview</div>
+      <div class="scorewrap">
+        <div class="ring">
+          <svg viewBox="0 0 120 120" width="122" height="122">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="9"/>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="url(#rg)" stroke-width="9" stroke-linecap="round"
+                    stroke-dasharray="326.7" stroke-dashoffset="58.8" transform="rotate(-90 60 60)"/>
+            <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#A78BFA"/><stop offset="1" stop-color="#7C3AED"/>
+            </linearGradient></defs>
+          </svg>
+          <div class="lbl">
+            <div class="n">82</div>
+            <div class="t">HAILO score</div>
+            <div class="q">Strong</div>
+          </div>
+        </div>
+        <div class="sidestats">
+          <div class="sidestat">
+            <svg class="dial" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="#34D399" stroke-width="4" stroke-linecap="round" stroke-dasharray="94.2" stroke-dashoffset="26.4" transform="rotate(-90 18 18)"/></svg>
+            <div><div class="v">72%</div><div class="k">Recovery</div></div>
+          </div>
+          <div class="sidestat">
+            <svg class="dial" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="#60A5FA" stroke-width="4" stroke-linecap="round" stroke-dasharray="94.2" stroke-dashoffset="18.8" transform="rotate(-90 18 18)"/></svg>
+            <div><div class="v">7h 12m</div><div class="k">Sleep</div></div>
+          </div>
+          <div class="sidestat">
+            <svg class="dial" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="4"/><circle cx="18" cy="18" r="15" fill="none" stroke="#FBBF24" stroke-width="4" stroke-linecap="round" stroke-dasharray="94.2" stroke-dashoffset="47.1" transform="rotate(-90 18 18)"/></svg>
+            <div><div class="v">12.4</div><div class="k">Strain</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quad">
+        <div class="q">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2.5-7 4 14 3-9 2.5 2H22"/></svg>
+          <div class="v">64</div><div class="k">HRV</div>
+        </div>
+        <div class="q">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FB7185" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg>
+          <div class="v">52</div><div class="k">RHR</div>
+        </div>
+        <div class="q">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 L4 14h7l-1 8 9-12h-7z"/></svg>
+          <div class="v">1.3</div><div class="k">Stress</div>
+        </div>
+        <div class="q">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          <div class="v">18</div><div class="k">Active</div>
+          <div class="weekdots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i></div>
+        </div>
+      </div>
+
+      <div class="note">
+        <div class="ic" style="background:rgba(52,211,153,0.16)">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#34D399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div>
+          <div class="h">Key takeaway</div>
+          <div class="b">Your body is recovering well and your sleep was optimal.</div>
+          <div class="s" style="font-size:11px;color:var(--txt3);margin-top:3px;font-weight:500">Keep bedtime and the environment steady.</div>
+        </div>
+      </div>
+
+      <div class="note">
+        <div class="ic" style="background:rgba(139,92,246,0.16)">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+        </div>
+        <div>
+          <div class="h">Rise on</div>
+          <div class="b">Consistency is your superpower.</div>
+          <div class="s" style="font-size:11px;color:var(--txt3);margin-top:3px;font-weight:500">Try to keep a similar sleep schedule for even better results.</div>
+        </div>
+        <svg class="arw" width="7" height="12" viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l5 5-5 5"/></svg>
+      </div>
+
+      <button class="cta" data-next>Explore my sleep
+        <svg width="14" height="9" viewBox="0 0 20 12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l8 8 8-8"/></svg>
+      </button>
+    </section>
+
+    <!-- ════════ 3 · LAST NIGHT ════════ -->
+    <section class="screen" data-name="Last night">
+      <div class="step"><b>03</b> Last night</div>
+      <h2 class="big">Here's how<br>you slept.</h2>
+
+      <div class="stages">
+        <div class="stg"><i style="background:#FB7185"></i><span class="nm">Awake</span><span class="tm">18m</span><span class="pc">4%</span></div>
+        <div class="stg"><i style="background:#A78BFA"></i><span class="nm">REM</span><span class="tm">1h 34m</span><span class="pc">22%</span></div>
+        <div class="stg"><i style="background:#60A5FA"></i><span class="nm">Light</span><span class="tm">4h 12m</span><span class="pc">58%</span></div>
+        <div class="stg"><i style="background:#4C1D95"></i><span class="nm">Deep</span><span class="tm">1h 8m</span><span class="pc">16%</span></div>
+      </div>
+
+      <div class="card" style="padding:12px 10px">
+        <svg id="hypno" viewBox="0 0 320 92" width="100%" height="92" preserveAspectRatio="none"></svg>
+        <div class="axis" style="padding:0 2px">
+          <span>10:42 PM</span><span>1 AM</span><span>3 AM</span><span>5 AM</span><span>6:24 AM</span>
+        </div>
+      </div>
+
+      <div class="quad" style="margin-top:12px">
+        <div class="q"><div class="v" style="font-size:14px">7h 12m</div><div class="k">Time asleep</div></div>
+        <div class="q"><div class="v" style="font-size:14px">92%</div><div class="k">Efficiency</div></div>
+        <div class="q"><div class="v" style="font-size:14px">2h 28m</div><div class="k">Restorative</div></div>
+        <div class="q"><div class="v" style="font-size:14px">2</div><div class="k">Wake-ups</div></div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="row" style="justify-content:space-between">
+          <span class="micro">During sleep</span>
+          <span class="micro" style="color:var(--green)">Within normal</span>
+        </div>
+        <div class="quad" style="margin-top:10px">
+          <div class="q" style="background:none;border:0;padding:0"><div class="v" style="font-size:15px;color:#FB7185">52<span style="font-size:9px;color:var(--txt3)"> bpm</span></div><div class="k">Low HR</div></div>
+          <div class="q" style="background:none;border:0;padding:0"><div class="v" style="font-size:15px;color:#22D3EE">64<span style="font-size:9px;color:var(--txt3)"> ms</span></div><div class="k">HRV</div></div>
+          <div class="q" style="background:none;border:0;padding:0"><div class="v" style="font-size:15px;color:#818CF8">97.3<span style="font-size:9px;color:var(--txt3)">%</span></div><div class="k">Blood O₂</div></div>
+          <div class="q" style="background:none;border:0;padding:0"><div class="v" style="font-size:15px;color:#34D399">14.2<span style="font-size:9px;color:var(--txt3)"> rpm</span></div><div class="k">Resp.</div></div>
+        </div>
+      </div>
+
+      <button class="cta" data-next>Continue
+        <svg width="14" height="9" viewBox="0 0 20 12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l8 8 8-8"/></svg>
+      </button>
+    </section>
+
+    <!-- ════════ 4 · SLEEP PERFORMANCE ════════ -->
+    <section class="screen dense" data-name="Why">
+      <div class="step"><b>04</b> Sleep performance</div>
+      <h2 class="big">Why your<br>night went<br>this way.</h2>
+      <p class="lede" style="font-size:13px">Here's how your daily habits influenced your sleep quality.</p>
+
+      <div class="micro sec">Physiology</div>
+      <div class="quad">
+        <div class="q"><div class="v" style="font-size:15px;color:#FB7185">52</div><div class="k">Low HR</div><div class="s" style="font-size:7.5px;color:var(--txt3);margin-top:2px">4 below avg</div></div>
+        <div class="q"><div class="v" style="font-size:15px;color:#22D3EE">64</div><div class="k">HRV ms</div><div class="s" style="font-size:7.5px;color:var(--txt3);margin-top:2px">Above avg</div></div>
+        <div class="q"><div class="v" style="font-size:15px;color:#60A5FA">−0.3</div><div class="k">Skin temp</div><div class="s" style="font-size:7.5px;color:var(--txt3);margin-top:2px">Optimal</div></div>
+        <div class="q"><div class="v" style="font-size:15px;color:#34D399">16.2</div><div class="k">Resp rpm</div><div class="s" style="font-size:7.5px;color:var(--txt3);margin-top:2px">Steady</div></div>
+      </div>
+
+      <div class="micro sec">Behaviours</div>
+      <div class="beh">
+        <div class="behrow">
+          <div class="ic" style="background:rgba(251,113,133,0.15)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#FB7185" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/></svg></div>
+          <div><div class="nm">Caffeine intake</div><div class="sb">Last coffee 5:20 PM</div></div>
+          <span class="badge bad">Delayed sleep</span>
+        </div>
+        <div class="behrow">
+          <div class="ic" style="background:rgba(251,191,36,0.15)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 L4 14h7l-1 8 9-12h-7z"/></svg></div>
+          <div><div class="nm">Late activity</div><div class="sb">Workout ended 7:45 PM</div></div>
+          <span class="badge warn">Minor impact</span>
+        </div>
+        <div class="behrow">
+          <div class="ic" style="background:rgba(52,211,153,0.15)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 6a4 4 0 0 1-6 0z"/><path d="M12 9v9M8 21h8"/></svg></div>
+          <div><div class="nm">Alcohol</div><div class="sb">None — 3 nights running</div></div>
+          <span class="badge good">Protective</span>
+        </div>
+        <div class="behrow">
+          <div class="ic" style="background:rgba(251,191,36,0.15)"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></div>
+          <div><div class="nm">Daylight exposure</div><div class="sb">28 min before 9 AM</div></div>
+          <span class="badge good">High impact</span>
+        </div>
+      </div>
+
+      <div class="note">
+        <div class="ic" style="background:rgba(139,92,246,0.16)">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+        </div>
+        <div>
+          <div class="h">The pattern</div>
+          <div class="b">Great physiological state and smart habits set you up for optimal sleep.</div>
+          <div class="s" style="font-size:11px;color:var(--txt3);margin-top:3px;font-weight:500">Keep it consistent.</div>
+        </div>
+      </div>
+
+      <button class="cta" data-next>Continue
+        <svg width="14" height="9" viewBox="0 0 20 12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l8 8 8-8"/></svg>
+      </button>
+    </section>
+
+    <!-- ════════ 5 · THE BIG PICTURE ════════ -->
+    <section class="screen dense" data-name="Picture">
+      <div class="step"><b>05</b> The big picture</div>
+      <h2 class="big">Your sleep<br>creates your<br>tomorrow.</h2>
+
+      <div class="micro sec">Today's capacity</div>
+      <div class="pent">
+        <div class="p">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 L4 14h7l-1 8 9-12h-7z"/></svg>
+          <div class="v">78%</div><div class="k">Readiness</div><div class="g">Good</div>
+        </div>
+        <div class="p">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+          <div class="v">84%</div><div class="k">Focus</div><div class="g">Sharp</div>
+        </div>
+        <div class="p">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0M9 9.5h.01M15 9.5h.01"/></svg>
+          <div class="v">81%</div><div class="k">Mood</div><div class="g">Steady</div>
+        </div>
+        <div class="p">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-8-4.6-8-10a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 11c0 5.4-8 10-8 10z"/></svg>
+          <div class="v">76%</div><div class="k">Recovery</div><div class="g">Good</div>
+        </div>
+        <div class="p">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20v-3"/></svg>
+          <div class="v" style="font-size:13px">High</div><div class="k">Capacity</div><div class="g">Top 15%</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <div class="row" style="justify-content:space-between;margin-bottom:8px">
+          <span class="micro">Sleep consistency</span>
+          <span class="micro" style="color:var(--green)">Strong</span>
+        </div>
+        <div class="dayhdr"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+        <div class="grid7" id="consistency"></div>
+        <div class="row" style="justify-content:space-between;margin-top:9px">
+          <span style="font-size:9.5px;color:var(--txt3);font-weight:700">4 weeks ago</span>
+          <span style="font-size:9.5px;color:var(--txt3);font-weight:700">This week</span>
+        </div>
+      </div>
+
+      <div class="micro sec">The downstream effect</div>
+      <div class="four">
+        <div class="f">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <div class="k">Quality sleep</div><div class="s">The starting point</div>
+        </div>
+        <div class="f">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/></svg>
+          <div class="k">Recovery</div><div class="s">Body rebuilds</div>
+        </div>
+        <div class="f">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 L4 14h7l-1 8 9-12h-7z"/></svg>
+          <div class="k">Performance</div><div class="s">Energy to spend</div>
+        </div>
+        <div class="f">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20v-3"/></svg>
+          <div class="k">Progress</div><div class="s">Compounds daily</div>
+        </div>
+      </div>
+
+      <div class="note">
+        <div class="ic" style="background:rgba(139,92,246,0.16)">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M2 12h4M18 12h4M4.9 19.1l2.9-2.9M16.2 7.8l2.9-2.9"/></svg>
+        </div>
+        <div>
+          <div class="h">Key insight</div>
+          <div class="b">Your sleep is the foundation. Everything else builds on it.</div>
+        </div>
+      </div>
+
+      <button class="cta" data-next>Continue
+        <svg width="14" height="9" viewBox="0 0 20 12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l8 8 8-8"/></svg>
+      </button>
+    </section>
+
+    <!-- ════════ 6 · RECOMMENDATIONS ════════ -->
+    <section class="screen dense" data-name="Tonight">
+      <div class="hero-art" data-art="glow"></div>
+      <div class="step"><b>06</b> Recommendations</div>
+      <h2 class="big">Make tonight<br>even better.</h2>
+      <p class="lede" style="font-size:13px">Small, personalised actions to elevate your next night.</p>
+
+      <div class="micro sec">Top priorities</div>
+      <div class="prio">
+        <div class="priorow">
+          <div class="ic" style="background:rgba(96,165,250,0.15)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <div><div class="nm">Extend your sleep window</div><div class="sb">Aim for 15–30 min earlier tonight</div></div>
+          <span class="badge good">High impact</span>
+        </div>
+        <div class="priorow">
+          <div class="ic" style="background:rgba(251,191,36,0.15)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></div>
+          <div><div class="nm">Get morning light</div><div class="sb">10–20 min outside within an hour of waking</div></div>
+          <span class="badge warn">Consistency</span>
+        </div>
+        <div class="priorow">
+          <div class="ic" style="background:rgba(34,211,238,0.15)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M5 8l7-6 7 6M5 16l7 6 7-6"/></svg></div>
+          <div><div class="nm">Cooler sleep environment</div><div class="sb">Keep the room between 60–67°F for deeper sleep</div></div>
+          <span class="badge good">Recovery</span>
+        </div>
+      </div>
+
+      <div class="micro sec">Lifestyle habits</div>
+      <div class="four">
+        <div class="f">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FB7185" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/></svg>
+          <div class="k">Cut caffeine</div><div class="s">By 2 PM</div>
+        </div>
+        <div class="f">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20v-3"/></svg>
+          <div class="k">Move daily</div><div class="s">Before 6 PM</div>
+        </div>
+        <div class="f">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <div class="k">Wind down</div><div class="s">45 min screen-free</div>
+        </div>
+        <div class="f">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/></svg>
+          <div class="k">Same bedtime</div><div class="s">±30 min</div>
+        </div>
+      </div>
+
+      <div class="micro sec">Tonight's outlook</div>
+      <div class="outlook">
+        <div class="top">
+          <div>
+            <div class="v">86<span style="font-size:15px">%</span></div>
+            <div class="micro" style="margin-top:3px">Projected score</div>
+          </div>
+          <div class="s">Good foundation.<br>Small changes = big results.</div>
+        </div>
+        <div class="bars">
+          <i style="height:42%"></i><i style="height:55%"></i><i style="height:48%"></i>
+          <i style="height:64%"></i><i style="height:58%"></i><i style="height:72%"></i>
+          <i class="hi" style="height:86%"></i>
+        </div>
+      </div>
+
+      <button class="cta" data-home style="margin-top:16px">Finish &amp; return to Atlas</button>
+    </section>
+
+  </div><!-- /scroller -->
+
+  <nav class="tabbar">
+    <button class="tab on" data-goto="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.6"/></svg>
+      Atlas
+    </button>
+    <button class="tab" data-goto="3">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      Timeline
+    </button>
+    <button class="tab add" data-goto="1">
+      <span class="plus">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </span>
+    </button>
+    <button class="tab" data-goto="5">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20v-3"/></svg>
+      Insights
+    </button>
+    <button class="tab" data-goto="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </button>
+  </nav>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── mountain / river artwork ──────────────────────────────────────
+     One SVG generator reused at three sizes (full-bleed hero, a soft
+     glow variant, and the little insight thumbnail) so the visual
+     language stays identical across screens. */
+  function art(variant){
+    // Tall viewBox on purpose: the hero containers are portrait, and
+    // `slice` crops the TOP to cover — with a short viewBox the moon and
+    // stars were being cropped away entirely. Extra sky height keeps them.
+    // Only the full hero gets a moon. On the recommendations screen the art
+    // sits BEHIND real content, and a moon there landed on top of a tile and
+    // made it unreadable — that screen gets mountains only, dimmed.
+    const moon = variant === 'full'
+      ? `<circle cx="326" cy="104" r="23" fill="#FDE68A" opacity=".92"/>
+         <circle cx="316" cy="97" r="21" fill="#1C1140"/>`
+      : '';
+    const stars = variant === 'full'
+      ? Array.from({length: 30}, (_, i) => {
+          // deterministic scatter — identical every load, no random reflow
+          const x = ((i * 97.3) % 380 + 10).toFixed(1);
+          const y = ((i * 61.7) % 220 + 14).toFixed(1);
+          const r = (((i * 37) % 10) / 12 + 0.5).toFixed(2);
+          const o = (((i * 53) % 10) / 22 + 0.25).toFixed(2);
+          return `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" opacity="${o}"/>`;
+        }).join('')
+      : '';
+    return `
+<svg viewBox="0 0 400 420" preserveAspectRatio="xMidYMax slice" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sky${variant}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#150C2E"/><stop offset=".55" stop-color="#241659"/><stop offset="1" stop-color="#2A1B5E"/>
+    </linearGradient>
+    <linearGradient id="riv${variant}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#DDD6FE"/><stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="420" fill="url(#sky${variant})"/>
+  ${stars}${moon}
+  <path d="M0 310 L70 256 L120 298 L168 244 L232 308 L288 264 L340 306 L400 268 L400 420 L0 420Z" fill="#3B2A7A" opacity=".85"/>
+  <path d="M0 336 L58 294 L118 332 L182 282 L246 336 L304 300 L360 338 L400 312 L400 420 L0 420Z" fill="#2D1F63"/>
+  <path d="M0 366 L74 328 L140 364 L206 326 L268 366 L336 332 L400 362 L400 420 L0 420Z" fill="#221650"/>
+  <path d="M196 420 C196 386 168 374 176 350 C182 330 208 324 206 304 C205 290 192 284 190 272"
+        stroke="url(#riv${variant})" stroke-width="7" fill="none" stroke-linecap="round" opacity=".95"/>
+  <path d="M196 420 C196 386 168 374 176 350 C182 330 208 324 206 304 C205 290 192 284 190 272"
+        stroke="#F5F3FF" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".8"/>
+</svg>`;
+  }
+
+  document.querySelectorAll('.hero-art').forEach(el => {
+    el.innerHTML = art(el.dataset.art);
+    // fade the top edge so the illustration melts into the screen
+    el.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, #000 28%)';
+    el.style.maskImage = 'linear-gradient(to bottom, transparent 0%, #000 28%)';
+  });
+  const thumb = document.getElementById('thumbArt');
+  if (thumb) thumb.innerHTML = art('thumb');
+
+  /* ── hypnogram ────────────────────────────────────────────────────
+     Sample-data sleep stage trace. Four levels, drawn as a stepped
+     path with a soft fill underneath — the shape a real night makes,
+     which is what the mockup shows. */
+  (function hypnogram(){
+    const svg = document.getElementById('hypno');
+    if (!svg) return;
+    const W = 320, H = 92, LV = { awake: 10, rem: 30, light: 54, deep: 78 };
+    // [stage, duration-in-arbitrary-units] across the night
+    const seq = [
+      ['light',3],['deep',7],['light',4],['rem',3],['light',3],['deep',6],
+      ['rem',4],['light',5],['awake',1],['light',4],['deep',4],['rem',5],
+      ['light',6],['rem',4],['light',3],['awake',1],['light',3],['rem',3],['light',2]
+    ];
+    const total = seq.reduce((s, [,d]) => s + d, 0);
+    let x = 0, d = '', fill = `M0 ${H} `;
+    seq.forEach(([stage, dur]) => {
+      const w = (dur / total) * W, y = LV[stage];
+      d    += (x === 0 ? `M0 ${y} ` : `L${x} ${y} `) + `L${x + w} ${y} `;
+      fill += (x === 0 ? `L0 ${y} ` : `L${x} ${y} `) + `L${x + w} ${y} `;
+      x += w;
+    });
+    fill += `L${W} ${H} Z`;
+    svg.innerHTML = `
+      <defs>
+        <linearGradient id="hg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#A78BFA" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#A78BFA" stop-opacity=".04"/>
+        </linearGradient>
+      </defs>
+      <path d="${fill}" fill="url(#hg)"/>
+      <path d="${d}" fill="none" stroke="#C4B5FD" stroke-width="1.8"
+            stroke-linejoin="round" stroke-linecap="round"/>`;
+  })();
+
+  /* ── sleep-consistency grid (4 weeks × 7 days) ── */
+  (function consistency(){
+    const el = document.getElementById('consistency');
+    if (!el) return;
+    // fixed sample pattern, not random, so the demo looks identical every load
+    const lv = [
+      2,3,3,1,2,3,0,
+      3,3,2,3,1,2,3,
+      2,3,3,3,2,3,1,
+      3,2,3,3,3,2,3
+    ];
+    el.innerHTML = lv.map(v => `<i class="${v ? 'l' + v : ''}"></i>`).join('');
+  })();
+
+  /* ── scroll wiring ────────────────────────────────────────────────
+     Scrolling itself is pure CSS scroll-snap; JS only mirrors position
+     into the progress rail and the tab bar, and drives the buttons. */
+  const scroller = document.getElementById('scroller');
+  const screens  = [...scroller.querySelectorAll('.screen')];
+  const rail     = document.getElementById('rail');
+  const tabs     = [...document.querySelectorAll('.tab')];
+
+  rail.innerHTML = screens.map(() => '<i></i>').join('');
+  const pips = [...rail.children];
+
+  function goTo(i){
+    const t = screens[Math.max(0, Math.min(screens.length - 1, i))];
+    if (t) scroller.scrollTo({ top: t.offsetTop, behavior: 'smooth' });
+  }
+  function current(){
+    // nearest screen to the current scroll position
+    const y = scroller.scrollTop + scroller.clientHeight * 0.35;
+    let best = 0, bd = Infinity;
+    screens.forEach((s, i) => { const d = Math.abs(s.offsetTop - scroller.scrollTop); if (d < bd){ bd = d; best = i; } });
+    return best;
+  }
+  function sync(){
+    const i = current();
+    pips.forEach((p, n) => p.classList.toggle('on', n === i));
+    tabs.forEach(t => t.classList.toggle('on', +t.dataset.goto === i));
+  }
+  scroller.addEventListener('scroll', () => {
+    // rAF-throttled so the rail stays smooth during momentum scrolling
+    if (sync._q) return;
+    sync._q = requestAnimationFrame(() => { sync._q = 0; sync(); });
+  }, { passive: true });
+  sync();
+
+  document.querySelectorAll('[data-next]').forEach(b =>
+    b.addEventListener('click', () => goTo(current() + 1)));
+  document.querySelectorAll('[data-home]').forEach(b =>
+    b.addEventListener('click', () => goTo(0)));
+  tabs.forEach(t =>
+    t.addEventListener('click', () => goTo(+t.dataset.goto)));
+
+  // Keyboard paging, for demoing on a laptop
+  window.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'PageDown'){ e.preventDefault(); goTo(current() + 1); }
+    if (e.key === 'ArrowUp'   || e.key === 'PageUp'  ){ e.preventDefault(); goTo(current() - 1); }
+  });
+})();
+</script>
+</body>
+</html>
