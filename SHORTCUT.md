@@ -1,5 +1,29 @@
 # Apple Health → Grail via Shortcuts
 
+> **STATUS: WORKING as of 2026-07-26.** Shortcut `Grail Sync` on Jeremiah's iPhone
+> posted a real heart rate (70 bpm) to `/ingest`, verified server-side against a
+> deliberately implausible 99.0 baseline. Currently sends `heart_rate` only.
+
+## Gotchas that actually cost time building it (read before editing the Shortcut)
+1. **`Get Details of Health Sample` does not exist** — searching for it adds
+   *Get Details of **Files***, whose detail list is File Path / File Size. Wrong action.
+   Instead: reference the **Health Samples** variable directly in the value field and
+   tap it — `Value` is already the default selected property. No extra action needed.
+2. **The value field silently stays empty.** Inserting the variable is a separate tap
+   from creating the field, and any interruption (permission prompt, URL edit) drops
+   it. An empty value posts `""`, which `/ingest` rejects. **Always confirm the blue
+   chip is in the field before running.** This broke two runs in a row.
+3. **The permission prompt wipes the action's config.** After granting Health access,
+   re-check Type / Sort by / Order / Limit — they revert.
+4. **URL, exactly:** `https://ailiv.health/ingest`
+   - `ailiv` — no trailing "e". `ailive.health` was bought but never wired: **no DNS at all.**
+   - `ingest` — G not J. `/injest` 404s.
+   - `https`, not `http` — Shortcuts defaults to `http://`, and a POST body can be
+     dropped on the redirect.
+5. **`Sort by: Start Date` + `Order: Latest First` + `Limit 1` are mandatory.** Without
+   them the action returns every sample as a list, not a number.
+
+
 Pushes **current** (not live) Apple Health values from the iPhone to Grail's
 `/ingest`. No Xcode, no dev pairing, no provisioning expiry — this is why it
 exists: the Apple Watch dev path is permanently blocked (see `~/pulse/CLAUDE.md`).
