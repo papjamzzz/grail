@@ -76,6 +76,82 @@ Open `https://ailiv.health/api/data` — `heart_rate` and `hrv` should match, an
 
 ---
 
+## FULL BIOMARKER AUDIT (2026-07-26)
+
+Grail's `DEFAULT_HEALTH` has 33 value keys. Not all are reachable from Apple Health,
+and the ones that are split into three different Shortcut recipes. Getting the recipe
+wrong produces a plausible-looking wrong number, not an error.
+
+### Tier 1 — point-in-time. Uses the EXACT pattern already built.
+`Find Health Samples` → Type → last 1 day → Sort **Start Date** / **Latest First** / **Limit 1**
+→ insert variable. Four taps each.
+
+| Grail key | Apple Health type | Caveat |
+|-----------|-------------------|--------|
+| `heart_rate` | Heart Rate | ✅ already wired. Updates every few min when worn. |
+| `resting_hr` | Resting Heart Rate | Computed once daily |
+| `walking_hr` | Walking Heart Rate Average | Daily average |
+| `hrv` | Heart Rate Variability (SDNN) | Apple's own schedule, mostly overnight. **Equil refuses this as live — Grail only.** |
+| `spo2` | Blood Oxygen Saturation | ⚠️ **Disabled on US Apple Watches** (patent dispute). Expect nothing unless from older data or another device. |
+| `respiratory_rate` | Respiratory Rate | ⚠️ **Sleep only** — no daytime samples |
+| `temperature` | Wrist Temperature | ⚠️ **Sleep only**, Series 8+/Ultra |
+| `vo2_max` | VO2 Max | Occasional, needs outdoor workouts |
+| `walking_speed` | Walking Speed | Periodic |
+| `cardio_recovery` | Cardio Recovery | Only after qualifying workouts |
+| `weight` | Body Mass | Manual or smart scale |
+| `body_fat` | Body Fat Percentage | Manual or smart scale |
+| `lean_mass` | Lean Body Mass | Manual or smart scale |
+| `systolic_bp` | Blood Pressure Systolic | Manual / cuff |
+| `diastolic_bp` | Blood Pressure Diastolic | Manual / cuff |
+| `waist_cm` | Waist Circumference | Manual |
+| `glucose` | Blood Glucose | Manual or CGM |
+
+### Tier 2 — CUMULATIVE. The Tier 1 recipe gives a WRONG number here.
+These accumulate across the day in many small samples. `Limit 1` returns only the **last
+increment** — e.g. the last 12 steps, not today's 8,400. You must sum instead:
+
+`Find Health Samples` → Type → **Start Date is in the last 1 day** → **Limit OFF**
+→ then add **Calculate Statistics** → operation **Sum** → insert *that* result.
+
+| Grail key | Apple Health type |
+|-----------|-------------------|
+| `daily_steps` | Steps |
+| `walk_run_km` | Walking + Running Distance |
+| `flights_climbed` | Flights Climbed |
+| `active_calories` | Active Energy |
+| `resting_calories` | Resting Energy |
+| `exercise_minutes` | Apple Exercise Time |
+| `stand_minutes` | Apple Stand Time |
+| `daylight_minutes` | Time in Daylight |
+
+### Tier 3 — needs duration maths. Skip unless genuinely wanted.
+Stored as intervals/sessions, not numbers. Requires computing durations from start/end
+dates inside the Shortcut, then summing.
+
+| Grail key | Why |
+|-----------|-----|
+| `sleep_hours` | Sleep is stage intervals (awake/core/deep/REM), not a total |
+| `deep_sleep_min` | Must filter to the Deep stage, then sum durations |
+| `rem_sleep_min` | Must filter to the REM stage, then sum durations |
+| `mindful_minutes` | Mindful Sessions are intervals |
+
+### Tier 4 — NOT reachable. Manual entry only.
+Not queryable HealthKit quantity types. Grail's schema keeps them for manual/lab entry.
+
+`testosterone` · `crp` · `vitamin_d` · `ferritin` · `cortisol`
+
+### Not in Grail's schema at all
+**Stillness / motion.** Apple Health stores no accelerometer or Core Motion stream, so
+Shortcuts cannot read it at any tier, and Grail has no key for it. Equil *does* accept
+`motion`, but nothing in this pipeline can honestly supply it. Real options: an
+iPhone-side Core Motion app, or a BLE chest strap. Step count is **not** a substitute —
+it lags by design and would break Equil's `motion<0.2` coherence lock.
+
+### Equil vs Grail
+Equil's `/webhook` accepts **only** `heart_rate` and `motion`. It deliberately dropped
+HRV, SpO2 and respiratory rate as live signals ("no fake numbers"). Every other field
+above goes to the Grail action only.
+
 ## Then add the rest
 
 Same Find Health Samples → Get Value → add a Dictionary row. Key names must match
