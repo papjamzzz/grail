@@ -133,37 +133,82 @@ body {
 #ring { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
 #ring.grabbing { cursor: grabbing; }
 
-.headline {
-  position: absolute; left: 36px; bottom: 34px; max-width: 380px;
-  pointer-events: none;
+/* ── HERO — centred at the top, the one piece of framing text ──
+   Replaced a bottom-left headline + a static colour legend. The legend is gone
+   entirely: colours are explained on demand by hovering the ring itself
+   (see .tip), which keeps the page symmetrical and stops asking the reader to
+   memorise a key before they can look at anything. */
+.hero {
+  position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+  width: min(620px, calc(100vw - 48px));
+  text-align: center; pointer-events: none; z-index: 8;
 }
-.headline h1 {
-  font-size: 44px; font-weight: 900; letter-spacing: -0.045em; line-height: 0.98;
+.hero h1 {
+  font-size: clamp(26px, 3.6vw, 42px);
+  font-weight: 900; letter-spacing: -0.045em; line-height: 1;
 }
-.headline h1 .dot { color: var(--energy); }
-.headline p {
-  margin-top: 12px; font-size: 13.5px; line-height: 1.5; color: var(--text2);
-  font-weight: 500; max-width: 300px;
+.hero h1 .dot { color: var(--energy); }
+.hero p {
+  margin: 9px auto 0; max-width: 430px;
+  font-size: 13px; line-height: 1.5; color: var(--text2); font-weight: 500;
 }
-.legend {
-  margin-top: 18px; display: flex; flex-wrap: wrap; gap: 12px 16px; max-width: 340px;
-}
-.lg { display: flex; align-items: center; gap: 7px;
-  font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--text2);
-}
-.lg i { width: 9px; height: 9px; border-radius: 50%; display: block; }
-
-.stagefoot {
-  position: absolute; right: 30px; bottom: 34px; text-align: right;
-  font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em;
+.herostat {
+  margin-top: 9px;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--text3);
-  line-height: 1.9; pointer-events: none;
 }
+
+/* ── hover explainer — the legend, but only for what you're pointing at ── */
+.tip {
+  position: absolute; z-index: 30; width: 232px;
+  background: rgba(10,10,14,0.95);
+  border: 1px solid var(--line);
+  border-radius: 11px; padding: 12px 14px 13px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 34px rgba(0,0,0,0.55);
+  opacity: 0; pointer-events: none;
+  transform: translateY(5px);
+  transition: opacity .16s, transform .16s;
+}
+.tip.show { opacity: 1; transform: none; }
+.tip .tswatch {
+  display: inline-block; vertical-align: middle;
+  width: 10px; height: 10px; border-radius: 50%; margin-right: 8px;
+}
+.tip .ttitle {
+  display: inline-block; vertical-align: middle;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.13em; text-transform: uppercase;
+}
+.tip .tval {
+  margin-top: 9px; font-size: 19px; font-weight: 900; letter-spacing: -0.02em;
+}
+.tip .tval .tunit { font-size: 11px; font-weight: 700; color: var(--text3); margin-left: 4px; letter-spacing: 0; }
+.tip .tdesc { margin-top: 8px; font-size: 12px; line-height: 1.5; color: var(--text2); font-weight: 500; }
 
 .chips {
-  position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: 122px; left: 50%; transform: translateX(-50%);
   display: flex; gap: 8px; z-index: 10;
+}
+
+/* ── narrow screens ──
+   The top bar carries more than a phone can fit and was pushing the whole
+   page wider than the viewport (pre-existing — the ring itself ended up
+   scrolled off-screen). Drop the labels that are decorative on a small
+   screen and keep the controls. */
+@media (max-width: 620px) {
+  body { overflow-x: hidden; }
+  .topbar { gap: 10px; padding: 0 14px; }
+  .wordmark { font-size: 19px; }
+  .pagename, #topsource, .livelabel { display: none; }
+  .topmeta { gap: 10px; font-size: 9.5px; letter-spacing: 0.08em; min-width: 0; }
+  .atlaslink { white-space: nowrap; }
+  .hero { top: 10px; }
+  .hero p { font-size: 12px; }
+  .herostat { font-size: 9px; letter-spacing: 0.1em; }
+  .chips { top: 104px; gap: 6px; }
+  .chip { padding: 6px 10px; font-size: 9px; letter-spacing: 0.1em; }
+  .tip { width: 196px; padding: 10px 12px 11px; }
+  .hint { font-size: 9.5px; letter-spacing: 0.08em; text-align: center; width: 100%; justify-content: center; }
 }
 .chip {
   display: flex; align-items: center; gap: 7px;
@@ -236,7 +281,7 @@ body {
     <div class="pagename">Circadian Ring</div>
     <div class="topmeta">
       <span class="livedot"></span>
-      <span>Live</span>
+      <span class="livelabel">Live</span>
       <span id="topdate">—</span>
       <!-- Was "Data from WHOOP" — untrue: WHOOP has never been connected
            (/whoop/status returns connected:false). Real values arrive from Apple
@@ -277,7 +322,7 @@ body {
       </div>
       <div class="faqrow">
         <div class="faqicon"><b class="tabpill">◐</b></div>
-        <div class="faqtext"><b>The ◐ button</b> up top switches views: <b>Today so far</b> (default), or the <b>rolling last 24 hours</b> — where the dimmed stretch ahead of the cursor is yesterday closing the circle.</div>
+        <div class="faqtext"><b>The ◐ button</b> up top switches views. By default the ring shows the <b>full 24 hours</b> — bright behind the cursor is today as you have lived it, dimmed ahead of it is yesterday, waiting to be written over. Switch it to <b>Today so far</b> to leave the unlived hours blank instead.</div>
       </div>
       <div class="faqrow">
         <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M4 6 Q 20 -4 36 6" fill="none" stroke="var(--sleep)" stroke-width="4" stroke-linecap="round"/></svg></div>
@@ -316,7 +361,7 @@ body {
         <div class="faqtext"><b>Atlas</b> in the top bar jumps to the other view: how your systems relate to each other right now.</div>
       </div>
 
-      <div class="faqfoot">Prototype on simulated data · Tap anywhere to close</div>
+      <div class="faqfoot">Hover any band on the ring to read it · Tap anywhere to close</div>
     </div>
   </div>
 
@@ -329,28 +374,22 @@ body {
       <div class="chip on" data-layer="movement"><i style="background:var(--inflam)"></i>Movement</div>
     </div>
 
-    <div class="headline">
-      <h1 id="hl">Today, so far<span class="dot">.</span></h1>
-      <p id="hlsub">Your day writes itself onto the ring as you live it. The rest is still unwritten.</p>
-      <div class="legend">
-        <span class="lg"><i style="background:var(--sleep)"></i>Sleep</span>
-        <span class="lg"><i style="background:var(--blood)"></i>Deep</span>
-        <span class="lg"><i style="background:var(--hrv)"></i>REM · HRV</span>
-        <span class="lg"><i style="background:var(--inflam)"></i>Training</span>
-        <span class="lg"><i style="background:#E8850C"></i>Caffeine</span>
-        <span class="lg"><i style="background:var(--eating)"></i>Eating window</span>
-        <span class="lg"><i style="background:var(--stress)"></i>Heart rate</span>
-        <span class="lg"><i style="background:linear-gradient(90deg,var(--recovery),var(--energy),var(--stress))"></i>Stress</span>
-      </div>
+    <div class="hero">
+      <h1>Your Day Writes Itself<span class="dot">.</span></h1>
+      <p id="herosub">—</p>
+      <div class="herostat" id="written">—</div>
     </div>
 
-    <div class="stagefoot">
-      HAILO ATLAS — LIVING SYSTEM<br>
-      <span id="written" style="color:#FFF">—</span><br>
-      <span id="footdate">—</span>
-    </div>
+    <div class="hint" id="hint"><span class="pulse"></span> Hover to read · drag to travel · tap to hold</div>
 
-    <div class="hint" id="hint"><span class="pulse"></span> Drag to travel your day · tap to hold a moment</div>
+    <!-- Hover explainer. Replaces the old always-on colour legend: you point at
+         a band and it tells you what it is, what it reads there, and why it
+         matters — instead of a static key you have to translate yourself. -->
+    <div class="tip" id="tip">
+      <div><span class="tswatch" id="tipsw"></span><span class="ttitle" id="tiptitle">—</span></div>
+      <div class="tval" id="tipval"></div>
+      <div class="tdesc" id="tipdesc">—</div>
+    </div>
 
     <div class="moment" id="moment">
       <div class="mclose" id="mclose">×</div>
@@ -502,7 +541,10 @@ const a2t = a => {
 /* ── view mode ──
    'today'   — the day so far; everything past now is unwritten
    'rolling' — full last 24h; ahead of the cursor is yesterday, dimmed */
-let mode = 'today';
+// Default is the FULL ring: the whole circle carries data, bright where today
+// has been lived and dimmed where yesterday is still waiting to be written over.
+// 'today' (a partial arc, blank ahead of now) is still available via the ◐ button.
+let mode = 'rolling';
 const YDIM = 0.38;               // alpha factor for "yesterday" in rolling mode
 function nowT(){
   const d = new Date();
@@ -629,14 +671,18 @@ function drawSpan(s, e, r, w, color, alpha, glow){
   });
 }
 
-let OX=0, OY=0, R=0;
+// RB is the breathing ring radius, published each frame so the hover hit-test
+// can work in the same coordinate space the bands are actually drawn in.
+let OX=0, OY=0, R=0, RB=0;
 
 function draw(now, dt){
   cx.clearRect(0,0,W,H);
-  OX = W*0.5; OY = H*0.485;
-  R = Math.min(W,H) * 0.315;
+  // Centre sits below middle to leave room for the hero block above the ring.
+  OX = W*0.5; OY = H*0.545;
+  R = Math.min(W,H) * 0.30;
   const breathe = 1 + 0.008*Math.sin(now*0.0012);
   const Rb = R * breathe;
+  RB = Rb;
 
   /* cursor lives at the real clock; glide back after a scrub; hold when pinned */
   const tNow = nowT();
@@ -959,6 +1005,125 @@ const endDrag = e => {
 cv.addEventListener('pointerup', endDrag);
 cv.addEventListener('pointercancel', endDrag);
 
+/* ── hover explainer ─────────────────────────────────────────────────────
+   This replaces the old always-on colour legend. Point at any band and it
+   names itself, reads its own value at that hour, and says why it matters —
+   rather than asking the reader to memorise a key first. Bands are hit-tested
+   by radial distance from RB (the same radii draw() actually renders at), then
+   disambiguated by what is happening at that time of day. Honours the layer
+   chips: a band that is switched off cannot be hovered. The green-means-real
+   rule from the centre readout holds here too — a value that came from a
+   genuine Apple Health reading is green, an estimate stays white.          */
+const tipEl = document.getElementById('tip');
+const tipSw = document.getElementById('tipsw');
+const tipTitle = document.getElementById('tiptitle');
+const tipVal = document.getElementById('tipval');
+const tipDesc = document.getElementById('tipdesc');
+
+/* span membership, tolerant of spans that wrap midnight */
+function inSpan(t, s, e){
+  return e >= s ? (t >= s && t <= e) : (t >= s || t <= e);
+}
+
+function bandAt(r, t){
+  if (!RB || !R) return null;
+  const d = r - RB;
+  if (d > 72) return null;          // outside the hour labels entirely
+  if (r < R * 0.45) return null;    // centre readout, not a band
+
+  if (d >= 28){                     // outer ribbon — heart rate
+    if (!LAYERS.vitals) return null;
+    const real = realValueAsOf('heart_rate', t);
+    return { title:'Heart rate', color:COL.stress, real: !!real,
+      value: Math.round(real ? real.value : hrAt(t)), unit:'bpm',
+      desc:'Beats per minute across the day — it swells where you trained and sinks while you slept.' };
+  }
+  if (d >= 14){                     // caffeine decay trail
+    if (!LAYERS.fuel) return null;
+    return { title:'Caffeine', color:CAFF_COLOR,
+      value: Math.round(caffAt(t)), unit:'mg active',
+      desc:'What is still in your blood at this hour. Each dose halves roughly every 5½ hours — if a trail reaches your sleep arc, it was still working at bedtime.' };
+  }
+  if (d >= 7){                      // eating window
+    if (!LAYERS.fuel || !inSpan(t, DAY.eating.s, DAY.eating.e)) return null;
+    return { title:'Eating window', color:COL.eating,
+      value: fmtTime(DAY.eating.s) + '–' + fmtTime(DAY.eating.e), unit:'',
+      desc:'The hours you eat in. Everything outside this band is fasting.' };
+  }
+  if (d >= -8){                     // the main ring
+    if (inSleep(t)){
+      if (DAY.stages.some(s => s.type==='deep' && inSpan(t, s.s, s.e)))
+        return { title:'Deep sleep', color:COL.blood, value:'', unit:'',
+          desc:'The hardest physical repair window of the night. HRV climbs through it.' };
+      return { title:'Sleep', color:COL.sleep, value:'', unit:'',
+        desc:'Time asleep. Purple stretches inside this arc are deep sleep; the cyan dashes just inside are REM.' };
+    }
+    if (LAYERS.movement && inSpan(t, DAY.training.s, DAY.training.e))
+      return { title:'Training', color:COL.inflam, value:'', unit:'',
+        desc:'Peak effort, and the biggest heart-rate swell of the day.' };
+    if (LAYERS.movement && inSpan(t, DAY.walk.s, DAY.walk.e))
+      return { title:'Walking', color:COL.energy, value:'', unit:'',
+        desc:'Easy movement — keeping things ticking without much cost.' };
+    if (!LAYERS.vitals) return null;
+    const s = stressAt(t);
+    return { title:'Stress load', color:stressColor(s),
+      value: s > 1.7 ? 'High' : s > 0.9 ? 'Moderate' : 'Low', unit:'',
+      desc:'The ring’s daytime colour. Green is calm, amber is working, red is a spike worth noticing.' };
+  }
+  if (d >= -20){                    // REM dashes just inside the ring
+    if (!DAY.stages.some(s => s.type==='rem' && inSpan(t, s.s, s.e))) return null;
+    return { title:'REM sleep', color:COL.hrv, value:'', unit:'',
+      desc:'Dreaming, and filing away the day. HRV rides high through REM.' };
+  }
+  if (d <= -28){                    // inner ribbon — HRV
+    if (!LAYERS.vitals) return null;
+    const real = realValueAsOf('hrv', t);
+    return { title:'HRV', color:COL.hrv, real: !!real,
+      value: Math.round(real ? real.value : hrvAt(t)), unit:'ms',
+      desc:'Heart-rate variability, the spacing between beats. Highest in deep night, dipping after hard effort, rebounding as you recover.' };
+  }
+  return null;
+}
+
+let tipShown = false;
+function hideTip(){ if (tipShown){ tipEl.classList.remove('show'); tipShown = false; } }
+
+cv.addEventListener('pointermove', e => {
+  // Touch drives scrubbing, not hovering — a tooltip chasing a finger would
+  // just sit under it and fight the drag gesture.
+  if (dragging || e.pointerType === 'touch'){ hideTip(); return; }
+  const rect = cv.getBoundingClientRect();
+  const x = e.clientX - rect.left - OX, y = e.clientY - rect.top - OY;
+  const band = bandAt(Math.hypot(x, y), a2t(Math.atan2(y, x)));
+  if (!band){ hideTip(); return; }
+
+  tipSw.style.background = band.color;
+  tipTitle.textContent = band.title;
+  tipTitle.style.color = band.color;
+  if (band.value === '' || band.value === undefined){
+    tipVal.style.display = 'none';
+  } else {
+    tipVal.style.display = '';
+    tipVal.innerHTML = band.value + (band.unit ? ' <span class="tunit">' + band.unit + '</span>' : '');
+    tipVal.style.color = band.real ? '#7CFC00' : '#FFF';
+  }
+  tipDesc.textContent = band.desc;
+
+  // Place the card OUTWARD from the ring centre — on whichever side the cursor
+  // already is — so it never lands on top of the centre readout.
+  const stage = cv.parentElement.getBoundingClientRect();
+  const px = e.clientX - stage.left, py = e.clientY - stage.top;
+  let lx = x >= 0 ? px + 20 : px - tipEl.offsetWidth - 20;
+  let ly = y >= 0 ? py + 16 : py - tipEl.offsetHeight - 16;
+  lx = Math.min(Math.max(6, lx), stage.width  - tipEl.offsetWidth  - 6);
+  ly = Math.min(Math.max(6, ly), stage.height - tipEl.offsetHeight - 6);
+  tipEl.style.left = lx + 'px';
+  tipEl.style.top  = ly + 'px';
+  if (!tipShown){ tipEl.classList.add('show'); tipShown = true; }
+});
+cv.addEventListener('pointerleave', hideTip);
+cv.addEventListener('pointerdown', hideTip);
+
 /* ── tapped-moment card ── */
 const momentEl = document.getElementById('moment');
 function momentSentence(t, st, hr, hrv, sv, mg){
@@ -1020,22 +1185,22 @@ function updateWritten(){
   const el = document.getElementById('written');
   el.textContent = mode === 'today'
     ? Math.round(nowT()/24*100) + '% of today written'
-    : 'Rolling 24-hour window';
+    : 'Full 24 hours · ' + Math.round(nowT()/24*100) + '% of today lived';
 }
+// The hero title is constant now ("Your Day Writes Itself") — only the sentence
+// under it changes with the view, so the page has one fixed anchor.
 function setMode(m){
   mode = m;
   modeicon.innerHTML = MODE_ICONS[m];
-  modebtn.title = m === 'today' ? 'Switch to rolling last 24 hours' : 'Switch to today so far';
-  document.getElementById('hl').innerHTML =
-    (m === 'today' ? 'Today, so far' : 'Your last 24 hours') + '<span class="dot">.</span>';
-  document.getElementById('hlsub').textContent = m === 'today'
-    ? 'Your day writes itself onto the ring as you live it. The rest is still unwritten.'
-    : 'Behind the cursor is today; ahead of it, yesterday closes the circle.';
+  modebtn.title = m === 'today' ? 'Switch to the full 24-hour ring' : 'Switch to today so far';
+  document.getElementById('herosub').textContent = m === 'today'
+    ? 'The day so far. Everything ahead of the cursor is still unwritten.'
+    : 'The whole circle is full. Bright is today as you have lived it; dim is yesterday, waiting to be written over.';
   updateWritten();
 }
 modebtn.addEventListener('click', () => setMode(mode === 'today' ? 'rolling' : 'today'));
 setInterval(updateWritten, 30000);
-setMode('today');
+setMode('rolling');
 
 /* ── layer chips ── */
 document.querySelectorAll('.chip').forEach(ch => {
@@ -1056,9 +1221,9 @@ faq.addEventListener('click', e => { if (e.target === faq) closeFaq(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFaq(); });
 
 /* ── dates + atlas link ── */
+// Shown once, in the top bar. It used to also repeat in a bottom-right footer.
 const dstr = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 document.getElementById('topdate').textContent = dstr;
-document.getElementById('footdate').textContent = dstr;
 if (!location.hostname.includes('vercel') && location.protocol !== 'file:')
   document.getElementById('atlaslink').href = '/hailo';
 
