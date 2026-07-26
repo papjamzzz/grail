@@ -3,3 +3,7 @@ test_lab*.png
 test_lab*.html
 .venv/
 venv/
+.DS_Store
+__pycache__/
+*.pyc
+whoop_token.json
