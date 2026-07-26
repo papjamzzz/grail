@@ -840,26 +840,69 @@ function draw(now, dt){
       .map(p => ({ ...p, t: ((anchor - p.hoursAgo) % 24 + 24) % 24 }))
       .sort((a, b) => b.hoursAgo - a.hoursAgo);   // oldest (largest hoursAgo) first
     if (!plotted.length) return;
-    cx.save();
-    cx.strokeStyle = 'rgba(124,252,0,0.75)';
-    cx.lineWidth = 2;
-    cx.shadowColor = '#7CFC00'; cx.shadowBlur = 6;
+
+    // Split into runs of readings close enough in time to connect. A gap wider
+    // than REAL_CONNECT_MAX_HOURS means a sync was actually missed, so the runs
+    // stay separate rather than being bridged by a guessed line.
+    const runs = [];
+    let run = [plotted[0]];
     for (let i = 1; i < plotted.length; i++){
-      const prev = plotted[i-1], curr = plotted[i];   // prev is older
-      if ((prev.hoursAgo - curr.hoursAgo) > REAL_CONNECT_MAX_HOURS) continue;
-      const a1 = t2a(prev.t), r1 = radiusForValue(prev.value);
-      const a2 = t2a(curr.t), r2 = radiusForValue(curr.value);
-      cx.beginPath();
-      cx.moveTo(OX + Math.cos(a1)*r1, OY + Math.sin(a1)*r1);
-      cx.lineTo(OX + Math.cos(a2)*r2, OY + Math.sin(a2)*r2);
-      cx.stroke();
+      if ((plotted[i-1].hoursAgo - plotted[i].hoursAgo) > REAL_CONNECT_MAX_HOURS){
+        runs.push(run); run = [plotted[i]];
+      } else run.push(plotted[i]);
     }
+    runs.push(run);
+
+    cx.save();
+    cx.lineJoin = 'round'; cx.lineCap = 'round';
+
+    /* Each link is swept ALONG the ring, not drawn as a straight chord.
+       The angle interpolates around the circle while the radius eases with a
+       smoothstep, so a link between two readings arcs with the geometry
+       instead of cutting across it. Straight chords were the harsh part —
+       especially for a sparse metric like HRV, where two distant readings
+       produced a long flat line slicing through the middle of the dial. */
+    runs.forEach(r => {
+      if (r.length < 2) return;
+      cx.beginPath();
+      for (let i = 1; i < r.length; i++){
+        const p0 = r[i-1], p1 = r[i];
+        const a0 = t2a(p0.t);
+        let da = t2a(p1.t) - a0;
+        while (da >  Math.PI) da -= Math.PI * 2;   // take the short way round
+        while (da < -Math.PI) da += Math.PI * 2;
+        const r0 = radiusForValue(p0.value), r1 = radiusForValue(p1.value);
+        const SEG = Math.max(10, Math.round(Math.abs(da) / (Math.PI*2) * 260));
+        for (let s = 0; s <= SEG; s++){
+          const u = s / SEG;
+          const e = u * u * (3 - 2 * u);           // smoothstep: eases in and out
+          const a = a0 + da * u;
+          const rr = r0 + (r1 - r0) * e;
+          const x = OX + Math.cos(a) * rr, y = OY + Math.sin(a) * rr;
+          (i === 1 && s === 0) ? cx.moveTo(x, y) : cx.lineTo(x, y);
+        }
+      }
+      // Deliberately restrained: at hourly sync the HR trail wraps the whole
+      // dial, so a heavy neon stroke buries the sleep arc, stress band and
+      // everything else underneath. A faint wide underglow plus a thin line
+      // reads as a delicate trace that still clearly says "this is the real one".
+      cx.strokeStyle = 'rgba(124,252,0,0.09)';
+      cx.lineWidth = 5; cx.shadowColor = '#7CFC00'; cx.shadowBlur = 8;
+      cx.stroke();
+      cx.strokeStyle = 'rgba(124,252,0,0.58)';
+      cx.lineWidth = 1.5; cx.shadowBlur = 4;
+      cx.stroke();
+    });
+
+    // readings themselves: a soft halo under a small solid core
     plotted.forEach(p => {
       const a = t2a(p.t), r = radiusForValue(p.value);
-      const x = OX + Math.cos(a)*r, y = OY + Math.sin(a)*r;
-      cx.beginPath(); cx.arc(x, y, 3.2, 0, Math.PI*2);
+      const x = OX + Math.cos(a) * r, y = OY + Math.sin(a) * r;
+      cx.beginPath(); cx.arc(x, y, 5, 0, Math.PI*2);
+      cx.fillStyle = 'rgba(124,252,0,0.11)'; cx.shadowBlur = 0; cx.fill();
+      cx.beginPath(); cx.arc(x, y, 2.2, 0, Math.PI*2);
       cx.fillStyle = '#7CFC00';
-      cx.fill();
+      cx.shadowColor = '#7CFC00'; cx.shadowBlur = 5; cx.fill();
     });
     cx.restore();
   }
