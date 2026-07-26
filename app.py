@@ -297,6 +297,12 @@ def ingest():
     return jsonify({"ok": bool(accepted), "accepted": accepted,
                     "rejected": rejected, "unknown": unknown, "data": data})
 
+# Tied to the iPhone "Grail Sync" Shortcut automations: 00:00 / 08:00 / 12:00 / 18:00
+# daily, so the widest normal gap is 8h (midnight -> 8am). Anything past this means a
+# scheduled run was actually missed, not just a long gap. `age_seconds` is the real
+# signal for the UI — this flag only means "the pipeline looks broken".
+MAX_FRESH_SECONDS = 10 * 3600
+
 def _data_age_seconds(stamp):
     """Seconds since `stamp`, or None if it can't be read as a real datetime.
     Tolerates the legacy bare '%H:%M' values already sitting in health_data.json."""
@@ -314,7 +320,7 @@ def api_data():
     # meaningful alongside how old it is, so say so rather than implying live.
     age = _data_age_seconds(data.get('last_updated'))
     data['age_seconds'] = round(age, 1) if age is not None else None
-    data['stale'] = (age is None) or (age > 3600)
+    data['stale'] = (age is None) or (age > MAX_FRESH_SECONDS)
     return jsonify(data)
 
 # --- Pulse: live Apple Watch BPM stream (iPhone companion -> here) ---
