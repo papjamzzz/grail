@@ -108,8 +108,16 @@ def db_init():
 
 db_init()
 
+# The Ring never queries past this window (api_data_history clamps to it too), so
+# keeping rows older than this is pure dead weight -- there is no code path that
+# can ever read them. One constant, referenced in both places, so the retention
+# limit and the query clamp can't silently drift apart.
+RETENTION_DAYS = 30
+
 def db_insert_reading(fields):
-    """fields: dict of metric name -> float, already validated by /ingest. No-op if DB unavailable."""
+    """fields: dict of metric name -> float, already validated by /ingest. No-op if DB unavailable.
+    Also prunes rows older than RETENTION_DAYS every call -- at a few inserts a
+    day this is trivial for Postgres and needs no separate cron job."""
     conn = db_conn()
     if not conn:
         return
@@ -117,6 +125,10 @@ def db_insert_reading(fields):
         with conn:
             with conn.cursor() as cur:
                 cur.execute("INSERT INTO readings (data) VALUES (%s)", [json.dumps(fields)])
+                cur.execute(
+                    "DELETE FROM readings WHERE ts < now() - (%s || ' days')::interval",
+                    [RETENTION_DAYS],
+                )
     except Exception as e:
         print(f"[AILIV] db_insert_reading failed: {e}")
     finally:
@@ -396,7 +408,7 @@ def api_data_history():
         hours = float(request.args.get('hours', 24))
     except (TypeError, ValueError):
         hours = 24.0
-    hours = max(1.0, min(hours, 24 * 30))   # clamp 1h..30d against abuse
+    hours = max(1.0, min(hours, 24 * RETENTION_DAYS))   # can't ask for more than retention keeps
     rows = db_history(hours)
     if rows is None:
         return jsonify({"ok": False, "error": "no database configured", "hours": hours, "readings": []})
