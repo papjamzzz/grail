@@ -161,9 +161,26 @@ Shows: status dot (green/orange/red) + label → system name → value → unit 
 - [x] Score computed dynamically from all 40 node pcts
 - [x] Apple Health export parsing (endpoint ready, parser not built yet)
 
+## ⚠️ DEPLOYMENT — read before pushing (discovered 2026-07-26)
+**Pushing to GitHub does NOT deploy Grail.** The live site (https://ailiv.health) is
+deployed **manually** with:
+```
+cd ~/grail && railway up --service Grail --environment production --detach
+```
+Railway's config claims it tracks branch **`v2`**, but that is misleading — `v2` does
+not even contain `/watch/live`, which *is* live in production. So production is
+running manually-uploaded code, not any branch. Also note **`main` is 10+ commits
+ahead of `v2`**; `origin/HEAD` points at `v2`. Verify with `curl` after deploying,
+never assume a git push shipped.
+
 ## What's Next (ideas queue)
 - ~~Apple Health XML parser — drop export file, nodes go live~~ — OUT OF SCOPE (2026-07-10): a separate company is building all device/biomarker backend syncing. Don't build this here.
-- ~~Apple Shortcuts shortcut for live /ingest push from Watch~~ — OUT OF SCOPE (2026-07-10): same as above, not ours to build.
+- **Apple Shortcuts → `/ingest`** — scope boundary **LIFTED 2026-07-26** by Jeremiah
+  ("i don't need this info live. it needs to be current"). Spec written: `SHORTCUT.md`.
+  This replaces the dead Apple Watch dev path (see `~/pulse/CLAUDE.md` — permanently
+  parked). Build order: 2 metrics → verify → expand → hourly automation.
+- [ ] Surface `age_seconds` / `stale` from `/api/data` in the UI so readings show
+  honest freshness instead of implying live data.
 - [ ] Third click on node = full 5i synthesis just for that biomarker
 - [ ] Timeline view — score over days
 - [ ] Connecting nodes with visible tendrils (when two markers correlate)
