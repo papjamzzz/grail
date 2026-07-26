@@ -263,11 +263,11 @@ body {
       </div>
       <div class="faqrow">
         <div class="faqicon"><span class="disc" style="background:#7CFC00;box-shadow:0 0 10px #7CFC00"></span></div>
-        <div class="faqtext"><b style="color:#7CFC00">A green HR with a ● LIVE tag is a real measurement</b> — your current heart rate from Apple Health, with how long ago it was taken. Everything else on this ring — HRV, sleep stages, stress, caffeine — is a <b>modelled generic day</b>, not your data. Scrub away from now and the readout says <b>MODELLED — not measured</b>.</div>
+        <div class="faqtext"><b style="color:#7CFC00">One rule, everywhere on this ring: green means real.</b> A green reading is an actual Apple Health value, tagged <b>LIVE</b> (under 10 minutes old) or <b>RECORDED</b> (older, still real — it holds until a newer one replaces it, no cutoff). White is <b>modelled</b> — a generic-day estimate shown only where no real reading exists yet. Every metric is judged on its own: HR can be real while HRV is still modelled, or the other way around.</div>
       </div>
       <div class="faqrow">
         <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M2 8 L14 6 L26 8 L38 4" fill="none" stroke="#7CFC00" stroke-width="2"/><circle cx="2" cy="8" r="2" fill="#7CFC00"/><circle cx="14" cy="6" r="2" fill="#7CFC00"/><circle cx="26" cy="8" r="2" fill="#7CFC00"/><circle cx="38" cy="4" r="2" fill="#7CFC00"/></svg></div>
-        <div class="faqtext"><b style="color:#7CFC00">The green dots on the HR band are your actual synced readings</b> from the last 24 hours — one per sync, not a smooth curve. Dots connect with a line when synced closely together; a gap wider than 10 hours means a sync was missed, and stays a real, honest gap rather than a guessed line.</div>
+        <div class="faqtext"><b style="color:#7CFC00">Green dots on the HR and HRV bands are your actual synced readings</b> from the last 24 hours — one per sync, not a smooth curve; more frequent syncs make a denser, smoother trail. Dots connect with a line when synced within 10 hours of each other; a wider gap means a sync was missed, and stays a real, honest gap rather than a guessed line.</div>
       </div>
       <div class="faqrow">
         <div class="faqicon"><svg viewBox="0 0 40 12"><path d="M4 6 Q 20 -2 36 6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M31 2 l5 4 -6 2" fill="#fff"/></svg></div>
@@ -507,38 +507,72 @@ function nowT(){
   return d.getHours() + d.getMinutes()/60 + d.getSeconds()/3600;
 }
 
-/* ── live data ──────────────────────────────────────────────────────────────
-   Every curve on this ring (hrAt, hrvAt, stressAt, …) is a MODELLED generic day,
-   not measurement. The one thing that can be real is the present moment: an
-   iPhone Shortcut posts current Apple Health values to /ingest a few times a day.
-   So we poll /api/data and, only when the cursor is sitting at ~now and the
-   reading is actually fresh, show that real number and say so. Everywhere else
-   the readout is explicitly marked as modelled. Never let a modelled value read
-   as if it were measured.                                                     */
-const LIVE = { hr: null, ageSec: null, stale: true };
-const LIVE_CURSOR_TOLERANCE_H = 1 / 6;   // cursor within 10 min of now counts as "now"
+/* ── real data, any metric ────────────────────────────────────────────────
+   Every curve drawn on this ring by default (hrAt, hrvAt, stressAt, …) is a
+   MODELLED generic day, not measurement — the fallback for when nothing real
+   exists yet. Real data comes from /api/data/history: an iPhone Shortcut posts
+   current Apple Health values to /ingest, each accepted post becomes one row,
+   and any field the row carries (heart_rate, hrv, whatever gets added later)
+   is real for that instant and stays real — the last real value for a metric
+   holds until a newer one replaces it. There is no "only within 10 minutes of
+   now" cutoff: a reading from 3 hours ago is still real, just older, and is
+   labelled by its actual age rather than pretending to be "live". A metric
+   only falls back to the modelled curve when we have genuinely never received
+   a real value applicable at the point in time being viewed.
+   One rule, everywhere on this ring: GREEN = real. Everything else = modelled.
 
-async function pollLive(){
+   Storage is per-metric: REAL_BY_METRIC.heart_rate, .hrv, etc. -- built fresh
+   from whatever fields each history row actually contains, so adding a new
+   metric to the Shortcut needs zero changes here. Age/clock-position are
+   recomputed from each reading's raw epoch timestamp at render time (not
+   cached at poll time), so they don't drift stale between polls.        */
+const REAL_CONNECT_MAX_HOURS = 10;   // matches Grail's own MAX_FRESH_SECONDS -- "connected" and "fresh" mean the same thing everywhere
+const LIVE_TAG_MAX_SECONDS = 600;    // under 10 min: labelled "LIVE"; older-but-real: labelled "RECORDED"
+let REAL_BY_METRIC = {};             // { heart_rate: [{epochMs, value}], hrv: [...], ... }, unsorted
+
+async function pollHistory(){
   try {
-    const r = await fetch('/api/data', { cache: 'no-store' });
+    const r = await fetch('/api/data/history?hours=24', { cache: 'no-store' });
     if (!r.ok) throw new Error(r.status);
     const d = await r.json();
-    const hr = parseFloat(d.heart_rate);
-    LIVE.hr     = Number.isFinite(hr) ? hr : null;
-    LIVE.ageSec = (typeof d.age_seconds === 'number') ? d.age_seconds : null;
-    LIVE.stale  = (d.stale !== false);
+    if (!d.ok || !Array.isArray(d.readings)) { REAL_BY_METRIC = {}; return; }
+    const byMetric = {};
+    for (const row of d.readings){
+      const epochMs = new Date(row.ts).getTime();
+      if (!Number.isFinite(epochMs)) continue;
+      for (const k in row){
+        if (k === 'ts') continue;
+        const v = parseFloat(row[k]);
+        if (!Number.isFinite(v)) continue;
+        (byMetric[k] = byMetric[k] || []).push({ epochMs, value: v });
+      }
+    }
+    REAL_BY_METRIC = byMetric;
   } catch (e) {
-    LIVE.hr = null; LIVE.ageSec = null; LIVE.stale = true;   // degrade to modelled
+    REAL_BY_METRIC = {};   // DB hiccup or offline — every metric degrades to modelled, never throws
   }
 }
-pollLive();
-setInterval(pollLive, 30000);
+pollHistory();
 
-/* True only when the cursor is at the present moment AND a genuinely fresh
-   reading exists. Scrub away from now and this goes false — the past is modelled. */
-function liveHRAvailable(t){
-  return LIVE.hr !== null && !LIVE.stale
-      && Math.abs(t - nowT()) <= LIVE_CURSOR_TOLERANCE_H;
+/* The reading for `metric` that was actually true at time-of-day `t` — the
+   most recent one at-or-before that point ("last observation carried
+   forward"). `t` is a fractional hour-of-day (0..24); `nowT()` anchors "now" to
+   the current wall clock so this also works for scrubbing into the past.
+   Returns null if no real reading applies (metric never seen, or every
+   reading we have is AFTER the queried point). */
+function realValueAsOf(metric, t){
+  const points = REAL_BY_METRIC[metric];
+  if (!points || !points.length) return null;
+  const nowMs = Date.now();
+  const queryHoursAgo = ((nowT() - t) % 24 + 24) % 24;
+  let best = null;
+  for (const p of points){
+    const hoursAgo = (nowMs - p.epochMs) / 3600000;
+    if (hoursAgo < -0.05) continue;              // clock skew guard, not from the future
+    if (hoursAgo + 1e-6 < queryHoursAgo) continue; // this reading is AFTER the queried point — can't use it
+    if (!best || hoursAgo < best.hoursAgo) best = { value: p.value, hoursAgo };
+  }
+  return best;   // {value, hoursAgo} or null
 }
 function fmtAge(s){
   if (s === null) return '';
@@ -546,45 +580,6 @@ function fmtAge(s){
   if (s < 5400) return `${Math.round(s/60)}m ago`;
   return `${Math.round(s/3600)}h ago`;
 }
-
-/* ── real 24h history ─────────────────────────────────────────────────────
-   Real synced readings from /api/data/history, plotted as literal points and
-   straight connecting segments -- NOT resampled through hrAt()/ribbon()'s
-   continuous sampler. A gap between two readings wider than
-   REAL_CONNECT_MAX_HOURS means an actual outage (a sync was missed), so it
-   stays visually disconnected rather than interpolated across data we don't
-   have. 10h matches Grail's own /api/data staleness threshold (MAX_FRESH_SECONDS
-   server-side) so "connected" and "fresh" mean the same thing everywhere.
-   Points are placed relative to `nowT()`, not calendar-day boundaries — a
-   reading from yesterday evening still lands at its correct angle on the
-   clock face. Known edge case: in "Today so far" mode, in the first few hours
-   after midnight, a genuinely-real reading from just before midnight can sit
-   past the cursor and read as part of the dimmed "unwritten" arc rather than
-   the written one — a real but narrow display quirk, not fabricated data;
-   it self-corrects as the new day writes forward past it.               */
-const REAL_CONNECT_MAX_HOURS = 10;
-let REAL_HISTORY = [];   // [{ t: hour-of-day 0..24 (now-anchored), hoursAgo, heart_rate }], oldest first
-
-async function pollHistory(){
-  try {
-    const r = await fetch('/api/data/history?hours=24', { cache: 'no-store' });
-    if (!r.ok) throw new Error(r.status);
-    const d = await r.json();
-    if (!d.ok || !Array.isArray(d.readings)) { REAL_HISTORY = []; return; }
-    const now = Date.now(), anchor = nowT();
-    REAL_HISTORY = d.readings
-      .filter(row => typeof row.heart_rate === 'number')
-      .map(row => {
-        const hoursAgo = (now - new Date(row.ts).getTime()) / 3600000;
-        return { t: ((anchor - hoursAgo) % 24 + 24) % 24, hoursAgo, heart_rate: row.heart_rate };
-      })
-      .filter(p => p.hoursAgo >= -0.05 && p.hoursAgo <= 24)   // small forward slack for clock skew
-      .sort((a, b) => b.hoursAgo - a.hoursAgo);                // oldest (largest hoursAgo) first
-  } catch (e) {
-    REAL_HISTORY = [];   // DB hiccup or offline — degrade to modelled-only, never throw
-  }
-}
-pollHistory();
 setInterval(pollHistory, 60000);
 
 /* ── state ── */
@@ -774,30 +769,43 @@ function draw(now, dt){
   }
   const hrR  = t => Rb + 34 + ((hrAt(t)-48)/110) * 30;
   const hrvR = t => Rb - 34 - ((hrvAt(t)-30)/60) * 26;
-  // Same value->radius scale as hrR, but for a real number instead of hrAt(t) —
-  // real readings sit in the same visual band the modelled curve occupies.
-  const hrRadiusForValue = v => Rb + 34 + ((v-48)/110) * 30;
+  // Same value->radius scale as the modelled curves, but fed a real number
+  // instead of hrAt(t)/hrvAt(t) — real readings sit in the same visual band
+  // the modelled curve occupies, so replacing one with the other reads clean.
+  const hrRadiusForValue  = v => Rb + 34 + ((v-48)/110) * 30;
+  const hrvRadiusForValue = v => Rb - 34 - ((v-30)/60) * 26;
 
-  // Real points/segments, drawn distinctly from the modelled ribbon (below),
-  // never through it. Genuine gaps between syncs stay visually disconnected.
-  function plotRealHR(){
-    if (!REAL_HISTORY.length) return;
+  // Real points/segments for ANY metric with history, drawn distinctly from
+  // the modelled ribbon underneath, never resampled through it. A gap wider
+  // than REAL_CONNECT_MAX_HOURS means a sync was actually missed and stays a
+  // visible break rather than a guessed line. One rule everywhere on this
+  // ring: green = real.
+  function plotRealPoints(metric, radiusForValue){
+    const points = REAL_BY_METRIC[metric];
+    if (!points || !points.length) return;
+    const anchor = nowT(), nowMs = Date.now();
+    const plotted = points
+      .map(p => ({ hoursAgo: (nowMs - p.epochMs) / 3600000, value: p.value }))
+      .filter(p => p.hoursAgo >= -0.05 && p.hoursAgo <= 24)
+      .map(p => ({ ...p, t: ((anchor - p.hoursAgo) % 24 + 24) % 24 }))
+      .sort((a, b) => b.hoursAgo - a.hoursAgo);   // oldest (largest hoursAgo) first
+    if (!plotted.length) return;
     cx.save();
     cx.strokeStyle = 'rgba(124,252,0,0.75)';
     cx.lineWidth = 2;
     cx.shadowColor = '#7CFC00'; cx.shadowBlur = 6;
-    for (let i = 1; i < REAL_HISTORY.length; i++){
-      const prev = REAL_HISTORY[i-1], curr = REAL_HISTORY[i];   // prev is older
+    for (let i = 1; i < plotted.length; i++){
+      const prev = plotted[i-1], curr = plotted[i];   // prev is older
       if ((prev.hoursAgo - curr.hoursAgo) > REAL_CONNECT_MAX_HOURS) continue;
-      const a1 = t2a(prev.t), r1 = hrRadiusForValue(prev.heart_rate);
-      const a2 = t2a(curr.t), r2 = hrRadiusForValue(curr.heart_rate);
+      const a1 = t2a(prev.t), r1 = radiusForValue(prev.value);
+      const a2 = t2a(curr.t), r2 = radiusForValue(curr.value);
       cx.beginPath();
       cx.moveTo(OX + Math.cos(a1)*r1, OY + Math.sin(a1)*r1);
       cx.lineTo(OX + Math.cos(a2)*r2, OY + Math.sin(a2)*r2);
       cx.stroke();
     }
-    REAL_HISTORY.forEach(p => {
-      const a = t2a(p.t), r = hrRadiusForValue(p.heart_rate);
+    plotted.forEach(p => {
+      const a = t2a(p.t), r = radiusForValue(p.value);
       const x = OX + Math.cos(a)*r, y = OY + Math.sin(a)*r;
       cx.beginPath(); cx.arc(x, y, 3.2, 0, Math.PI*2);
       cx.fillStyle = '#7CFC00';
@@ -816,7 +824,8 @@ function draw(now, dt){
       ribbon(hrvR, 0, tNow, COL.hrv,    0.45);
       ribbon(hrvR, tNow, 24, COL.hrv,   0.45*YDIM);
     }
-    plotRealHR();
+    plotRealPoints('heart_rate', hrRadiusForValue);
+    plotRealPoints('hrv', hrvRadiusForValue);
   }
 
   /* cursor */
@@ -855,30 +864,38 @@ function draw(now, dt){
   cx.fillText(st.label.toUpperCase(), OX, OY + R*0.12);
 
   cx.font = `700 ${R*0.066}px Inter`;
-  const isLive = liveHRAvailable(cursorT);
-  // Real reading when we have one for right now; otherwise the modelled curve,
-  // and the label says which. HRV is always modelled — Apple computes it on its
-  // own schedule and it is not in the ingest payload.
-  const hrShown = isLive ? LIVE.hr : hrAt(cursorT);
-  // Colour ONLY the HR green when it is live. HRV sits on the same line but is
-  // always modelled, so tinting the whole string would claim it is measured too.
+  // Independently for HR and HRV: a real reading applicable at this point in
+  // time if we have one (held from whenever it arrived, no "only if it's
+  // basically now" cutoff), otherwise the modelled curve — and the label
+  // always says which, per metric, never blending the two.
+  const hrReal  = realValueAsOf('heart_rate', cursorT);
+  const hrvReal = realValueAsOf('hrv', cursorT);
+  const hrShown  = hrReal  ? hrReal.value  : hrAt(cursorT);
+  const hrvShown = hrvReal ? hrvReal.value : hrvAt(cursorT);
   const hrTxt  = `HR ${Math.round(hrShown)}`;
-  const hrvTxt = ` · HRV ${Math.round(hrvAt(cursorT))}`;
+  const hrvTxt = ` · HRV ${Math.round(hrvShown)}`;
   const wHr = cx.measureText(hrTxt).width;
   const xStart = OX - (wHr + cx.measureText(hrvTxt).width) / 2;
   const prevAlign = cx.textAlign;
   cx.textAlign = 'left';
-  cx.fillStyle = isLive ? '#7CFC00' : 'rgba(255,255,255,0.85)';
+  cx.fillStyle = hrReal ? '#7CFC00' : 'rgba(255,255,255,0.85)';
   cx.fillText(hrTxt, xStart, OY + R*0.24);
-  cx.fillStyle = 'rgba(255,255,255,0.85)';
+  cx.fillStyle = hrvReal ? '#7CFC00' : 'rgba(255,255,255,0.85)';
   cx.fillText(hrvTxt, xStart + wHr, OY + R*0.24);
   cx.textAlign = prevAlign;
 
+  // Provenance line: real readings say LIVE (<10min old) or RECORDED (older,
+  // still real, held from whenever it landed) with their actual age; a metric
+  // with no real reading at this point says so plainly.
+  function tag(metric, label, real){
+    if (!real) return `${label} MODELLED`;
+    const ageS = real.hoursAgo * 3600;
+    return `${label} ${ageS < LIVE_TAG_MAX_SECONDS ? 'LIVE' : 'RECORDED'} · ${fmtAge(ageS)}`;
+  }
+  const provenance = `${tag('heart_rate','HR',hrReal)} · ${tag('hrv','HRV',hrvReal)}`;
   cx.font = `700 ${R*0.040}px Inter`;
-  cx.fillStyle = isLive ? 'rgba(124,252,0,0.85)' : 'rgba(255,255,255,0.42)';
-  cx.fillText(isLive ? `● LIVE HR · ${fmtAge(LIVE.ageSec)} · HRV modelled`
-                     : 'MODELLED — not measured',
-              OX, OY + R*0.305);
+  cx.fillStyle = (hrReal || hrvReal) ? 'rgba(124,252,0,0.85)' : 'rgba(255,255,255,0.42)';
+  cx.fillText(provenance, OX, OY + R*0.305);
 
   /* third readout line: stress + active caffeine */
   const sv = stressAt(cursorT);
