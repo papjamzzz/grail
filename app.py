@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory, redirect, make_response, Response
 import json, os, time, requests as req, base64, re, urllib.parse, secrets, io
 import qrcode
+from datetime import datetime
 # routes: / /cells /bodyfigure /console /whoop/* /lumi /sloany
 DEPLOY_VERSION = "2026-05-02-v4"
 
@@ -278,14 +279,33 @@ def ingest():
                 data[f] = float(body[f])
             except (ValueError, TypeError):
                 pass
-    data['last_updated'] = time.strftime('%H:%M')
+    # Full ISO, matching every other writer in this file. A bare '%H:%M' can't
+    # distinguish ten minutes ago from last Tuesday, and index.html slices the
+    # first 10 chars expecting a date.
+    data['last_updated'] = time.strftime('%Y-%m-%dT%H:%M:%S')
     wjson(HEALTH_FILE, data)
     print(f"[AILIV] Ingest: {body}")
     return jsonify({"ok": True, "data": data})
 
+def _data_age_seconds(stamp):
+    """Seconds since `stamp`, or None if it can't be read as a real datetime.
+    Tolerates the legacy bare '%H:%M' values already sitting in health_data.json."""
+    if not stamp:
+        return None
+    try:
+        return max(0.0, (datetime.now() - datetime.strptime(stamp, '%Y-%m-%dT%H:%M:%S')).total_seconds())
+    except (ValueError, TypeError):
+        return None
+
 @app.route('/api/data')
 def api_data():
-    return jsonify(rjson(HEALTH_FILE, DEFAULT_HEALTH.copy()))
+    data = rjson(HEALTH_FILE, DEFAULT_HEALTH.copy())
+    # Freshness is part of the reading: data that is merely "current" is only
+    # meaningful alongside how old it is, so say so rather than implying live.
+    age = _data_age_seconds(data.get('last_updated'))
+    data['age_seconds'] = round(age, 1) if age is not None else None
+    data['stale'] = (age is None) or (age > 3600)
+    return jsonify(data)
 
 # --- Pulse: live Apple Watch BPM stream (iPhone companion -> here) ---
 @app.route('/watch/live', methods=['POST'])
