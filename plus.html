@@ -440,14 +440,11 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
       <div class="months">
         <div class="mhead">
           <span class="micro">This year</span>
-          <span class="d">July 8, 2026</span>
+          <span class="d" id="today">—</span>
         </div>
-        <div class="mstrip">
-          <span><i></i>JAN</span><span><i></i>FEB</span><span><i></i>MAR</span>
-          <span><i></i>APR</span><span><i></i>MAY</span><span><i></i>JUN</span>
-          <span class="on"><i></i>JUL</span><span><i></i>AUG</span><span><i></i>SEP</span>
-          <span><i></i>OCT</span><span><i></i>NOV</span><span><i></i>DEC</span>
-        </div>
+        <!-- built in JS so the date and the highlighted month are always real,
+             and the strip can't drift out of sync with the date beside it -->
+        <div class="mstrip" id="mstrip"></div>
       </div>
 
       <div class="flower">
@@ -934,6 +931,31 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
   });
   const thumb = document.getElementById('thumbArt');
   if (thumb) thumb.innerHTML = art('thumb');
+
+  /* ── today's date + month strip ───────────────────────────────────
+     Both derived from the real clock, never hardcoded. The strip's
+     highlighted month is computed from the same Date object as the
+     label beside it, so they can never disagree. Re-checked on wake so
+     a phone left open overnight rolls over instead of showing
+     yesterday. */
+  const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  function paintDate(){
+    const now = new Date();
+    const el = document.getElementById('today');
+    if (el) el.textContent = now.toLocaleDateString(undefined, {
+      month: 'long', day: 'numeric', year: 'numeric'
+    });
+    const strip = document.getElementById('mstrip');
+    if (strip) {
+      const m = now.getMonth();
+      strip.innerHTML = MONTHS.map((name, i) =>
+        `<span class="${i === m ? 'on' : ''}"><i></i>${name}</span>`).join('');
+    }
+  }
+  paintDate();
+  // cheap rollover guard: re-render when the tab is shown again, and hourly
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) paintDate(); });
+  setInterval(paintDate, 3600000);
 
   /* ── hypnogram ────────────────────────────────────────────────────
      Sample-data sleep stage trace. Four levels, drawn as a stepped
