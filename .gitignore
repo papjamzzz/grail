@@ -7,3 +7,6 @@ venv/
 __pycache__/
 *.pyc
 whoop_token.json
+health_data.json
+symptoms.json
+meals.json
