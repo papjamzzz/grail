@@ -1127,12 +1127,18 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
 
     // the river: one hard-edged, tapering FILLED shape, not a stroked line —
     // that's what makes it read as terrain (a valley cut) instead of a glowing
-    // wire. Wide in the foreground, narrowing to a point at (205,284), which
-    // sits BELOW the farthest range's peak line (peak y≈226, pass floor
-    // y≈300) — the river vanishes into the pass, not above the skyline. No
-    // animation: a river doesn't need to move to read as a river.
-    const RIVER = 'M176 420 C179 378 184 358 190 338 C195 320 199 306 202 294 '
-                + 'L205 284 L208 294 C211 306 217 320 214 338 C220 358 221 378 224 420 Z';
+    // wire. A straight taper didn't read as a river at all, so the centerline
+    // now swings left/right/left as it recedes (a real river meanders) before
+    // narrowing to a point at (205,284) — which sits BELOW the farthest
+    // range's peak line (peak y≈226, pass floor y≈300), so it still vanishes
+    // into the pass rather than floating above the skyline. No animation: a
+    // river doesn't need to move to read as a river.
+    const RIVER = 'M172 420 C168.5 415 147 400 151 390 C155 380 193.5 370 196 360 '
+                + 'C198.5 350 165.8 339.2 166 330 C166.2 320.8 190.5 312.7 197 305 '
+                + 'C203.5 297.3 203.7 287.5 205 284 '
+                + 'C206.3 287.5 214.8 297.3 213 305 C211.2 312.7 190.5 320.8 194 330 '
+                + 'C197.5 339.2 233.2 350 234 360 C234.8 370 200 380 199 390 '
+                + 'C198 400 223.2 415 228 420 Z';
 
     return `
 <svg viewBox="0 0 400 420" preserveAspectRatio="xMidYMax slice" width="100%" height="100%">
