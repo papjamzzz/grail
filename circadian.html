@@ -237,6 +237,59 @@ body {
 }
 @keyframes hintpulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.7);opacity:.4} }
 
+/* ── intro sequence ──────────────────────────────────────────────────
+   The one thing that makes this ring different — green means a real
+   reading — was only ever explained inside the "?" panel, which nobody
+   opens. A first-time viewer saw a pretty circle and no story. Three
+   beats, then it gets out of the way. First visit only; replayable from
+   the FAQ, and forceable with ?intro=1 for demos. */
+.intro {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(4,3,10,0.93);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .45s;
+  cursor: pointer;
+}
+.intro.show { opacity: 1; pointer-events: auto; }
+.introcard { width: min(430px, calc(100vw - 56px)); text-align: center; }
+.ibeat { display: none; }
+.ibeat.on { display: block; animation: ifade .5s ease both; }
+@keyframes ifade { from { opacity:0; transform: translateY(9px) } to { opacity:1; transform:none } }
+.ibeat h2 {
+  font-size: clamp(27px, 5.2vw, 38px); font-weight: 900;
+  letter-spacing: -.04em; line-height: 1.05;
+}
+.ibeat h2 .g { color: #7CFC00; }
+.ibeat p {
+  margin-top: 13px; font-size: 14.5px; line-height: 1.6;
+  color: var(--text2); font-weight: 500;
+}
+.ibeat .swatchrow {
+  margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 18px;
+}
+.ibeat .sw { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--text2); }
+.ibeat .sw i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+.introfoot {
+  margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.idots { display: flex; gap: 7px; }
+.idots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.22); display: block; transition: background .3s, width .3s; }
+.idots i.on { background: #7CFC00; width: 20px; border-radius: 3px; }
+.itap {
+  font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--text3);
+}
+.iskip {
+  position: fixed; top: 20px; right: 22px; z-index: 61;
+  background: none; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--text2); font: inherit;
+  font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+  padding: 8px 15px; cursor: pointer;
+}
+.iskip:hover { color: #FFF; border-color: rgba(255,255,255,.4); }
+
 /* ── tapped-moment detail card ── */
 .moment {
   position: absolute; z-index: 20; width: 234px;
@@ -364,7 +417,40 @@ body {
         <div class="faqtext"><b>Atlas</b> in the top bar jumps to the other view: how your systems relate to each other right now.</div>
       </div>
 
-      <div class="faqfoot">Hover any band on the ring to read it · Tap anywhere to close</div>
+      <div class="faqfoot">
+        Hover any band on the ring to read it ·
+        <span id="replayintro" style="color:#7CFC00;cursor:pointer;border-bottom:1px solid rgba(124,252,0,.45)">Replay intro</span> ·
+        Tap anywhere to close
+      </div>
+    </div>
+  </div>
+
+  <!-- Three-beat intro. Beat 3 deliberately reframes sparse data as "the green
+       is taking over" rather than "there isn't much here" — that is the first
+       question any new viewer asks. -->
+  <div class="intro" id="intro">
+    <button class="iskip" id="iskip">Skip</button>
+    <div class="introcard">
+      <div class="ibeat on" data-beat="0">
+        <h2>Your last 24 hours,<br>as one clock.</h2>
+        <p>Midnight at the top, noon at the bottom. The bright dot is right now — everything behind it is today as you lived it.</p>
+      </div>
+      <div class="ibeat" data-beat="1">
+        <h2><span class="g">Green</span> is real.</h2>
+        <p>Every green mark is an actual reading taken from your body and synced from Apple Health — with the time it was measured.</p>
+        <div class="swatchrow">
+          <span class="sw"><i style="background:#7CFC00;box-shadow:0 0 10px #7CFC00"></i>Measured</span>
+          <span class="sw"><i style="background:rgba(255,255,255,.85)"></i>Typical day</span>
+        </div>
+      </div>
+      <div class="ibeat" data-beat="2">
+        <h2>The rest fills in<br>as you live.</h2>
+        <p>Where no reading exists yet, the ring shows a typical day instead. Every sync replaces a little more of it with you.</p>
+      </div>
+      <div class="introfoot">
+        <div class="idots" id="idots"></div>
+        <span class="itap" id="itap">Tap to continue</span>
+      </div>
     </div>
   </div>
 
@@ -1287,9 +1373,61 @@ const faq = document.getElementById('faq');
 const openFaq = ()=> faq.classList.add('show');
 const closeFaq = ()=> faq.classList.remove('show');
 document.getElementById('helpbtn').addEventListener('click', openFaq);
+document.getElementById('replayintro').addEventListener('click', e => {
+  e.stopPropagation(); closeFaq(); openIntro();
+});
 document.getElementById('faqclose').addEventListener('click', closeFaq);
 faq.addEventListener('click', e => { if (e.target === faq) closeFaq(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFaq(); });
+
+/* ── intro sequence ───────────────────────────────────────────────
+   Manual advance, not timed: in a demo you want to talk over each beat
+   at your own pace rather than race a timer. Shown once per browser;
+   ?intro=1 forces it, and the FAQ has a replay link so it can be shown
+   again without clearing storage. */
+const INTRO_KEY = 'ailiv_ring_intro_seen';
+const introEl  = document.getElementById('intro');
+const beats    = [...introEl.querySelectorAll('.ibeat')];
+const dotsEl   = document.getElementById('idots');
+const tapEl    = document.getElementById('itap');
+let beatIdx = 0;
+
+dotsEl.innerHTML = beats.map(() => '<i></i>').join('');
+const idots = [...dotsEl.children];
+
+function showBeat(i){
+  beats.forEach((b, n) => b.classList.toggle('on', n === i));
+  idots.forEach((d, n) => d.classList.toggle('on', n === i));
+  tapEl.textContent = i === beats.length - 1 ? 'Tap to begin' : 'Tap to continue';
+}
+function openIntro(){
+  beatIdx = 0; showBeat(0);
+  introEl.classList.add('show');
+}
+function closeIntro(){
+  introEl.classList.remove('show');
+  try { localStorage.setItem(INTRO_KEY, '1'); } catch (e) {}
+}
+introEl.addEventListener('click', e => {
+  if (e.target.id === 'iskip') return;          // handled separately
+  if (++beatIdx >= beats.length) closeIntro();
+  else showBeat(beatIdx);
+});
+document.getElementById('iskip').addEventListener('click', e => {
+  e.stopPropagation(); closeIntro();
+});
+document.addEventListener('keydown', e => {
+  if (!introEl.classList.contains('show')) return;
+  if (e.key === 'Escape') closeIntro();
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter'){
+    e.preventDefault();
+    if (++beatIdx >= beats.length) closeIntro(); else showBeat(beatIdx);
+  }
+});
+
+let seenIntro = false;
+try { seenIntro = localStorage.getItem(INTRO_KEY) === '1'; } catch (e) {}
+if (new URLSearchParams(location.search).has('intro') || !seenIntro) openIntro();
 
 /* ── dates + atlas link ── */
 // Shown once, in the top bar. It used to also repeat in a bottom-right footer.
