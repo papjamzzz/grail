@@ -1165,6 +1165,18 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
       <rect width="400" height="420" fill="#fff"/>
       <circle cx="297" cy="88" r="20" fill="#000"/>
     </mask>
+    <!-- fades the river's thin end to nothing as it recedes, so the last
+         stretch dissolves into the mountain colour and the horizon at once
+         instead of ending on a hard point. Leaves the wide foreground
+         untouched — the fade only starts just above its midpoint. -->
+    <linearGradient id="riverFade${v}" gradientUnits="userSpaceOnUse" x1="0" y1="420" x2="0" y2="284">
+      <stop offset="0"   stop-color="#fff"/>
+      <stop offset=".5"  stop-color="#fff"/>
+      <stop offset="1"   stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <mask id="riverMask${v}">
+      <rect x="0" y="0" width="400" height="420" fill="url(#riverFade${v})"/>
+    </mask>
   </defs>
 
   <rect width="400" height="420" fill="url(#sky${v})"/>
@@ -1180,10 +1192,11 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
   <path d="M206 312 L221 326 L213 328 L206 324 L198 329 L191 326Z" fill="${P.snow}" opacity="${night ? .42 : .9}"/>
   <path d="M0 392 L84 358 L156 390 L224 356 L292 392 L360 362 L400 388 L400 420 L0 420Z" fill="${P.m4}"/>
 
-  <!-- river: one hard-edged tapering shape, bright in the foreground, fading into the pass -->
+  <!-- river: one hard-edged tapering shape, bright in the foreground, dissolving into the mountains at its thin end -->
   <path d="${RIVER}" fill="url(#riv${v})"
         stroke="${night ? '#0E0824' : '#39557C'}" stroke-width="1.5"
-        stroke-opacity="${night ? .55 : .3}"/>
+        stroke-opacity="${night ? .55 : .3}"
+        mask="url(#riverMask${v})"/>
 </svg>`;
   }
 
