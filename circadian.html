@@ -573,6 +573,14 @@ function nowT(){
    recomputed from each reading's raw epoch timestamp at render time (not
    cached at poll time), so they don't drift stale between polls.        */
 const REAL_CONNECT_MAX_HOURS = 10;   // matches Grail's own MAX_FRESH_SECONDS -- "connected" and "fresh" mean the same thing everywhere
+/* Metrics Apple only computes a handful of times a day (HRV, resting HR) can
+   never produce a dense trace. At or below this many readings in the window a
+   metric is drawn as a soft continuous ribbon rather than a sparse dotted
+   line, so it reads as finished next to an hourly trail. This changes only
+   the DRAWING: the ribbon follows exactly the same arc through exactly the
+   same readings, and every real reading is still marked. Nothing between
+   readings is invented. */
+const SPARSE_MAX_POINTS = 8;
 const LIVE_TAG_MAX_SECONDS = 600;    // under 10 min: labelled "LIVE"; older-but-real: labelled "RECORDED"
 let REAL_BY_METRIC = {};             // { heart_rate: [{epochMs, value}], hrv: [...], ... }, unsorted
 
@@ -841,6 +849,10 @@ function draw(now, dt){
       .sort((a, b) => b.hoursAgo - a.hoursAgo);   // oldest (largest hoursAgo) first
     if (!plotted.length) return;
 
+    // Density decides the treatment, not the metric name — so a metric that
+    // starts sparse and later gets a denser source switches look on its own.
+    const sparse = plotted.length <= SPARSE_MAX_POINTS;
+
     // Split into runs of readings close enough in time to connect. A gap wider
     // than REAL_CONNECT_MAX_HOURS means a sync was actually missed, so the runs
     // stay separate rather than being bridged by a guessed line.
@@ -882,27 +894,40 @@ function draw(now, dt){
           (i === 1 && s === 0) ? cx.moveTo(x, y) : cx.lineTo(x, y);
         }
       }
-      // Deliberately restrained: at hourly sync the HR trail wraps the whole
-      // dial, so a heavy neon stroke buries the sleep arc, stress band and
-      // everything else underneath. A faint wide underglow plus a thin line
-      // reads as a delicate trace that still clearly says "this is the real one".
-      cx.strokeStyle = 'rgba(124,252,0,0.09)';
-      cx.lineWidth = 5; cx.shadowColor = '#7CFC00'; cx.shadowBlur = 8;
-      cx.stroke();
-      cx.strokeStyle = 'rgba(124,252,0,0.58)';
-      cx.lineWidth = 1.5; cx.shadowBlur = 4;
-      cx.stroke();
+      cx.shadowColor = '#7CFC00';
+      if (sparse){
+        // Ribbon: three passes, widest and faintest first, building a soft
+        // tube. Carries the shape so four readings read as a finished band
+        // rather than four lonely dots beside a 24-point trail.
+        cx.strokeStyle = 'rgba(124,252,0,0.07)'; cx.lineWidth = 11;  cx.shadowBlur = 14; cx.stroke();
+        cx.strokeStyle = 'rgba(124,252,0,0.17)'; cx.lineWidth = 5.5; cx.shadowBlur = 9;  cx.stroke();
+        cx.strokeStyle = 'rgba(124,252,0,0.48)'; cx.lineWidth = 1.4; cx.shadowBlur = 4;  cx.stroke();
+      } else {
+        // Dense trail stays restrained: at hourly sync it wraps the whole dial,
+        // and a heavy stroke buries the sleep arc, stress band and the rest.
+        cx.strokeStyle = 'rgba(124,252,0,0.09)'; cx.lineWidth = 5;   cx.shadowBlur = 8; cx.stroke();
+        cx.strokeStyle = 'rgba(124,252,0,0.58)'; cx.lineWidth = 1.5; cx.shadowBlur = 4; cx.stroke();
+      }
     });
 
-    // readings themselves: a soft halo under a small solid core
+    // The readings themselves. On a ribbon these are understated — the band
+    // already carries the shape, so the nodes only need to mark where an
+    // actual measurement sits. They are never omitted: the whole point is
+    // that you can still see exactly what was measured.
     plotted.forEach(p => {
       const a = t2a(p.t), r = radiusForValue(p.value);
       const x = OX + Math.cos(a) * r, y = OY + Math.sin(a) * r;
-      cx.beginPath(); cx.arc(x, y, 5, 0, Math.PI*2);
-      cx.fillStyle = 'rgba(124,252,0,0.11)'; cx.shadowBlur = 0; cx.fill();
-      cx.beginPath(); cx.arc(x, y, 2.2, 0, Math.PI*2);
-      cx.fillStyle = '#7CFC00';
-      cx.shadowColor = '#7CFC00'; cx.shadowBlur = 5; cx.fill();
+      if (sparse){
+        cx.beginPath(); cx.arc(x, y, 2.6, 0, Math.PI*2);
+        cx.fillStyle = 'rgba(205,255,150,0.9)';
+        cx.shadowColor = '#7CFC00'; cx.shadowBlur = 7; cx.fill();
+      } else {
+        cx.beginPath(); cx.arc(x, y, 5, 0, Math.PI*2);
+        cx.fillStyle = 'rgba(124,252,0,0.11)'; cx.shadowBlur = 0; cx.fill();
+        cx.beginPath(); cx.arc(x, y, 2.2, 0, Math.PI*2);
+        cx.fillStyle = '#7CFC00';
+        cx.shadowColor = '#7CFC00'; cx.shadowBlur = 5; cx.fill();
+      }
     });
     cx.restore();
   }
