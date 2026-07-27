@@ -401,6 +401,49 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
 .bars i { flex: 1; border-radius: 3px 3px 0 0; background: rgba(139,92,246,0.30); display: block; }
 .bars i.hi { background: var(--purple2); }
 
+/* ── opening beat ────────────────────────────────────────────────────
+   Shown alongside the ring in a demo, /plus needs to declare what it is
+   before the first number appears. The ring is real measurements; this is
+   a design prototype on sample data. Without that stated up front, the
+   invented numbers here quietly undercut the credibility of the real ones
+   there. Same three-beat idiom as the ring's intro. */
+.intro {
+  position: absolute; inset: 0; z-index: 60;
+  background: rgba(6,4,15,0.94);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 34px 26px;
+  opacity: 0; pointer-events: none; transition: opacity .45s;
+  cursor: pointer;
+}
+.intro.show { opacity: 1; pointer-events: auto; }
+.introcard { width: 100%; text-align: center; }
+.ibeat { display: none; }
+.ibeat.on { display: block; animation: ifade .5s ease both; }
+@keyframes ifade { from { opacity:0; transform: translateY(9px) } to { opacity:1; transform:none } }
+.ibeat h2 { font-size: clamp(26px, 7.4vw, 34px); font-weight: 900; letter-spacing: -.04em; line-height: 1.06; }
+.ibeat h2 .p { color: var(--purple2); }
+.ibeat h2 .a { color: var(--amber); }
+.ibeat p { margin-top: 13px; font-size: 13.5px; line-height: 1.6; color: var(--txt2); font-weight: 500; }
+.ibeat .pill {
+  display: inline-block; margin-top: 16px;
+  font-size: 9px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--amber); border: 1px solid rgba(251,191,36,.42);
+  border-radius: 999px; padding: 6px 12px;
+}
+.introfoot { margin-top: 28px; display: flex; align-items: center; justify-content: center; gap: 14px; }
+.idots { display: flex; gap: 7px; }
+.idots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.22); display: block; transition: background .3s, width .3s; }
+.idots i.on { background: var(--purple2); width: 20px; border-radius: 3px; }
+.itap { font-size: 9.5px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--txt3); }
+.iskip {
+  position: absolute; top: 18px; right: 18px; z-index: 61;
+  background: none; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--txt2); font: inherit;
+  font-size: 9.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+  padding: 7px 13px; cursor: pointer;
+}
+
 /* progress rail down the right edge */
 .rail {
   position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
@@ -427,6 +470,31 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
   </div>
 
   <div class="rail" id="rail"></div>
+
+  <!-- Opening beats. Beat 2 exists so that showing this next to the ring does
+       not blur the two: the ring is measured, this is a design prototype. -->
+  <div class="intro" id="intro">
+    <button class="iskip" id="iskip">Skip</button>
+    <div class="introcard">
+      <div class="ibeat on" data-beat="0">
+        <h2>Your health,<br>as <span class="p">one story</span>.</h2>
+        <p>Not a wall of charts. A short read that starts with how you slept and ends with what to do tonight.</p>
+      </div>
+      <div class="ibeat" data-beat="1">
+        <h2>This one is<br>a <span class="a">prototype</span>.</h2>
+        <p>Every number here is invented, to show the shape of the product. The Circadian Ring is the one running on real measurements.</p>
+        <span class="pill">Sample data throughout</span>
+      </div>
+      <div class="ibeat" data-beat="2">
+        <h2>Swipe up<br>to move through.</h2>
+        <p>Six screens, one per question — how you slept, why, what it means, and what to change.</p>
+      </div>
+      <div class="introfoot">
+        <div class="idots" id="idots"></div>
+        <span class="itap" id="itap">Tap to continue</span>
+      </div>
+    </div>
+  </div>
 
   <div class="scroller" id="scroller">
 
@@ -932,6 +1000,48 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
   const thumb = document.getElementById('thumbArt');
   if (thumb) thumb.innerHTML = art('thumb');
 
+  /* ── opening beats ────────────────────────────────────────────────
+     Manual advance so you can talk over each one. First visit per browser;
+     ?intro=1 forces it for demos where storage is already set. */
+  const INTRO_KEY = 'hailo_plus_intro_seen';
+  const introEl = document.getElementById('intro');
+  const beats   = [...introEl.querySelectorAll('.ibeat')];
+  const dotsEl  = document.getElementById('idots');
+  const tapEl   = document.getElementById('itap');
+  let beatIdx = 0;
+
+  dotsEl.innerHTML = beats.map(() => '<i></i>').join('');
+  const idots = [...dotsEl.children];
+
+  function showBeat(i){
+    beats.forEach((b, n) => b.classList.toggle('on', n === i));
+    idots.forEach((d, n) => d.classList.toggle('on', n === i));
+    tapEl.textContent = i === beats.length - 1 ? 'Tap to begin' : 'Tap to continue';
+  }
+  function openIntro(){ beatIdx = 0; showBeat(0); introEl.classList.add('show'); }
+  function closeIntro(){
+    introEl.classList.remove('show');
+    try { localStorage.setItem(INTRO_KEY, '1'); } catch (e) {}
+  }
+  introEl.addEventListener('click', e => {
+    if (e.target.id === 'iskip') return;
+    if (++beatIdx >= beats.length) closeIntro(); else showBeat(beatIdx);
+  });
+  document.getElementById('iskip').addEventListener('click', e => {
+    e.stopPropagation(); closeIntro();
+  });
+  window.addEventListener('keydown', e => {
+    if (!introEl.classList.contains('show')) return;
+    if (e.key === 'Escape'){ closeIntro(); return; }
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter'){
+      e.preventDefault();
+      if (++beatIdx >= beats.length) closeIntro(); else showBeat(beatIdx);
+    }
+  });
+  let seenIntro = false;
+  try { seenIntro = localStorage.getItem(INTRO_KEY) === '1'; } catch (e) {}
+  if (new URLSearchParams(location.search).has('intro') || !seenIntro) openIntro();
+
   /* ── today's date + month strip ───────────────────────────────────
      Both derived from the real clock, never hardcoded. The strip's
      highlighted month is computed from the same Date object as the
@@ -1047,8 +1157,10 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
   tabs.forEach(t =>
     t.addEventListener('click', () => goTo(+t.dataset.goto)));
 
-  // Keyboard paging, for demoing on a laptop
+  // Keyboard paging, for demoing on a laptop. Ignored while the opening
+  // beats are up, or an arrow would advance the intro AND page the screens.
   window.addEventListener('keydown', e => {
+    if (introEl.classList.contains('show')) return;
     if (e.key === 'ArrowDown' || e.key === 'PageDown'){ e.preventDefault(); goTo(current() + 1); }
     if (e.key === 'ArrowUp'   || e.key === 'PageUp'  ){ e.preventDefault(); goTo(current() - 1); }
   });
