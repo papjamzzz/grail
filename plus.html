@@ -342,6 +342,9 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
 :root[data-theme="light"] .hex svg { filter: none; }
 :root[data-theme="light"] .hex.center svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
 .hex .hl { font-size: 7px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--txt); opacity: .92; }
+/* dropped in by the HRV/RHR live-data script below, only when a real (non-stale)
+   reading actually replaced the sample number — never present by default */
+.livedot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #34D399; margin-right: 4px; vertical-align: middle; box-shadow: 0 0 4px rgba(52,211,153,.85); }
 .hex .hs { font-size: 7.5px; font-weight: 700; color: var(--txt2); opacity: .95; }
 .hex svg { filter: drop-shadow(0 0 6px rgba(var(--c), calc(var(--glow) * 0.8))); }
 /* light mode: the tint alone is too pale to separate tiles from the page */
@@ -673,7 +676,7 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
         <!-- north-west: hrv -->
         <div class="hex nw" style="--c:34,211,238">
           <svg viewBox="0 0 24 24" fill="none" stroke="rgb(var(--c))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2.5-7 4 14 3-9 2.5 2H22"/></svg>
-          <div class="hv">64</div>
+          <div class="hv" data-metric="hrv">64</div>
           <div class="hl">HRV</div>
           <div class="hs">Balanced</div>
         </div>
@@ -739,11 +742,11 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
       <div class="quad">
         <div class="q">
           <svg viewBox="0 0 24 24" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2.5-7 4 14 3-9 2.5 2H22"/></svg>
-          <div class="v">64</div><div class="k">HRV</div>
+          <div class="v" data-metric="hrv">64</div><div class="k">HRV</div>
         </div>
         <div class="q">
           <svg viewBox="0 0 24 24" fill="none" stroke="#FB7185" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 22l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg>
-          <div class="v">52</div><div class="k">RHR</div>
+          <div class="v" data-metric="resting_hr">52</div><div class="k">RHR</div>
         </div>
         <div class="q">
           <svg viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 L4 14h7l-1 8 9-12h-7z"/></svg>
@@ -816,8 +819,8 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
           <span class="micro" style="color:var(--green)">Within normal</span>
         </div>
         <div class="quad" style="margin-top:10px">
-          <div class="q" style="background:none;border:0;padding:0"><div class="v" style="font-size:15px;color:#FB7185">52<span style="font-size:9px;color:var(--txt3)"> bpm</span></div><div class="k">Low HR</div></div>
-          <div class="q" style="background:none;border:0;padding:0"><div class="v" style="font-size:15px;color:#22D3EE">64<span style="font-size:9px;color:var(--txt3)"> ms</span></div><div class="k">HRV</div></div>
+          <div class="q" style="background:none;border:0;padding:0"><div class="v" style="font-size:15px;color:#FB7185" data-metric="resting_hr">52<span style="font-size:9px;color:var(--txt3)"> bpm</span></div><div class="k">Low HR</div></div>
+          <div class="q" style="background:none;border:0;padding:0"><div class="v" style="font-size:15px;color:#22D3EE" data-metric="hrv">64<span style="font-size:9px;color:var(--txt3)"> ms</span></div><div class="k">HRV</div></div>
           <div class="q" style="background:none;border:0;padding:0"><div class="v" style="font-size:15px;color:#818CF8">97.3<span style="font-size:9px;color:var(--txt3)">%</span></div><div class="k">Blood O₂</div></div>
           <div class="q" style="background:none;border:0;padding:0"><div class="v" style="font-size:15px;color:#34D399">14.2<span style="font-size:9px;color:var(--txt3)"> rpm</span></div><div class="k">Resp.</div></div>
         </div>
@@ -836,8 +839,8 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
 
       <div class="micro sec">Physiology</div>
       <div class="quad">
-        <div class="q"><div class="v" style="font-size:15px;color:#FB7185">52</div><div class="k">Low HR</div><div class="s" style="font-size:7.5px;color:var(--txt3);margin-top:2px">4 below avg</div></div>
-        <div class="q"><div class="v" style="font-size:15px;color:#22D3EE">64</div><div class="k">HRV ms</div><div class="s" style="font-size:7.5px;color:var(--txt3);margin-top:2px">Above avg</div></div>
+        <div class="q"><div class="v" style="font-size:15px;color:#FB7185" data-metric="resting_hr">52</div><div class="k">Low HR</div><div class="s" style="font-size:7.5px;color:var(--txt3);margin-top:2px">4 below avg</div></div>
+        <div class="q"><div class="v" style="font-size:15px;color:#22D3EE" data-metric="hrv">64</div><div class="k">HRV ms</div><div class="s" style="font-size:7.5px;color:var(--txt3);margin-top:2px">Above avg</div></div>
         <div class="q"><div class="v" style="font-size:15px;color:#60A5FA">−0.3</div><div class="k">Skin temp</div><div class="s" style="font-size:7.5px;color:var(--txt3);margin-top:2px">Optimal</div></div>
         <div class="q"><div class="v" style="font-size:15px;color:#34D399">16.2</div><div class="k">Resp rpm</div><div class="s" style="font-size:7.5px;color:var(--txt3);margin-top:2px">Steady</div></div>
       </div>
@@ -1410,6 +1413,45 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
     if (e.key === 'ArrowDown' || e.key === 'PageDown'){ e.preventDefault(); goTo(current() + 1); }
     if (e.key === 'ArrowUp'   || e.key === 'PageUp'  ){ e.preventDefault(); goTo(current() - 1); }
   });
+})();
+
+/* ── real HRV / resting HR ────────────────────────────────────────────
+   Everything else on this page is SAMPLE_DATA (see the chip in the app
+   bar) — this is the one deliberate exception. Pulls from Grail's own
+   /api/data (same pipeline the Circadian Ring uses: Apple Health ->
+   Shortcuts -> /ingest -> here), and only overwrites the sample number
+   if the reading is present AND not stale. A `.livedot` is dropped next
+   to the label so it's visibly distinguishable from the sample numbers
+   around it — never silently pass off a real number as fake or a fake
+   number as real. */
+(function(){
+  function setNum(el, val){
+    for (const n of el.childNodes){
+      if (n.nodeType === Node.TEXT_NODE){ n.data = String(val); return; }
+    }
+    el.textContent = String(val);
+  }
+  function markLive(valueEl){
+    const host = valueEl.parentElement;
+    const label = host && host.querySelector('.k, .hl');
+    if (label && !label.querySelector('.livedot')){
+      const dot = document.createElement('i');
+      dot.className = 'livedot';
+      dot.title = 'Real reading from Apple Health, via Grail';
+      label.prepend(dot);
+    }
+  }
+  function applyMetric(name, value){
+    document.querySelectorAll(`[data-metric="${name}"]`).forEach(el => {
+      setNum(el, value);
+      markLive(el);
+    });
+  }
+  fetch('/api/data').then(r => r.ok ? r.json() : null).then(d => {
+    if (!d || d.stale) return;
+    if (typeof d.hrv === 'number') applyMetric('hrv', Math.round(d.hrv));
+    if (typeof d.resting_hr === 'number') applyMetric('resting_hr', Math.round(d.resting_hr));
+  }).catch(() => {});
 })();
 </script>
 </body>
