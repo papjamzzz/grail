@@ -1125,9 +1125,14 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
       }
     }
 
-    // the river path, shared by every stroke layer so they stay registered
-    const RIVER = 'M188 428 C190 392 158 380 168 352 C177 327 214 320 210 296 '
-                + 'C207 277 186 271 190 254 C193 240 205 233 203 222';
+    // the river: one hard-edged, tapering FILLED shape, not a stroked line —
+    // that's what makes it read as terrain (a valley cut) instead of a glowing
+    // wire. Wide in the foreground, narrowing to a point at (205,284), which
+    // sits BELOW the farthest range's peak line (peak y≈226, pass floor
+    // y≈300) — the river vanishes into the pass, not above the skyline. No
+    // animation: a river doesn't need to move to read as a river.
+    const RIVER = 'M176 420 C179 378 184 358 190 338 C195 320 199 306 202 294 '
+                + 'L205 284 L208 294 C211 306 217 320 214 338 C220 358 221 378 224 420 Z';
 
     return `
 <svg viewBox="0 0 400 420" preserveAspectRatio="xMidYMax slice" width="100%" height="100%">
@@ -1141,18 +1146,15 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
       <stop offset="0"  stop-color="${P.orbGlow}" stop-opacity="${night ? .34 : .55}"/>
       <stop offset="1"  stop-color="${P.orbGlow}" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="riv${v}" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0"   stop-color="${P.riverHi}"/>
-      <stop offset=".45" stop-color="${P.riverHi}" stop-opacity=".9"/>
-      <stop offset="1"   stop-color="${P.riverLo}"/>
+    <linearGradient id="riv${v}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"  stop-color="${P.haze}"/>
+      <stop offset=".45" stop-color="${P.riverLo}"/>
+      <stop offset="1"  stop-color="${P.riverHi}"/>
     </linearGradient>
     <linearGradient id="hazeG${v}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="${P.haze}" stop-opacity="0"/>
       <stop offset="1" stop-color="${P.haze}" stop-opacity="${night ? .55 : .75}"/>
     </linearGradient>
-    <filter id="soft${v}" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="7"/>
-    </filter>
     <mask id="moon${v}">
       <rect width="400" height="420" fill="#fff"/>
       <circle cx="297" cy="88" r="20" fill="#000"/>
@@ -1172,21 +1174,10 @@ h2.big { font-size: 27px; font-weight: 900; letter-spacing: -.03em; line-height:
   <path d="M206 312 L221 326 L213 328 L206 324 L198 329 L191 326Z" fill="${P.snow}" opacity="${night ? .42 : .9}"/>
   <path d="M0 392 L84 358 L156 390 L224 356 L292 392 L360 362 L400 388 L400 420 L0 420Z" fill="${P.m4}"/>
 
-  <!-- river: halo, tapering body, core, travelling shimmer, flecks -->
-  <path d="${RIVER}" stroke="${P.halo}" stroke-width="22" fill="none"
-        stroke-linecap="round" filter="url(#soft${v})" opacity="${night ? .45 : .22}"/>
-  <path d="${RIVER}" stroke="url(#riv${v})" stroke-width="15" fill="none" stroke-linecap="round"
-        pathLength="100" stroke-dasharray="100" stroke-dashoffset="0" opacity=".95"/>
-  <path d="${RIVER}" stroke="url(#riv${v})" stroke-width="7" fill="none" stroke-linecap="round" opacity=".9"/>
-  <path d="${RIVER}" stroke="${night ? P.riverHi : '#FFFFFF'}" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="${night ? .9 : .7}"/>
-  <path d="${RIVER}" stroke="${P.riverHi}" stroke-width="5" fill="none" stroke-linecap="round"
-        pathLength="100" stroke-dasharray="7 93" opacity=".85">
-    <animate attributeName="stroke-dashoffset" values="100;0" dur="7s" repeatCount="indefinite"/>
-  </path>
-  <path d="${RIVER}" stroke="${P.riverHi}" stroke-width="3" fill="none" stroke-linecap="round"
-        pathLength="100" stroke-dasharray="3 97" opacity=".7">
-    <animate attributeName="stroke-dashoffset" values="100;0" dur="11s" begin="2s" repeatCount="indefinite"/>
-  </path>
+  <!-- river: one hard-edged tapering shape, bright in the foreground, fading into the pass -->
+  <path d="${RIVER}" fill="url(#riv${v})"
+        stroke="${night ? '#0E0824' : '#39557C'}" stroke-width="1.5"
+        stroke-opacity="${night ? .55 : .3}"/>
 </svg>`;
   }
 
