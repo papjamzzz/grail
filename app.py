@@ -186,8 +186,25 @@ DOMAIN_MAP = {
 
 # ------- routes -------
 
+# These two dump internal server state (full file listing, request headers
+# including the visitor's real IP) and were being served with zero auth on
+# the live public domain -- anyone who found the path could read them.
+# Kept (not removed) because they're the actual tool used to verify a
+# Railway deploy actually shipped (see CLAUDE.md), just gated now: set
+# DEBUG_KEY in the environment and pass it as ?key=... or X-Debug-Key.
+# Unset DEBUG_KEY (the default) disables both routes entirely.
+DEBUG_KEY = os.environ.get('DEBUG_KEY', '')
+
+def _debug_authorized():
+    if not DEBUG_KEY:
+        return False
+    supplied = request.args.get('key', '') or request.headers.get('X-Debug-Key', '')
+    return secrets.compare_digest(supplied, DEBUG_KEY)
+
 @app.route('/debug-host')
 def debug_host():
+    if not _debug_authorized():
+        return jsonify({'error': 'not found'}), 404
     return jsonify({'host': request.host, 'headers': dict(request.headers)})
 
 @app.route('/')
@@ -379,6 +396,8 @@ Be concise and specific. Reference the user's actual data when relevant. 2-3 sho
 
 @app.route('/debug-files')
 def debug_files():
+    if not _debug_authorized():
+        return jsonify({'error': 'not found'}), 404
     files = os.listdir(BASE)
     return jsonify({'version': DEPLOY_VERSION, 'base': BASE, 'files': sorted(files)})
 
