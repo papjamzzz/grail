@@ -22,6 +22,19 @@ if os.path.exists(_env_path):
 
 app = Flask(__name__)
 
+# Basic response hardening. This app carries real HR/HRV/lab data and had no
+# security headers at all. Kept minimal on purpose -- no Content-Security-Policy,
+# since every page here is a single inline <script> canvas app and a CSP strict
+# enough to matter would need 'unsafe-inline' anyway (no real benefit) and a
+# misconfigured one could silently break a page. Nothing here embeds this app
+# in an iframe (checked), so SAMEORIGIN framing costs nothing.
+@app.after_request
+def _security_headers(resp):
+    resp.headers.setdefault('X-Content-Type-Options', 'nosniff')
+    resp.headers.setdefault('X-Frame-Options', 'SAMEORIGIN')
+    resp.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
+    return resp
+
 # In-memory live feed from the Pulse watchOS app (separate from the /ingest
 # biomarker snapshot model — this is a fast-polling raw BPM stream, not
 # persisted, resets on restart)
