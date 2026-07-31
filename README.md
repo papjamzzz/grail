@@ -1,14 +1,10 @@
-<p align="center">
-  <img src="static/logo.png" width="120" alt="AILIV / Grail logo"/>
-</p>
-
 # AILIV — Luxury Biohacking Dashboard
 
 > **Your biology, visualized.**
 
 A high-resolution health monitoring dashboard featuring 40 live biomarker orbs across 4 orbital rings, AI synthesis across GPT, Claude, and Gemini, and a clinical-grade aesthetic built for serious biohackers.
 
-**Live:** [web-production-f386e.up.railway.app](https://web-production-f386e.up.railway.app)
+**Live:** [ailiv.health](https://ailiv.health)
 
 ---
 
@@ -54,7 +50,11 @@ Python · Flask · Vanilla JS · Railway
 git clone https://github.com/papjamzzz/grail.git
 cd grail
 cp .env.example .env
-# Add OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY
+# Fill in ANTHROPIC_API_KEY (labs import + Ask AILIV) and, if you use
+# WHOOP sync, WHOOP_CLIENT_ID / WHOOP_CLIENT_SECRET / WHOOP_REDIRECT_URI.
+# DATABASE_URL is optional — without it, the 24h Circadian Ring history
+# is disabled but the live snapshot (/api/data) still works.
+pip install -r requirements.txt
 python app.py
 ```
 
