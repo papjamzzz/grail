@@ -55,8 +55,7 @@ body {
 }
 .livedot {
   width: 8px; height: 8px; border-radius: 50%;
-  background: var(--hrv);
-  animation: blink 2.4s ease-in-out infinite;
+  background: #6E6E82;   /* was var(--hrv) + blink: read as a live-feed dot */
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
 .navlink {
@@ -210,7 +209,11 @@ body {
       <span class="livedot"></span>
       <span>Last night</span>
       <span id="topdate">—</span>
-      <span style="opacity:.6">Data from WHOOP</span>
+      <!-- Was "Data from WHOOP" — untrue, this demo has never been connected to a
+           WHOOP account. The day/night here is generated (see the "simulated" comment
+           in the data section below) and the help panel already says so. The badge
+           now agrees with the help panel instead of contradicting it. -->
+      <span style="opacity:.6">Simulated data</span>
       <a class="navlink" id="atlaslink" href="/">Atlas →</a>
       <a class="navlink" id="ringlink" href="/ring">Ring →</a>
       <div class="helpbtn" id="helpbtn" title="How to read this">?</div>
