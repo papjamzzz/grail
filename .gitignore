@@ -10,3 +10,9 @@ whoop_token.json
 health_data.json
 symptoms.json
 meals.json
+
+# HAILO+ / investor material. This repo is PUBLIC. These sit in the working
+# directory for local use and must never be committed by a stray `git add -A`.
+hailo-pitch-deck.pdf
+investors.html
+*-pitch-deck.pdf
