@@ -211,3 +211,105 @@ Apple Health itself only updates most of these periodically — HRV, SpO2,
 respiratory rate and wrist temperature are computed on Apple's own schedule, not
 on demand. Do not present this as real-time. `/api/data` returns `age_seconds`
 and `stale` precisely so the UI can tell the truth about how old a reading is.
+
+
+---
+
+# ADDING SLEEP (2026-09-21)
+
+Sleep is the last big gap: HAILO's Recovery screen and hypnogram are built on it,
+and until it arrives they render `--h --m` over a ghosted chart. Grail's `/ingest`
+already accepts `sleep_hours`, `deep_sleep_min` and `rem_sleep_min` as plain
+numbers — **no server change is needed.** All the work is in the Shortcut.
+
+## Why this is not a Tier-1 copy-paste
+
+The Tier-1 recipe (Find Health Samples → Limit 1 → Value) cannot work here. Apple
+stores sleep as a series of **stage intervals** — dozens of rows per night, each
+with a start, an end and a stage — not one number. There is no single Value to read.
+
+**Do NOT use the `Duration` property.** It serialises unpredictably and may or may
+not be seconds depending on iOS version. Use start and end dates with
+**Get Time Between Dates**, which is explicit about its unit.
+
+## Before you touch anything — the gotchas that already cost two runs
+
+- After the Health permission prompt, **re-check Type / Sort / Order / Limit.** The
+  prompt wipes the action config.
+- **Confirm the blue variable chip is actually in the field** before running. An
+  empty field posts `""` and `/ingest` rejects it.
+- URL is exactly `https://ailiv.health/ingest` — `ailiv` no trailing e, `ingest`
+  with a G, `https` not `http`.
+
+---
+
+## STAGE 1 — total sleep only (do this first)
+
+This alone un-ghosts the big `7h 42m` figure on HAILO's Recovery screen. It is the
+smaller job and the bigger visible win, so it goes first.
+
+1. Open `Grail Sync`.
+2. Add **Find Health Samples**
+   - Type: **Sleep Analysis**
+   - Start Date: **is in the last** → **1 day**  (do NOT set Limit 1 — you want them all)
+3. Add **Filter** (or set the filter inside the Find action if your iOS shows it there)
+   - Keep only samples whose **Value** contains **Asleep**
+   - This drops "In Bed" and "Awake", which would otherwise inflate the total.
+4. Add **Repeat with Each** over the filtered samples. Inside the loop:
+   - **Get Time Between Dates** — from the item's **Start Date** to its **End Date**,
+     unit **Minutes**
+   - **Add** that to a running total (Calculate → Add, or a `Set Variable` accumulator
+     named `sleepMin`)
+5. After the loop: **Calculate** `sleepMin ÷ 60` → rename the result `sleepHours`.
+6. In your existing **Dictionary**, add one key:
+
+   | Key | Value |
+   |-----|-------|
+   | `sleep_hours` | `sleepHours` |
+
+7. Run it. Then check it landed:
+
+   ```bash
+   curl -s https://ailiv.health/api/data | python3 -m json.tool | grep -i sleep
+   ```
+
+   `sleep_hours` should be a number near last night's actual total.
+
+**If your iOS build offers a unit selector on Find Health Samples** (some versions let
+you pick Hours directly), you can skip the loop: set unit **Hours**, then
+**Calculate Statistics → Sum**. Try that first — if the option is there, Stage 1 is
+three actions instead of six.
+
+---
+
+## STAGE 2 — deep and REM (only after Stage 1 posts a sane number)
+
+Same loop, twice more, with a different filter each time. The stage names Apple
+uses are `Asleep Deep`, `Asleep REM` and `Asleep Core`.
+
+- Duplicate the Stage 1 block. Change the filter to **Value is Asleep Deep**.
+  Do NOT divide by 60 — Grail wants minutes. Rename the total `deepMin`.
+- Duplicate again, filter **Value is Asleep REM**, rename `remMin`.
+- Add to the Dictionary:
+
+  | Key | Value |
+  |-----|-------|
+  | `deep_sleep_min` | `deepMin` |
+  | `rem_sleep_min` | `remMin` |
+
+Verify the same way. Sanity check: deep + REM should be **less than** total sleep,
+and deep is usually 60-110 min on a normal night. If deep comes back larger than
+total, the filter is matching "Asleep" as a substring of every stage — make it an
+exact match, not "contains".
+
+---
+
+## Run it every morning
+
+Sleep only changes once a day, and only after you wake. Shortcuts app →
+**Automation** → **New** → **Time of Day** → around **08:00**, run `Grail Sync`,
+and turn **Ask Before Running** OFF or it will silently never fire.
+
+This also fixes the other half of the problem: as of 2026-09-21 the feed had gone
+**25 hours stale** because the Shortcut is manual-run. A daily automation keeps
+every field current, not just sleep.
