@@ -368,3 +368,49 @@ names — in that case build three blocks (Core, Deep, REM) and add them togethe
 
 Sanity check before trusting it: **deep + REM must be less than total**, and total
 should land near the hours you actually slept.
+
+
+---
+
+# STOP — READ THIS BEFORE BUILDING SLEEP IN SHORTCUTS (2026-09-21)
+
+**Do not build sleep stage maths in the Shortcuts app.** It cost an hour and did
+not finish. Use the Apple Health export instead — it took about five minutes and
+produced all three numbers including REM.
+
+Grail already had the parser the whole time: `/api/parse-apple-health` handles
+`AsleepCore`, `AsleepDeep`, `AsleepREM` and writes sleep_hours / deep_sleep_min /
+rem_sleep_min straight into the health file. Nobody checked before starting on the
+Shortcut. Check what already exists first.
+
+## The route that works
+
+1. iPhone **Health app** -> profile picture -> **Export All Health Data** (takes a
+   few minutes; the zip was 108MB and export.xml inside it was 2.3GB)
+2. AirDrop to the Mac, unzip
+3. `grep -a 'HKCategoryTypeIdentifierSleepAnalysis' export.xml > /tmp/sleep_records.xml`
+   — grep first. Parsing 2.3GB of XML directly is pointless when ~15,000 lines match.
+4. `python3 scripts/parse_health_export.py` — prints the last 7 nights
+5. POST the three numbers to `/ingest`
+
+Verified 2026-09-21: 7h 50m total, 37.5 min deep, 141.6 min REM. Landed in
+`/api/data` and rendered in HAILO immediately.
+
+## What the Shortcut attempt taught us anyway
+
+- Stage values are **bare names** — `Core`, `Deep`, `REM`, `Awake`, `In Bed`. There
+  is no "Asleep" prefix, so `Value contains sleep` matches nothing.
+- Use `contains`, not `is`.
+- The export also contains `AsleepUnspecified` (2036 records) — older watchOS, before
+  stage tracking. Any total that ignores it will undercount historic nights.
+- `Calculate Statistics` cannot aggregate health samples at all: "couldn't convert
+  from Text to Number".
+- The daily HR/HRV Shortcut still works and is untouched. Sleep is the only part
+  that moves to the export route.
+
+## Still open
+
+The export is manual, so sleep will go stale until it is re-run. Options, roughly
+in order of effort: re-export weekly; finish the Shortcut loop another day; or find
+out why `Value contains REM` matched nothing on the phone when the export clearly
+holds 1,353 REM records.
