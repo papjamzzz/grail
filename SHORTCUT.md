@@ -313,3 +313,58 @@ and turn **Ask Before Running** OFF or it will silently never fire.
 This also fixes the other half of the problem: as of 2026-09-21 the feed had gone
 **25 hours stale** because the Shortcut is manual-run. A daily automation keeps
 every field current, not just sleep.
+
+
+---
+
+# SLEEP: THE RECIPE THAT ACTUALLY WORKS (proven 2026-09-21)
+
+Returned **41** for deep sleep minutes on the first clean run. Build this block once,
+then duplicate it per stage.
+
+## What does NOT work — do not retry these
+
+- **`Calculate Statistics` directly on the samples.** Fails with *"couldn't convert
+  from Text to Number"*. Sleep samples' Value is text ("Deep", "Core"), not a number,
+  and the action offers no Duration property to aggregate instead.
+- **The `Duration` property.** Not reachable this way, and its units are inconsistent
+  across iOS versions even when it is.
+- **Searching the action list for "Sleep Analysis".** It is not an action. It is a
+  value inside the **Type** field of **Find Health Samples**, and in current iOS it is
+  called just **Sleep**.
+
+## The block — four actions
+
+1. **Find Health Samples**
+   - Type **is** **Sleep**
+   - Start Date **is in the last** **1** **day**
+   - **Value** **contains** **Deep**   ← `contains`, not `is`. Exact stage spelling
+     varies by iOS; `contains` sidesteps having to know it.
+   - Sort by None, **Limit OFF** (you want every sample, not one)
+2. **Repeat with each item in** *Health Samples*
+3. *(inside the loop)* **Get Minutes between** *Repeat Item → **Start Date***
+   **and** *Repeat Item → **End Date***
+   - Both chips must carry a date property. A bare `Repeat Item` is the whole sample
+     object and throws the same Text-to-Number error.
+   - The action is added AFTER `End Repeat` by default — drag it inside the loop.
+4. *(after `End Repeat`)* **Calculate the Sum of** *Repeat Results*
+   - Shortcuts collects each iteration's output into `Repeat Results` automatically.
+     No manual accumulator variable is needed.
+
+Rename the Sum result (long-press → Rename) to `deepMin`.
+
+## Then duplicate it per stage
+
+| Filter value | Rename result | Grail key | Units |
+|---|---|---|---|
+| contains `Deep` | `deepMin` | `deep_sleep_min` | minutes |
+| contains `REM`  | `remMin`  | `rem_sleep_min`  | minutes |
+| total asleep (see below) | `sleepHours` | `sleep_hours` | **hours** — divide the sum by 60 |
+
+**Total sleep:** try **Value contains `sleep`** first. If Apple's strings carry the
+Asleep prefix (AsleepCore / AsleepDeep / AsleepREM) this catches all three stages
+while excluding `Awake` and `In Bed`. If it returns 0, the strings are bare stage
+names — in that case build three blocks (Core, Deep, REM) and add them together.
+
+Sanity check before trusting it: **deep + REM must be less than total**, and total
+should land near the hours you actually slept.
