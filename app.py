@@ -551,6 +551,98 @@ def live_qr():
     buf.seek(0)
     return Response(buf.read(), mimetype='image/png')
 
+# --- ROOK: wearable aggregator webhook (Garmin/Oura/WHOOP/Polar/... via ROOK) ---
+# ROOK POSTs health summaries (data webhook) and connection events
+# (notification webhook) here. Payloads are stored raw, untouched, in their own
+# table -- ROOK's schema isn't mapped onto Grail's biomarkers yet, and keeping
+# the original body means that mapping can be written later against real
+# deliveries instead of guessed now. Same RETENTION_DAYS pruning as readings.
+# Gated like /debug-host: unset ROOK_WEBHOOK_KEY disables every route (404);
+# ROOK is given the URL with ?key=... baked in. This is other people's health
+# data on a public domain, so the read endpoint uses the same key.
+ROOK_WEBHOOK_KEY = os.environ.get('ROOK_WEBHOOK_KEY', '')
+ROOK_KINDS = ('data', 'notification')
+
+def _rook_authorized():
+    if not ROOK_WEBHOOK_KEY:
+        return False
+    supplied = request.args.get('key', '') or request.headers.get('X-Rook-Key', '')
+    return secrets.compare_digest(supplied, ROOK_WEBHOOK_KEY)
+
+def db_init_rook():
+    conn = db_conn()
+    if not conn:
+        return
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS rook_events (
+                        id SERIAL PRIMARY KEY,
+                        ts TIMESTAMPTZ NOT NULL DEFAULT now(),
+                        kind TEXT NOT NULL,
+                        body JSONB NOT NULL
+                    );
+                    CREATE INDEX IF NOT EXISTS rook_events_ts_idx ON rook_events (ts);
+                """)
+        print("[AILIV] rook_events table ready")
+    except Exception as e:
+        print(f"[AILIV] db_init_rook failed: {e}")
+    finally:
+        conn.close()
+
+db_init_rook()
+
+@app.route('/rook/webhook/<kind>', methods=['POST'])
+def rook_webhook(kind):
+    if not _rook_authorized() or kind not in ROOK_KINDS:
+        return jsonify({'error': 'not found'}), 404
+    body = request.get_json(force=True, silent=True)
+    if body is None:
+        return jsonify({"ok": False, "error": "JSON body required"}), 400
+    conn = db_conn()
+    if not conn:
+        # 503, not 200: ROOK retries failed deliveries, so refusing here keeps
+        # the data instead of acknowledging something we never stored.
+        return jsonify({"ok": False, "error": "no database configured"}), 503
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute("INSERT INTO rook_events (kind, body) VALUES (%s, %s)",
+                            [kind, json.dumps(body)])
+                cur.execute(
+                    "DELETE FROM rook_events WHERE ts < now() - (%s || ' days')::interval",
+                    [RETENTION_DAYS],
+                )
+    except Exception as e:
+        print(f"[AILIV] rook_webhook insert failed: {e}")
+        return jsonify({"ok": False, "error": "store failed"}), 503
+    finally:
+        conn.close()
+    print(f"[AILIV] ROOK {kind} event stored")
+    return jsonify({"ok": True}), 200
+
+@app.route('/rook/events')
+def rook_events():
+    if not _rook_authorized():
+        return jsonify({'error': 'not found'}), 404
+    try:
+        limit = max(1, min(int(request.args.get('limit', 20)), 200))
+    except (TypeError, ValueError):
+        limit = 20
+    conn = db_conn()
+    if not conn:
+        return jsonify({"ok": False, "error": "no database configured", "events": []})
+    try:
+        with conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT id, ts, kind, body FROM rook_events ORDER BY ts DESC LIMIT %s", [limit])
+                rows = cur.fetchall()
+    finally:
+        conn.close()
+    events = [{"id": r['id'], "ts": r['ts'].isoformat(), "kind": r['kind'], "body": r['body']} for r in rows]
+    return jsonify({"ok": True, "events": events})
+
 # Symptom log
 @app.route('/log/symptom', methods=['POST'])
 def log_symptom():
