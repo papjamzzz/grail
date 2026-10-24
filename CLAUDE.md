@@ -173,13 +173,8 @@ running manually-uploaded code, not any branch. Also note **`main` is 10+ commit
 ahead of `v2`**; `origin/HEAD` points at `v2`. Verify with `curl` after deploying,
 never assume a git push shipped.
 
-## ROOK Integration (sandbox, added 2026-10-24)
-ROOK = wearable aggregator (Garmin, Oura, Polar, Fitbit, Withings, WHOOP, Dexcom) for non-Apple users.
-- Sandbox free trial: 20 days from 2026-10-24 (ends ~2026-11-13). Paid plans start at $100/mo (Early, 10 active users).
-- Portal: sandbox.portal.tryrook.io. Client credentials: ~/Desktop/ROOK/rook-credentials-sandbox.txt (NOT in repo).
-- Webhook: POST /rook/webhook/<data|notification>?key=ROOK_WEBHOOK_KEY -> raw JSON in Postgres `rook_events` (30-day retention). GET /rook/events?key=... lists recent. Key lives in Railway vars + local .env; full URLs in ~/Desktop/ROOK/webhook-urls.txt.
-- Configured in portal: Data Webhook only (verified: ROOK test delivery stored). Skipped paid add-ons (notification $99, basic auth $249), SDK auth, redirect URL.
-- Not done: X-ROOK-HASH signature check; mapping ROOK payloads onto Grail/HAILO fields; connecting a real non-Apple device.
+## ROOK — moved to LGND (2026-10-24)
+ROOK was briefly wired here (commit a71665e) and then moved to LGND's server, ~/hailo (`rook.py`), where it belongs: per-phone identity, Delete my data and the privacy policy live there. Grail has no ROOK code now. Postgres may still hold a `rook_events` table with 3 test payloads (no real person's data); safe to `DROP TABLE rook_events`.
 - Deploy note: app.py has uncommitted investor/pitch work from another session -- deploy from a clean `git worktree` of HEAD, not the folder, or /pitch goes public.
 
 ## What's Next (ideas queue)
